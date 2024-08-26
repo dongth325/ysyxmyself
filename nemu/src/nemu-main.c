@@ -16,7 +16,8 @@
 #include <common.h>
 
 void process_expressions() {
-    FILE *fp = fopen("./input", "r");
+   FILE *fp = fopen("/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/tools/gen-expr/input", "r");
+
     if (fp == NULL) {
         perror("Failed to open input file");
         return;
