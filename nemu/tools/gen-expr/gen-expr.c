@@ -19,9 +19,9 @@
 #include <assert.h>
 #include <string.h>
 
-// this should be enough
+// 缓冲区大小设置
 static char buf[65536] = {};
-static char code_buf[65536 + 128] = {}; // a little larger than `buf`
+static char code_buf[65536 + 128] = {}; // 比 buf 稍大一些
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
@@ -30,39 +30,82 @@ static char *code_format =
 "  return 0; "
 "}";
 
+// 生成随机数字
+static void gen_num() {
+    int num = rand() % 100;
+    char num_str[12];
+    sprintf(num_str, "%d", num);
+    strcat(buf, num_str);
+}
+
+// 生成随机运算符
+static void gen_rand_op() {
+    int op = rand() % 3; // 只使用 +, *, /
+    if (op == 0) strcat(buf, " + ");
+    else if (op == 1) strcat(buf, " * ");
+    else strcat(buf, " / ");
+}
+
+// 生成随机表达式
 static void gen_rand_expr() {
-  buf[0] = '\0';
+    buf[0] = '\0'; // 清空 buf
+
+    // 生成第一个数字
+    gen_num();
+
+    // 随机生成1到3个操作符的表达式
+    int op_count = rand() % 3 + 1;
+
+    for (int i = 0; i < op_count; i++) {
+        gen_rand_op();
+
+        // 如果是除法，确保除数不为0
+        if (strstr(buf, " / ") != NULL) {
+            int num;
+            do {
+                num = rand() % 100;
+            } while (num == 0);
+            char num_str[12];
+            sprintf(num_str, "%d", num);
+            strcat(buf, num_str);
+        } else {
+            // 生成下一个随机数
+            gen_num();
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
-  int seed = time(0);
-  srand(seed);
-  int loop = 1;
-  if (argc > 1) {
-    sscanf(argv[1], "%d", &loop);
-  }
-  int i;
-  for (i = 0; i < loop; i ++) {
-    gen_rand_expr();
+    int seed = time(0);
+    srand(seed);
+    int loop = 1;
+    if (argc > 1) {
+        sscanf(argv[1], "%d", &loop);
+    }
+    int i;
+    for (i = 0; i < loop; i++) {
+        gen_rand_expr();  // 生成随机表达式
 
-    sprintf(code_buf, code_format, buf);
+        sprintf(code_buf, code_format, buf);
 
-    FILE *fp = fopen("/tmp/.code.c", "w");
-    assert(fp != NULL);
-    fputs(code_buf, fp);
-    fclose(fp);
+        FILE *fp = fopen("/tmp/.code.c", "w");
+        assert(fp != NULL);
+        fputs(code_buf, fp);
+        fclose(fp);
 
-    int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
-    if (ret != 0) continue;
+        int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
+        if (ret != 0) continue;
 
-    fp = popen("/tmp/.expr", "r");
-    assert(fp != NULL);
+        fp = popen("/tmp/.expr", "r");
+        assert(fp != NULL);
 
-    int result;
-    ret = fscanf(fp, "%d", &result);
-    pclose(fp);
+        int result;
+        ret = fscanf(fp, "%d", &result);
+        pclose(fp);
 
-    printf("%u %s\n", result, buf);
-  }
-  return 0;
+        // 输出结果和对应的表达式
+        printf("%u %s\n", result, buf);
+    }
+    return 0;
 }
+
