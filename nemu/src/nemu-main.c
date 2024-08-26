@@ -16,7 +16,7 @@
 #include <common.h>
 
 void process_expressions() {
-    FILE *fp = fopen("input", "r"); // 打开input文件
+    FILE *fp = fopen("./input", "r");
     if (fp == NULL) {
         perror("Failed to open input file");
         return;
