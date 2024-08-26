@@ -22,10 +22,12 @@ void process_expressions() {
         perror("Failed to open input file");
         return;
     }
-
+     int i=1;
     char line[256]; // 假设每行表达式不超过255个字符
     while (fgets(line, sizeof(line), fp)) {
         // 移除换行符（如果有）
+        
+        i++;
         line[strcspn(line, "\n")] = 0;
 
         // 假设每行是 "result expression" 的格式，我们可以打印并处理
@@ -33,11 +35,11 @@ void process_expressions() {
         char expression[256];
         if (sscanf(line, "%d %[^\n]", &result, expression) == 2) {
             // 打印结果和表达式
-            printf("Result: %d, Expression: %s\n", result, expression);
+            printf("Result: %d, Expression: %s\n  nubline:%d", result, expression,i);
 
             // 在这里可以添加对表达式的进一步处理
         } else {
-            printf("Failed to parse line: %s\n", line);
+            printf("Failed to parse line: %s\n  nubline: %d", line,i);
         }
     }
 
