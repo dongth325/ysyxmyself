@@ -14,7 +14,7 @@
 ***************************************************************************************/
 
 #include <common.h>
-
+#include "./monitor/sdb/sdb.h"
 void process_expressions() {
    FILE *fp = fopen("/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/tools/gen-expr/input", "r");
 
@@ -23,6 +23,8 @@ void process_expressions() {
         return;
     }
      int i=1;
+     int jisuan;
+     bool success;
     char line[256]; // 假设每行表达式不超过255个字符
     while (fgets(line, sizeof(line), fp)) {
         // 移除换行符（如果有）
@@ -36,7 +38,10 @@ void process_expressions() {
         if (sscanf(line, "%d %[^\n]", &result, expression) == 2) {
             // 打印结果和表达式
             printf("Result: %d, Expression: %s\n  nubline:%d", result, expression,i);
-
+                  jisuan=expr(expression,&success);
+                  if(success==false) assert(0);
+                  if(jisuan!=result) assert(0);
+                  else{printf("jisuan = %d  result = %d",jisuan,result);}
             // 在这里可以添加对表达式的进一步处理
         } else {
             printf("Failed to parse line: %s\n  nubline: %d", line,i);
