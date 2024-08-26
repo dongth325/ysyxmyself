@@ -19,9 +19,13 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#include <memory/paddr.h>//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+#define MAXOP 10//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 
+//static uint32_t eval(int ,int ) __attribute__((naked));
 enum {
   TK_NOTYPE = 256, TK_EQ,
+   TK_NUMD , TK_NUMH , TK_REG, DEREF ,//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 
   /* TODO: Add more token types */
 
@@ -35,11 +39,20 @@ static struct rule {
   /* TODO: Add more rules.
    * Pay attention to the precedence level of different rules.
    */
-
+//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
+  {"-",'-'},            // sub
+  {"\\*",'*'},          // mul
+  {"/",'/'},            // div
+  {"\\(",'('},          // lp
+  {"\\)",')'},          // rp
+  {"\\$[a-z]{1,2}[0-9]{0,2}",TK_REG}, // reg                                      
+  {"0(x|X)([0-9]|[A-F]|[a-f]){1,}",TK_NUMH},  //number hex       
+  {"[0-9]{1,}",TK_NUMD},   //number dec  
   {"==", TK_EQ},        // equal
-};
+  
+};//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 
 #define NR_REGEX ARRLEN(rules)
 
@@ -64,10 +77,10 @@ void init_regex() {
 
 typedef struct token {
   int type;
-  char str[32];
+  char str[64];//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd   from 32 to 64
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token tokens[1024] __attribute__((used)) = {};//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd  from 32 to 1024
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
@@ -77,49 +90,252 @@ static bool make_token(char *e) {
 
   nr_token = 0;
 
-  while (e[position] != '\0') {
+  while (e[position] != '\0') {     //卡到while里出不来了
+  
+                                            
+
+  
+  
     /* Try all rules one by one. */
     for (i = 0; i < NR_REGEX; i ++) {
+    
+   
+ 
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
+     
+    
 
         Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
             i, rules[i].regex, position, substr_len, substr_len, substr_start);
-
+       
+  
         position += substr_len;
-
+        
+        
+ 
+  
+  
+  
+  
         /* TODO: Now a new token is recognized with rules[i]. Add codes
          * to record the token in the array `tokens'. For certain types
          * of tokens, some extra actions should be performed.
          */
-
+	
+	//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
         switch (rules[i].token_type) {
-          default: TODO();
-        }
-
-        break;
-      }
+	  case '+':case'-':case '/':case '(':case ')': case TK_EQ:
+	    tokens[nr_token++].type = rules[i].token_type;
+	    break;
+	  case TK_NOTYPE:break;
+	  
+	
+	  case TK_NUMD:case TK_NUMH:case TK_REG:
+	    tokens[nr_token++].type = rules[i].token_type;
+	    strncpy(tokens[nr_token-1].str,substr_start,substr_len);
+	    break;         
+	  case '*':
+			if(nr_token > 0&&(
+			tokens[nr_token-1].type == ')'||
+			tokens[nr_token-1].type == TK_NUMD || 
+			tokens[nr_token-1].type == TK_NUMH || 
+			tokens[nr_token-1].type == TK_REG)){
+			tokens[nr_token++].type = rules[i].token_type;}
+			else {tokens[nr_token++].type = DEREF;}
     }
-
+//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
     if (i == NR_REGEX) {
       printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
       return false;
-    }
+                        }
   }
+          }
+  
+  
+
+   
+    }
+    
+    
+    
+    
+    
 
   return true;
+  
+  
+  
+  
+}
+bool check_parentheses2(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+  if(p > q) assert(0);                      //check if kuohao is pairs
+  int lp = 0;
+  for(;p <= q;p++){
+    if(tokens[p].type == '(')
+      lp += 1;
+    else if(tokens[p].type == ')'){
+      if(lp == 0) return false;
+      else lp -= 1;
+    }
+}
+  if(lp != 0) return false;
+  else return true;
+
+
+
+}
+bool check_parentheses(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+                                                   //检查括号是否匹配及最外面是不是有括号
+  if(check_parentheses2(p , q) == false){
+    assert(0);
+    }
+  if((tokens[p].type == '(')&&(tokens[q].type == ')')){
+    p+=1;
+    q-=1;
+    return check_parentheses2(p , q);}
+  return false;
 }
 
+static int find_main_op(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+  int plus[MAXOP] = {-1}, plusptr = 0;//10个元素初始都等于-1
+  int sub[MAXOP] = {-1},subptr = 0;
+  int mul[MAXOP] = {-1}, mulptr = 0;
+  int div[MAXOP] ={-1}, divptr = 0;
+  int equl[MAXOP] ={-1},equlptr =0;
+	int deref1[MAXOP] ={-1},deref1ptr = 0;
+  int lp = 0;
+  int op = 0;
+  for(;p < q;p++){
+    if(tokens[p].type == '(') lp++;
+    if(tokens[p].type == ')') lp--;
+    if(lp != 0) continue;//表示位于括号内部  进行下一次迭代  主符号不可能在括号内 一直跳到括号外
+    switch(tokens[p].type){
+			case DEREF:
+				deref1[deref1ptr++] = p;//先赋值 在括号内++
+				break;
+      case TK_EQ:
+				equl[equlptr++] = p;
+				break;
+      case '+' : 
+        plus[plusptr++] = p;
+				break;
+      case '-' :
+				sub[subptr++] = p;
+				break;
+      case '*' :
+				mul[mulptr++] = p;
+				break;
+      case '/' :
+				div[divptr++] = p;
+				break;
+      default : continue;
+}}
+
+    if(equl[0]!=-1) op = equl[--equlptr];
+    
+    
+    else{
+                                                //按照= +- */的优先级从低到高顺寻依次看 如有相同优先级 则看是不是最右边的
+    if(plus[0] != -1){ op = plus[--plusptr];}
+    
+      if(sub[0] != -1)
+      if(sub[--subptr] > op) op = sub[subptr];//减少 1 之后，用这个减少后的值作为下标
+      
+    if((plus[0] == -1) &&(sub[0] == -1)){//if there is no '+' or '-'
+    
+      if(mul[0] != -1) op = mul[--mulptr];
+      
+      if(div[0] != -1)
+        if(div[--divptr] > op) op = div[divptr];
+        
+			if((mul[0] == -1)&&(div[0] == -1)){//if there is no '*' or '/'
+				if(deref1[0]!=-1) op = deref1[--deref1ptr];
+			                                  }
+    }
+		}
+		
+		
+		
+  return op;
+} 
+
+static uint32_t deref(int addr){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+  uint32_t m;                         
+  uint8_t *raddr = guest_to_host(addr);  
+  m = *raddr++;
+  m += *raddr++*256;
+  m += *raddr++*256*256;
+  m += *raddr*256*256*256;
+  return m;
+}
+
+int check_zero(int val1,int val2){
+	if(val2 == 0){
+	Log("%d/%d < %s\n",val1,val2,ANSI_FMT("divid zero exception", ANSI_FG_RED));
+	assert(0);
+	} 
+	else return val1/val2;
+}
+
+static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+
+  int op;
+  int val1,val2;
+  if(p > q)
+    assert(0);
+  else if(p == q){
+    if(tokens[p].type == TK_REG){
+			int n;
+			bool success = false;
+			n = isa_reg_str2val(tokens[p].str,&success);
+			if(success == true)
+	  		return n;
+			else{
+				printf("%s\n",tokens[p].str);
+				printf("%d",n);
+	  		printf("isa_reg f\n");
+    	                    }
+    	                        }
+    else if(tokens[p].type == DEREF)
+      return 0;
+    return strtol(tokens[p].str,NULL,0);
+                 }    
+  
+  
+  
+  else if(check_parentheses(p,q) == true)   
+    return eval(p + 1, q - 1);
+  else{
+    op = find_main_op(p,q);
+		if(tokens[op].type == DEREF){
+			val1 = eval(op , op);
+			val2 = eval(op + 1,q);}
+    else{
+			val1 = eval(p , op -1);
+    	val2 = eval(op + 1 ,q);}
+    switch(tokens[op].type){
+			case DEREF:return deref(val2);
+      case TK_EQ:return (val1 == val2);
+      case '+':return val1 + val2;
+      case '-':return val1 - val2;
+      case '*':return val1 * val2;
+      case '/':return check_zero(val1,val2);
+      default :assert(0);
+    }
+  }
+}	
 
 word_t expr(char *e, bool *success) {
+  for (int i = 0; i < 1024; ++i){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+    memset(tokens[i].str,0,sizeof(tokens[i].str));
+  }
+  
   if (!make_token(e)) {
     *success = false;
     return 0;
   }
-
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
-
-  return 0;
+  return eval(0,nr_token-1);//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 }
