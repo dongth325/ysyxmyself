@@ -92,7 +92,7 @@ static bool make_token(char *e) {
 
   nr_token = 0;
 
-  while (e[position] != '\0') {     //卡到while里出不来了
+  while (e[position] != '\0') {     
   
                                             
 
@@ -249,17 +249,20 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
       if(sub[0] != -1)
       if(sub[--subptr] > op) op = sub[subptr];//减少 1 之后，用这个减少后的值作为下标
       
-    if((plus[0] == -1) &&(sub[0] == -1)){//if there is no '+' or '-'
+    if((plus[0] == -1) &&(sub[0] == -1)){//if there is no '+' or '-'如果没有加号减号 
+    
+    
+    
     
       if(mul[0] != -1) op = mul[--mulptr];
       
       if(div[0] != -1)
         if(div[--divptr] > op) op = div[divptr];
         
-			if((mul[0] == -1)&&(div[0] == -1)){//if there is no '*' or '/'
+			if((mul[0] == -1)&&(div[0] == -1)){//if there is no '*' or '/'如果没有乘号除号
 				if(deref1[0]!=-1) op = deref1[--deref1ptr];
 			                                  }
-    }
+                                      }
 		}
 		
 		
@@ -285,13 +288,17 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
   int val1,val2;
   if(p > q)
     assert(0);
-  else if(p == q){
+  else if(p == q){                                                            //在 p == q 的情况下，它判断当前 token 的类型：
+
+                                                    //                                   如果是寄存器（TK_REG），则获取并返回寄存器的值。
+                                                                      //如果是解引用（DEREF），则返回 0。
+                                                                        //如果是常量值，则将其字符串表示转换为数值并返回。
     if(tokens[p].type == TK_REG){
 			int n;
 			bool success = false;
 			n = isa_reg_str2val(tokens[p].str,&success);
 			if(success == true)
-	  		return n;
+	  		return n;                               
 			else{
 				printf("%s\n",tokens[p].str);
 				printf("%d",n);
@@ -306,7 +313,7 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
   
   
   else if(check_parentheses(p,q) == true)   
-    return eval(p + 1, q - 1);
+    return eval(p + 1, q - 1);     //在前面find main op函数中无法外面是括号的表达式 会（跳过）
   else{
     op = find_main_op(p,q);
 		if(tokens[op].type == DEREF){
