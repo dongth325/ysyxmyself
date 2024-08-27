@@ -37,11 +37,11 @@ void process_expressions() {
         char expression[256];
         if (sscanf(line, "%d %[^\n]", &result, expression) == 2) {
             // 打印结果和表达式
-            printf("Result: %d, Expression: %s\n  nubline:%d", result, expression,i);
+            printf("Result: %d, Expression: %s\n  nubline:%d\n", result, expression,i);
                   jisuan=expr(expression,&success);
                   if(success==false) assert(0);
                   if(jisuan!=result) assert(0);
-                  else{printf("jisuan = %d  result = %d",jisuan,result);}
+                  else{printf("jisuan = %d  result = %d\n",jisuan,result);}
             // 在这里可以添加对表达式的进一步处理
         } else {
             printf("Failed to parse line: %s\n  nubline: %d", line,i);
