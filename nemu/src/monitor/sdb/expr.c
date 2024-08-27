@@ -86,24 +86,24 @@ static Token tokens[1024] __attribute__((used)) = {};//ddddddddddddddddddddddddd
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
-  int position = 0;                                 //位置指针
+  int position = 0;
   int i;
-  regmatch_t pmatch;                          //pmatch 是一个用于存储正则表达式匹配结果的结构体，包含两个成员 rm_so 和 rm_eo，分别表示匹配到的子串的起始位置和结束位置。
+  regmatch_t pmatch;
 
   nr_token = 0;
 
-  while (e[position] != '\0') {                         //遍历循环每一个元素
+  while (e[position] != '\0') {     //卡到while里出不来了
   
                                             
 
   
   
     /* Try all rules one by one. */
-    for (i = 0; i < NR_REGEX; i ++) {                      //循环遍历每一个规则
+    for (i = 0; i < NR_REGEX; i ++) {
     
    
  
-      if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {   //如果匹配成功且匹配到的子串从当前位置 position 开始（pmatch.rm_so == 0），条件为 true。
+      if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
      
@@ -127,67 +127,35 @@ static bool make_token(char *e) {
          */
 	
 	//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-        switch (rules[i].token_type) {         //i为for循环匹配到的规则索引
-	  case '+':
+        switch (rules[i].token_type) {
+	  case '+':case'-':case '/':case '(':case ')': case TK_EQ:
 	    tokens[nr_token++].type = rules[i].token_type;
 	    break;
-	    
-	   case'-':
-	    tokens[nr_token++].type = rules[i].token_type;
-	    break;
-	    
-	    case '*':
-			if(nr_token > 0&&(tokens[nr_token-1].type == ')'||tokens[nr_token-1].type == TK_NUMD || tokens[nr_token-1].type == TK_NUMH ||tokens[nr_token-1].type == TK_REG)){	
-			tokens[nr_token++].type = rules[i].token_type;}   //如果这个符号的前一个是右括号 十进制数 十六进制数和寄存器,标记为乘号
-			
-			else {tokens[nr_token++].type = DEREF;}  //标记为解引用字符
-	    
-	   case '/':
-	    tokens[nr_token++].type = rules[i].token_type;
-	    break;
-	    
-	   case '(':
-	    tokens[nr_token++].type = rules[i].token_type;
-	    break;
-	    
-	  case ')':
-	    tokens[nr_token++].type = rules[i].token_type;
-	    break;
-	    
-	    case TK_EQ:
-	    tokens[nr_token++].type = rules[i].token_type;
-	    break;
+	  case TK_NOTYPE:break;
 	  
 	
-	  case TK_NUMD:
+	  case TK_NUMD:case TK_NUMH:case TK_REG:
 	    tokens[nr_token++].type = rules[i].token_type;
 	    strncpy(tokens[nr_token-1].str,substr_start,substr_len);
-	    break;      
-	    
-	  case TK_NUMH:
-	    tokens[nr_token++].type = rules[i].token_type;
-	    strncpy(tokens[nr_token-1].str,substr_start,substr_len);
-	    break; 
-	    
-	  case TK_REG:
-	    tokens[nr_token++].type = rules[i].token_type;
-	    strncpy(tokens[nr_token-1].str,substr_start,substr_len);
-	    break; 
-	    
-	  case TK_NOTYPE:
-	  break;
-	       
-	  
+	    break;         
+	  case '*':
+			if(nr_token > 0&&(
+			tokens[nr_token-1].type == ')'||
+			tokens[nr_token-1].type == TK_NUMD || 
+			tokens[nr_token-1].type == TK_NUMH || 
+			tokens[nr_token-1].type == TK_REG)){
+			tokens[nr_token++].type = rules[i].token_type;}
+			else {tokens[nr_token++].type = DEREF;}
     }
 //dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-   
-  }
-          }
-  
-   if (i == NR_REGEX) {
+    if (i == NR_REGEX) {
       printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
       return false;
                         }
+  }
+          }
+  
+  
 
    
     }
@@ -198,9 +166,14 @@ static bool make_token(char *e) {
     
 
   return true;
-    
+  
+  
+  
+  
 }
 
+
+    
 
 bool check_parentheses2(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
   if(p > q) assert(0);                      //check if kuohao is pairs
