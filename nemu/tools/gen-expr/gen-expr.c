@@ -46,6 +46,29 @@ static void gen_rand_op() {
     else strcat(buf, " / ");
 }
 
+// 随机插入空格
+static void insert_random_spaces() {
+    char temp_buf[65536] = {};
+    int len = strlen(buf);
+    int i = 0;
+    int j = 0;
+    
+    while (i < len) {
+        temp_buf[j++] = buf[i]; // 复制当前字符
+        
+        if (buf[i] == ' ' || buf[i] == '+' || buf[i] == '*' || buf[i] == '/') {
+            // 随机决定是否插入额外的空格
+            if (rand() % 2 == 0) {
+                temp_buf[j++] = ' ';
+            }
+        }
+        i++;
+    }
+    
+    temp_buf[j] = '\0'; // 终结字符串
+    strcpy(buf, temp_buf);
+}
+
 // 生成随机表达式
 static void gen_rand_expr() {
     buf[0] = '\0'; // 清空 buf
@@ -73,6 +96,9 @@ static void gen_rand_expr() {
             gen_num();
         }
     }
+
+    // 随机插入空格
+    insert_random_spaces();
 }
 
 int main(int argc, char *argv[]) {
@@ -99,8 +125,8 @@ int main(int argc, char *argv[]) {
         fp = popen("/tmp/.expr", "r");
         assert(fp != NULL);
 
-        int result;
-        ret = fscanf(fp, "%d", &result);
+        unsigned result;
+        ret = fscanf(fp, "%u", &result);
         pclose(fp);
 
         // 输出结果和对应的表达式
