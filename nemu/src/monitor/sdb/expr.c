@@ -26,9 +26,11 @@
 enum {
   TK_NOTYPE = 256, //0
   TK_EQ,     //==
+  TK_NOTEQ,    //!=
    TK_NUMD ,  //10 jin zhi
    TK_NUMH , //16 jin zhi
    TK_REG,    //register
+   TK_LOGAND,   //&&
    
    DEREF ,//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd     jie yin yong
 
@@ -53,9 +55,11 @@ static struct rule {
   {"\\(",'('},          // lp
   {"\\)",')'},          // rp
   {"\\$[a-z]{1,2}[0-9]{0,2}",TK_REG}, // reg                                      
-  {"0(x|X)([0-9]|[A-F]|[a-f]){1,}",TK_NUMH},  //number hex       
-  {"[0-9]{1,}",TK_NUMD},   //number dec  
-  {"==", TK_EQ},        // equal
+  {"0(x|X)([0-9]|[A-F]|[a-f]){1,}",TK_NUMH},  //number hex       16
+  {"[0-9]{1,}",TK_NUMD},   //number dec  10
+  {"==", TK_EQ},        // equal       ===
+  {"!=", TK_NOTEQ},			// !=
+ {"&&", TK_LOGAND},		// &&
   
 };//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 
@@ -133,7 +137,7 @@ static bool make_token(char *e) {
 	
 	//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
         switch (rules[i].token_type) {
-	  case '+':case'-':case '/':case '(':case ')': case TK_EQ:
+	  case '+':case'-':case '/':case '(':case ')': case TK_EQ: case TK_NOTEQ: case TK_LOGAND://0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 	    tokens[nr_token++].type = rules[i].token_type;
 	    break;
 	  case TK_NOTYPE:break;
@@ -211,7 +215,9 @@ bool check_parentheses(int p,int q){//dddddddddddddddddddddddddddddddddddddddddd
 
 static int find_main_op(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
   int plus[MAXOP] = {-1}, plusptr = 0;//10个元素初始都等于-1
-  int sub[MAXOP] = {-1},subptr = 0;
+  int sub[MAXOP] = {-1},subptr = 0;   //00000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  int noequl[MAXOP] = {-1},noequlptr = 0; 
+  int andand[MAXOP] = {-1},andandptr = 0; 
   int mul[MAXOP] = {-1}, mulptr = 0;
   int div[MAXOP] ={-1}, divptr = 0;
   int equl[MAXOP] ={-1},equlptr =0;
@@ -229,6 +235,13 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
       case TK_EQ:
 				equl[equlptr++] = p;
 				break;
+				//000000000000000000000000000000000000000000000000000000000000000000000000
+       case TK_LOGAND:
+				andand[andandptr++] = p;
+				break;
+	case TK_NOTEQ:
+				noequl[noequlptr++] = p;
+				break;
       case '+' : 
         plus[plusptr++] = p;
 				break;
@@ -244,15 +257,21 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
       default : continue;
 }}
 
-    if(equl[0]!=-1) op = equl[--equlptr];
-    
-    
-    else{
-                                                //按照= +- */的优先级从低到高顺寻依次看 如有相同优先级 则看是不是最右边的
+    if(equl[0]!=-1) {op = equl[--equlptr];}
+     //dddddddddd000000000000000000000000000000000000000000000000000000000000000000000000000000
+     
+    if(noequl[0] != -1){
+      if(noequl[--noequlptr] > op) op = noequl[noequlptr];}
+      
+      
+      if((equl[0] == -1) &&(noequl[0] == -1)){
+      
+       if(andand[0]!=-1) {op = andand[--andandptr];}
+          else{                                      //按照= +- */的优先级从低到高顺寻依次看 如有相同优先级 则看是不是最右边的
     if(plus[0] != -1){ op = plus[--plusptr];}
     
-      if(sub[0] != -1)
-      if(sub[--subptr] > op) op = sub[subptr];//减少 1 之后，用这个减少后的值作为下标
+      if(sub[0] != -1){
+      if(sub[--subptr] > op) op = sub[subptr];}//减少 1 之后，用这个减少后的值作为下标
       
     if((plus[0] == -1) &&(sub[0] == -1)){//if there is no '+' or '-'如果没有加号减号 
     
@@ -267,8 +286,8 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
 			if((mul[0] == -1)&&(div[0] == -1)){//if there is no '*' or '/'如果没有乘号除号
 				if(deref1[0]!=-1) op = deref1[--deref1ptr];
 			                                  }
-                                      }
-		}
+                                      }}}
+		
 		
 		
 		
@@ -329,7 +348,9 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
     	val2 = eval(op + 1 ,q);}
     switch(tokens[op].type){
 			case DEREF:return deref(val2);
-      case TK_EQ:return (val1 == val2);
+      case TK_EQ:return (val1 == val2);//返回的时候如果相同就返回1  不同就返回0
+      case TK_NOTEQ:return (val1 != val2);
+      case TK_LOGAND:return (val1 && val2);
       case '+':return val1 + val2;
       case '-':return val1 - val2;
       case '*':return val1 * val2;
