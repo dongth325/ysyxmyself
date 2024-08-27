@@ -61,13 +61,15 @@ static regex_t re[NR_REGEX] = {};
 /* Rules are used for many times.
  * Therefore we compile them only once before any usage.
  */
-void init_regex() {
+void init_regex() {   // 初始化: 这个函数的作用是初始化并编译一组正则表达式，这些正则表达式可能会在后续的代码中用于模式匹配操作。
+                                                       //确保正则表达式有效: 编译阶段可以捕获正则表达式中的语法错误，确保在实际使用时不会因为无效的正则表达式导致程序崩溃。
+                                              //     提高效率: 编译后的正则表达式存储在 re 数组中，以便后续在匹配操作中高效使用。
   int i;
   char error_msg[128];
   int ret;
 
   for (i = 0; i < NR_REGEX; i ++) {
-    ret = regcomp(&re[i], rules[i].regex, REG_EXTENDED);
+    ret = regcomp(&re[i], rules[i].regex, REG_EXTENDED);                          //成功：返回0 
     if (ret != 0) {
       regerror(ret, &re[i], error_msg, 128);
       panic("regex compilation failed: %s\n%s", error_msg, rules[i].regex);
@@ -84,24 +86,24 @@ static Token tokens[1024] __attribute__((used)) = {};//ddddddddddddddddddddddddd
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
-  int position = 0;
+  int position = 0;                                 //位置指针
   int i;
-  regmatch_t pmatch;
+  regmatch_t pmatch;                          //pmatch 是一个用于存储正则表达式匹配结果的结构体，包含两个成员 rm_so 和 rm_eo，分别表示匹配到的子串的起始位置和结束位置。
 
   nr_token = 0;
 
-  while (e[position] != '\0') {     //卡到while里出不来了
+  while (e[position] != '\0') {                         //遍历循环每一个元素
   
                                             
 
   
   
     /* Try all rules one by one. */
-    for (i = 0; i < NR_REGEX; i ++) {
+    for (i = 0; i < NR_REGEX; i ++) {                      //循环遍历每一个规则
     
    
  
-      if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
+      if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {   //如果匹配成功且匹配到的子串从当前位置 position 开始（pmatch.rm_so == 0），条件为 true。
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
      
@@ -125,35 +127,67 @@ static bool make_token(char *e) {
          */
 	
 	//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-        switch (rules[i].token_type) {
-	  case '+':case'-':case '/':case '(':case ')': case TK_EQ:
+        switch (rules[i].token_type) {         //i为for循环匹配到的规则索引
+	  case '+':
 	    tokens[nr_token++].type = rules[i].token_type;
 	    break;
-	  case TK_NOTYPE:break;
+	    
+	   case'-':
+	    tokens[nr_token++].type = rules[i].token_type;
+	    break;
+	    
+	    case '*':
+			if(nr_token > 0&&(tokens[nr_token-1].type == ')'||tokens[nr_token-1].type == TK_NUMD || tokens[nr_token-1].type == TK_NUMH ||tokens[nr_token-1].type == TK_REG)){	
+			tokens[nr_token++].type = rules[i].token_type;}   //如果这个符号的前一个是右括号 十进制数 十六进制数和寄存器,标记为乘号
+			
+			else {tokens[nr_token++].type = DEREF;}  //标记为解引用字符
+	    
+	   case '/':
+	    tokens[nr_token++].type = rules[i].token_type;
+	    break;
+	    
+	   case '(':
+	    tokens[nr_token++].type = rules[i].token_type;
+	    break;
+	    
+	  case ')':
+	    tokens[nr_token++].type = rules[i].token_type;
+	    break;
+	    
+	    case TK_EQ:
+	    tokens[nr_token++].type = rules[i].token_type;
+	    break;
 	  
 	
-	  case TK_NUMD:case TK_NUMH:case TK_REG:
+	  case TK_NUMD:
 	    tokens[nr_token++].type = rules[i].token_type;
 	    strncpy(tokens[nr_token-1].str,substr_start,substr_len);
-	    break;         
-	  case '*':
-			if(nr_token > 0&&(
-			tokens[nr_token-1].type == ')'||
-			tokens[nr_token-1].type == TK_NUMD || 
-			tokens[nr_token-1].type == TK_NUMH || 
-			tokens[nr_token-1].type == TK_REG)){
-			tokens[nr_token++].type = rules[i].token_type;}
-			else {tokens[nr_token++].type = DEREF;}
+	    break;      
+	    
+	  case TK_NUMH:
+	    tokens[nr_token++].type = rules[i].token_type;
+	    strncpy(tokens[nr_token-1].str,substr_start,substr_len);
+	    break; 
+	    
+	  case TK_REG:
+	    tokens[nr_token++].type = rules[i].token_type;
+	    strncpy(tokens[nr_token-1].str,substr_start,substr_len);
+	    break; 
+	    
+	  case TK_NOTYPE:
+	  break;
+	       
+	  
     }
 //dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-    if (i == NR_REGEX) {
-      printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
-      return false;
-                        }
+   
   }
           }
   
-  
+   if (i == NR_REGEX) {
+      printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
+      return false;
+                        }
 
    
     }
@@ -164,23 +198,22 @@ static bool make_token(char *e) {
     
 
   return true;
-  
-  
-  
-  
+    
 }
+
+
 bool check_parentheses2(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
   if(p > q) assert(0);                      //check if kuohao is pairs
-  int lp = 0;
-  for(;p <= q;p++){
+  int mark = 0;
+  for(;p <= q;p++){                    //从左往右开始匹配  遇到左括号就++ 右括号就-- 若没有前提左括号就匹配到右括号的时候就返回错误
     if(tokens[p].type == '(')
-      lp += 1;
+      mark += 1;
     else if(tokens[p].type == ')'){
-      if(lp == 0) return false;
-      else lp -= 1;
+      if(mark == 0) return false;
+      else mark -= 1;
     }
 }
-  if(lp != 0) return false;
+  if(mark != 0) return false;                          //mark=0表名所有括号都匹配
   else return true;
 
 
@@ -189,12 +222,12 @@ bool check_parentheses2(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
 bool check_parentheses(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
                                                    //检查括号是否匹配及最外面是不是有括号
   if(check_parentheses2(p , q) == false){
-    assert(0);
+    assert(0);                                      
     }
   if((tokens[p].type == '(')&&(tokens[q].type == ')')){
     p+=1;
     q-=1;
-    return check_parentheses2(p , q);}
+    return check_parentheses2(p , q);}           //防止（）（）双括号情况出现
   return false;
 }
 
@@ -271,13 +304,7 @@ static uint32_t deref(int addr){//dddddddddddddddddddddddddddddddddddddddddddddd
   return m;
 }
 
-int check_zero(int val1,int val2){
-	if(val2 == 0){
-	Log("%d/%d < %s\n",val1,val2,ANSI_FMT("divid zero exception", ANSI_FG_RED));
-	assert(0);
-	} 
-	else return val1/val2;
-}
+
 
 static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 
@@ -321,8 +348,17 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
       case '+':return val1 + val2;
       case '-':return val1 - val2;
       case '*':return val1 * val2;
-      case '/':return check_zero(val1,val2);
-      default :assert(0);
+      case '/':
+      if(val2==0){
+      Log("%d/%d < %s\n",val1,val2,ANSI_FMT("divid zero exception", ANSI_FG_RED));
+      assert(0);
+      }
+      else {return val1/val2;}
+      
+      
+      default :
+      Log("There are additional operators or symbols that have not yet been implemented in the code");
+      assert(0);
     }
   }
 }	
