@@ -24,8 +24,13 @@
 
 //static uint32_t eval(int ,int ) __attribute__((naked));
 enum {
-  TK_NOTYPE = 256, TK_EQ,
-   TK_NUMD , TK_NUMH , TK_REG, DEREF ,//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+  TK_NOTYPE = 256, //0
+  TK_EQ,     //==
+   TK_NUMD ,  //10 jin zhi
+   TK_NUMH , //16 jin zhi
+   TK_REG,    //register
+   
+   DEREF ,//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd     jie yin yong
 
   /* TODO: Add more token types */
 
