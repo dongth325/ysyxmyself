@@ -108,16 +108,16 @@ static int cmd_q(char *args) {
 }
 
 // CMD_X scan virtual memory
-static int cmd_x(char *args){
-    char* n = strtok(args," ");
-    char* baseaddr = strtok(NULL," ");
+static int cmd_x(char *args){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+    char* n = strtok(args," ");   //函数将 args 字符串按空格分割，提取两个部分                        表示要读取的内存块数量
+    char* baseaddr = strtok(NULL," ");//内存读取的起始地址
     int len = 0;
     paddr_t addr = 0;
-    sscanf(n, "%d", &len);
-    sscanf(baseaddr,"%x", &addr);
+    sscanf(n, "%d", &len);//转换为整数
+    sscanf(baseaddr,"%x", &addr);//转换为十六进制整数
     for(int i = 0 ; i < len ; i ++)
     {
-	printf("%x\n",paddr_read(addr,4));//addr len
+	printf("%x\n",paddr_read(addr,4));//addr len用于从指定的物理地址 addr 读取 4 字节的数据。  十六进制
 	addr = addr + 4;
     }	       
     return 0;
@@ -134,8 +134,8 @@ static int cmd_p(char *args){
     return 0;
   }
   if(val >= 0x80000000)
-    printf("%#x\n",val);
-  else printf("%u\n",val);
+    printf("%#x\n",val);//可能是一个负数
+  else printf("%u\n",val);//无符号十进制
   return 0;
 }
 
@@ -145,9 +145,9 @@ static int cmd_w(char* args){
 }
 
 
-static int cmd_si(char *args){
+static int cmd_si(char *args){//ddddddddddddddddddddddddddddddddddddd
     int step = 0;
-    if(args == NULL)
+    if(args == NULL)//若 没有输入  表示默认执行一条指令。
 	step = 1;
     else
 	sscanf(args,"%d",&step);// 读入 Step
@@ -198,6 +198,9 @@ static int cmd_help(char *args) {
     }
     return 0;
 }
+
+
+
 
 void sdb_set_batch_mode() {
     is_batch_mode = true;
