@@ -99,6 +99,8 @@ static int cmd_d (char *args){
     }
     return 0;
 }
+
+
 // CMD_Q quit the NEMU
 static int cmd_q(char *args) {
     nemu_state.state = NEMU_QUIT;
