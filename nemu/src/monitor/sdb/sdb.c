@@ -49,9 +49,11 @@ void create_watchpoint(char* args){
     strcpy(p -> expr, args);
     bool success = false;
     int tmp = expr(p -> expr,&success);
-   if(success) p -> old_value = tmp;
-   else printf("创建watchpoint的时候expr求值出现问题\n");
-    printf("Create watchpoint No.%d success.\n", p -> NO);
+   if(success) {p -> old_value = tmp;
+   printf("Create watchpoint No.%d success.\n", p -> NO);
+   }
+   else {printf("创建watchpoint的时候expr求值出现问题\n");}
+   // printf("Create watchpoint No.%d success.\n", p -> NO);
 }
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
