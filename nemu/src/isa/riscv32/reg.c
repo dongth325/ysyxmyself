@@ -23,11 +23,25 @@ const char *regs[] = {
     "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
+
+
+
+
 void isa_reg_display() {
-    int length =  sizeof(regs) / sizeof(regs[0]);
-    for(int i = 0  ; i < length ; i ++)
-	printf("reg$%s ---> %d\n",regs[i], cpu.gpr[i]);
+    int length =  sizeof(regs) / sizeof(regs[0]);   //获取寄存器组长度 
+    for(int i = 0  ; i < length ; i ++)   
+    
+    
+    
+              
+printf("reg$%s ---> %d\n",regs[i], cpu.gpr[i]);//获取寄存器组长度  遍历寄存器 输出寄存器值
 }
+
+
+
+
+
+
 
 word_t isa_reg_str2val(const char *s, bool *success) {
     for(int i = 0 ; i < 32 ; i ++){
