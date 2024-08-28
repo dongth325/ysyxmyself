@@ -47,7 +47,7 @@ void delete_watchpoint(int no){
 void create_watchpoint(char* args){
     WP* p =  new_wp();
     strcpy(p -> expr, args);
-    bool success = false;
+    bool success;//= false;
     int tmp = expr(p -> expr,&success);
    if(success) {p -> old_value = tmp;
    printf("Create watchpoint No.%d success.\n", p -> NO);
