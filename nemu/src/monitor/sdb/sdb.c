@@ -26,9 +26,9 @@ static int is_batch_mode = false;
 void init_regex();//ddddddddddddddddddddddddddddddd
 void init_wp_pool();//dddddddddddddddddddddddd
 
-void sdb_watchpoint_display(){
+void sdb_watchpoint_display(){//ddddddddddddddddddddddddddd遍历监视点池 如果wp_pool.flag=1（表名存在 ）打印信息 
     bool flag = true;
-    for(int i = 0 ; i < NR_WP ; i ++){
+    for(int i = 0 ; i < NR_WP ; i ++){        
 if(wp_pool[i].flag){
 printf("Watchpoint.No: %d, expr = \"%s\", old_value = %d, new_value = %d\n", 
 		    wp_pool[i].NO, wp_pool[i].expr,wp_pool[i].old_value, wp_pool[i].new_value);
@@ -37,37 +37,39 @@ printf("Watchpoint.No: %d, expr = \"%s\", old_value = %d, new_value = %d\n",
     }
     if(flag) printf("No watchpoint now.\n");
 }
-void delete_watchpoint(int no){
-    for(int i = 0 ; i < NR_WP ; i ++)
+void delete_watchpoint(int no){//dddddddddddddddddddddddddd遍历监视点池子 遇到想要删除的监视点序号 调用free
+    for(int i = 0 ; i < NR_WP ; i ++)    
 	if(wp_pool[i].NO == no){
 	    free_wp(&wp_pool[i]);
 	    return ;
 	}
 }
+
 void create_watchpoint(char* args){
     WP* p =  new_wp();
     strcpy(p -> expr, args);
     bool success = false;
-    int tmp = expr(p -> expr,&success);
+    int tmp = expr(p -> expr,&success);//ddddddddddddddddddddddddd先调用new生成新的监视点 计算表达式的值存入tmp里
    if(success) {p -> old_value = tmp;
-   printf("Create watchpoint No.%d success.\n", p -> NO);
+   printf("Create watchpoint No.%d success.\n", p -> NO);//dddddddddddddddddddddd如果计算成功 打印输出信息
    }
    else {printf("创建watchpoint的时候expr求值出现问题\n");}
-   // printf("Create watchpoint No.%d success.\n", p -> NO);
+ 
 }
 
-/* We use the `readline' library to provide more flexibility to read from stdin. */
-static char* rl_gets() {
+
+static char* rl_gets() {//框架代码
     static char *line_read = NULL;
 
-    if (line_read) {
-	free(line_read);
+    if (line_read) {     //是否已经指向了某个内存位置
+	free(line_read);// 释放内存
 	line_read = NULL;
     }
 
-    line_read = readline("(nemu) ");
+    line_read = readline("(nemu) ");//用于从标准输入读取一行文本。它会显示一个提示符（在这里是 "(nemu) "），然后等待用户输入
 
-    if (line_read && *line_read) {
+    if (line_read && *line_read) { //这个条件判断检查 line_read 是否为非 NULL，并且输入的第一字符是否为非空字符（即用户输入了某些内容，而不仅仅是按下回车）。
+                                                                           //如果条件为真，add_history(line_read) 会将该行输入添加到 Readline 的历史记录中。这样，用户可以使用箭头键来回滚查看之前输入的命令。
 	add_history(line_read);
     }
 
