@@ -103,7 +103,7 @@ static int cmd_d (char *args){
 
 // CMD_Q quit the NEMU
 static int cmd_q(char *args) {
-    //nemu_state.state = NEMU_QUIT;//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+    nemu_state.state = NEMU_QUIT;//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
     return -1;
 }
 
