@@ -336,8 +336,8 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
 
   int op;
   int val1,val2;
-  if(p > q)
-    assert(0);
+  if(p > q){
+    assert(0);}
   else if(p == q){                                                            //在 p == q 的情况下，它判断当前 token 的类型：
 
                                                     //                                   如果是寄存器（TK_REG），则获取并返回寄存器的值。
