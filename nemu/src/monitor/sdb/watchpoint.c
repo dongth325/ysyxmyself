@@ -15,63 +15,17 @@
 #include "sdb.h"
 
 #define NR_WP 32
-#include "watchpoint.h"//ddddddddddddddddddddddddddddddddddddd
+#include "watchpoint.h"
 
-/*typedef struct watchpoint {/////////////////////////zhu shi diaodddddddddddddddddddddddddddddddddddddddddd
-  int NO;
-  struct watchpoint *next;
-
- 
-
-} WP;
-
-static WP wp_pool[NR_WP] = {};
-static WP *head = NULL, *free_ = NULL;
-*///////////////////////////////zhu shi diao dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-WP wp_pool[NR_WP] = {};//ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-void init_wp_pool() {//框架代码      函数的目的是初始化监视点池，将所有监视点初始化并链接起来，形成一个链表
-  int i;
-  for (i = 0; i < NR_WP; i ++) {
-    wp_pool[i].NO = i;
-    wp_pool[i].next = (i == NR_WP - 1 ? NULL : &wp_pool[i + 1]);
-  }
-
-  head = NULL;//表示当前没有正在使用的监视点。
-  free_ = wp_pool;//11111111111111111111111111111111
-}
-
-/* TODO: Implement the functionality of watchpoint */
-
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////hou mian de dou shi dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-/*
- * head 在这里并没有使用，直接使用 WP 结构体中的flag标志来进行区分不同的状态
- * */
-
-/* TODO: Implement the functionality of watchpoint */
 WP* new_wp(){
-    for(WP* p = free_ ; p -> next != NULL ; p = p -> next){//free是监视点池的头节点
+    for(WP* p = free_ ; p -> next != NULL ; p = p -> next){
 //	printf("P address = %p\n",p);
 	if( p -> flag == false){
 	    p -> flag = true;
 	    if(head == NULL){    
 		head = p;
 	    }
-	    /*
-	    else{
-		WP* q = head;
-		while(q -> next -> flag == true)
-		{
-		    printf("1.\n");
-		    q = q -> next;
-		}
-		q -> next = p;
-	    }
-	    */
+	    
 	    return p;
 	}
     }
@@ -90,7 +44,7 @@ void free_wp(WP *wp){
 	return ;
     }
     for(WP* p = head ; p -> next != NULL ; p = p -> next){
-//	printf("wp -> no = %d , head -> no = %d, p -> no = %d.\n", wp -> NO, p-> NO, head -> NO);
+
 	if(p -> next -> NO  == wp -> NO)
 	{
 	    p -> next = p -> next -> next;
