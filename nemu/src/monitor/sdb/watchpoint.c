@@ -30,14 +30,6 @@ void init_wp_pool() {//是初始化监视点池，将所有监视点初始化并
   free_ = wp_pool;
 }
 
-
-
-
-
-
-
-
-
 WP* new_wp(){
     for(WP* p = free_ ; p -> next != NULL ; p = p -> next){
 	if( p -> flag == false){
@@ -54,8 +46,6 @@ WP* new_wp(){
     return NULL;
 
 }
-
-
 void free_wp(WP *wp){
     if(head -> NO == wp -> NO){
     	head -> flag = false;
