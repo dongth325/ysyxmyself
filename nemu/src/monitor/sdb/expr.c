@@ -236,20 +236,27 @@ bool check_parentheses(int p,int q){//dddddddddddddddddddddddddddddddddddddddddd
 
 static int find_main_op(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
   int plus[20] = {-1}, plusptr = 0;//10个元素初始都等于-1
+  
   int sub[20] = {-1},subptr = 0;   //00000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  
   int noequl[20] = {-1},noequlptr = 0; 
+  
   int andand[20] = {-1},andandptr = 0; 
+  
   int mul[20] = {-1}, mulptr = 0;
+  
   int div[20] ={-1}, divptr = 0;
+  
   int equl[20] ={-1},equlptr =0;
+  
 	int deref1[20] ={-1},deref1ptr = 0;
 	//int negasign[MAXOP]={-1},negasignptr = 0;
-  int lp = 0;
-  int op = 0;
+           int mmark = 0;
+           int op = 0;
   for(;p < q;p++){
-    if(tokens[p].type == '(') lp++;
-    if(tokens[p].type == ')') lp--;
-    if(lp != 0) continue;//表示位于括号内部  进行下一次迭代  主符号不可能在括号内 一直跳到括号外
+    if(tokens[p].type == '(') mmark++;
+    if(tokens[p].type == ')') mmark--;
+    if(mmark != 0) continue;//表示位于括号内部  进行下一次迭代  主符号不可能在括号内 一直跳到括号外
     switch(tokens[p].type){
 			case DEREF:
 				deref1[deref1ptr++] = p;//先赋值 在括号内++
