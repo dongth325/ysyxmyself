@@ -326,15 +326,15 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
   return op;
 } 
 
-static uint32_t deref(int addr){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-  uint32_t m;                         
-  uint8_t *raddr = guest_to_host(addr);  
-  m = *raddr++;
-  m += *raddr++*256;
-  m += *raddr++*256*256;
-  m += *raddr*256*256*256;
-  return m;
-}
+//static uint32_t deref(int addr){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+ // uint32_t m;                         
+ // uint8_t *raddr = guest_to_host(addr);  
+  //m = *raddr++;
+ // m += *raddr++*256;
+  //m += *raddr++*256*256;
+ // m += *raddr*256*256*256;
+ // return m;
+//}
 
 
 
@@ -404,7 +404,7 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
     	
     	
     switch(tokens[op].type){
-      case DEREF:return deref(val2);
+     // case DEREF:return deref(val2);
      // case TK_NEGASIGN:return -val2;
       case TK_EQ:return (val1 == val2);//返回的时候如果相同就返回1  不同就返回0
       case TK_NOTEQ:return (val1 != val2);
