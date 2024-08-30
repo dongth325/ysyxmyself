@@ -20,7 +20,6 @@
  */
 #include <regex.h>
 #include <memory/paddr.h>//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-#define MAXOP 10//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 
 //static uint32_t eval(int ,int ) __attribute__((naked));
 enum {
