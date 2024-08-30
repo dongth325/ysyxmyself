@@ -24,15 +24,16 @@
 
 //static uint32_t eval(int ,int ) __attribute__((naked));
 enum {
-  TK_NOTYPE = 256, //0
+  TK_NOTYPE = 256, //   
   TK_EQ,     //==
   TK_NOTEQ,    //!=
-   TK_NUMD ,  //10 jin zhi
-   TK_NUMH , //16 jin zhi
+   TK_NUMD ,  //10 
+   TK_NUMH , //16 
    TK_REG,    //register
    TK_LOGAND,   //&&
+   //TK_NEGASIGN,HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
    
-   DEREF ,//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd     jie yin yong
+   DEREF ,//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd     
 
   /* TODO: Add more token types */
 
@@ -137,7 +138,7 @@ static bool make_token(char *e) {
 	
 	//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
         switch (rules[i].token_type) {
-	  case '+':case'-':case '/':case '(':case ')': case TK_EQ: case TK_NOTEQ: case TK_LOGAND://0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+	  case '+':case '/':case '(':case ')': case TK_EQ: case TK_NOTEQ: case TK_LOGAND://0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 	    tokens[nr_token++].type = rules[i].token_type;
 	    break;
 	  case TK_NOTYPE:break;
@@ -155,6 +156,27 @@ static bool make_token(char *e) {
 			tokens[nr_token-1].type == TK_REG)){
 			tokens[nr_token++].type = rules[i].token_type;}
 			else {tokens[nr_token++].type = DEREF;}
+			
+			
+		case '-':  
+		//if(nr_token==0){tokens[nr_token-1].type == NEGASIGN;}
+		//else if(tokens[nr_token-1].type == '('
+		//tokens[nr_token-1].type == '+'
+		//tokens[nr_token-1].type == '-'
+		//tokens[nr_token-1].type == '*'
+		//tokens[nr_token-1].type == '/'
+		//tokens[nr_token-1].type == 'TK_EQ'
+		//tokens[nr_token-1].type == 'TK_NOTEQ'
+		//tokens[nr_token-1].type == 'TK_LOGAND'
+		//tokens[nr_token-1].type == 'TK_NEGASIGN'){tokens[nr_token++].type == TK_NEGASIGN;}
+		//else{
+		tokens[nr_token++].type = rules[i].token_type;
+		//}
+		//}
+			  
+			  
+			  
+			  
     }
 //dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
     if (i == NR_REGEX) {
@@ -222,6 +244,7 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
   int div[MAXOP] ={-1}, divptr = 0;
   int equl[MAXOP] ={-1},equlptr =0;
 	int deref1[MAXOP] ={-1},deref1ptr = 0;
+	//int negasign[MAXOP]={-1},negasignptr = 0;
   int lp = 0;
   int op = 0;
   for(;p < q;p++){
@@ -232,6 +255,8 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
 			case DEREF:
 				deref1[deref1ptr++] = p;//先赋值 在括号内++
 				break;
+			//case TK_NEGASIGN:
+			      //  negasign[negasignptr++] = p;	
       case TK_EQ:
 				equl[equlptr++] = p;
 				break;
@@ -284,7 +309,8 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
         if(div[--divptr] > op) op = div[divptr];
         
 			if((mul[0] == -1)&&(div[0] == -1)){//if there is no '*' or '/'如果没有乘号除号
-				if(deref1[0]!=-1) op = deref1[--deref1ptr];
+				if(deref1[0]!=-1) {op = deref1[--deref1ptr];}
+				//else if(negasign[0]! = -1){op =negasign[--negasignptr]; }
 			                                  }
                                       }}}
 		
@@ -340,14 +366,40 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
     return eval(p + 1, q - 1);     //在前面find main op函数中无法外面是括号的表达式 会（跳过）
   else{
     op = find_main_op(p,q);
+    
 		if(tokens[op].type == DEREF){
 			val1 = eval(op , op);
 			val2 = eval(op + 1,q);}
+			
+			
+			//if(tokens[op].type == NEGASIGN){
+			//if(tokens[op-1].type == NEGASIGN){
+			//val1 = eval(op , op);
+			//val2 = eval(op + 1,q);
+			//return val2;
+			//}
+			//else{
+			//val2 = eval(op + 1,q);
+			//return -val2;
+			//}
+			//}
+			
+			
+			
+			
+			
+			
     else{
 			val1 = eval(p , op -1);
     	val2 = eval(op + 1 ,q);}
+    	
+    	
+    	
+    	
+    	
     switch(tokens[op].type){
-			case DEREF:return deref(val2);
+      case DEREF:return deref(val2);
+     // case TK_NEGASIGN:return -val2;
       case TK_EQ:return (val1 == val2);//返回的时候如果相同就返回1  不同就返回0
       case TK_NOTEQ:return (val1 != val2);
       case TK_LOGAND:return (val1 && val2);
