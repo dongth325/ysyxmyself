@@ -15,11 +15,41 @@
 #include "sdb.h"
 
 #define NR_WP 32
-#include "watchpoint.h"
+#include "watchpoint.h"//ddddddddddddddddddddddddddddddddddddd
+
+/*typedef struct watchpoint {/////////////////////////zhu shi diaodddddddddddddddddddddddddddddddddddddddddd
+  int NO;
+  struct watchpoint *next;
+
+ 
+
+} WP;
+
+static WP wp_pool[NR_WP] = {};
+static WP *head = NULL, *free_ = NULL;
+*///////////////////////////////zhu shi diao dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+WP wp_pool[NR_WP] = {};//ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+void init_wp_pool() {//框架代码      函数的目的是初始化监视点池，将所有监视点初始化并链接起来，形成一个链表
+  int i;
+  for (i = 0; i < NR_WP; i ++) {
+    wp_pool[i].NO = i;
+    wp_pool[i].next = (i == NR_WP - 1 ? NULL : &wp_pool[i + 1]);
+  }
+
+  head = NULL;//表示当前没有正在使用的监视点。
+  free_ = wp_pool;//11111111111111111111111111111111
+}
+
+
+
+
+
+
+
+
 
 WP* new_wp(){
     for(WP* p = free_ ; p -> next != NULL ; p = p -> next){
-//	printf("P address = %p\n",p);
 	if( p -> flag == false){
 	    p -> flag = true;
 	    if(head == NULL){    
@@ -44,7 +74,6 @@ void free_wp(WP *wp){
 	return ;
     }
     for(WP* p = head ; p -> next != NULL ; p = p -> next){
-
 	if(p -> next -> NO  == wp -> NO)
 	{
 	    p -> next = p -> next -> next;
