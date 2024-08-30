@@ -236,14 +236,14 @@ bool check_parentheses(int p,int q){//dddddddddddddddddddddddddddddddddddddddddd
 }
 
 static int find_main_op(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-  int plus[MAXOP] = {-1}, plusptr = 0;//10个元素初始都等于-1
-  int sub[MAXOP] = {-1},subptr = 0;   //00000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-  int noequl[MAXOP] = {-1},noequlptr = 0; 
-  int andand[MAXOP] = {-1},andandptr = 0; 
-  int mul[MAXOP] = {-1}, mulptr = 0;
-  int div[MAXOP] ={-1}, divptr = 0;
-  int equl[MAXOP] ={-1},equlptr =0;
-	int deref1[MAXOP] ={-1},deref1ptr = 0;
+  int plus[20] = {-1}, plusptr = 0;//10个元素初始都等于-1
+  int sub[20] = {-1},subptr = 0;   //00000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  int noequl[20] = {-1},noequlptr = 0; 
+  int andand[20] = {-1},andandptr = 0; 
+  int mul[20] = {-1}, mulptr = 0;
+  int div[20] ={-1}, divptr = 0;
+  int equl[20] ={-1},equlptr =0;
+	int deref1[20] ={-1},deref1ptr = 0;
 	//int negasign[MAXOP]={-1},negasignptr = 0;
   int lp = 0;
   int op = 0;
