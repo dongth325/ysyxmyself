@@ -138,7 +138,7 @@ static bool make_token(char *e) {
 	
 	//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
         switch (rules[i].token_type) {
-	  case '+':case '/':case '(':case ')': case TK_EQ: case TK_NOTEQ: case TK_LOGAND://0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+	  case '+':case '/':case '-':case '(':case ')': case TK_EQ: case TK_NOTEQ: case TK_LOGAND://0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 	    tokens[nr_token++].type = rules[i].token_type;
 	    break;
 	  case TK_NOTYPE:break;
@@ -158,7 +158,7 @@ static bool make_token(char *e) {
 			else {tokens[nr_token++].type = DEREF;}
 			
 			
-		case '-':  
+		//case '-':  
 		//if(nr_token==0){tokens[nr_token-1].type == NEGASIGN;}
 		//else if(tokens[nr_token-1].type == '('
 		//tokens[nr_token-1].type == '+'
@@ -170,7 +170,7 @@ static bool make_token(char *e) {
 		//tokens[nr_token-1].type == 'TK_LOGAND'
 		//tokens[nr_token-1].type == 'TK_NEGASIGN'){tokens[nr_token++].type == TK_NEGASIGN;}
 		//else{
-		tokens[nr_token++].type = rules[i].token_type;
+		//tokens[nr_token++].type = rules[i].token_type;
 		//}
 		//}
 			  
