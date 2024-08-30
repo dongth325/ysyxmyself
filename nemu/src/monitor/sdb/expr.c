@@ -137,10 +137,10 @@ static bool make_token(char *e) {
 	
 	//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
         switch (rules[i].token_type) {
-	  case '+':case '/':case '-':case '(':case ')': case TK_EQ: case TK_NOTEQ: case TK_LOGAND://0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+	  case '+':case '/':case '-':case '(':case ')': case TK_EQ: case TK_NOTEQ: case TK_LOGAND:
 	    tokens[nr_token++].type = rules[i].token_type;
 	    break;
-	  case TK_NOTYPE:break;
+	   case TK_NOTYPE:break;
 	  
 	
 	  case TK_NUMD:case TK_NUMH:case TK_REG:
@@ -326,29 +326,13 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
   return op;
 } 
 
-//static uint32_t deref(int addr){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
- // uint32_t m;                         
- // uint8_t *raddr = guest_to_host(addr);  
-  //m = *raddr++;
- // m += *raddr++*256;
-  //m += *raddr++*256*256;
- // m += *raddr*256*256*256;
- // return m;
-//}
-
-
-
 static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 
   int op;
   int val1,val2;
   if(p > q){
     assert(0);}
-  else if(p == q){                                                            //在 p == q 的情况下，它判断当前 token 的类型：
-
-                                                    //                                   如果是寄存器（TK_REG），则获取并返回寄存器的值。
-                                                                      //如果是解引用（DEREF），则返回 0。
-                                                                        //如果是常量值，则将其字符串表示转换为数值并返回。
+  else if(p == q){                                                         
     if(tokens[p].type == TK_REG){
 			int n;
 			bool success = false;
@@ -404,7 +388,7 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
     	
     	
     switch(tokens[op].type){
-     // case DEREF:return deref(val2);
+     // case DEREF:return deref(val2);                              //未实现
      // case TK_NEGASIGN:return -val2;
       case TK_EQ:return (val1 == val2);//返回的时候如果相同就返回1  不同就返回0
       case TK_NOTEQ:return (val1 != val2);

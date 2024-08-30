@@ -18,26 +18,29 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
-#include "memory/paddr.h"//dddddddddddddddddddddddddddddddddddddd
-#include "watchpoint.h"//dddddddddddddddddddddddddddddddddddddddddd
+#include "memory/paddr.h"//ok
+#include "watchpoint.h"//ddd
 
 static int is_batch_mode = false;
 
-void init_regex();//ddddddddddddddddddddddddddddddd
-void init_wp_pool();//dddddddddddddddddddddddd
+   void init_regex();//dddddd
+   void init_wp_pool();//ddddd
 
-void sdb_watchpoint_display(){//ddddddddddddddddddddddddddd遍历监视点池 如果wp_pool.flag=1（表名存在 ）打印信息 
+    void sdb_watchpoint_display(){
+    
     bool flag = true;
     for(int i = 0 ; i < NR_WP ; i ++){        
-if(wp_pool[i].flag){
-printf("Watchpoint.No: %d, expr = \"%s\", old_value = %d, new_value = %d\n", 
-		    wp_pool[i].NO, wp_pool[i].expr,wp_pool[i].old_value, wp_pool[i].new_value);
-		flag = false;
+    if(wp_pool[i].flag){
+    printf("Watchpoint.No: %d, expr = \"%s\", old_value = %d, new_value = %d\n", 
+    wp_pool[i].NO, wp_pool[i].expr,wp_pool[i].old_value, wp_pool[i].new_value);
+    
+    
+    flag = false;
 	}
     }
     if(flag) printf("No watchpoint now.\n");
 }
-void delete_watchpoint(int no){//dddddddddddddddddddddddddd遍历监视点池子 遇到想要删除的监视点序号 调用free
+void delete_watchpoint(int no){
     for(int i = 0 ; i < NR_WP ; i ++)    
 	if(wp_pool[i].NO == no){
 	    free_wp(&wp_pool[i]);
@@ -49,16 +52,16 @@ void create_watchpoint(char* args){
     WP* p =  new_wp();
     strcpy(p -> expr, args);
     bool success = false;
-    int tmp = expr(p -> expr,&success);//ddddddddddddddddddddddddd先调用new生成新的监视点 计算表达式的值存入tmp里
+    int tmp = expr(p -> expr,&success);
    if(success) {p -> old_value = tmp;
-   printf("Create watchpoint No.%d success.\n", p -> NO);//dddddddddddddddddddddd如果计算成功 打印输出信息
+   printf("Create watchpoint No.%d success.\n", p -> NO);
    }
    else {printf("创建watchpoint的时候expr求值出现问题\n");}
  
 }
 
 
-static char* rl_gets() {//框架代码
+static char* rl_gets() {//
     static char *line_read = NULL;
 
     if (line_read) {     //是否已经指向了某个内存位置
@@ -69,7 +72,7 @@ static char* rl_gets() {//框架代码
     line_read = readline("(nemu) ");//用于从标准输入读取一行文本。它会显示一个提示符（在这里是 "(nemu) "），然后等待用户输入
 
     if (line_read && *line_read) { //这个条件判断检查 line_read 是否为非 NULL，并且输入的第一字符是否为非空字符（即用户输入了某些内容，而不仅仅是按下回车）。
-                                                                           //如果条件为真，add_history(line_read) 会将该行输入添加到 Readline 的历史记录中。这样，用户可以使用箭头键来回滚查看之前输入的命令。
+                                 //如果条件为真，add_history(line_read) 会将该行输入添加到 Readline 的历史记录中。这样，用户可以使用箭头键来回滚查看之前输入的命令。
 	add_history(line_read);
     }
 
@@ -80,17 +83,17 @@ static int cmd_c(char *args) {
     cpu_exec(-1);
     return 0;
 }
-// CMD_INFO get the reg info
+// CMD_INFO
 static int cmd_info(char *args){
     if(args == NULL)
 	printf("No args.\n");
     else if(strcmp(args, "r") == 0)
-	isa_reg_display();
+	               isa_reg_display();
     else if(strcmp(args, "w") == 0)
-	sdb_watchpoint_display();
+	           sdb_watchpoint_display();
     return 0;
 }
-// CMD_D delete watchpoint no
+
 static int cmd_d (char *args){
     if(args == NULL)
 	printf("No args.\n");
@@ -103,9 +106,9 @@ static int cmd_d (char *args){
 
 // CMD_Q quit the NEMU
 static int cmd_q(char *args) {
-    nemu_state.state = NEMU_QUIT;//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+    nemu_state.state = NEMU_QUIT;
     return -1;
-}
+                             }
 
 // CMD_X scan virtual memory
 static int cmd_x(char *args){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
@@ -123,7 +126,7 @@ static int cmd_x(char *args){//ddddddddddddddddddddddddddddddddddddddddddddddddd
     return 0;
 }
 
-// expr + - * /
+
 static int cmd_p(char *args){
   bool seccess = true;
   int val;
@@ -133,26 +136,31 @@ static int cmd_p(char *args){
     printf("make_token false\n");
     return 0;
   }
+  
+  
+  
   if(val >= 0x80000000)
-    printf("%#x\n",val);//可能是一个负数
-  else printf("%u\n",val);//无符号十进制
-  return 0;
+   printf("%#x\n",val);//可能是一个负数
+   else printf("%u\n",val);//无符号十进制
+   return 0;
+   
+   
 }
 
 static int cmd_w(char* args){
     create_watchpoint(args);
-    return 0;
+     return 0;
 }
 
 
 static int cmd_si(char *args){//ddddddddddddddddddddddddddddddddddddd
     int step = 0;
-    if(args == NULL)//若 没有输入  表示默认执行一条指令。
+    if(args == NULL) 
 	step = 1;
-    else
+        else
 	sscanf(args,"%d",&step);// 读入 Step
-    cpu_exec(step);
-    return 0;
+        cpu_exec(step);
+        return 0;
 }
 static int cmd_help(char *args);
 
