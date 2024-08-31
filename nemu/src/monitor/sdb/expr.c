@@ -230,7 +230,7 @@ bool check_parentheses(int p,int q){//dddddddddddddddddddddddddddddddddddddddddd
   if((tokens[p].type == '(')&&(tokens[q].type == ')')){
     p+=1;
     q-=1;
-    return check_parentheses2(p , q);}           //防止（）（）双括号情况出现
+    return check_parentheses2(p , q);}           
   return false;
 }
 
