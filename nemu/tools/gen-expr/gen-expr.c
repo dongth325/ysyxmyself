@@ -19,9 +19,9 @@
 #include <assert.h>
 #include <string.h>
 
-// 缓冲区大小设置
+
 static char buf[65536] = {};
-static char code_buf[65536 + 128] = {}; // 比 buf 稍大一些
+static char code_buf[65536 + 128] = {};
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
@@ -30,7 +30,7 @@ static char *code_format =
 "  return 0; "
 "}";
 
-// 生成随机数字
+
 static void gen_num() {
     int num = rand() % 100;
     char num_str[12];
@@ -38,15 +38,15 @@ static void gen_num() {
     strcat(buf, num_str);
 }
 
-// 生成随机运算符
+
 static void gen_rand_op() {
-    int op = rand() % 3; // 只使用 +, *, /
+    int op = rand() % 3; 
     if (op == 0) strcat(buf, " + ");
     else if (op == 1) strcat(buf, " * ");
     else strcat(buf, " / ");
 }
 
-// 随机插入空格
+
 static void insert_random_spaces() {
     char temp_buf[65536] = {};
     int len = strlen(buf);
@@ -54,10 +54,10 @@ static void insert_random_spaces() {
     int j = 0;
     
     while (i < len) {
-        temp_buf[j++] = buf[i]; // 复制当前字符
+        temp_buf[j++] = buf[i]; 
         
         if (buf[i] == ' ' || buf[i] == '+' || buf[i] == '*' || buf[i] == '/') {
-            // 随机决定是否插入额外的空格
+        
             if (rand() % 2 == 0) {
                 temp_buf[j++] = ' ';
             }
@@ -65,24 +65,18 @@ static void insert_random_spaces() {
         i++;
     }
     
-    temp_buf[j] = '\0'; // 终结字符串
+    temp_buf[j] = '\0';
     strcpy(buf, temp_buf);
 }
 
-// 生成随机表达式
+
 static void gen_rand_expr() {
-    buf[0] = '\0'; // 清空 buf
-
-    // 生成第一个数字
+    buf[0] = '\0'; 
     gen_num();
-
-    // 随机生成1到3个操作符的表达式
     int op_count = rand() % 3 + 1;
 
     for (int i = 0; i < op_count; i++) {
         gen_rand_op();
-
-        // 如果是除法，确保除数不为0
         if (strstr(buf, " / ") != NULL) {
             int num;
             do {
@@ -92,12 +86,9 @@ static void gen_rand_expr() {
             sprintf(num_str, "%d", num);
             strcat(buf, num_str);
         } else {
-            // 生成下一个随机数
             gen_num();
         }
     }
-
-    // 随机插入空格
     insert_random_spaces();
 }
 
@@ -110,7 +101,7 @@ int main(int argc, char *argv[]) {
     }
     int i;
     for (i = 0; i < loop; i++) {
-        gen_rand_expr();  // 生成随机表达式
+        gen_rand_expr();  
 
         sprintf(code_buf, code_format, buf);
 
@@ -128,8 +119,6 @@ int main(int argc, char *argv[]) {
         unsigned result;
         ret = fscanf(fp, "%u", &result);
         pclose(fp);
-
-        // 输出结果和对应的表达式
         printf("%u %s\n", result, buf);
     }
     return 0;

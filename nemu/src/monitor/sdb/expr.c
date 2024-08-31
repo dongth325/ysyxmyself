@@ -208,7 +208,7 @@ static bool make_token(char *e) {
 bool check_parentheses2(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
   if(p > q) assert(0);                      //check if kuohao is pairs
   int mark = 0;
-  for(;p <= q;p++){                    //从左往右开始匹配  遇到左括号就++ 右括号就-- 若没有前提左括号就匹配到右括号的时候就返回错误
+  for(;p <= q;p++){                    //从左往右开始
     if(tokens[p].type == '(')
       mark += 1;
     else if(tokens[p].type == ')'){
@@ -223,7 +223,7 @@ bool check_parentheses2(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
 
 }
 bool check_parentheses(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-                                                   //检查括号是否匹配及最外面是不是有括号
+                                                   
   if(check_parentheses2(p , q) == false){
     assert(0);                                      
     }
@@ -234,10 +234,10 @@ bool check_parentheses(int p,int q){//dddddddddddddddddddddddddddddddddddddddddd
   return false;
 }
 
-static int find_main_op(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-  int plus[20] = {-1}, plusptr = 0;//10个元素初始都等于-1
+static int find_main_op(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+  int plus[20] = {-1}, plusptr = 0;
   
-  int sub[20] = {-1},subptr = 0;   //00000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  int sub[20] = {-1},subptr = 0;   //00000000000000000000000000000000000000000000000000000
   
   int noequl[20] = {-1},noequlptr = 0; 
   
@@ -251,15 +251,27 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
   
 	int deref1[20] ={-1},deref1ptr = 0;
 	//int negasign[MAXOP]={-1},negasignptr = 0;
+	
+	
+	
            int mmark = 0;
            int op = 0;
   for(;p < q;p++){
     if(tokens[p].type == '(') mmark++;
+    
+    
     if(tokens[p].type == ')') mmark--;
-    if(mmark != 0) continue;//表示位于括号内部  进行下一次迭代  主符号不可能在括号内 一直跳到括号外
+    
+    
+    if(mmark != 0) continue;
+    
+    
+    
+    
+    
     switch(tokens[p].type){
 			case DEREF:
-				deref1[deref1ptr++] = p;//先赋值 在括号内++
+				deref1[deref1ptr++] = p;
 				break;
 			//case TK_NEGASIGN:
 			      //  negasign[negasignptr++] = p;	
@@ -298,13 +310,13 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
       if((equl[0] == -1) &&(noequl[0] == -1)){
       
        if(andand[0]!=-1) {op = andand[--andandptr];}
-          else{                                      //按照= +- */的优先级从低到高顺寻依次看 如有相同优先级 则看是不是最右边的
+          else{                                      
     if(plus[0] != -1){ op = plus[--plusptr];}
     
       if(sub[0] != -1){
-      if(sub[--subptr] > op) op = sub[subptr];}//减少 1 之后，用这个减少后的值作为下标
+      if(sub[--subptr] > op) op = sub[subptr];}
       
-    if((plus[0] == -1) &&(sub[0] == -1)){//if there is no '+' or '-'如果没有加号减号 
+    if((plus[0] == -1) &&(sub[0] == -1)){
     
     
     
@@ -314,7 +326,7 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
       if(div[0] != -1)
         if(div[--divptr] > op) op = div[divptr];
         
-			if((mul[0] == -1)&&(div[0] == -1)){//if there is no '*' or '/'如果没有乘号除号
+			if((mul[0] == -1)&&(div[0] == -1)){
 				if(deref1[0]!=-1) {op = deref1[--deref1ptr];}
 				//else if(negasign[0]! = -1){op =negasign[--negasignptr]; }
 			                                  }
@@ -353,7 +365,7 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
   
   
   else if(check_parentheses(p,q) == true)   
-    return eval(p + 1, q - 1);     //在前面find main op函数中无法外面是括号的表达式 会（跳过）
+    return eval(p + 1, q - 1);     
   else{
     op = find_main_op(p,q);
     
@@ -380,7 +392,7 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
 			
 			
     else{
-			val1 = eval(p , op -1);
+	val1 = eval(p , op -1);
     	val2 = eval(op + 1 ,q);}
     	
     	
@@ -390,7 +402,7 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
     switch(tokens[op].type){
      // case DEREF:return deref(val2);                              //未实现
      // case TK_NEGASIGN:return -val2;
-      case TK_EQ:return (val1 == val2);//返回的时候如果相同就返回1  不同就返回0
+      case TK_EQ:return (val1 == val2);
       case TK_NOTEQ:return (val1 != val2);
       case TK_LOGAND:return (val1 && val2);
       case '+':return val1 + val2;
