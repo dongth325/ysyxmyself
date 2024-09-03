@@ -6,7 +6,6 @@
 #include <string.h>
 #include <math.h>
 
-// this should be enough
 static char buf[200] = {};  // 设置缓冲区大小为 200
 static char code_buf[200 + 128] = {}; // a little larger than `buf`
 static char *code_format =
@@ -21,7 +20,7 @@ char *buf_ptr = buf;
 int char_num;
 
 #define MAX_LENGTH 200  // 最大长度设置为 200
-#define MAX_DEPTH 5  // 最大递归深度
+#define MAX_DEPTH 7  // 增加递归深度
 
 uint32_t choose(uint32_t n)
 {
@@ -97,7 +96,7 @@ void gen_rand_expr(int depth)
         return;
     }
 
-    switch (choose(4)) {
+    switch (choose(5)) {  // 增加表达式生成的可能性
         case 0: 
             gen_num();
             break;
@@ -110,6 +109,11 @@ void gen_rand_expr(int depth)
             gen_rand_expr(depth + 1); 
             gen_rand_op(); 
             gen_rand_expr(depth + 1); 
+            break;
+        case 3:
+            gen_rand_expr(depth + 1);
+            gen_rand_op();
+            gen_rand_expr(depth + 1);
             break;
         default: 
             gen_rand_expr(depth + 1); 
