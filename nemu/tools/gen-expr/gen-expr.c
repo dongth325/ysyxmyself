@@ -4,6 +4,7 @@
 #include <time.h>
 #include <assert.h>
 #include <string.h>
+#include <math.h>
 
 // this should be enough
 static char buf[65536] = {};
@@ -11,74 +12,73 @@ static char code_buf[65536 + 128] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
-"  unsigned long long result = %s; "
-"  printf(\"%%llu\", result); "
+"  unsigned result = %s; "
+"  printf(\"%%u\", result); "
 "  return 0; "
 "}";
 
-static int len = 0;
+char *buf_ptr = buf;
+int char_num;
 
-/* generate a number */
-static void gen_num(int l)
+//generate a random value
+uint32_t choose(uint32_t n)
 {
-	// make sure the first digit is not zero.
-  buf[len++] = '0' + rand() % 9 + 1;
-  --l;
-  for (int i = 0; i < l; ++i) {
-    buf[len++] = '0' + rand() % 10;
-  }
-	buf[len++] = 'u';
-	buf[len++] = 'l';
-	buf[len++] = 'l';
+    int lower = 0;
+    int upper = n;
+    uint32_t randomInRange = (abs(rand()) % (upper - lower)) + lower;
+    return randomInRange;
 }
 
-/* generate whitespaces */
-static void rand_whitespace()
-{
-  int num = rand() % 10 + 1;
-  for (int i = 0; i < num; ++i)
-    if (rand() % 7 == 3) buf[len++] = ' ';
+int getDigitCount(uint32_t number) {
+    number = abs(number); 
+    if (number == 0) {
+        return 1;
+    }
+    return (int)log10(number) + 1;
 }
 
-static void gen_rand_expr(int dep) {
-  if (dep == 0) len = 0;
-  if (dep > 50) {
-    rand_whitespace();
-    gen_num(rand() % 10 + 1);
-    rand_whitespace();
-    return;
+void gen_num()
+{
+  int lower = 1;
+  int upper = 100;
+  // uint32_t randomNumber = rand();
+  uint32_t randomNumber = (abs(rand()) % (upper - lower)+1) + lower;
+  sprintf(buf_ptr, "%d", randomNumber);
+  if(randomNumber < 0)
+    buf_ptr +=getDigitCount(randomNumber+1);
+  else
+    buf_ptr +=getDigitCount(randomNumber);
+  char_num+=randomNumber;
+}
+
+void gen(const char c)
+{
+  *(buf_ptr++) = c;
+    char_num+=1;
+}
+
+void gen_rand_op()
+{
+  switch (choose(4)) {
+    case 0: *(buf_ptr++) = '+';break;
+    case 1: *(buf_ptr++) = '-';break;
+    case 2: *(buf_ptr++) = '*';break;
+    case 3: *(buf_ptr++) = '/';break;
   }
-  switch (rand() % 3) {
-    case 0:
-      rand_whitespace();
-      gen_num(rand() % 16 + 1);
-      rand_whitespace();
-      break;
-    case 1:
-      rand_whitespace();
-      buf[len++] = '(';
-      rand_whitespace();
-      gen_rand_expr(dep + 1);
-      rand_whitespace();
-      buf[len++] = ')';
-      rand_whitespace();
-      break;
-    case 2:
-      rand_whitespace();
-      gen_rand_expr(dep + 1);
-      rand_whitespace();
-      switch (rand() % 4) {
-        case 0: buf[len++] = '+'; break;
-        case 1: buf[len++] = '-'; break;
-        case 2: buf[len++] = '*'; break;
-        case 3: buf[len++] = '/'; break;
-      }
-      rand_whitespace();
-      gen_rand_expr(dep + 1);
-      rand_whitespace();
-      break;
+  char_num+=1;
+}
+
+void gen_rand_expr() 
+{
+  if(char_num < 65536)
+  {
+    switch (choose(4)) {
+      case 0: gen_num();break;
+      case 1: gen('(');  gen_rand_expr(); gen(')'); break;
+      case 2: gen(' ');  gen_rand_expr(); gen(' '); break;
+      default: gen_rand_expr(); gen_rand_op(); gen_rand_expr(); break;
+    }
   }
-  if (dep == 0) buf[len++] = '\0';
 }
 
 int main(int argc, char *argv[]) {
@@ -90,8 +90,15 @@ int main(int argc, char *argv[]) {
   }
   int i;
   for (i = 0; i < loop; i ++) {
-    gen_rand_expr(0);
-
+    memset(buf,'\0', sizeof(buf));
+    buf_ptr = buf;
+    char_num = 0;
+    gen_rand_expr();
+    if(char_num > 65536)
+    {
+      // printf("\033[42mcore dump\033[0m\n");
+      continue;
+    }
     sprintf(code_buf, code_format, buf);
 
     FILE *fp = fopen("/tmp/.code.c", "w");
@@ -99,27 +106,28 @@ int main(int argc, char *argv[]) {
     fputs(code_buf, fp);
     fclose(fp);
 
-    int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
-    if (ret != 0) continue;
+    fp = popen("gcc /tmp/.code.c -o /tmp/.expr 2>&1" , "r");
+    assert(fp != NULL);
+
+    char buffer[128];
+    if (fgets(buffer, sizeof(buffer), fp) != NULL) {
+        // printf("phb%s", buffer);
+        pclose(fp);
+        // printf("\033[41moverflow/div_zero\033[0m\n");
+        continue;
+    }
+    pclose(fp);
 
     fp = popen("/tmp/.expr", "r");
     assert(fp != NULL);
 
-    unsigned long long result;
-    ret = fscanf(fp, "%llu", &result);
+    int result;
+
+    int ret = fscanf(fp, "%d", &result);
+    if (ret == 0) continue;
     pclose(fp);
 
-		// oh, we cannot read a number from the output.
-		if (ret != 1) {
-			// waste a single loop, generate a new one.
-			--i;
-			continue;
-		}
-		for (int i = 0; buf[i] != '\0'; ++i) {
-			if (buf[i] == 'u' || buf[i] == 'l') buf[i] = ' ';
-		}
-    printf("%llu %s\n", result, buf);
-		fflush(stdout);
+    printf("%u %s\n", result, buf);
   }
   return 0;
 }
