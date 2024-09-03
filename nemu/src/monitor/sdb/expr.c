@@ -400,7 +400,7 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
     	
     	
     switch(tokens[op].type){
-     // case DEREF:return deref(val2);                              //未实现
+      case DEREF:return paddr_read(val2,4);                         //未实现
      // case TK_NEGASIGN:return -val2;
       case TK_EQ:return (val1 == val2);
       case TK_NOTEQ:return (val1 != val2);
