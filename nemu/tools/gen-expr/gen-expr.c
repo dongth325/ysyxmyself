@@ -7,8 +7,8 @@
 #include <math.h>
 
 // this should be enough
-static char buf[65536] = {};
-static char code_buf[65536 + 128] = {}; // a little larger than `buf`
+static char buf[200] = {};  // 设置缓冲区大小为 200
+static char code_buf[200 + 128] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
@@ -20,20 +20,14 @@ static char *code_format =
 char *buf_ptr = buf;
 int char_num;
 
-// 设置最大长度
-#define MAX_LENGTH 1000  
-#define MAX_DEPTH 10  // 最大递归深度
+#define MAX_LENGTH 200  // 最大长度设置为 200
+#define MAX_DEPTH 5  // 最大递归深度
 
-// 生成随机数
 uint32_t choose(uint32_t n)
 {
-    int lower = 0;
-    int upper = n;
-    uint32_t randomInRange = (abs(rand()) % (upper - lower)) + lower;
-    return randomInRange;
+    return rand() % n;
 }
 
-// 获取数字的位数
 int getDigitCount(uint32_t number) {
     if (number == 0) {
         return 1;
@@ -41,46 +35,64 @@ int getDigitCount(uint32_t number) {
     return (int)log10(number) + 1;
 }
 
-// 生成随机数字
 void gen_num()
 {
     if (char_num >= MAX_LENGTH) return;  // 控制总长度
 
     int lower = 1;
     int upper = 100;
-    uint32_t randomNumber = (abs(rand()) % (upper - lower)+1) + lower;
+    uint32_t randomNumber = (abs(rand()) % (upper - lower + 1)) + lower;
+    int len = getDigitCount(randomNumber);
+
+    if (char_num + len >= MAX_LENGTH) return;  // 确保不会超出最大长度
+
     sprintf(buf_ptr, "%d", randomNumber);
-    buf_ptr += getDigitCount(randomNumber);
-    char_num += getDigitCount(randomNumber);
+    buf_ptr += len;
+    char_num += len;
 }
 
-// 生成单个字符
 void gen(const char c)
 {
-    if (char_num >= MAX_LENGTH) return;  // 控制总长度
+    if (char_num >= MAX_LENGTH - 1) return;  // 控制总长度，留出空位给'\0'
 
     *(buf_ptr++) = c;
     char_num += 1;
 }
 
-// 生成随机操作符
 void gen_rand_op()
 {
-    if (char_num >= MAX_LENGTH) return;  // 控制总长度
+    if (char_num >= MAX_LENGTH - 1) return;  // 控制总长度，留出空位给'\0'
 
     switch (choose(4)) {
-        case 0: *(buf_ptr++) = '+'; break;
-        case 1: *(buf_ptr++) = '-'; break;
-        case 2: *(buf_ptr++) = '*'; break;
-        case 3: *(buf_ptr++) = '/'; break;
+        case 0: gen('+'); break;
+        case 1: gen('-'); break;
+        case 2: gen('*'); break;
+        case 3: gen('/'); break;
     }
-    char_num += 1;
 }
 
-// 递归生成随机表达式，增加深度控制
+void gen_rand_expr(int depth);
+
+void gen_rand_non_zero_expr(int depth) {
+    char *saved_buf_ptr;
+    int saved_char_num;
+
+    do {
+        saved_buf_ptr = buf_ptr;  // 保存当前指针位置
+        saved_char_num = char_num;  // 保存当前长度
+        gen_rand_expr(depth);
+
+        // 如果生成的表达式长度超出限制，则恢复之前的状态
+        if (char_num > MAX_LENGTH) {
+            buf_ptr = saved_buf_ptr;
+            char_num = saved_char_num;
+        }
+    } while ((*saved_buf_ptr == '0' || char_num > MAX_LENGTH));  // 确保生成的表达式不为 0 且长度符合要求
+}
+
 void gen_rand_expr(int depth) 
 {
-    if (char_num >= MAX_LENGTH || depth >= MAX_DEPTH) {
+    if (char_num >= MAX_LENGTH - 1 || depth >= MAX_DEPTH) {
         gen_num();  // 当达到最大长度或深度时，生成一个数字终止递归
         return;
     }
@@ -102,7 +114,12 @@ void gen_rand_expr(int depth)
         default: 
             gen_rand_expr(depth + 1); 
             gen_rand_op(); 
-            gen_rand_expr(depth + 1); 
+            // 确保除号后面的表达式不为零
+            if (*(buf_ptr - 1) == '/') {
+                gen_rand_non_zero_expr(depth + 1);  // 使用生成非零表达式的函数
+            } else {
+                gen_rand_expr(depth + 1);
+            }
             break;
     }
 }
@@ -122,7 +139,7 @@ int main(int argc, char *argv[]) {
         gen_rand_expr(0);  // 初始深度为 0
 
         // 如果生成的表达式长度超出了缓冲区，跳过该循环
-        if (char_num >= MAX_LENGTH) {
+        if (char_num >= MAX_LENGTH - 1) {
             continue;
         }
 
