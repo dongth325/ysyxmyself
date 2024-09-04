@@ -26,8 +26,10 @@ static int is_batch_mode = false;
    void init_regex();//dddddd
    void init_wp_pool();//ddddd
 void check_watchpoints() {
+    Log("22222222222222222222");//dddddddddddddddddddddddddddddddddddddddddddddddd
     WP *wp = head;
     while (wp != NULL) {
+        Log("333333333333333333333333333333");//dddddddddddddddddddddddddddddddd
         bool success = true;
         int current_value = expr(wp->expr, &success);
         if (success != true) assert(0);
