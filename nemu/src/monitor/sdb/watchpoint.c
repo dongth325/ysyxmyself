@@ -30,25 +30,21 @@ void init_wp_pool() {//是初始化监视点池，将所有监视点初始化并
   free_ = wp_pool;
 }
 
-WP* new_wp() {
-    if (free_ == NULL) {
-        printf("No available watchpoint.\n");
-        assert(0);  // 如果没有可用的监视点，触发断言失败
-        return NULL;
+WP* new_wp(){
+    for(WP* p = free_ ; p -> next != NULL ; p = p -> next){
+	if( p -> flag == false){
+	    p -> flag = true;
+	    if(head == NULL){    
+		head = p;
+	    }
+	    
+	    return p;
+	}
     }
+    printf("No unuse point.\n");
+    assert(0);
+    return NULL;
 
-    // 从 free_ 链表中取出第一个未使用的监视点
-    WP *wp = free_;
-    free_ = free_->next;  // 更新 free_ 链表头部
-
-    // 设置新监视点的 flag 表示它被使用
-    wp->flag = true;
-
-    // 将新监视点插入到 head 链表的头部
-    wp->next = head;
-    head = wp;  // 更新 head 指向新的监视点
-
-    return wp;
 }
 
 void free_wp(WP *wp){
