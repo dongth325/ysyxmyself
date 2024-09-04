@@ -346,7 +346,11 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
     assert(0);}
   else if(p == q){                                                         
     if(tokens[p].type == TK_REG){
-			int n;
+if (strcmp(tokens[p].str, "$pc") == 0) {
+        return cpu.pc;  // 返回当前程序计数器的值
+    }
+
+else{		int n;
 			bool success = false;
 			n = isa_reg_str2val(tokens[p].str,&success);
 			if(success == true)
@@ -356,7 +360,11 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
 				printf("%d",n);
 	  		printf("isa_reg f\n");
     	                    }
-    	                        }
+    }
+    }
+
+
+
     else if(tokens[p].type == DEREF)
       return 0;
     return strtol(tokens[p].str,NULL,0);

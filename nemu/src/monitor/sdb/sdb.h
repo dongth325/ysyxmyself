@@ -19,5 +19,7 @@
 #include </home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/common.h>
 
 word_t expr(char *e, bool *success);
+void check_watchpoints();
+
 
 #endif
