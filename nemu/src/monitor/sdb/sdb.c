@@ -26,43 +26,32 @@ static int is_batch_mode = false;
 void init_regex();   // dddddd
 void init_wp_pool(); // ddddd
 void check_watchpoints() {
-    // 日志输出，调试信息，确认函数被调用
-    Log("Checking active watchpoints...");
+    for (int i = 0; i < NR_WP; i++) {
+        // 如果当前监视点被使用（flag 为 true）
+        if (wp_pool[i].flag) {
+            bool success = true;
 
-    // 遍历所有活跃的监视点
-    WP *wp = head;
-    while (wp != NULL) {  // 遍历链表，直到最后一个监视点
-        Log("Evaluating watchpoint...");
+            // 计算表达式的当前值
+            int current_value = expr(wp_pool[i].expr, &success);
+            if (!success) {
+                assert(0);  // 如果表达式求值失败，触发断言
+            }
 
-        // 评估监视点的表达式，计算当前值
-        bool success = true;
-        int current_value = expr(wp->expr, &success);
+            // 如果新值与旧值不同，说明监视点被触发
+            if (current_value != wp_pool[i].old_value) {
+                printf("Watchpoint %d triggered: %s\n", wp_pool[i].NO, wp_pool[i].expr);
+                printf("Old value = %d, New value = %d\n", wp_pool[i].old_value, current_value);
 
-        // 如果表达式求值失败，触发断言
-        if (!success) {
-            assert(0);  // 如果表达式解析失败，立即中断程序
+                // 更新旧值为新值
+                wp_pool[i].old_value = current_value;
+
+                // 设置 NEMU 状态为停止
+                nemu_state.state = NEMU_STOP;
+            }
         }
-
-        // 更新监视点的新值
-        wp->new_value = current_value;
-
-        // 如果新值与旧值不同，说明监视点被触发
-        if (wp->new_value != wp->old_value) {
-            // 打印监视点被触发的信息
-            printf("Watchpoint %d triggered: %s\n", wp->NO, wp->expr);
-            printf("Old value = %d, New value = %d\n", wp->old_value, wp->new_value);
-
-            // 更新旧值为新值，以便下一次检查时可以正确比较
-            wp->old_value = wp->new_value;
-
-            // 设置 NEMU 状态为停止，暂停模拟器
-            nemu_state.state = NEMU_STOP;
-        }
-
-        // 移动到下一个监视点
-        wp = wp->next;
     }
 }
+
 
 
 void sdb_watchpoint_display()
