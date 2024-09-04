@@ -44,7 +44,7 @@ void check_watchpoints() {
         wp = wp->next;
 
     }
-    printf("NO.%d is being checked",wp->NO);//ddddddddddddddddddddddddddddddddd
+   
 }
 
 
