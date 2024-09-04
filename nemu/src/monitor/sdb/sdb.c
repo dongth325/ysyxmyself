@@ -25,6 +25,21 @@ static int is_batch_mode = false;
 
    void init_regex();//dddddd
    void init_wp_pool();//ddddd
+void check_watchpoints() {
+    WP *wp = head;
+    while (wp != NULL) {
+        bool success = true;
+        int new_value = expr(wp->expr,&success);
+        if(success!=true) assert(0);
+        if (new_value != wp->old_value) {
+            printf("Watchpoint %d triggered: %s\n", wp->NO, wp->expr);
+            printf("Old value = %d, New value = %d\n", wp->old_value, new_value);
+            wp->old_value = new_value;
+            nemu_state.state = NEMU_STOP;  // 触发暂停
+        }
+        wp = wp->next;
+    }
+}
 
     void sdb_watchpoint_display(){
     
