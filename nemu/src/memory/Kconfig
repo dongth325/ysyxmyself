@@ -32,3 +32,18 @@ config MEM_RANDOM
     This may help to find undefined behaviors.
 
 endmenu #MEMORY
+
+
+
+
+
+menu "Watchpoint Configuration"
+
+config WATCHPOINT
+  bool "Enable watchpoint support"
+  default y
+  help
+    Enable the functionality to use watchpoints in NEMU.
+    If disabled, watchpoint checking will be skipped to improve performance.
+
+endmenu #WATCHPOINT
