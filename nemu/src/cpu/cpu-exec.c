@@ -40,8 +40,9 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #endif
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
-Log("1111111111111111111");//dddddddddddddddddddddddddddddddddddddddd
+
 #ifdef CONFIG_WATCHPOINT//ddddddddddddddddddddd
+Log("1111111111111111111");//dddddddddddddddddddddddddddddddddddddddd
   check_watchpoints();//dddddddddddddddddddddddddddddd
 #endif //dddddddddddddddddddddddddddddddddd
 }
