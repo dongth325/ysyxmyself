@@ -40,10 +40,11 @@ void check_watchpoints() {
             wp->old_value = wp->new_value;  
             nemu_state.state = NEMU_STOP; 
         }
-        printf("NO.%d is being checked",wp->NO);//ddddddddddddddddddddddddddddddddd
+        
         wp = wp->next;
 
     }
+    printf("NO.%d is being checked",wp->NO);//ddddddddddddddddddddddddddddddddd
 }
 
 
