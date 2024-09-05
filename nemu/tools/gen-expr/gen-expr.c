@@ -5,39 +5,39 @@
 #include <assert.h>
 #include <string.h>
 #include <math.h>
+#include <limits.h>  // 包含 INT_MAX 和 INT_MIN
 
-static char buf[200] = {};  // 设置缓冲区大小为 200
-static char code_buf[512] = {}; // a little larger than `buf`
+#define MAX_LENGTH 200  // 表达式最大长度
+#define MAX_DEPTH 7     // 最大递归深度
+
+static char buf[MAX_LENGTH] = {};        // 缓冲区存储表达式
+static char code_buf[MAX_LENGTH + 128] = {}; // 存储生成的代码
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
-"  unsigned result = %s; "
+"  unsigned result = (%s); "
 "  printf(\"%%u\", result); "
 "  return 0; "
 "}";
 
 char *buf_ptr = buf;
-int char_num;
-
-#define MAX_LENGTH 200  // 最大长度设置为 200
-#define MAX_DEPTH 7  // 增加递归深度
+int char_num = 0;
 
 uint32_t choose(uint32_t n) {
     return rand() % n;
 }
 
+// 返回数字的位数
 int getDigitCount(uint32_t number) {
-    if (number == 0) {
-        return 1;
-    }
-    return (int)log10(number) + 1;
+    return (number < 10) ? 1 : (int)log10(number) + 1;
 }
 
+// 生成两位数的随机数
 void gen_num() {
     if (char_num >= MAX_LENGTH) return;  // 控制总长度
 
-    int lower = 1;
-    int upper = 100;
+    int lower = 10;
+    int upper = 99;  // 确保生成两位数
     uint32_t randomNumber = (abs(rand()) % (upper - lower + 1)) + lower;
     int len = getDigitCount(randomNumber);
 
@@ -68,6 +68,7 @@ void gen_rand_op() {
 
 void gen_rand_expr(int depth);
 
+// 增加对除号后面值为 0 的处理
 void gen_rand_non_zero_expr(int depth) {
     char *saved_buf_ptr;
     int saved_char_num;
@@ -185,7 +186,6 @@ int main(int argc, char *argv[]) {
 
         char buffer[128];
         if (fgets(buffer, sizeof(buffer), fp) != NULL) {
-            printf("Compilation error: %s\n", buffer);  // 打印编译错误
             pclose(fp);
             continue;  // 如果编译失败，跳过当前循环
         }
@@ -206,4 +206,3 @@ int main(int argc, char *argv[]) {
     }
     return 0;
 }
-
