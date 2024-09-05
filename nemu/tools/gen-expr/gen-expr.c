@@ -75,19 +75,53 @@ void gen_rand_expr(int depth);
 void gen_rand_non_zero_expr(int depth) {
     char *saved_buf_ptr;
     int saved_char_num;
+    int result;  // 声明result变量
 
     do {
         saved_buf_ptr = buf_ptr;  // 保存当前指针位置
         saved_char_num = char_num;  // 保存当前长度
-        gen_rand_expr(depth);
+        gen_rand_expr(depth);  // 生成表达式
 
         // 如果生成的表达式长度超出限制，则恢复之前的状态
         if (char_num > MAX_LENGTH) {
             buf_ptr = saved_buf_ptr;
             char_num = saved_char_num;
+            continue;  // 超出长度，继续生成新的表达式
         }
-    } while ((*saved_buf_ptr == '0' || char_num > MAX_LENGTH));  // 确保生成的表达式不为 0 且长度符合要求
+
+        // 判断生成的表达式是否为 0
+        char expr_buf[200];  // 用来存储当前生成的表达式
+        strncpy(expr_buf, saved_buf_ptr, buf_ptr - saved_buf_ptr);
+        expr_buf[buf_ptr - saved_buf_ptr] = '\0';  // null-terminate
+
+        // 先检查生成的表达式长度，确保不会超出缓冲区
+        if (strlen(expr_buf) >= sizeof(expr_buf) - 64) {
+            continue;  // 如果表达式太长，跳过本次循环
+        }
+
+        // 使用系统调用计算表达式的值
+        char code_buf[512];  // 扩大code_buf的大小以容纳更长的命令
+        snprintf(code_buf, sizeof(code_buf), 
+                 "echo 'int main(){ printf(\"%%d\", %s); }' | gcc -xc - -o /tmp/.non_zero_expr && /tmp/.non_zero_expr", expr_buf);
+
+        FILE *fp = popen(code_buf, "r");
+        if (fp == NULL) {
+            perror("popen failed");
+            exit(1);
+        }
+
+        // 读取表达式的结果
+        int ret = fscanf(fp, "%d", &result);
+        if (ret != 1) {
+            result = 0;  // 如果读取失败，默认处理为0
+        }
+        pclose(fp);
+
+        // 如果结果为 0，就重新生成表达式
+    } while (result == 0);
 }
+
+
 
 void gen_rand_expr(int depth) 
 {
