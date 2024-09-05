@@ -34,6 +34,7 @@ int getDigitCount(uint32_t number) {
     return (int)log10(number) + 1;
 }
 
+// 生成任意数字
 void gen_num() {
     if (char_num >= MAX_LENGTH) return;  // 控制总长度
 
@@ -69,6 +70,7 @@ void gen_rand_op() {
 
 void gen_rand_expr(int depth);
 
+// 生成除法操作数，确保结果不为 0
 void gen_rand_non_zero_expr(int depth) {
     char *saved_buf_ptr;
     int saved_char_num;
@@ -77,7 +79,7 @@ void gen_rand_non_zero_expr(int depth) {
     do {
         saved_buf_ptr = buf_ptr;
         saved_char_num = char_num;
-        gen_rand_expr(depth);
+        gen_rand_expr(depth);  // 生成随机表达式作为除数
 
         if (char_num > MAX_LENGTH) {
             buf_ptr = saved_buf_ptr;
@@ -109,7 +111,7 @@ void gen_rand_non_zero_expr(int depth) {
         }
         pclose(fp);
 
-    } while (result == 0);  // 确保表达式结果不是 0
+    } while (result == 0);  // 确保生成的表达式结果不为 0
 }
 
 void gen_rand_expr(int depth) {
@@ -118,33 +120,27 @@ void gen_rand_expr(int depth) {
         return;
     }
 
-    switch (choose(5)) {
+    switch (choose(3)) {
         case 0:
-            gen_num();
+            gen_num();  // 生成数字
             break;
         case 1:
-            gen('(');
+            gen('(');  // 生成括号中的表达式
             gen_rand_expr(depth + 1);
             gen(')');
             break;
         case 2:
-            gen_rand_expr(depth + 1);
-            gen_rand_op();
-            gen_rand_expr(depth + 1);
-            break;
-        case 3:
-            gen_rand_expr(depth + 1);
-            gen_rand_op();
-            gen_rand_expr(depth + 1);
+            gen_rand_expr(depth + 1);  // 左表达式
+            gen_rand_op();  // 运算符
+            // 如果是除法，确保右操作数不为0
+            if (*(buf_ptr - 1) == '/') {
+                gen_rand_non_zero_expr(depth + 1);  // 确保除数不为 0
+            } else {
+                gen_rand_expr(depth + 1);  // 其他运算符可以使用任意表达式
+            }
             break;
         default:
-            gen_rand_expr(depth + 1);
-            gen_rand_op();
-            if (*(buf_ptr - 1) == '/') {
-                gen_rand_non_zero_expr(depth + 1);
-            } else {
-                gen_rand_expr(depth + 1);
-            }
+            gen_num();  // 生成数字，作为默认情况
             break;
     }
 }
@@ -161,7 +157,7 @@ int main(int argc, char *argv[]) {
         buf_ptr = buf;
         char_num = 0;
 
-        gen_rand_expr(0);
+        gen_rand_expr(0);  // 生成随机表达式
 
         if (char_num >= MAX_LENGTH - 1) {
             continue;
@@ -174,6 +170,7 @@ int main(int argc, char *argv[]) {
         fputs(code_buf, fp);
         fclose(fp);
 
+        // 编译生成的代码
         fp = popen("gcc /tmp/.code.c -o /tmp/.expr 2>&1", "r");
         assert(fp != NULL);
 
@@ -184,6 +181,7 @@ int main(int argc, char *argv[]) {
         }
         pclose(fp);
 
+        // 执行生成的可执行文件
         fp = popen("/tmp/.expr", "r");
         assert(fp != NULL);
 
@@ -195,12 +193,14 @@ int main(int argc, char *argv[]) {
         }
         pclose(fp);
 
-        // 限制输出值的范围
+        // 限制输出值的范围，确保是合法的 int
         if (result > INT_MAX || result < INT_MIN) {
             continue;  // 跳过超出范围的值
         }
 
-        printf("%u %s\n", result, buf);
+        // 将结果和表达式输出到终端或文件
+        printf("%u %s\n", result, buf);  // 输出格式：<结果> <表达式>
     }
     return 0;
 }
+
