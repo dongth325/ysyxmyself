@@ -132,6 +132,15 @@ void cpu_exec(uint64_t n) {
   switch (nemu_state.state) {
     case NEMU_RUNNING: nemu_state.state = NEMU_STOP; break;
 
+ case NEMU_STOP://ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+        // 处理 NEMU_STOP 状态，退出执行或进行其他处理
+        printf("Execution stopped. Current pc = " FMT_WORD "\n", cpu.pc);
+        return;  // 直接退出函数，停止执行ddddddddddddddddddddddddddddddddddddddddddddddddddddd
+
+
+
+
+
     case NEMU_END: case NEMU_ABORT:
       Log("nemu: %s at pc = " FMT_WORD,
           (nemu_state.state == NEMU_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
