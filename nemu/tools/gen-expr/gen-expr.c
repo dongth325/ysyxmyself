@@ -7,7 +7,7 @@
 #include <math.h>
 
 static char buf[200] = {};  // 设置缓冲区大小为 200
-static char code_buf[200 + 128] = {}; // a little larger than `buf`
+static char code_buf[512] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
@@ -22,8 +22,7 @@ int char_num;
 #define MAX_LENGTH 200  // 最大长度设置为 200
 #define MAX_DEPTH 7  // 增加递归深度
 
-uint32_t choose(uint32_t n)
-{
+uint32_t choose(uint32_t n) {
     return rand() % n;
 }
 
@@ -34,8 +33,7 @@ int getDigitCount(uint32_t number) {
     return (int)log10(number) + 1;
 }
 
-void gen_num()
-{
+void gen_num() {
     if (char_num >= MAX_LENGTH) return;  // 控制总长度
 
     int lower = 1;
@@ -50,16 +48,14 @@ void gen_num()
     char_num += len;
 }
 
-void gen(const char c)
-{
+void gen(const char c) {
     if (char_num >= MAX_LENGTH - 1) return;  // 控制总长度，留出空位给'\0'
 
     *(buf_ptr++) = c;
     char_num += 1;
 }
 
-void gen_rand_op()
-{
+void gen_rand_op() {
     if (char_num >= MAX_LENGTH - 1) return;  // 控制总长度，留出空位给'\0'
 
     switch (choose(4)) {
@@ -100,9 +96,8 @@ void gen_rand_non_zero_expr(int depth) {
         }
 
         // 使用系统调用计算表达式的值
-        char code_buf[512];  // 扩大code_buf的大小以容纳更长的命令
         snprintf(code_buf, sizeof(code_buf), 
-                 "echo 'int main(){ printf(\"%%d\", %s); }' | gcc -xc - -o /tmp/.non_zero_expr && /tmp/.non_zero_expr", expr_buf);
+                 "echo '#include <stdio.h>\\nint main(){ printf(\"%%d\", %s); }' | gcc -xc - -o /tmp/.non_zero_expr && /tmp/.non_zero_expr", expr_buf);
 
         FILE *fp = popen(code_buf, "r");
         if (fp == NULL) {
@@ -121,10 +116,7 @@ void gen_rand_non_zero_expr(int depth) {
     } while (result == 0);
 }
 
-
-
-void gen_rand_expr(int depth) 
-{
+void gen_rand_expr(int depth) {
     if (char_num >= MAX_LENGTH - 1 || depth >= MAX_DEPTH) {
         gen_num();  // 当达到最大长度或深度时，生成一个数字终止递归
         return;
@@ -193,6 +185,7 @@ int main(int argc, char *argv[]) {
 
         char buffer[128];
         if (fgets(buffer, sizeof(buffer), fp) != NULL) {
+            printf("Compilation error: %s\n", buffer);  // 打印编译错误
             pclose(fp);
             continue;  // 如果编译失败，跳过当前循环
         }
@@ -213,3 +206,4 @@ int main(int argc, char *argv[]) {
     }
     return 0;
 }
+
