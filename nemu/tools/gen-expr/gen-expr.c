@@ -5,39 +5,41 @@
 #include <assert.h>
 #include <string.h>
 #include <math.h>
-#include <limits.h>  // 包含 INT_MAX 和 INT_MIN
 
-#define MAX_LENGTH 200  // 表达式最大长度
-#define MAX_DEPTH 7     // 最大递归深度
-
-static char buf[MAX_LENGTH] = {};        // 缓冲区存储表达式
-static char code_buf[MAX_LENGTH + 128] = {}; // 存储生成的代码
+static char buf[200] = {};  // 设置缓冲区大小为 200
+static char code_buf[200 + 128] = {}; // a little larger than buf
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
-"  unsigned result = (%s); "
+"  unsigned result = %s; "
 "  printf(\"%%u\", result); "
 "  return 0; "
 "}";
 
 char *buf_ptr = buf;
-int char_num = 0;
+int char_num;
 
-uint32_t choose(uint32_t n) {
+#define MAX_LENGTH 200  // 最大长度设置为 200
+#define MAX_DEPTH 7  // 增加递归深度
+
+uint32_t choose(uint32_t n)
+{
     return rand() % n;
 }
 
-// 返回数字的位数
 int getDigitCount(uint32_t number) {
-    return (number < 10) ? 1 : (int)log10(number) + 1;
+    if (number == 0) {
+        return 1;
+    }
+    return (int)log10(number) + 1;
 }
 
-// 生成两位数的随机数
-void gen_num() {
+void gen_num()
+{
     if (char_num >= MAX_LENGTH) return;  // 控制总长度
 
-    int lower = 10;
-    int upper = 99;  // 确保生成两位数
+    int lower = 1;
+    int upper = 100;
     uint32_t randomNumber = (abs(rand()) % (upper - lower + 1)) + lower;
     int len = getDigitCount(randomNumber);
 
@@ -48,14 +50,16 @@ void gen_num() {
     char_num += len;
 }
 
-void gen(const char c) {
+void gen(const char c)
+{
     if (char_num >= MAX_LENGTH - 1) return;  // 控制总长度，留出空位给'\0'
 
     *(buf_ptr++) = c;
     char_num += 1;
 }
 
-void gen_rand_op() {
+void gen_rand_op()
+{
     if (char_num >= MAX_LENGTH - 1) return;  // 控制总长度，留出空位给'\0'
 
     switch (choose(4)) {
@@ -68,7 +72,6 @@ void gen_rand_op() {
 
 void gen_rand_expr(int depth);
 
-// 增加对除号后面值为 0 的处理
 void gen_rand_non_zero_expr(int depth) {
     char *saved_buf_ptr;
     int saved_char_num;
@@ -97,8 +100,9 @@ void gen_rand_non_zero_expr(int depth) {
         }
 
         // 使用系统调用计算表达式的值
+        char code_buf[512];  // 扩大code_buf的大小以容纳更长的命令
         snprintf(code_buf, sizeof(code_buf), 
-                 "echo '#include <stdio.h>\\nint main(){ printf(\"%%d\", %s); }' | gcc -xc - -o /tmp/.non_zero_expr && /tmp/.non_zero_expr", expr_buf);
+                 "echo 'int main(){ printf(\"%%d\", %s); }' | gcc -xc - -o /tmp/.non_zero_expr && /tmp/.non_zero_expr", expr_buf);
 
         FILE *fp = popen(code_buf, "r");
         if (fp == NULL) {
@@ -117,7 +121,10 @@ void gen_rand_non_zero_expr(int depth) {
     } while (result == 0);
 }
 
-void gen_rand_expr(int depth) {
+
+
+void gen_rand_expr(int depth) 
+{
     if (char_num >= MAX_LENGTH - 1 || depth >= MAX_DEPTH) {
         gen_num();  // 当达到最大长度或深度时，生成一个数字终止递归
         return;
