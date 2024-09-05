@@ -132,7 +132,7 @@ void gen_rand_expr(int depth) {
         case 2:
             gen_rand_expr(depth + 1);  // 左表达式
             gen_rand_op();  // 运算符
-            // 如果是除法，确保右操作数不为0
+            
             if (*(buf_ptr - 1) == '/') {
                 gen_rand_non_zero_expr(depth + 1);  // 确保除数不为 0
             } else {
