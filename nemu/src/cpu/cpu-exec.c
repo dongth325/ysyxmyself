@@ -34,12 +34,18 @@ static bool g_print_step = false;
 void device_update();
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
-  
+  Log("Current cpu.pc 11111111= " FMT_WORD "\n", cpu.pc);//ddddddddddddddddddddddddddddddddddddddd
 #ifdef CONFIG_ITRACE_COND
-  if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
+  if (ITRACE_COND) { log_write("%s\n", _this->logbuf); 
+  Log("Current cpu.pc 22222222= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
+}
 #endif
-  if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
+  if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); 
+  Log("Current cpu.pc 333333333= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddddddddddd
+
+  }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
+Log("Current cpu.pc 4444444444= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddddd
 
 //#ifdef CONFIG_WATCHPOINT//ddddddddddddddddddddd
 Log("1111111111111111111");//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
