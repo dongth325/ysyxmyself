@@ -58,7 +58,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   s->snpc = pc;
   Log("Current cpu.pc -2-2-2-2-2-2-2-2-2-2-2= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
   isa_exec_once(s);
-  cpu.pc = s->dnpc;
+  cpu.pc = s->dnpc;//在这里更新了cpu.pc地址
   Log("Current cpu.pc -1-1-1-1-1-1-1-1-1-1-1= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;

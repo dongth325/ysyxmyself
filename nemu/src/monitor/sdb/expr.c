@@ -347,6 +347,7 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
   else if(p == q){                                                         
     if(tokens[p].type == TK_REG){
 if (strcmp(tokens[p].str, "$pc") == 0) {
+  Log("Current cpu.pc 0000000000000= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
         return cpu.pc;  // 返回当前程序计数器的值
     }
 
