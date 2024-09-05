@@ -411,7 +411,8 @@ else{		int n;
     switch(tokens[op].type){
       case DEREF:return paddr_read(val2,4);                         //未实现
      // case TK_NEGASIGN:return -val2;
-      case TK_EQ:return (val1 == val2);
+      case TK_EQ:Log("Current cpu.pc -3-3-3-3-3-3-3-3= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddddddddddd
+       return (val1 == val2);
       case TK_NOTEQ:return (val1 != val2);
       case TK_LOGAND:return (val1 && val2);
       case '+':return val1 + val2;
