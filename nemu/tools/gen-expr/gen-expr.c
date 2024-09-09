@@ -1,3 +1,4 @@
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,10 +6,10 @@
 #include <assert.h>
 #include <string.h>
 #include <math.h>
-#include <limits.h>  // 包含 INT_MAX 和 INT_MIN
+#include <limits.h>  
 
-static char buf[200] = {};  // 设置缓冲区大小为 200
-static char code_buf[512] = {}; // a little larger than buf
+static char buf[200] = {};  
+static char code_buf[512] = {}; 
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
@@ -20,8 +21,8 @@ static char *code_format =
 char *buf_ptr = buf;
 int char_num;
 
-#define MAX_LENGTH 200  // 最大长度设置为 200
-#define MAX_DEPTH 7  // 增加递归深度
+#define MAX_LENGTH 200  
+#define MAX_DEPTH 7  
 
 uint32_t choose(uint32_t n) {
     return rand() % n;
@@ -34,16 +35,16 @@ int getDigitCount(uint32_t number) {
     return (int)log10(number) + 1;
 }
 
-// 生成任意数字
+
 void gen_num() {
-    if (char_num >= MAX_LENGTH) return;  // 控制总长度
+    if (char_num >= MAX_LENGTH) return; 
 
     int lower = 1;
     int upper = 100;
-    uint32_t randomNumber = (rand() % (upper - lower + 1)) + lower;  // 保证随机数在较小范围内
+    uint32_t randomNumber = (rand() % (upper - lower + 1)) + lower;  
     int len = getDigitCount(randomNumber);
 
-    if (char_num + len >= MAX_LENGTH) return;  // 确保不会超出最大长度
+    if (char_num + len >= MAX_LENGTH) return;  
 
     sprintf(buf_ptr, "%d", randomNumber);
     buf_ptr += len;
@@ -51,14 +52,14 @@ void gen_num() {
 }
 
 void gen(const char c) {
-    if (char_num >= MAX_LENGTH - 1) return;  // 控制总长度，留出空位给'\0'
+    if (char_num >= MAX_LENGTH - 1) return;  
 
     *(buf_ptr++) = c;
     char_num += 1;
 }
 
 void gen_rand_op() {
-    if (char_num >= MAX_LENGTH - 1) return;  // 控制总长度，留出空位给'\0'
+    if (char_num >= MAX_LENGTH - 1) return;  
 
     switch (choose(4)) {
         case 0: gen('+'); break;
@@ -70,48 +71,62 @@ void gen_rand_op() {
 
 void gen_rand_expr(int depth);
 
-// 生成除法操作数，确保结果不为 0
+
 void gen_rand_non_zero_expr(int depth) {
     char *saved_buf_ptr;
     int saved_char_num;
     int result;
 
-    do {
-        saved_buf_ptr = buf_ptr;
-        saved_char_num = char_num;
-        gen_rand_expr(depth);  // 生成随机表达式作为除数
+   do {
+    
+    saved_buf_ptr = buf_ptr;
+    saved_char_num = char_num;
+    
+    
+    gen_rand_expr(depth);  
 
-        if (char_num > MAX_LENGTH) {
-            buf_ptr = saved_buf_ptr;
-            char_num = saved_char_num;
-            continue;
-        }
+    
+    if (char_num > MAX_LENGTH) {
+        buf_ptr = saved_buf_ptr;
+        char_num = saved_char_num;
+        continue;
+    }
 
-        char expr_buf[200];
-        strncpy(expr_buf, saved_buf_ptr, buf_ptr - saved_buf_ptr);
-        expr_buf[buf_ptr - saved_buf_ptr] = '\0';
+    
+    char expr_buf[200];
+    strncpy(expr_buf, saved_buf_ptr, buf_ptr - saved_buf_ptr);
+    expr_buf[buf_ptr - saved_buf_ptr] = '\0';
 
-        if (strlen(expr_buf) >= sizeof(expr_buf) - 64) {
-            continue;
-        }
+    
+    if (strlen(expr_buf) >= sizeof(expr_buf) - 64) {
+        buf_ptr = saved_buf_ptr;  
+        char_num = saved_char_num; 
+        continue;
+    }
 
-        char code_buf[512];
-        snprintf(code_buf, sizeof(code_buf),
-                 "echo '#include <stdio.h>\\nint main(){ printf(\"%%d\", %s); }' | gcc -xc - -o /tmp/.non_zero_expr && /tmp/.non_zero_expr", expr_buf);
+    
+    char code_buf[512];
+    snprintf(code_buf, sizeof(code_buf),
+             "echo '#include <stdio.h>\\nint main(){ printf(\"%%d\", %s); }' | gcc -xc - -o /tmp/.non_zero_expr && /tmp/.non_zero_expr", expr_buf);
 
-        FILE *fp = popen(code_buf, "r");
-        if (fp == NULL) {
-            perror("popen failed");
-            exit(1);
-        }
+    FILE *fp = popen(code_buf, "r");
+    if (fp == NULL) {
+        perror("popen failed");
+        exit(1);
+    }
 
-        int ret = fscanf(fp, "%d", &result);
-        if (ret != 1) {
-            result = 0;
-        }
-        pclose(fp);
+    
+    int ret = fscanf(fp, "%d", &result);
+    if (ret != 1 || result == 0) {
+        
+        buf_ptr = saved_buf_ptr;
+        char_num = saved_char_num;
+        result = 0;
+    }
+    pclose(fp);
 
-    } while (result == 0);  // 确保生成的表达式结果不为 0
+} while (result == 0);  
+
 }
 
 void gen_rand_expr(int depth) {
@@ -203,4 +218,3 @@ int main(int argc, char *argv[]) {
     }
     return 0;
 }
-
