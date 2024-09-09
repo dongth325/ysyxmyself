@@ -22,38 +22,41 @@ void process_expressions() {
         perror("Failed to open input file");
         return;
     }
-     int i=1;
-     int jisuan;
-     bool success;
-    char line[256]; // 假设每行表达式不超过255个字符
-    while (fgets(line, sizeof(line), fp)) {
-        // 移除换行符（如果有）
-        
-        i++;
-        line[strcspn(line, "\n")] = 0;
+    int i = 1;
+    long long jisuan;  // 使用long long来保存计算结果
+    bool success;
+    char line[256];  // 假设每行表达式不超过255个字符
 
-        // 假设每行是 "result expression" 的格式，我们可以打印并处理
-        int result;
+    while (fgets(line, sizeof(line), fp)) {
+        i++;
+        line[strcspn(line, "\n")] = 0;  // 移除换行符（如果有）
+
+        // 假设每行是 "result expression" 的格式
+        long long result;  // 使用long long来保存result
         char expression[256];
-        if (sscanf(line, "%d %[^\n]", &result, expression) == 2) {
+        if (sscanf(line, "%lld %[^\n]", &result, expression) == 2) {
             // 打印结果和表达式
-            printf("Result: %d, Expression: %s  nubline:%d\n", result, expression,i);
-                  jisuan=expr(expression,&success);
-                  if(success==false) assert(0);
-                  if(jisuan!=result) assert(0);
-                  else{printf("jisuan = %d  result = %d\n",jisuan,result);
-                  printf("\n");
-                  printf("\n");
-                  printf("\n");
-                  }
-            // 在这里可以添加对表达式的进一步处理
+            printf("Expected Result: %lld, Expression: %s  Line Number: %d\n", result, expression, i);
+            jisuan = expr(expression, &success);  // 使用long long来计算结果
+
+            if (success == false) {
+                assert(0);  // 计算失败时触发断言
+            }
+
+            if (jisuan != result) {
+                assert(0);  // 计算结果与预期不符时触发断言
+            } else {
+                printf("Computed Result: %lld  Expected Result: %lld\n", jisuan, result);
+                printf("\n");
+            }
         } else {
-            printf("Failed to parse line: %s\n  nubline: %d", line,i);
+            printf("Failed to parse line: %s\n  Line Number: %d", line, i);
         }
     }
 
-    fclose(fp); // 关闭文件
+    fclose(fp);  // 关闭文件
 }
+
 void init_monitor(int, char *[]);
 void am_init_monitor();
 void engine_start();
@@ -66,7 +69,7 @@ int main(int argc, char *argv[]) {
 #else
   init_monitor(argc, argv);
 #endif
-process_expressions();
+  //process_expressions();
   /* Start engine. */
   engine_start();
 

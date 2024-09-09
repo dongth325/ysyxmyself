@@ -1,27 +1,15 @@
-/***************************************************************************************
-* Copyright (c) 2014-2022 Zihao Yu, Nanjing University
-*
-* NEMU is licensed under Mulan PSL v2.
-* You can use this software according to the terms and conditions of the Mulan PSL v2.
-* You may obtain a copy of Mulan PSL v2 at:
-*          http://license.coscl.org.cn/MulanPSL2
-*
-* THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
-* EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
-* MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
-*
-* See the Mulan PSL v2 for more details.
-***************************************************************************************/
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
 #include <string.h>
+#include <math.h>
+#include <limits.h>  
 
-// 缓冲区大小设置
-static char buf[65536] = {};
-static char code_buf[65536 + 128] = {}; // 比 buf 稍大一些
+static char buf[200] = {};  
+static char code_buf[512] = {}; 
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
@@ -30,75 +18,146 @@ static char *code_format =
 "  return 0; "
 "}";
 
-// 生成随机数字
-static void gen_num() {
-    int num = rand() % 100;
-    char num_str[12];
-    sprintf(num_str, "%d", num);
-    strcat(buf, num_str);
+char *buf_ptr = buf;
+int char_num;
+
+#define MAX_LENGTH 200  
+#define MAX_DEPTH 7  
+
+uint32_t choose(uint32_t n) {
+    return rand() % n;
 }
 
-// 生成随机运算符
-static void gen_rand_op() {
-    int op = rand() % 3; // 只使用 +, *, /
-    if (op == 0) strcat(buf, " + ");
-    else if (op == 1) strcat(buf, " * ");
-    else strcat(buf, " / ");
+int getDigitCount(uint32_t number) {
+    if (number == 0) {
+        return 1;
+    }
+    return (int)log10(number) + 1;
 }
 
-// 随机插入空格
-static void insert_random_spaces() {
-    char temp_buf[65536] = {};
-    int len = strlen(buf);
-    int i = 0;
-    int j = 0;
+
+void gen_num() {
+    if (char_num >= MAX_LENGTH) return; 
+
+    int lower = 1;
+    int upper = 100;
+    uint32_t randomNumber = (rand() % (upper - lower + 1)) + lower;  
+    int len = getDigitCount(randomNumber);
+
+    if (char_num + len >= MAX_LENGTH) return;  
+
+    sprintf(buf_ptr, "%d", randomNumber);
+    buf_ptr += len;
+    char_num += len;
+}
+
+void gen(const char c) {
+    if (char_num >= MAX_LENGTH - 1) return;  
+
+    *(buf_ptr++) = c;
+    char_num += 1;
+}
+
+void gen_rand_op() {
+    if (char_num >= MAX_LENGTH - 1) return;  
+
+    switch (choose(4)) {
+        case 0: gen('+'); break;
+        case 1: gen('-'); break;
+        case 2: gen('*'); break;
+        case 3: gen('/'); break;
+    }
+}
+
+void gen_rand_expr(int depth);
+
+
+void gen_rand_non_zero_expr(int depth) {
+    char *saved_buf_ptr;
+    int saved_char_num;
+    int result;
+
+   do {
     
-    while (i < len) {
-        temp_buf[j++] = buf[i]; // 复制当前字符
+    saved_buf_ptr = buf_ptr;
+    saved_char_num = char_num;
+    
+    
+    gen_rand_expr(depth);  
+
+    
+    if (char_num > MAX_LENGTH) {
+        buf_ptr = saved_buf_ptr;
+        char_num = saved_char_num;
+        continue;
+    }
+
+    
+    char expr_buf[200];
+    strncpy(expr_buf, saved_buf_ptr, buf_ptr - saved_buf_ptr);
+    expr_buf[buf_ptr - saved_buf_ptr] = '\0';
+
+    
+    if (strlen(expr_buf) >= sizeof(expr_buf) - 64) {
+        buf_ptr = saved_buf_ptr;  
+        char_num = saved_char_num; 
+        continue;
+    }
+
+    
+    char code_buf[512];
+    snprintf(code_buf, sizeof(code_buf),
+             "echo '#include <stdio.h>\\nint main(){ printf(\"%%d\", %s); }' | gcc -xc - -o /tmp/.non_zero_expr && /tmp/.non_zero_expr", expr_buf);
+
+    FILE *fp = popen(code_buf, "r");
+    if (fp == NULL) {
+        perror("popen failed");
+        exit(1);
+    }
+
+    
+    int ret = fscanf(fp, "%d", &result);
+    if (ret != 1 || result == 0) {
         
-        if (buf[i] == ' ' || buf[i] == '+' || buf[i] == '*' || buf[i] == '/') {
-            // 随机决定是否插入额外的空格
-            if (rand() % 2 == 0) {
-                temp_buf[j++] = ' ';
-            }
-        }
-        i++;
+        buf_ptr = saved_buf_ptr;
+        char_num = saved_char_num;
+        result = 0;
     }
-    
-    temp_buf[j] = '\0'; // 终结字符串
-    strcpy(buf, temp_buf);
+    pclose(fp);
+
+} while (result == 0);  
+
 }
 
-// 生成随机表达式
-static void gen_rand_expr() {
-    buf[0] = '\0'; // 清空 buf
-
-    // 生成第一个数字
-    gen_num();
-
-    // 随机生成1到3个操作符的表达式
-    int op_count = rand() % 3 + 1;
-
-    for (int i = 0; i < op_count; i++) {
-        gen_rand_op();
-
-        // 如果是除法，确保除数不为0
-        if (strstr(buf, " / ") != NULL) {
-            int num;
-            do {
-                num = rand() % 100;
-            } while (num == 0);
-            char num_str[12];
-            sprintf(num_str, "%d", num);
-            strcat(buf, num_str);
-        } else {
-            // 生成下一个随机数
-            gen_num();
-        }
+void gen_rand_expr(int depth) {
+    if (char_num >= MAX_LENGTH - 1 || depth >= MAX_DEPTH) {
+        gen_num();
+        return;
     }
 
-    // 随机插入空格
-    insert_random_spaces();
+    switch (choose(3)) {
+        case 0:
+            gen_num();  // 生成数字
+            break;
+        case 1:
+            gen('(');  // 生成括号中的表达式
+            gen_rand_expr(depth + 1);
+            gen(')');
+            break;
+        case 2:
+            gen_rand_expr(depth + 1);  // 左表达式
+            gen_rand_op();  // 运算符
+            
+            if (*(buf_ptr - 1) == '/') {
+                gen_rand_non_zero_expr(depth + 1);  // 确保除数不为 0
+            } else {
+                gen_rand_expr(depth + 1);  // 其他运算符可以使用任意表达式
+            }
+            break;
+        default:
+            gen_num();  // 生成数字，作为默认情况
+            break;
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -108,9 +167,16 @@ int main(int argc, char *argv[]) {
     if (argc > 1) {
         sscanf(argv[1], "%d", &loop);
     }
-    int i;
-    for (i = 0; i < loop; i++) {
-        gen_rand_expr();  // 生成随机表达式
+    for (int i = 0; i < loop; i++) {
+        memset(buf, '\0', sizeof(buf));
+        buf_ptr = buf;
+        char_num = 0;
+
+        gen_rand_expr(0);  // 生成随机表达式
+
+        if (char_num >= MAX_LENGTH - 1) {
+            continue;
+        }
 
         sprintf(code_buf, code_format, buf);
 
@@ -119,19 +185,36 @@ int main(int argc, char *argv[]) {
         fputs(code_buf, fp);
         fclose(fp);
 
-        int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
-        if (ret != 0) continue;
+        // 编译生成的代码
+        fp = popen("gcc /tmp/.code.c -o /tmp/.expr 2>&1", "r");
+        assert(fp != NULL);
 
+        char buffer[128];
+        if (fgets(buffer, sizeof(buffer), fp) != NULL) {
+            pclose(fp);
+            continue;
+        }
+        pclose(fp);
+
+        // 执行生成的可执行文件
         fp = popen("/tmp/.expr", "r");
         assert(fp != NULL);
 
-        unsigned result;
-        ret = fscanf(fp, "%u", &result);
+        int result;
+        int ret = fscanf(fp, "%d", &result);
+        if (ret != 1) {
+            pclose(fp);
+            continue;
+        }
         pclose(fp);
 
-        // 输出结果和对应的表达式
-        printf("%u %s\n", result, buf);
+        // 限制输出值的范围，确保是合法的 int
+        if (result > INT_MAX || result < INT_MIN) {
+            continue;  // 跳过超出范围的值
+        }
+
+        // 将结果和表达式输出到终端或文件
+        printf("%u %s\n", result, buf);  // 输出格式：<结果> <表达式>
     }
     return 0;
 }
-

@@ -17,6 +17,7 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
+#include "../monitor/sdb/sdb.h"//ddddddddddddddddddddddddddddddddddddddddddd
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -33,18 +34,32 @@ static bool g_print_step = false;
 void device_update();
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
+  Log("Current cpu.pc 11111111= " FMT_WORD "\n", cpu.pc);//ddddddddddddddddddddddddddddddddddddddd
 #ifdef CONFIG_ITRACE_COND
-  if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
+  if (ITRACE_COND) { log_write("%s\n", _this->logbuf); 
+  Log("Current cpu.pc 22222222= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
+}
 #endif
-  if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
+  if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); 
+  Log("Current cpu.pc 333333333= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddddddddddd
+
+  }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
+Log("Current cpu.pc 4444444444= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddddd
+
+//#ifdef CONFIG_WATCHPOINT//ddddddddddddddddddddd
+Log("1111111111111111111");//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+  check_watchpoints();//dddddddddddddddddddddddddddddd
+//#endif //dddddddddddddddddddddddddddddddddd
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
+  Log("Current cpu.pc -2-2-2-2-2-2-2-2-2-2-2= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
   isa_exec_once(s);
-  cpu.pc = s->dnpc;
+  cpu.pc = s->dnpc;//在这里更新了cpu.pc地址
+  Log("Current cpu.pc -1-1-1-1-1-1-1-1-1-1-1= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
   p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
@@ -75,6 +90,7 @@ static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
+    
     g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;
@@ -115,6 +131,15 @@ void cpu_exec(uint64_t n) {
 
   switch (nemu_state.state) {
     case NEMU_RUNNING: nemu_state.state = NEMU_STOP; break;
+
+ case NEMU_STOP://ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+        // 处理 NEMU_STOP 状态，退出执行或进行其他处理
+        printf("Execution stopped. Current pc = " FMT_WORD "\n", cpu.pc);
+        return;  // 直接退出函数，停止执行ddddddddddddddddddddddddddddddddddddddddddddddddddddd
+
+
+
+
 
     case NEMU_END: case NEMU_ABORT:
       Log("nemu: %s at pc = " FMT_WORD,

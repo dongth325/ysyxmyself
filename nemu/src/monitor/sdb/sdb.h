@@ -16,8 +16,10 @@
 #ifndef __SDB_H__
 #define __SDB_H__
 
-#include <common.h>
+#include </home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/common.h>
 
 word_t expr(char *e, bool *success);
+void check_watchpoints();
+
 
 #endif

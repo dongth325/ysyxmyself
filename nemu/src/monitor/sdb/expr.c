@@ -20,19 +20,19 @@
  */
 #include <regex.h>
 #include <memory/paddr.h>//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-#define MAXOP 10//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 
 //static uint32_t eval(int ,int ) __attribute__((naked));
 enum {
-  TK_NOTYPE = 256, //0
+  TK_NOTYPE = 256, //   
   TK_EQ,     //==
   TK_NOTEQ,    //!=
-   TK_NUMD ,  //10 jin zhi
-   TK_NUMH , //16 jin zhi
+   TK_NUMD ,  //10 
+   TK_NUMH , //16 
    TK_REG,    //register
    TK_LOGAND,   //&&
+   //TK_NEGASIGN,HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
    
-   DEREF ,//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd     jie yin yong
+   DEREF ,//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd     
 
   /* TODO: Add more token types */
 
@@ -137,10 +137,10 @@ static bool make_token(char *e) {
 	
 	//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
         switch (rules[i].token_type) {
-	  case '+':case'-':case '/':case '(':case ')': case TK_EQ: case TK_NOTEQ: case TK_LOGAND://0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+	  case '+':case '/':case '-':case '(':case ')': case TK_EQ: case TK_NOTEQ: case TK_LOGAND:
 	    tokens[nr_token++].type = rules[i].token_type;
 	    break;
-	  case TK_NOTYPE:break;
+	   case TK_NOTYPE:break;
 	  
 	
 	  case TK_NUMD:case TK_NUMH:case TK_REG:
@@ -155,6 +155,27 @@ static bool make_token(char *e) {
 			tokens[nr_token-1].type == TK_REG)){
 			tokens[nr_token++].type = rules[i].token_type;}
 			else {tokens[nr_token++].type = DEREF;}
+			
+			
+		//case '-':  
+		//if(nr_token==0){tokens[nr_token-1].type == NEGASIGN;}
+		//else if(tokens[nr_token-1].type == '('
+		//tokens[nr_token-1].type == '+'
+		//tokens[nr_token-1].type == '-'
+		//tokens[nr_token-1].type == '*'
+		//tokens[nr_token-1].type == '/'
+		//tokens[nr_token-1].type == 'TK_EQ'
+		//tokens[nr_token-1].type == 'TK_NOTEQ'
+		//tokens[nr_token-1].type == 'TK_LOGAND'
+		//tokens[nr_token-1].type == 'TK_NEGASIGN'){tokens[nr_token++].type == TK_NEGASIGN;}
+		//else{
+		//tokens[nr_token++].type = rules[i].token_type;
+		//}
+		//}
+			  
+			  
+			  
+			  
     }
 //dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
     if (i == NR_REGEX) {
@@ -187,7 +208,7 @@ static bool make_token(char *e) {
 bool check_parentheses2(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
   if(p > q) assert(0);                      //check if kuohao is pairs
   int mark = 0;
-  for(;p <= q;p++){                    //从左往右开始匹配  遇到左括号就++ 右括号就-- 若没有前提左括号就匹配到右括号的时候就返回错误
+  for(;p <= q;p++){                    //从左往右开始
     if(tokens[p].type == '(')
       mark += 1;
     else if(tokens[p].type == ')'){
@@ -202,36 +223,58 @@ bool check_parentheses2(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
 
 }
 bool check_parentheses(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-                                                   //检查括号是否匹配及最外面是不是有括号
+                                                   
   if(check_parentheses2(p , q) == false){
     assert(0);                                      
     }
   if((tokens[p].type == '(')&&(tokens[q].type == ')')){
     p+=1;
     q-=1;
-    return check_parentheses2(p , q);}           //防止（）（）双括号情况出现
+    return check_parentheses2(p , q);}           
   return false;
 }
 
-static int find_main_op(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-  int plus[MAXOP] = {-1}, plusptr = 0;//10个元素初始都等于-1
-  int sub[MAXOP] = {-1},subptr = 0;   //00000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-  int noequl[MAXOP] = {-1},noequlptr = 0; 
-  int andand[MAXOP] = {-1},andandptr = 0; 
-  int mul[MAXOP] = {-1}, mulptr = 0;
-  int div[MAXOP] ={-1}, divptr = 0;
-  int equl[MAXOP] ={-1},equlptr =0;
-	int deref1[MAXOP] ={-1},deref1ptr = 0;
-  int lp = 0;
-  int op = 0;
+static int find_main_op(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+  int plus[20] = {-1}, plusptr = 0;
+  
+  int sub[20] = {-1},subptr = 0;   //00000000000000000000000000000000000000000000000000000
+  
+  int noequl[20] = {-1},noequlptr = 0; 
+  
+  int andand[20] = {-1},andandptr = 0; 
+  
+  int mul[20] = {-1}, mulptr = 0;
+  
+  int div[20] ={-1}, divptr = 0;
+  
+  int equl[20] ={-1},equlptr =0;
+  
+	int deref1[20] ={-1},deref1ptr = 0;
+	//int negasign[MAXOP]={-1},negasignptr = 0;
+	
+	
+	
+           int mmark = 0;
+           int op = 0;
   for(;p < q;p++){
-    if(tokens[p].type == '(') lp++;
-    if(tokens[p].type == ')') lp--;
-    if(lp != 0) continue;//表示位于括号内部  进行下一次迭代  主符号不可能在括号内 一直跳到括号外
+    if(tokens[p].type == '(') mmark++;
+    
+    
+    if(tokens[p].type == ')') mmark--;
+    
+    
+    if(mmark != 0) continue;
+    
+    
+    
+    
+    
     switch(tokens[p].type){
 			case DEREF:
-				deref1[deref1ptr++] = p;//先赋值 在括号内++
+				deref1[deref1ptr++] = p;
 				break;
+			//case TK_NEGASIGN:
+			      //  negasign[negasignptr++] = p;	
       case TK_EQ:
 				equl[equlptr++] = p;
 				break;
@@ -267,13 +310,13 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
       if((equl[0] == -1) &&(noequl[0] == -1)){
       
        if(andand[0]!=-1) {op = andand[--andandptr];}
-          else{                                      //按照= +- */的优先级从低到高顺寻依次看 如有相同优先级 则看是不是最右边的
+          else{                                      
     if(plus[0] != -1){ op = plus[--plusptr];}
     
       if(sub[0] != -1){
-      if(sub[--subptr] > op) op = sub[subptr];}//减少 1 之后，用这个减少后的值作为下标
+      if(sub[--subptr] > op) op = sub[subptr];}
       
-    if((plus[0] == -1) &&(sub[0] == -1)){//if there is no '+' or '-'如果没有加号减号 
+    if((plus[0] == -1) &&(sub[0] == -1)){
     
     
     
@@ -283,8 +326,9 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
       if(div[0] != -1)
         if(div[--divptr] > op) op = div[divptr];
         
-			if((mul[0] == -1)&&(div[0] == -1)){//if there is no '*' or '/'如果没有乘号除号
-				if(deref1[0]!=-1) op = deref1[--deref1ptr];
+			if((mul[0] == -1)&&(div[0] == -1)){
+				if(deref1[0]!=-1) {op = deref1[--deref1ptr];}
+				//else if(negasign[0]! = -1){op =negasign[--negasignptr]; }
 			                                  }
                                       }}}
 		
@@ -294,41 +338,34 @@ static int find_main_op(int p,int q){//ddddddddddddddddddddddddddddddddddddddddd
   return op;
 } 
 
-static uint32_t deref(int addr){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-  uint32_t m;                         
-  uint8_t *raddr = guest_to_host(addr);  
-  m = *raddr++;
-  m += *raddr++*256;
-  m += *raddr++*256*256;
-  m += *raddr*256*256*256;
-  return m;
-}
-
-
-
 static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 
   int op;
   int val1,val2;
-  if(p > q)
-    assert(0);
-  else if(p == q){                                                            //在 p == q 的情况下，它判断当前 token 的类型：
-
-                                                    //                                   如果是寄存器（TK_REG），则获取并返回寄存器的值。
-                                                                      //如果是解引用（DEREF），则返回 0。
-                                                                        //如果是常量值，则将其字符串表示转换为数值并返回。
+  if(p > q){
+    assert(0);}
+  else if(p == q){                                                         
     if(tokens[p].type == TK_REG){
-			int n;
+if (strcmp(tokens[p].str, "$pc") == 0) {
+  Log("Current cpu.pc 0000000000000= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
+        return cpu.pc;  // 返回当前程序计数器的值
+    }
+
+else{		int n;
 			bool success = false;
-			n = isa_reg_str2val(tokens[p].str,&success);
+			n = isa_reg_str2val(tokens[p].str+1,&success);
 			if(success == true)
-	  		return n;                               
+	  		return cpu.gpr[n];                               
 			else{
 				printf("%s\n",tokens[p].str);
 				printf("%d",n);
 	  		printf("isa_reg f\n");
     	                    }
-    	                        }
+    }
+    }
+
+
+
     else if(tokens[p].type == DEREF)
       return 0;
     return strtol(tokens[p].str,NULL,0);
@@ -337,18 +374,45 @@ static uint32_t eval(int p,int q){//dddddddddddddddddddddddddddddddddddddddddddd
   
   
   else if(check_parentheses(p,q) == true)   
-    return eval(p + 1, q - 1);     //在前面find main op函数中无法外面是括号的表达式 会（跳过）
+    return eval(p + 1, q - 1);     
   else{
     op = find_main_op(p,q);
+    
 		if(tokens[op].type == DEREF){
 			val1 = eval(op , op);
 			val2 = eval(op + 1,q);}
+			
+			
+			//if(tokens[op].type == NEGASIGN){
+			//if(tokens[op-1].type == NEGASIGN){
+			//val1 = eval(op , op);
+			//val2 = eval(op + 1,q);
+			//return val2;
+			//}
+			//else{
+			//val2 = eval(op + 1,q);
+			//return -val2;
+			//}
+			//}
+			
+			
+			
+			
+			
+			
     else{
-			val1 = eval(p , op -1);
+	val1 = eval(p , op -1);
     	val2 = eval(op + 1 ,q);}
+    	
+    	
+    	
+    	
+    	
     switch(tokens[op].type){
-			case DEREF:return deref(val2);
-      case TK_EQ:return (val1 == val2);//返回的时候如果相同就返回1  不同就返回0
+      case DEREF:return paddr_read(val2,4);                         //未实现
+     // case TK_NEGASIGN:return -val2;
+      case TK_EQ:Log("Current cpu.pc -3-3-3-3-3-3-3-3= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddddddddddd
+       return (val1 == val2);
       case TK_NOTEQ:return (val1 != val2);
       case TK_LOGAND:return (val1 && val2);
       case '+':return val1 + val2;
@@ -381,4 +445,4 @@ word_t expr(char *e, bool *success) {
   else{ *success = true;}
   /* TODO: Insert codes to evaluate the expression. */
   return eval(0,nr_token-1);//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-}
+}//..................................
