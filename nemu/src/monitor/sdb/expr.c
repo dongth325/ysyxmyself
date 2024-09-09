@@ -353,7 +353,7 @@ if (strcmp(tokens[p].str, "$pc") == 0) {
 
 else{		int n;
 			bool success = false;
-			n = isa_reg_str2val(tokens[p].str,&success);
+			n = isa_reg_str2val(tokens[p].str+1,&success);
 			if(success == true)
 	  		return cpu.gpr[n];                               
 			else{
