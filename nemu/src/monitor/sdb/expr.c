@@ -355,7 +355,7 @@ else{		int n;
 			bool success = false;
 			n = isa_reg_str2val(tokens[p].str,&success);
 			if(success == true)
-	  		return n;                               
+	  		return cpu.gpr[n];                               
 			else{
 				printf("%s\n",tokens[p].str);
 				printf("%d",n);
