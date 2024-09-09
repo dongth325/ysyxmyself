@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 #else
   init_monitor(argc, argv);
 #endif
-  process_expressions();
+  //process_expressions();
   /* Start engine. */
   engine_start();
 
