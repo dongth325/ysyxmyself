@@ -50,7 +50,7 @@ void free_wp(WP *wp){
     if(head -> NO == wp -> NO){
     	head -> flag = false;
 	head = head->next;
-	printf("Delete watchpoint  success.\n");
+	 printf("free succes.\n");
 	return ;
     }
     for(WP* p = head ; p -> next != NULL ; p = p -> next){
