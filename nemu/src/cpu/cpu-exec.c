@@ -49,7 +49,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 
 //#ifdef CONFIG_WATCHPOINT//ddddddddddddddddddddd
 //Log("1111111111111111111");//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-  //check_watchpoints();//dddddddddddddddddddddddddddddd
+  check_watchpoints();//dddddddddddddddddddddddddddddd
 //#endif //dddddddddddddddddddddddddddddddddd
 }
 
