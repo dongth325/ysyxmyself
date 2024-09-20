@@ -1,4 +1,4 @@
-module IFU(
+module ysyx_24090012_IFU(
     input clk,
     input rst,
     output reg [31:0] pc,

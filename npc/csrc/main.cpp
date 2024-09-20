@@ -1,4 +1,4 @@
-#include "VNPC.h"       // Verilator 自动生成的顶层模块类
+#include "Vysyx_24090012_NPC.h"       // Verilator 自动生成的顶层模块类
 #include "verilated.h"  // Verilator 的核心头文件
 #include <iostream>
 
@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
     Verilated::commandArgs(argc, argv);
 
     // 初始化顶层模块实例
-    VNPC *top = new VNPC;
+    Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;
 
     // 初始化存储器
     load_memory();

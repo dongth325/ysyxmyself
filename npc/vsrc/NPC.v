@@ -1,4 +1,4 @@
-module NPC(
+module ysyx_24090012_NPC(
   input clk,
   input rst,
   output reg [31:0] pc,      // 将 pc 定义为输出端口
@@ -17,10 +17,10 @@ module NPC(
   //wire [31:0] mem_data;
 
   // 实例化各个模块
-  IFU ifu(.clk(clk), .rst(rst), .pc(pc), .inst(inst), .mem_data(mem_data));
-  IDU idu(.inst(inst), .rs1(rs1), .rd(rd), .imm(imm));
-  RegisterFile regfile(.clk(clk), .rst(rst), .raddr1(rs1), .raddr2(5'b0), .waddr(rd), .wdata(result), .wen(1'b1), .rdata1(rs1_data), .rdata2());
-  EXU exu(.rs1_data(rs1_data), .imm(imm), .result(result));
+  ysyx_24090012_IFU ifu(.clk(clk), .rst(rst), .pc(pc), .inst(inst), .mem_data(mem_data));
+  ysyx_24090012_IDU idu(.inst(inst), .rs1(rs1), .rd(rd), .imm(imm));
+  ysyx_24090012_RegisterFile regfile(.clk(clk), .rst(rst), .raddr1(rs1), .raddr2(5'b0), .waddr(rd), .wdata(result), .wen(1'b1), .rdata1(rs1_data), .rdata2());
+  ysyx_24090012_EXU exu(.rs1_data(rs1_data), .imm(imm), .result(result));
 
 
     always @(posedge clk or posedge rst) begin

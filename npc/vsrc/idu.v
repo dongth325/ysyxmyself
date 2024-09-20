@@ -1,4 +1,4 @@
-module IDU(
+module ysyx_24090012_IDU(
   input [31:0] inst,
   output [4:0] rs1,
   output [4:0] rd,
