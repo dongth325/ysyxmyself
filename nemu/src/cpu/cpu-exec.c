@@ -18,6 +18,9 @@
 #include <cpu/difftest.h>
 #include <locale.h>
 #include "../monitor/sdb/sdb.h"//ddddddddddddddddddddddddddddddddddddddddddd
+#include "../utils/iringbuf.h"
+
+RingBuffer rb;
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -110,6 +113,11 @@ static void statistic() {
 void assert_fail_msg() {
   isa_reg_display();
   statistic();
+   // 当断言失败时，打印最近的指令踪迹
+   printf("Assertion failed! Printing recent instruction trace:\n");
+
+  // 调用 get_trace 打印指令踪迹
+  get_trace(&rb);  // 假设环形缓冲区是全局的 rb 变量
 }
 
 /* Simulate how the CPU works. */
@@ -147,6 +155,14 @@ void cpu_exec(uint64_t n) {
            (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
+
+          // 当程序异常终止时，打印最近的指令踪迹
+        printf("Assertion failed! Printing recent instruction trace:\n");
+
+  // 调用 get_trace 打印指令踪迹
+  get_trace(&rb);  // 假设环形缓冲区是全局的 rb 变量
+
+
       // fall through
     case NEMU_QUIT: statistic();
   }

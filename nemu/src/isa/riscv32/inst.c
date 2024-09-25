@@ -2,6 +2,14 @@
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
+#include "/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/src/utils/iringbuf.h"
+
+
+void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+
+
+RingBuffer rb;
+
 
 #define R(i) gpr(i)
 #define Mr vaddr_read
@@ -172,5 +180,14 @@ static int decode_exec(Decode *s) {
 
 int isa_exec_once(Decode *s) {
   s->isa.inst.val = inst_fetch(&s->snpc, 4);
+
+  // 将指令的 PC 和二进制表示加入环形缓冲区
+  char disasm[64];
+  disassemble(disasm, sizeof(disasm), s->pc, (uint8_t *)&s->isa.inst.val, 4);
+
+  push_ringbuf(&rb, s->pc, s->isa.inst.val, disasm);  // 将PC、指令的二进制表示和反汇编结果存入环形缓冲区
+
+
+
   return decode_exec(s);
 }
