@@ -8,7 +8,7 @@
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 
-extern RingBuffer rb; 
+extern RingBuffer rb; //加上extern避免重复定义导致导致链接器错误
 
 
 #define R(i) gpr(i)
