@@ -213,3 +213,11 @@ config RT_CHECK
   default y
 
 endmenu
+
+config MTRACE
+    bool "Enable memory trace (mtrace)"
+    default n
+    help
+      Enable memory trace functionality. When enabled, it will trace memory
+      read and write operations, logging every memory access.
+
