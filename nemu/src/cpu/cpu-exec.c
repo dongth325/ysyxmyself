@@ -117,7 +117,7 @@ void assert_fail_msg() {
    printf("Assertion failed! Printing recent instruction trace:\n");
 
   // 调用 get_trace 打印指令踪迹
-  get_trace(&rb);  // 假设环形缓冲区是全局的 rb 变量
+ // get_trace(&rb);  // 假设环形缓冲区是全局的 rb 变量
 }
 
 /* Simulate how the CPU works. */
