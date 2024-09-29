@@ -24,6 +24,29 @@ static uint8_t *pmem = NULL;
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #endif
 
+
+
+
+
+#ifdef CONFIG_MTRACE
+#include <stdio.h>
+
+void mtrace_read(paddr_t addr, int len, word_t data) {
+    printf("MTRACE: Read %d bytes from 0x%x, data = 0x%x\n", len, addr, data);
+}
+
+void mtrace_write(paddr_t addr, int len, word_t data) {
+    printf("MTRACE: Write %d bytes to 0x%x, data = 0x%x\n", len, addr, data);
+}
+#endif
+
+
+
+
+
+
+
+
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
@@ -57,14 +80,30 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
-  if (likely(in_pmem(addr))) return pmem_read(addr, len);
-  IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
-  out_of_bound(addr);
-  return 0;
+  word_t data;
+  if (likely(in_pmem(addr))) {
+    data = pmem_read(addr, len);
+  } else {
+    IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
+    out_of_bound(addr);
+    return 0;
+  }
+#ifdef CONFIG_MTRACE
+  mtrace_read(addr, len, data);  // 调用 mtrace_read 记录读取操作
+#endif
+  return data;
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
-  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
-  out_of_bound(addr);
+  if (likely(in_pmem(addr))) {
+    pmem_write(addr, len, data);
+  } else {
+    IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
+    out_of_bound(addr);
+    return;
+  }
+#ifdef CONFIG_MTRACE
+  mtrace_write(addr, len, data);  // 调用 mtrace_write 记录写入操作
+#endif
 }
+

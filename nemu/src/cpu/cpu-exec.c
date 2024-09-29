@@ -18,6 +18,9 @@
 #include <cpu/difftest.h>
 #include <locale.h>
 #include "../monitor/sdb/sdb.h"//ddddddddddddddddddddddddddddddddddddddddddd
+#include "../utils/iringbuf.h"
+
+RingBuffer rb;
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -34,21 +37,21 @@ static bool g_print_step = false;
 void device_update();
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
-  Log("Current cpu.pc 11111111= " FMT_WORD "\n", cpu.pc);//ddddddddddddddddddddddddddddddddddddddd
+  //Log("Current cpu.pc 11111111= " FMT_WORD "\n", cpu.pc);//ddddddddddddddddddddddddddddddddddddddd
 #ifdef CONFIG_ITRACE_COND
   if (ITRACE_COND) { log_write("%s\n", _this->logbuf); 
-  Log("Current cpu.pc 22222222= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
+  //Log("Current cpu.pc 22222222= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
 }
 #endif
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); 
-  Log("Current cpu.pc 333333333= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddddddddddd
+  //Log("Current cpu.pc 333333333= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddddddddddd
 
   }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
-Log("Current cpu.pc 4444444444= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddddd
+//Log("Current cpu.pc 4444444444= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddddd
 
 //#ifdef CONFIG_WATCHPOINT//ddddddddddddddddddddd
-Log("1111111111111111111");//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+//Log("1111111111111111111");//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
   check_watchpoints();//dddddddddddddddddddddddddddddd
 //#endif //dddddddddddddddddddddddddddddddddd
 }
@@ -56,10 +59,10 @@ Log("1111111111111111111");//ddddddddddddddddddddddddddddddddddddddddddddddddddd
 static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
-  Log("Current cpu.pc -2-2-2-2-2-2-2-2-2-2-2= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
+  //Log("Current cpu.pc -2-2-2-2-2-2-2-2-2-2-2= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
   isa_exec_once(s);
   cpu.pc = s->dnpc;//在这里更新了cpu.pc地址
-  Log("Current cpu.pc -1-1-1-1-1-1-1-1-1-1-1= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
+  //Log("Current cpu.pc -1-1-1-1-1-1-1-1-1-1-1= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
   p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
@@ -110,6 +113,11 @@ static void statistic() {
 void assert_fail_msg() {
   isa_reg_display();
   statistic();
+   // 当断言失败时，打印最近的指令踪迹
+   printf("Assertion failed! Printing recent instruction trace:\n");
+
+  // 调用 get_trace 打印指令踪迹
+  get_trace(&rb);  // 假设环形缓冲区是全局的 rb 变量
 }
 
 /* Simulate how the CPU works. */
@@ -147,6 +155,14 @@ void cpu_exec(uint64_t n) {
            (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
+
+          // 当程序异常终止时，打印最近的指令踪迹
+        printf("Assertion failed! Printing recent instruction trace:\n");
+
+  // 调用 get_trace 打印指令踪迹
+  //get_trace(&rb);  // 假设环形缓冲区是全局的 rb 变量
+
+
       // fall through
     case NEMU_QUIT: statistic();
   }

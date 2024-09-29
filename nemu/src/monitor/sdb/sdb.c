@@ -33,13 +33,13 @@ void check_watchpoints() {
 
             // 计算表达式的当前值
             int current_value = expr(wp_pool[i].expr, &success);
-            Log("Watchpoint %d evaluated expression -6-6-6-6-6-6result: %d\n", wp_pool[i].NO, current_value);//ddddddddddddddddddddddddddddddd
+            //Log("Watchpoint %d evaluated expression -6-6-6-6-6-6result: %d\n", wp_pool[i].NO, current_value);//ddddddddddddddddddddddddddddddd
 
 
             if (!success) {
                 assert(0);  // 如果表达式求值失败，触发断言
             }
-              Log("old value-7-7-7-7-7-7-7-7-7=: %d\n",wp_pool[i].old_value);
+              //Log("old value-7-7-7-7-7-7-7-7-7=: %d\n",wp_pool[i].old_value);
 
             // 如果新值与旧值不同，说明监视点被触发
             if (current_value != wp_pool[i].old_value) {

@@ -1,162 +1,120 @@
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
 #include <string.h>
-#include <math.h>
-#include <limits.h>  
 
-static char buf[200] = {};  
-static char code_buf[512] = {}; 
+static char buf[65536] = {};
+static char code_buf[65536 + 128] = {}; // a little larger than `buf`
 static char *code_format =
-"#include <stdio.h>\n"
-"int main() { "
-"  unsigned result = %s; "
-"  printf(\"%%u\", result); "
-"  return 0; "
-"}";
+    "#include <stdio.h>\n"
+    "int main() { "
+    "  unsigned result = %s; "
+    "  printf(\"%%u\", result); "
+    "  return 0; "
+    "}";
 
-char *buf_ptr = buf;
-int char_num;
-
-#define MAX_LENGTH 200  
-#define MAX_DEPTH 7  
-
-uint32_t choose(uint32_t n) {
-    return rand() % n;
+// Generate a random number and ensure it's not zero if required
+static void gen_num(char *dest) {
+    char str[32];
+    int num;
+    num = rand() % 99; // 生成0到98之间的随机数
+    sprintf(str, "%d", num);
+    strcat(dest, str);
 }
 
-int getDigitCount(uint32_t number) {
-    if (number == 0) {
-        return 1;
+// Generate a random operator
+static void gen_rand_op(char *dest) {
+    char op;
+    switch (rand() % 4) {
+    case 0:
+        op = '+';
+        break;
+    case 1:
+        op = '-';
+        break;
+    case 2:
+        op = '*';
+        break;
+    case 3:
+        op = '/';
+        break;
+    default:
+        return; // Fallback, should not happen
     }
-    return (int)log10(number) + 1;
+
+    char str[2];
+    str[0] = op;
+    str[1] = '\0';
+    strcat(dest, str);
 }
 
+// Function to evaluate if an expression equals zero using the same logic as main
+int is_expr_zero(char *expr) {
+    sprintf(code_buf, code_format, expr);
 
-void gen_num() {
-    if (char_num >= MAX_LENGTH) return; 
+    FILE *fp = fopen("/tmp/.code.c", "w");
+    assert(fp != NULL);
+    fputs(code_buf, fp);
+    fclose(fp);
 
-    int lower = 1;
-    int upper = 100;
-    uint32_t randomNumber = (rand() % (upper - lower + 1)) + lower;  
-    int len = getDigitCount(randomNumber);
-
-    if (char_num + len >= MAX_LENGTH) return;  
-
-    sprintf(buf_ptr, "%d", randomNumber);
-    buf_ptr += len;
-    char_num += len;
-}
-
-void gen(const char c) {
-    if (char_num >= MAX_LENGTH - 1) return;  
-
-    *(buf_ptr++) = c;
-    char_num += 1;
-}
-
-void gen_rand_op() {
-    if (char_num >= MAX_LENGTH - 1) return;  
-
-    switch (choose(4)) {
-        case 0: gen('+'); break;
-        case 1: gen('-'); break;
-        case 2: gen('*'); break;
-        case 3: gen('/'); break;
+    int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
+    if (ret != 0) {
+        return 1; // Compilation error, assume the expression is invalid (like division by zero)
     }
-}
 
-void gen_rand_expr(int depth);
+    fp = popen("/tmp/.expr", "r");
+    assert(fp != NULL);
 
-
-void gen_rand_non_zero_expr(int depth) {
-    char *saved_buf_ptr;
-    int saved_char_num;
     int result;
-
-   do {
-    
-    saved_buf_ptr = buf_ptr;
-    saved_char_num = char_num;
-    
-    
-    gen_rand_expr(depth);  
-
-    
-    if (char_num > MAX_LENGTH) {
-        buf_ptr = saved_buf_ptr;
-        char_num = saved_char_num;
-        continue;
-    }
-
-    
-    char expr_buf[200];
-    strncpy(expr_buf, saved_buf_ptr, buf_ptr - saved_buf_ptr);
-    expr_buf[buf_ptr - saved_buf_ptr] = '\0';
-
-    
-    if (strlen(expr_buf) >= sizeof(expr_buf) - 64) {
-        buf_ptr = saved_buf_ptr;  
-        char_num = saved_char_num; 
-        continue;
-    }
-
-    
-    char code_buf[512];
-    snprintf(code_buf, sizeof(code_buf),
-             "echo '#include <stdio.h>\\nint main(){ printf(\"%%d\", %s); }' | gcc -xc - -o /tmp/.non_zero_expr && /tmp/.non_zero_expr", expr_buf);
-
-    FILE *fp = popen(code_buf, "r");
-    if (fp == NULL) {
-        perror("popen failed");
-        exit(1);
-    }
-
-    
-    int ret = fscanf(fp, "%d", &result);
-    if (ret != 1 || result == 0) {
+    if (fscanf(fp, "%d", &result) != 1) {
+        // 处理错误，例如返回一个错误码或者打印错误信息
         
-        buf_ptr = saved_buf_ptr;
-        char_num = saved_char_num;
-        result = 0;
+        result = 0; // 或者其他合适的错误处理
     }
+    
     pclose(fp);
-
-} while (result == 0);  
-
+    
+    printf("%d",result);
+    return result;
 }
 
-void gen_rand_expr(int depth) {
-    if (char_num >= MAX_LENGTH - 1 || depth >= MAX_DEPTH) {
-        gen_num();
-        return;
+// Generate a random expression, ensuring no division by zero
+static void gen_rand_expr(char *dest) {
+    int choose = rand() % 3;
+
+    if (strlen(dest) > 20) {
+        choose = 0; // Limit the length of the expression
     }
 
-    switch (choose(3)) {
-        case 0:
-            gen_num();  // 生成数字
-            break;
-        case 1:
-            gen('(');  // 生成括号中的表达式
-            gen_rand_expr(depth + 1);
-            gen(')');
-            break;
-        case 2:
-            gen_rand_expr(depth + 1);  // 左表达式
-            gen_rand_op();  // 运算符
-            
-            if (*(buf_ptr - 1) == '/') {
-                gen_rand_non_zero_expr(depth + 1);  // 确保除数不为 0
-            } else {
-                gen_rand_expr(depth + 1);  // 其他运算符可以使用任意表达式
-            }
-            break;
-        default:
-            gen_num();  // 生成数字，作为默认情况
-            break;
+    switch (choose) {
+    case 0: {
+        // Simple expression num
+        gen_num(dest); 
+        break;
+    }
+    case 1:
+        strcat(dest, "(");
+        gen_rand_expr(dest);
+        strcat(dest, ")");
+        break;
+    default:
+        gen_rand_expr(dest);
+        gen_rand_op(dest);
+        if (dest[strlen(dest) - 1] == '/') {
+            // Ensure the expression after '/' does not evaluate to zero
+            char temp_expr[65536];
+            do {
+                temp_expr[0] = '\0'; // Reset temp_expr buffer
+                gen_rand_expr(temp_expr); // Generate the expression after '/'
+            } while (!is_expr_zero(temp_expr));
+
+            strcat(dest, temp_expr); // Append valid expression back to buf
+        } else {
+            gen_rand_expr(dest); // Recursively generate the next part of the expression
+        }
+        break;
     }
 }
 
@@ -168,15 +126,8 @@ int main(int argc, char *argv[]) {
         sscanf(argv[1], "%d", &loop);
     }
     for (int i = 0; i < loop; i++) {
-        memset(buf, '\0', sizeof(buf));
-        buf_ptr = buf;
-        char_num = 0;
-
-        gen_rand_expr(0);  // 生成随机表达式
-
-        if (char_num >= MAX_LENGTH - 1) {
-            continue;
-        }
+        buf[0] = '\0'; // Reset buffer
+        gen_rand_expr(buf);
 
         sprintf(code_buf, code_format, buf);
 
@@ -185,36 +136,20 @@ int main(int argc, char *argv[]) {
         fputs(code_buf, fp);
         fclose(fp);
 
-        // 编译生成的代码
-        fp = popen("gcc /tmp/.code.c -o /tmp/.expr 2>&1", "r");
-        assert(fp != NULL);
+        int ret = system("gcc /tmp/.code.c -o /tmp/.expr");
+        if (ret != 0) continue;
 
-        char buffer[128];
-        if (fgets(buffer, sizeof(buffer), fp) != NULL) {
-            pclose(fp);
-            continue;
-        }
-        pclose(fp);
-
-        // 执行生成的可执行文件
         fp = popen("/tmp/.expr", "r");
         assert(fp != NULL);
 
         int result;
-        int ret = fscanf(fp, "%d", &result);
-        if (ret != 1) {
-            pclose(fp);
-            continue;
+        if (fscanf(fp, "%d", &result) != 1) {
+            // 处理错误，例如返回一个默认值
+            result = -1; // 或者其他错误处理
         }
         pclose(fp);
 
-        // 限制输出值的范围，确保是合法的 int
-        if (result > INT_MAX || result < INT_MIN) {
-            continue;  // 跳过超出范围的值
-        }
-
-        // 将结果和表达式输出到终端或文件
-        printf("%u %s\n", result, buf);  // 输出格式：<结果> <表达式>
+        printf("%u %s\n", result, buf);
     }
     return 0;
 }

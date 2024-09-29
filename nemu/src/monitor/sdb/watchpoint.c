@@ -13,7 +13,6 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 #include "sdb.h"
-
 #define NR_WP 32
 #include "watchpoint.h"
 
@@ -50,15 +49,16 @@ WP* new_wp(){
 void free_wp(WP *wp){
     if(head -> NO == wp -> NO){
     	head -> flag = false;
-	head = NULL;
-	printf("Delete watchpoint  success.\n");
+	head = head->next;
+	 printf("free succes.\n");
 	return ;
     }
     for(WP* p = head ; p -> next != NULL ; p = p -> next){
 	if(p -> next -> NO  == wp -> NO)
 	{
+		  p -> next -> flag = false; // 没有被使用
 	    p -> next = p -> next -> next;
-	    p -> next -> flag = false; // 没有被使用
+	  
 	    printf("free succes.\n");
 	    return ;
 	}

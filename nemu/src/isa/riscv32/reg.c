@@ -28,14 +28,15 @@ const char *regs[] = {
 
 
 void isa_reg_display() {
-    int length =  sizeof(regs) / sizeof(regs[0]);   //获取寄存器组长度 
-    for(int i = 0  ; i < length ; i ++)   
-    
-    
-    
-              
-printf("reg$%s ---> %d\n",regs[i], cpu.gpr[i]);//获取寄存器组长度  遍历寄存器 输出寄存器值
+    int length = sizeof(regs) / sizeof(regs[0]);   // 获取寄存器组长度 
+    for (int i = 0; i < length; i++) {   
+        // 使用%08x来输出32位寄存器的值，以16进制显示，并保持8位对齐
+        printf("reg$%s ---> 0x%08x\n", regs[i], (uint32_t)cpu.gpr[i]);
+    }
+    // 同样使用16进制输出程序计数器(pc)，假设pc也是32位
+    printf("pc = 0x%08x\n", (uint32_t)cpu.pc);
 }
+
 
 
 
@@ -50,6 +51,6 @@ word_t isa_reg_str2val(const char *s, bool *success) {
 		return i;
 	}
     }
-    success = false;
+    *success = false;
     return 0;
 }
