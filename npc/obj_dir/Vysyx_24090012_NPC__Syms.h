@@ -1,0 +1,40 @@
+// Verilated -*- C++ -*-
+// DESCRIPTION: Verilator output: Symbol table internal header
+//
+// Internal details; most calling programs do not need this header,
+// unless using verilator public meta comments.
+
+#ifndef VERILATED_VYSYX_24090012_NPC__SYMS_H_
+#define VERILATED_VYSYX_24090012_NPC__SYMS_H_  // guard
+
+#include "verilated.h"
+
+// INCLUDE MODEL CLASS
+
+#include "Vysyx_24090012_NPC.h"
+
+// INCLUDE MODULE CLASSES
+#include "Vysyx_24090012_NPC___024root.h"
+
+// DPI TYPES for DPI Export callbacks (Internal use)
+
+// SYMS CLASS (contains all model state)
+class alignas(VL_CACHE_LINE_BYTES)Vysyx_24090012_NPC__Syms final : public VerilatedSyms {
+  public:
+    // INTERNAL STATE
+    Vysyx_24090012_NPC* const __Vm_modelp;
+    VlDeleter __Vm_deleter;
+    bool __Vm_didInit = false;
+
+    // MODULE INSTANCE STATE
+    Vysyx_24090012_NPC___024root   TOP;
+
+    // CONSTRUCTORS
+    Vysyx_24090012_NPC__Syms(VerilatedContext* contextp, const char* namep, Vysyx_24090012_NPC* modelp);
+    ~Vysyx_24090012_NPC__Syms();
+
+    // METHODS
+    const char* name() { return TOP.name(); }
+};
+
+#endif  // guard

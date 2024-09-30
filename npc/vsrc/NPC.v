@@ -16,6 +16,7 @@ module ysyx_24090012_NPC(
   wire [3:0] alu_op;
   wire [31:0] rs1_data, rs2_data, result, next_pc;
   wire wen;
+  wire [31:0] inst;
 
   // 实例化各个模块
   ysyx_24090012_IFU ifu(.clk(clk), .rst(rst), .pc(pc), .inst(inst), .mem_data(mem_data));
