@@ -1,5 +1,6 @@
 #include "Vysyx_24090012_NPC.h"
 #include "verilated.h"
+#include "verilated_vcd_c.h"  // 添加此行以包含 VerilatedVcdC 的完整定义
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -76,27 +77,64 @@ int main(int argc, char **argv) {
     // 初始化顶层模块实例
     Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;
 
+    // 初始化 VCD 跟踪（可选）
+    Verilated::traceEverOn(true);  // 启用跟踪
+    VerilatedVcdC* tfp = new VerilatedVcdC;
+    top->trace(tfp, 99);            // 将 tfp 传递给 trace
+    tfp->open("npc.vcd");           // 打开 VCD 文件
+
     // 复位处理器
     top->rst = 1;
     top->clk = 0;
     top->eval();
+    tfp->dump(0); // Dump time 0
+    std::cout << "Resetting..." << std::endl;
+
+    // 释放复位
     top->rst = 0;
+    top->eval();
+    tfp->dump(1); // Dump time 1
 
     // 主仿真循环
     while (!Verilated::gotFinish()) {
-        top->clk = !top->clk;  // 时钟翻转
-        if (top->clk) {
-            top->mem_data = pmem_read(top->pc);  // 从存储器取指并传递给 IFU 模块
-            // 您可以根据需要添加更多日志输出
-            // printf("PC: 0x%08x, Instruction: 0x%08x\n", top->pc, top->mem_data);
+        // 时钟上升沿
+        top->clk = 1;
+        top->eval();
+        tfp->dump(2); // Dump time 2
+        uint32_t current_pc = top->pc;
+        std::cout << "Cycle: " << (Verilated::time()) << ", PC: 0x" << std::hex << current_pc << std::dec << std::endl;
+
+        // 读取指令并传递给 IFU 模块
+        if (current_pc >= PROGRAM_START_ADDRESS && current_pc < PROGRAM_START_ADDRESS + MEM_SIZE) {
+            uint32_t inst = pmem_read(current_pc);
+            top->mem_data = inst;
+            std::cout << "Fetched Instruction: 0x" << std::hex << inst << std::dec << std::endl;
+        } else {
+            std::cerr << "Error: PC out of bounds: 0x" << std::hex << current_pc << std::dec << std::endl;
+            exit(1);
         }
 
-        top->eval();  // 评估仿真
+        // 检查 ebreak_flag
+        if (top->ebreak_flag) {
+            std::cout << "Encountered ebreak_flag. Exiting simulation." << std::endl;
+            break;
+        }
 
-        if (top->ebreak_flag) {  // 如果检测到 ebreak 指令，则结束仿真
+        // 时钟下降沿
+        top->clk = 0;
+        top->eval();
+        tfp->dump(3); // Dump time 3
+
+        // 简单的时钟周期计数，防止无限循环
+        if (Verilated::time() > 1000) {
+            std::cout << "Reached maximum cycle count. Exiting." << std::endl;
             break;
         }
     }
+
+    // 关闭 VCD 跟踪
+    tfp->close();
+    delete tfp;
 
     // 释放资源
     top->final();

@@ -9,10 +9,10 @@ module ysyx_24090012_NPC(
   import "DPI-C" function void ebreak(input int exit_code);
 
   wire [4:0] rs1, rs2, rd;
-  wire [31:0] imm;
   wire [6:0] opcode;
   wire [2:0] func3;
   wire [6:0] func7;
+  wire [31:0] imm;
   wire [3:0] alu_op;
   wire [31:0] rs1_data, rs2_data, result, next_pc;
   wire wen;
@@ -49,7 +49,7 @@ module ysyx_24090012_NPC(
     end else if (alu_op == 4'b0011 || alu_op == 4'b0100) begin  // JAL 或 JALR
       pc <= next_pc;
     end else begin
-      pc <= pc + 4;
+      pc <= next_pc;
     end
   end
 endmodule
