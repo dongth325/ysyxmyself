@@ -1,6 +1,5 @@
 #include "Vysyx_24090012_NPC.h"
 #include "verilated.h"
-#include "verilated_vcd_c.h"  // 添加此行以包含 VerilatedVcdC 的完整定义
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -53,7 +52,6 @@ extern "C" void ebreak(uint32_t exit_code) {
     } else {
         std::cout << "HIT BAD TRAP with code " << exit_code << std::endl;
     }
-    // 您可以在这里输出更多统计信息
     Verilated::gotFinish(true);  // 通知 Verilator 结束仿真
 }
 
@@ -77,37 +75,28 @@ int main(int argc, char **argv) {
     // 初始化顶层模块实例
     Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;
 
-    // 初始化 VCD 跟踪（可选）
-    Verilated::traceEverOn(true);  // 启用跟踪
-    VerilatedVcdC* tfp = new VerilatedVcdC;
-    top->trace(tfp, 99);            // 将 tfp 传递给 trace
-    tfp->open("npc.vcd");           // 打开 VCD 文件
-
     // 复位处理器
-    top->rst = 1;
-    top->clk = 0;
-    top->eval();
-    tfp->dump(0); // Dump time 0
+    top->rst = 1;      // 设置复位信号为高
+    top->clk = 0;      // 初始化时钟为低
+    top->eval();       // 评估当前仿真状态
     std::cout << "Resetting..." << std::endl;
 
     // 释放复位
-    top->rst = 0;
-    top->eval();
-    tfp->dump(1); // Dump time 1
+    top->rst = 0;      // 释放复位信号
+    top->eval();       // 评估仿真状态
 
     // 主仿真循环
     while (!Verilated::gotFinish()) {
         // 时钟上升沿
-        top->clk = 1;
-        top->eval();
-        tfp->dump(2); // Dump time 2
-        uint32_t current_pc = top->pc;
+        top->clk = 1;          // 设置时钟为高
+        top->eval();           // 评估仿真状态
+        uint32_t current_pc = top->pc;  // 读取当前 PC
         std::cout << "Cycle: " << (Verilated::time()) << ", PC: 0x" << std::hex << current_pc << std::dec << std::endl;
 
         // 读取指令并传递给 IFU 模块
         if (current_pc >= PROGRAM_START_ADDRESS && current_pc < PROGRAM_START_ADDRESS + MEM_SIZE) {
-            uint32_t inst = pmem_read(current_pc);
-            top->mem_data = inst;
+            uint32_t inst = pmem_read(current_pc);  // 从内存中读取指令
+            top->mem_data = inst;                   // 将指令传递给 IFU 模块
             std::cout << "Fetched Instruction: 0x" << std::hex << inst << std::dec << std::endl;
         } else {
             std::cerr << "Error: PC out of bounds: 0x" << std::hex << current_pc << std::dec << std::endl;
@@ -121,9 +110,8 @@ int main(int argc, char **argv) {
         }
 
         // 时钟下降沿
-        top->clk = 0;
-        top->eval();
-        tfp->dump(3); // Dump time 3
+        top->clk = 0;          // 设置时钟为低
+        top->eval();           // 评估仿真状态
 
         // 简单的时钟周期计数，防止无限循环
         if (Verilated::time() > 1000) {
@@ -132,14 +120,11 @@ int main(int argc, char **argv) {
         }
     }
 
-    // 关闭 VCD 跟踪
-    tfp->close();
-    delete tfp;
-
     // 释放资源
-    top->final();
-    delete top;
-    delete[] memory;
+    top->final();            // 完成仿真
+    delete top;              // 删除顶层模块实例
+    delete[] memory;         // 释放内存
 
     return 0;
 }
+
