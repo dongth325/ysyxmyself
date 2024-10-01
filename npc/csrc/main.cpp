@@ -74,7 +74,14 @@ int main(int argc, char **argv) {
 
     // 初始化顶层模块实例
     Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;
-   // 保持复位高一个时钟周期
+
+    // 复位处理器
+    top->rst = 1;      // 设置复位信号为高
+    top->clk = 0;      // 初始化时钟为低
+    top->eval();       // 评估当前仿真状态
+    std::cout << "Resetting..." << std::endl;
+
+    // 保持复位高一个时钟周期
     top->clk = 1;
     top->eval();
     Verilated::timeInc(1); // 增加仿真时间
@@ -88,11 +95,15 @@ int main(int argc, char **argv) {
     top->clk = 0;
     top->eval();
     Verilated::timeInc(1); // 增加仿真时间
+
+     int dth=0;//ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
     // 主仿真循环
     while (!Verilated::gotFinish()) {
         // 时钟上升沿
         top->clk = 1;          // 设置时钟为高
         top->eval();           // 评估仿真状态
+         // 打印当前时间
+    std::cout << "Current time: " << Verilated::time() << std::endl;
         uint32_t current_pc = top->pc;  // 读取当前 PC
         std::cout << "Cycle: " << (Verilated::time()) << ", PC: 0x" << std::hex << current_pc << std::dec << std::endl;
 
@@ -101,7 +112,11 @@ int main(int argc, char **argv) {
             uint32_t inst = pmem_read(current_pc);  // 从内存中读取指令
             top->mem_data = inst;                   // 将指令传递给 IFU 模块
             std::cout << "Fetched Instruction: 0x" << std::hex << inst << std::dec << std::endl;
+            dth++;//ddddddddddddddddddddddddddddddddddddddddddd
+            if(dth>=100) exit(1);//dddddddddddddddddddddddd
         } else {
+               // 打印当前时间
+    std::cout << "Current time: " << Verilated::time() << std::endl;
             std::cerr << "Error: PC out of bounds: 0x" << std::hex << current_pc << std::dec << std::endl;
             exit(1);
         }
@@ -121,6 +136,8 @@ int main(int argc, char **argv) {
             std::cout << "Reached maximum cycle count. Exiting." << std::endl;
             break;
         }
+
+        
     }
 
     // 释放资源
