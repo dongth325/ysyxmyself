@@ -74,17 +74,20 @@ int main(int argc, char **argv) {
 
     // 初始化顶层模块实例
     Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;
-
-    // 复位处理器
-    top->rst = 1;      // 设置复位信号为高
-    top->clk = 0;      // 初始化时钟为低
-    top->eval();       // 评估当前仿真状态
-    std::cout << "Resetting..." << std::endl;
+   // 保持复位高一个时钟周期
+    top->clk = 1;
+    top->eval();
+    Verilated::timeInc(1); // 增加仿真时间
 
     // 释放复位
-    top->rst = 0;      // 释放复位信号
-    top->eval();       // 评估仿真状态
+    top->rst = 0;
+    top->eval();
+    Verilated::timeInc(1); // 增加仿真时间
 
+    // 切换时钟到低
+    top->clk = 0;
+    top->eval();
+    Verilated::timeInc(1); // 增加仿真时间
     // 主仿真循环
     while (!Verilated::gotFinish()) {
         // 时钟上升沿
