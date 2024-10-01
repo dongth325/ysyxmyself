@@ -52,7 +52,6 @@ extern "C" void ebreak(uint32_t exit_code) {
     } else {
         std::cout << "HIT BAD TRAP with code " << exit_code << std::endl;
     }
-    // 您可以在这里输出更多统计信息
     Verilated::gotFinish(true);  // 通知 Verilator 结束仿真
 }
 
@@ -77,31 +76,55 @@ int main(int argc, char **argv) {
     Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;
 
     // 复位处理器
-    top->rst = 1;
-    top->clk = 0;
-    top->eval();
-    top->rst = 0;
+    top->rst = 1;      // 设置复位信号为高
+    top->clk = 0;      // 初始化时钟为低
+    top->eval();       // 评估当前仿真状态
+    std::cout << "Resetting..." << std::endl;
+
+    // 释放复位
+    top->rst = 0;      // 释放复位信号
+    top->eval();       // 评估仿真状态
 
     // 主仿真循环
     while (!Verilated::gotFinish()) {
-        top->clk = !top->clk;  // 时钟翻转
-        if (top->clk) {
-            top->mem_data = pmem_read(top->pc);  // 从存储器取指并传递给 IFU 模块
-            // 您可以根据需要添加更多日志输出
-            // printf("PC: 0x%08x, Instruction: 0x%08x\n", top->pc, top->mem_data);
+        // 时钟上升沿
+        top->clk = 1;          // 设置时钟为高
+        top->eval();           // 评估仿真状态
+        uint32_t current_pc = top->pc;  // 读取当前 PC
+        std::cout << "Cycle: " << (Verilated::time()) << ", PC: 0x" << std::hex << current_pc << std::dec << std::endl;
+
+        // 读取指令并传递给 IFU 模块
+        if (current_pc >= PROGRAM_START_ADDRESS && current_pc < PROGRAM_START_ADDRESS + MEM_SIZE) {
+            uint32_t inst = pmem_read(current_pc);  // 从内存中读取指令
+            top->mem_data = inst;                   // 将指令传递给 IFU 模块
+            std::cout << "Fetched Instruction: 0x" << std::hex << inst << std::dec << std::endl;
+        } else {
+            std::cerr << "Error: PC out of bounds: 0x" << std::hex << current_pc << std::dec << std::endl;
+            exit(1);
         }
 
-        top->eval();  // 评估仿真
+        // 检查 ebreak_flag
+        if (top->ebreak_flag) {
+            std::cout << "Encountered ebreak_flag. Exiting simulation." << std::endl;
+            break;
+        }
 
-        if (top->ebreak_flag) {  // 如果检测到 ebreak 指令，则结束仿真
+        // 时钟下降沿
+        top->clk = 0;          // 设置时钟为低
+        top->eval();           // 评估仿真状态
+
+        // 简单的时钟周期计数，防止无限循环
+        if (Verilated::time() > 1000) {
+            std::cout << "Reached maximum cycle count. Exiting." << std::endl;
             break;
         }
     }
 
     // 释放资源
-    top->final();
-    delete top;
-    delete[] memory;
+    top->final();            // 完成仿真
+    delete top;              // 删除顶层模块实例
+    delete[] memory;         // 释放内存
 
     return 0;
 }
+
