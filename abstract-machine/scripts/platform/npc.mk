@@ -19,3 +19,12 @@ image: $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
+
+
+# 添加 run 目标，运行 NPC 仿真器并加载生成的 .bin 文件
+run: image
+	./npc/build/npc $(CURDIR)/$(IMAGE).bin
+
+# 添加 gdb 目标，用于调试
+gdb: image
+	./npc/build/npc --gdb $(CURDIR)/$(IMAGE).bin
