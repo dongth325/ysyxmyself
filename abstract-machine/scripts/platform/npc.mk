@@ -13,18 +13,20 @@ LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld \
 						 --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
+# 在这里定义 NPCFLAGS，并将日志记录到 npc-log.txt
+NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/npc-log.txt
+
 .PHONY: $(AM_HOME)/am/src/riscv/npc/trm.c
 
 image: $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
+  
 
-
-# 添加 run 目标，运行 NPC 仿真器并加载生成的 .bin 文件
+# 添加run目标，确保使用NPC_HOME和NPCFLAGS
 run: image
-	./npc/build/npc $(CURDIR)/$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
 
-# 添加 gdb 目标，用于调试
 gdb: image
-	./npc/build/npc --gdb $(CURDIR)/$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) ISA=$(ISA) gdb ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
