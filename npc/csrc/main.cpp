@@ -157,10 +157,10 @@ trace->open("npc_trace.vcd");  // 打开 VCD 文件
          Verilated::timeInc(1); //time ++
        
         // 简单的时钟周期计数，防止无限循环
-        if (Verilated::time() > 1000) {
+        /*if (Verilated::time() > 1000) {
             std::cout << "Reached maximum cycle count. Exiting." << std::endl;
             break;
-        }
+        }*/
 
         
     }
