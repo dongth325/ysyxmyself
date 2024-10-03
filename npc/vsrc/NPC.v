@@ -42,10 +42,12 @@ module ysyx_24090012_NPC(
     if (rst) begin
       pc <= 32'h80000000;
       ebreak_flag <= 0;
+
     end else if (inst == 32'h00100073) begin  // ebreak 指令
       ebreak_flag <= 1;
       exit_code <= regfile.rf[10];  // 获取 a0 寄存器的值
       ebreak(regfile.rf[10]);       // 调用 DPI-C 函数
+      
     end else if (alu_op == 4'b0011 || alu_op == 4'b0100) begin  // JAL 或 JALR
       pc <= next_pc;
     end else begin
