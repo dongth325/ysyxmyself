@@ -56,7 +56,7 @@ extern "C" void ebreak(uint32_t exit_code) {
     if (exit_code == 0) {
         std::cout << "HIT GOOD TRAP" << std::endl;
     } else {
-        std::cout << "HIT BAD TRAP with code " << exit_code << std::endl;
+        std::cout << "HIT BAD TRAP with exit_code= " << exit_code << std::endl;
     }
     Verilated::gotFinish(true);  // 通知 Verilator 结束仿真
 }
