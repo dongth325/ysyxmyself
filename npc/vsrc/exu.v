@@ -1,36 +1,77 @@
 module ysyx_24090012_EXU(
   input [31:0] pc,
   input [31:0] rs1_data,
+  input [31:0] rs2_data,
   input [31:0] imm,
   input [3:0] alu_op,
   output reg [31:0] result,
   output reg [31:0] next_pc
 );
   always @(*) begin
+    // 初始化默认值，防止锁存器推断
+    result = 32'b0;
+    next_pc = pc + 4;
+
     case (alu_op)
       4'b0000: begin
-        result = rs1_data + imm;  // ADDI
-        next_pc = pc + 4;
+        // ADDI
+        result = rs1_data + imm;
       end
       4'b0001: begin
-        result = imm;             // LUI
-        next_pc = pc + 4;
+        // LUI
+        result = imm;
       end
       4'b0010: begin
-        result = pc + imm;        // AUIPC
-        next_pc = pc + 4;
+        // AUIPC
+        result = pc + imm;
       end
-      4'b0011: begin                     // JAL
-        result = pc + 4;                 // 保存返回地址
-        next_pc = pc + imm;              // 跳转
+      4'b0011: begin
+        // JAL
+        result = pc + 4;          // 保存返回地址
+        next_pc = pc + imm;       // 跳转到目标地址
       end
-      4'b0100: begin                     // JALR
-        result = pc + 4;                 // 保存返回地址
-        next_pc = (rs1_data + imm) & ~1; // 跳转
+      4'b0100: begin
+        // JALR
+        result = pc + 4;                                 // 保存返回地址
+        next_pc = (rs1_data + imm) & ~1;                // 计算跳转地址（必须是偶数地址）
+      end
+      4'b0101: begin
+        // ADD (R-type)
+        result = rs1_data + rs2_data;
+      end
+      4'b0110: begin
+        // BEQ
+        if (rs1_data == rs2_data)
+          next_pc = pc + imm;     // 跳转地址
+      end
+      4'b0111: begin
+        // BNE
+        if (rs1_data != rs2_data)
+          next_pc = pc + imm;     // 跳转地址
+      end
+      4'b1000: begin
+        // LW
+        result = rs1_data + imm;  // 计算加载地址
+      end
+      4'b1001: begin
+        // SW
+        result = rs1_data + imm;  // 计算存储地址
+      end
+      4'b1010: begin
+        // SEQZ (Set Equal to Zero)
+        result = (rs1_data == 0) ? 1 : 0;
+      end
+      4'b1011: begin
+        // EBREAK
+        // 不需要在 EXU 中进行操作，通常在 NPC 中处理
+      end
+      4'b1100: begin
+        // SUB (R-type)
+        result = rs1_data - rs2_data;
       end
       default: begin
-        result = 32'b0;           // 未实现的操作
-        next_pc = pc + 4;
+        // NOP 或未实现的操作
+        // 已经在开始时赋值了 result 和 next_pc 的默认值
       end
     endcase
   end

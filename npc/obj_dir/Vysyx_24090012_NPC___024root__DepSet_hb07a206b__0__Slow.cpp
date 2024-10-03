@@ -179,9 +179,12 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___ctor_var_reset(Vysyx_24090012_N
     vlSelf->ebreak_flag = VL_RAND_RESET_I(1);
     vlSelf->exit_code = VL_RAND_RESET_I(32);
     vlSelf->ysyx_24090012_NPC__DOT__opcode = VL_RAND_RESET_I(7);
+    vlSelf->ysyx_24090012_NPC__DOT__func3 = VL_RAND_RESET_I(3);
+    vlSelf->ysyx_24090012_NPC__DOT__func7 = VL_RAND_RESET_I(7);
     vlSelf->ysyx_24090012_NPC__DOT__imm = VL_RAND_RESET_I(32);
     vlSelf->ysyx_24090012_NPC__DOT__alu_op = VL_RAND_RESET_I(4);
     vlSelf->ysyx_24090012_NPC__DOT__rs1_data = VL_RAND_RESET_I(32);
+    vlSelf->ysyx_24090012_NPC__DOT__rs2_data = VL_RAND_RESET_I(32);
     vlSelf->ysyx_24090012_NPC__DOT__result = VL_RAND_RESET_I(32);
     vlSelf->ysyx_24090012_NPC__DOT__next_pc = VL_RAND_RESET_I(32);
     for (int __Vi0 = 0; __Vi0 < 32; ++__Vi0) {

@@ -32,10 +32,20 @@ module ysyx_24090012_NPC(
     .rdata1(rs1_data),
     .rdata2(rs2_data)
   );
-  ysyx_24090012_EXU exu(.pc(pc), .rs1_data(rs1_data), .imm(imm), .alu_op(alu_op), .result(result), .next_pc(next_pc));
+  ysyx_24090012_EXU exu(
+  .pc(pc),
+  .rs1_data(rs1_data),
+  .rs2_data(rs2_data),  // 添加 rs2_data 连接
+  .imm(imm),
+  .alu_op(alu_op),
+  .result(result),
+  .next_pc(next_pc)
+);
 
-  // 写使能信号
-  assign wen = (opcode == 7'b0010011 || opcode == 7'b0110111 || opcode == 7'b0010111 || opcode == 7'b1101111 || opcode == 7'b1100111);
+
+   assign wen = (opcode == 7'b0010011 || opcode == 7'b0110111 || opcode == 7'b0010111 || 
+                opcode == 7'b1101111 || opcode == 7'b1100111 || opcode == 7'b0110011 || 
+                opcode == 7'b0100011 || opcode == 7'b0000011);
 
   // 更新 PC
   always @(posedge clk or posedge rst) begin
@@ -47,6 +57,7 @@ module ysyx_24090012_NPC(
       ebreak_flag <= 1;
       exit_code <= regfile.rf[10];  // 获取 a0 寄存器的值
       ebreak(regfile.rf[10]);       // 调用 DPI-C 函数
+
       
     end else if (alu_op == 4'b0011 || alu_op == 4'b0100) begin  // JAL 或 JALR
       pc <= next_pc;
