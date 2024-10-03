@@ -17,7 +17,7 @@ NPC_EXEC = ./obj_dir/$(EXE)
 # 仿真目标：编译和执行
 sim: $(EXE)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$(NPC_EXEC) build/dummy-riscv32e-npc.bin
+	$(NPC_EXEC) 
 
    # 默认目标
 all: sim
