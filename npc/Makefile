@@ -6,7 +6,10 @@ EXE = V$(TOP)
 
 # Verilator 相关设置
 VERILATOR = verilator
-VERILATOR_FLAGS = --cc $(VSRCS) --exe $(CSRC) --top-module $(TOP)
+VERILATOR_FLAGS = --cc $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace
+
+
+
 
 # 定义 NPC 仿真器的可执行文件路径
 NPC_EXEC = ./obj_dir/$(EXE)

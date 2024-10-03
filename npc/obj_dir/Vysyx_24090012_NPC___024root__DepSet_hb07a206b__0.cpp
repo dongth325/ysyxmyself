@@ -15,6 +15,7 @@ void Vysyx_24090012_NPC___024root___eval_ico(Vysyx_24090012_NPC___024root* vlSel
     // Body
     if ((1ULL & vlSelfRef.__VicoTriggered.word(0U))) {
         Vysyx_24090012_NPC___024root___ico_sequent__TOP__0(vlSelf);
+        vlSelfRef.__Vm_traceActivity[1U] = 1U;
     }
 }
 
@@ -249,6 +250,7 @@ void Vysyx_24090012_NPC___024root___eval_nba(Vysyx_24090012_NPC___024root* vlSel
     }
     if ((2ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
         Vysyx_24090012_NPC___024root___nba_sequent__TOP__2(vlSelf);
+        vlSelfRef.__Vm_traceActivity[2U] = 1U;
     }
     if ((3ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
         Vysyx_24090012_NPC___024root___nba_comb__TOP__0(vlSelf);

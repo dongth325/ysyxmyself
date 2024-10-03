@@ -3,6 +3,12 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include "verilated_vcd_c.h"  // 确保包含 Verilator VCD 支持头文件
+
+
+
+
+
 
 // 定义简单的存储器，假设大小为 128MB（与 NEMU 一致）
 #define MEM_SIZE (128 * 1024 * 1024)
@@ -57,6 +63,17 @@ extern "C" void ebreak(uint32_t exit_code) {
 
 int main(int argc, char **argv) {
     Verilated::commandArgs(argc, argv);
+     // 初始化顶层模块实例
+    Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;
+    // 创建 VCD 文件
+VerilatedVcdC *trace = new VerilatedVcdC;
+Verilated::traceEverOn(true);  // 启用追踪功能
+
+
+top->trace(trace, 99);  // 设置追踪深度
+trace->open("npc_trace.vcd");  // 打开 VCD 文件
+
+
 
     if (argc < 2) {
         std::cout << "Usage: " << argv[0] << " <program.bin>" << std::endl;
@@ -72,8 +89,7 @@ int main(int argc, char **argv) {
     // 加载程序到存储器
     load_memory(program_path);
 
-    // 初始化顶层模块实例
-    Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;
+   
 
     // 复位处理器
     top->rst = 1;      // 设置复位信号为高
@@ -95,7 +111,7 @@ int main(int argc, char **argv) {
     top->clk = 0;
     top->eval();
     
-
+     
      
     // 主仿真循环
     while (!Verilated::gotFinish()) {
@@ -103,6 +119,8 @@ int main(int argc, char **argv) {
         top->clk = 1;          // 设置时钟为高
         
         top->eval();           // 评估仿真状态
+         trace->dump(Verilated::time());  // 记录波形
+         Verilated::timeInc(1); //time ++
        
          
     
@@ -135,6 +153,8 @@ int main(int argc, char **argv) {
         top->clk = 0;          // 设置时钟为低
         
         top->eval();           // 评估仿真状态
+         trace->dump(Verilated::time());  // 记录波形
+         Verilated::timeInc(1); //time ++
        
         // 简单的时钟周期计数，防止无限循环
         if (Verilated::time() > 1000) {
@@ -142,14 +162,15 @@ int main(int argc, char **argv) {
             break;
         }
 
-        Verilated::timeInc(1); //time ++
+        
     }
 
     // 释放资源
     top->final();            // 完成仿真
     delete top;              // 删除顶层模块实例
     delete[] memory;         // 释放内存
-   
+   trace->close();  // 关闭 VCD 文件
+
     return 0;
 }
 
