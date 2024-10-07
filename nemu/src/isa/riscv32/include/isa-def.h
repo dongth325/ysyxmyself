@@ -16,7 +16,8 @@
 #ifndef __ISA_RISCV32_H__
 #define __ISA_RISCV32_H__
 
-#include <common.h>
+#include "/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/common.h"
+
 
 typedef struct {
   word_t gpr[32];

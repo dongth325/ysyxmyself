@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cstring>
 #include "verilated_vcd_c.h"  // 确保包含 Verilator VCD 支持头文件
+#include "difftest_loader.h"  // 包含 DiffTest 加载的头文件
 
 
 
@@ -63,6 +64,9 @@ extern "C" void ebreak(uint32_t exit_code) {
 
 int main(int argc, char **argv) {
     Verilated::commandArgs(argc, argv);
+
+      // 加载 DiffTest 库
+    load_difftest_library();
      // 初始化顶层模块实例
     Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;
     // 创建 VCD 文件
