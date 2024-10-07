@@ -3,10 +3,17 @@ VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v
 CSRC = csrc/main.cpp
 TOP = ysyx_24090012_NPC
 EXE = V$(TOP)
+# NEMU 根目录
+NEMU_HOME = /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu
+# 包含路径
+INCLUDE_PATHS = -I$(NEMU_HOME)/include -I$(NEMU_HOME)/src/isa/riscv32/include
+
 
 # Verilator 相关设置
 VERILATOR = verilator
-VERILATOR_FLAGS = --cc $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace
+VERILATOR_FLAGS = --cc $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
+    -CFLAGS "$(INCLUDE_PATHS)"
+
 
 
 
