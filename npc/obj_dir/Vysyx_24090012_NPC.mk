@@ -35,7 +35,7 @@ VM_PREFIX = Vysyx_24090012_NPC
 VM_MODPREFIX = Vysyx_24090012_NPC
 # User CFLAGS (from -CFLAGS on Verilator command line)
 VM_USER_CFLAGS = \
-	-I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/src/isa/riscv32/include \
+	-I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/src/isa/riscv32/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/build/generated -D__GUEST_ISA__=riscv32 \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \

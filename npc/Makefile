@@ -6,13 +6,23 @@ EXE = V$(TOP)
 # NEMU 根目录
 NEMU_HOME = /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu
 # 包含路径
-INCLUDE_PATHS = -I$(NEMU_HOME)/include -I$(NEMU_HOME)/src/isa/riscv32/include
+INCLUDE_PATHS = -I$(NEMU_HOME)/include \
+                -I$(NEMU_HOME)/src/isa/$(GUEST_ISA)/include \
+                -I$(NEMU_HOME)/build/generated
+
+# 定义 GUEST_ISA，确保与 NEMU 的配置一致
+GUEST_ISA = riscv32
+# 编译器选项，添加宏定义
+CFLAGS += -D__GUEST_ISA__=$(GUEST_ISA)
+CXXFLAGS += -D__GUEST_ISA__=$(GUEST_ISA)#原本在nemu的makefile中定义guest_isa
+
+
 
 
 # Verilator 相关设置
 VERILATOR = verilator
 VERILATOR_FLAGS = --cc $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
-    -CFLAGS "$(INCLUDE_PATHS)"
+    -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA)"
 
 
 
