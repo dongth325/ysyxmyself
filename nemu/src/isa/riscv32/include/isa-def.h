@@ -16,7 +16,7 @@
 #ifndef __ISA_RISCV32_H__
 #define __ISA_RISCV32_H__
 
-#include "/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/common.h"
+#include <common.h>
 
 
 typedef struct {
