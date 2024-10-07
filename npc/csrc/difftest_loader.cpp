@@ -6,7 +6,7 @@ difftest_regcpy_t difftest_regcpy = nullptr;
 difftest_exec_t difftest_exec = nullptr;
 
 void load_difftest_library() {
-    void *handle = dlopen("/path/to/riscv32-nemu-interpreter-so", RTLD_LAZY);
+    void *handle = dlopen("/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/build/riscv32-nemu-interpreter-so", RTLD_LAZY);
     if (!handle) {
         std::cerr << "Failed to load NEMU shared library: " << dlerror() << std::endl;
         exit(1);
