@@ -57,6 +57,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
+  printf("pppcccc = 0x%08x\n",pc);
   s->pc = pc;
   s->snpc = pc;
   printf("6666666666666666666666666666\n");//dddddddddddddddddddddddd
@@ -126,7 +127,7 @@ void assert_fail_msg() {
 
 /* Simulate how the CPU works. */
 void cpu_exec(uint64_t n) {
-  printf("11111111111111111");//ddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+  printf("11111111111111111\n");//ddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
   g_print_step = (n < MAX_INST_TO_PRINT);
   switch (nemu_state.state) {
     case NEMU_END: case NEMU_ABORT:
