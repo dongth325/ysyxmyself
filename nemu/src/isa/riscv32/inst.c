@@ -192,6 +192,7 @@ static int decode_exec(Decode *s) {
 int isa_exec_once(Decode *s) {
   printf("999999999999999999999\n");//dddddddddddddddddd
   s->isa.inst.val = inst_fetch(&s->snpc, 4);
+  s->dnpc=s->dnpc;//dddddddddddddddddddddddddddddddddddddddd为了防止difftest地址addr为0报错 先更新地址
 printf("10 10 10 10 10 10 10\n");//ddddddddddddddddddddddddddddd
   // 将指令的 PC 和二进制表示加入环形缓冲区
   char disasm[64];
