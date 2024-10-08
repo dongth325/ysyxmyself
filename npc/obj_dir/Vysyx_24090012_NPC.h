@@ -77,6 +77,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_24090012_NPC VL_NOT_FINAL : public Veri
     /// Retrieve name of this model instance (as passed to constructor).
     const char* name() const;
 
+    /// DPI Export functions
+    static void get_rf(svLogicVecVal* regs);
+
     // Abstract methods from VerilatedModel
     const char* hierName() const override final;
     const char* modelName() const override final;

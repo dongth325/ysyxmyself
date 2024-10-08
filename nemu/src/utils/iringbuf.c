@@ -47,7 +47,7 @@ void get_trace(RingBuffer *rb) {
                entry->pc, entry->instruction, entry->disasm);
     }
 
-    printf("End of trace.\n");
+    printf("End of trace\n");
 }
 
 int is_empty(RingBuffer *rb) {

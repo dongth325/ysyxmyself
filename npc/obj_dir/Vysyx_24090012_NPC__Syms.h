@@ -17,6 +17,7 @@
 #include "Vysyx_24090012_NPC___024root.h"
 
 // DPI TYPES for DPI Export callbacks (Internal use)
+using Vysyx_24090012_NPC__Vcb_get_rf_t = void (*) (Vysyx_24090012_NPC__Syms* __restrict vlSymsp, VlUnpacked<IData/*31:0*/, 32> &regs);
 
 // SYMS CLASS (contains all model state)
 class alignas(VL_CACHE_LINE_BYTES)Vysyx_24090012_NPC__Syms final : public VerilatedSyms {
@@ -30,6 +31,9 @@ class alignas(VL_CACHE_LINE_BYTES)Vysyx_24090012_NPC__Syms final : public Verila
 
     // MODULE INSTANCE STATE
     Vysyx_24090012_NPC___024root   TOP;
+
+    // SCOPE NAMES
+    VerilatedScope __Vscope_ysyx_24090012_NPC__regfile;
 
     // CONSTRUCTORS
     Vysyx_24090012_NPC__Syms(VerilatedContext* contextp, const char* namep, Vysyx_24090012_NPC* modelp);

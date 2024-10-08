@@ -14,3 +14,11 @@
 #include "Vysyx_24090012_NPC__Dpi.h"
 #include "Vysyx_24090012_NPC.h"
 
+#ifndef VL_DPIDECL_get_rf_
+#define VL_DPIDECL_get_rf_
+void get_rf(svLogicVecVal* regs) {
+    // DPI export at vsrc/registerfile.v:46:8
+    return Vysyx_24090012_NPC::get_rf(regs);
+}
+#endif
+

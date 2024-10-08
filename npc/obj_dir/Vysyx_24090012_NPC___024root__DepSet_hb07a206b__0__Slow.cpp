@@ -125,6 +125,9 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___dump_triggers__ico(Vysyx_240900
     if ((1ULL & vlSelfRef.__VicoTriggered.word(0U))) {
         VL_DBG_MSGF("         'ico' region trigger index 0 is active: Internal 'ico' trigger - first iteration\n");
     }
+    if ((2ULL & vlSelfRef.__VicoTriggered.word(0U))) {
+        VL_DBG_MSGF("         'ico' region trigger index 1 is active: Internal 'ico' trigger - DPI export trigger\n");
+    }
 }
 #endif  // VL_DEBUG
 
@@ -139,10 +142,13 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___dump_triggers__act(Vysyx_240900
         VL_DBG_MSGF("         No triggers active\n");
     }
     if ((1ULL & vlSelfRef.__VactTriggered.word(0U))) {
-        VL_DBG_MSGF("         'act' region trigger index 0 is active: @(posedge clk or posedge rst)\n");
+        VL_DBG_MSGF("         'act' region trigger index 0 is active: Internal 'act' trigger - DPI export trigger\n");
     }
     if ((2ULL & vlSelfRef.__VactTriggered.word(0U))) {
-        VL_DBG_MSGF("         'act' region trigger index 1 is active: @(posedge clk)\n");
+        VL_DBG_MSGF("         'act' region trigger index 1 is active: @(posedge clk or posedge rst)\n");
+    }
+    if ((4ULL & vlSelfRef.__VactTriggered.word(0U))) {
+        VL_DBG_MSGF("         'act' region trigger index 2 is active: @(posedge clk)\n");
     }
 }
 #endif  // VL_DEBUG
@@ -158,10 +164,13 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___dump_triggers__nba(Vysyx_240900
         VL_DBG_MSGF("         No triggers active\n");
     }
     if ((1ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
-        VL_DBG_MSGF("         'nba' region trigger index 0 is active: @(posedge clk or posedge rst)\n");
+        VL_DBG_MSGF("         'nba' region trigger index 0 is active: Internal 'nba' trigger - DPI export trigger\n");
     }
     if ((2ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
-        VL_DBG_MSGF("         'nba' region trigger index 1 is active: @(posedge clk)\n");
+        VL_DBG_MSGF("         'nba' region trigger index 1 is active: @(posedge clk or posedge rst)\n");
+    }
+    if ((4ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
+        VL_DBG_MSGF("         'nba' region trigger index 2 is active: @(posedge clk)\n");
     }
 }
 #endif  // VL_DEBUG
@@ -190,6 +199,8 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___ctor_var_reset(Vysyx_24090012_N
     for (int __Vi0 = 0; __Vi0 < 32; ++__Vi0) {
         vlSelf->ysyx_24090012_NPC__DOT__regfile__DOT__rf[__Vi0] = VL_RAND_RESET_I(32);
     }
+    vlSelf->ysyx_24090012_NPC__DOT__regfile__DOT__get_rf__Vstatic__i = VL_RAND_RESET_I(32);
+    vlSelf->__Vdpi_export_trigger = 0;
     vlSelf->__VdlyVal__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0 = VL_RAND_RESET_I(32);
     vlSelf->__VdlyDim0__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0 = VL_RAND_RESET_I(5);
     vlSelf->__VdlySet__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0 = 0;

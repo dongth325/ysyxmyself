@@ -15,6 +15,10 @@ extern "C" {
 #endif
 
 
+    // DPI EXPORTS
+    // DPI export at vsrc/registerfile.v:46:8
+    extern void get_rf(svLogicVecVal* regs);
+
     // DPI IMPORTS
     // DPI import at vsrc/NPC.v:9:32
     extern void ebreak(int exit_code);

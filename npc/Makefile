@@ -23,6 +23,7 @@ CXXFLAGS += -D__GUEST_ISA__=$(GUEST_ISA)#原本在nemu的makefile中定义guest_
 # Verilator 相关设置
 VERILATOR = verilator
 VERILATOR_FLAGS = --cc $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
+	--sv \
     -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA)"#changed
 
 
