@@ -57,7 +57,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
-  printf("pppcccc = 0x%08x\n",pc);
+  printf("pppcccc = 0x%08x\n",pc);//ddddddddddddddddddddddddddddddd
   s->pc = pc;
   s->snpc = pc;
   printf("6666666666666666666666666666\n");//dddddddddddddddddddddddd
