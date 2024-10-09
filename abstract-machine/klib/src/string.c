@@ -43,8 +43,10 @@ void *memcpy(void *out, const void *in, size_t n) {
 
     // 遍历并逐字节复制
     for (size_t i = 0; i < n; i++) {
+
         d[i] = s[i];
     }
+    printf("rrrrrrrrrrrrrrrrrrrrrrrr\n");//dddddddddddddddddddddddddddddd
 
     return out;
 }
