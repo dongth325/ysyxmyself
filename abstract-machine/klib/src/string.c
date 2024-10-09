@@ -38,6 +38,7 @@ void *memmove(void *dst, const void *src, size_t n) {
 
 void *memcpy(void *out, const void *in, size_t n) {
       // 将in指向的内存区域复制到out指向的内存区域，共n个字节
+      printf("vvvvvvvvvvvvvvvvvvvvvvvvvvvv\n");//dddddddddddddddddddddddddddddd
     unsigned char *d = (unsigned char *)out;
     const unsigned char *s = (const unsigned char *)in;
 
