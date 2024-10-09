@@ -23,9 +23,10 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
     // 将DUT的内存数据复制到REF
     printf("mmmmmmmmmmmmmmmmmmmmmmmmmm");//dddddddddddddddddd
     memcpy(guest_to_host(addr), buf, n);
+    printf("nnnnnnnnnnnnnnnnnnnnn");//dddddddddddddddddddd
   } else {
     // 将REF的内存数据复制到DUT
-    printf("nnnnnnnnnnnnnnnnnnnnn");//dddddddddddddddddddd
+   
     memcpy(buf, guest_to_host(addr), n);
   }
 }
@@ -36,9 +37,10 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
         // 将DUT的寄存器状态复制到参考模型(REF)
         printf("sssssssssssssssssssssss");//ddddddddddddddddddddddd
         memcpy(dut, &cpu, sizeof(CPU_state));
+         printf("pppppppppppppppppppp");//dddddddddddddddddddddddd
     } else {
         // 将参考模型(REF)的寄存器状态复制到DUT
-        printf("pppppppppppppppppppp");//dddddddddddddddddddddddd
+       
         memcpy(&cpu, dut, sizeof(CPU_state));
     }
 
