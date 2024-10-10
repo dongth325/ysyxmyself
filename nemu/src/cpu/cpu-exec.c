@@ -168,7 +168,7 @@ void cpu_exec(uint64_t n) {
   // 调用 get_trace 打印指令踪迹
   get_trace(&rb);  // 假设环形缓冲区是全局的 rb 变量
 
-
+      printf("kkkkkkkkkkkkkkkkkkkkkk\n");//ddddddddddddddddddddddddd
       // fall through
     case NEMU_QUIT: statistic();
   }

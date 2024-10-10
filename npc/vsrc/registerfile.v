@@ -9,9 +9,9 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
   output [DATA_WIDTH-1:0] rdata1,
   output [DATA_WIDTH-1:0] rdata2
 );
-
-    // 导出 get_rf 任务
+   // 导出 get_rf 任务
   export "DPI-C" task get_rf;
+
   reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
   // 读出数据
   assign rdata1 = (raddr1 == 5'b0) ? 32'b0 : rf[raddr1];
@@ -51,7 +51,8 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
       end
     end
   endtask
-
+ 
 endmodule
+
 
 

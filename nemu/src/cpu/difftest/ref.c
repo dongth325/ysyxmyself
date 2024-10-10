@@ -19,12 +19,12 @@
 #include <memory/paddr.h>
 
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
-    if (direction == DIFFTEST_TO_DUT) {
+    if (direction == 0) {
     // 当方向为 DIFFTEST_TO_DUT，表示从参考模型 (REF) 复制到 DUT
     buf = (void *)guest_to_host(addr);
-  } else if (direction == DIFFTEST_TO_REF) {
+  } else if (direction == 1) {
     // 当方向为 DIFFTEST_TO_REF，表示从 DUT 复制到参考模型 (REF)
-    Log("%x,%lx", addr, n); // 打印地址和大小
+    Log("loglogloglog%x,%lx", addr, n); // 打印地址和大小
 
     // 将 buf 视为字节数组，逐字节复制
     char *buf_char = (char *)buf;
@@ -37,14 +37,20 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
       if (direction == DIFFTEST_TO_DUT) {
+        printf("zzzzzzzzzzzz\n");
     // 将参考模型 (REF) 的寄存器状态复制到 DUT
     for (int i = 0; i < 32; i++) {
+      printf("dong dong dong %d\n",i);
       ((CPU_state *)dut)->gpr[i] = cpu.gpr[i]; // 将每个通用寄存器从 REF 复制到 DUT
+      printf("ang ang ang ang %d\n",i);
     }
     ((CPU_state *)dut)->pc = cpu.pc; // 复制程序计数器 (PC)
+    printf("yang yang yang \n");
   } else if (direction == DIFFTEST_TO_REF) {
+    printf("da da da da \n");
     // 将 DUT 的寄存器状态复制到参考模型 (REF)
     cpu = *(CPU_state *)dut; // 直接将整个 CPU 状态复制到参考模型
+    printf("sha sha sha sha\n");
   }
 
 

@@ -6,6 +6,21 @@
 #include "verilated_vcd_c.h"  // 确保包含 Verilator VCD 支持头文件
 #include "difftest_loader.h"  // 包含 DiffTest 加载的头文件
 #include "isa.h" // 包含 CPU_state 的定义
+#include "svdpi.h"
+
+// 调用该函数来确保DPI上下文已设置
+void set_dpi_context() {
+    svScope scope = svGetScopeFromName("TOP.ysyx_24090012_NPC.regfile");
+    if (scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope\n");
+        exit(1);
+    }
+    svSetScope(scope);
+}
+
+
+
+
 
 //声明从 Verilog 导出的 DPI-C 函数
 extern "C" void get_rf(uint32_t regs[32]);
@@ -13,6 +28,8 @@ extern "C" void get_rf(uint32_t regs[32]);
 // 定义简单的存储器，假设大小为 128MB（与 NEMU 一致）
 #define MEM_SIZE (128 * 1024 * 1024)
 uint8_t *memory = nullptr;
+
+
 
 // 程序加载地址，与链接脚本中的 `_pmem_start` 一致
 #define PROGRAM_START_ADDRESS 0x80000000
@@ -69,15 +86,22 @@ extern "C" void ebreak(uint32_t exit_code) {
 
 void get_dut_cpu_state(Vysyx_24090012_NPC *top, CPU_state *dut_cpu_state) {
     // 获取 PC
+   set_dpi_context();
+   printf("hua hua hua hua hua hua\n");
     dut_cpu_state->pc = top->pc;
-
+    printf("pc=0x%08x\n",dut_cpu_state->pc);
+    printf("pi pi pi pi pi pi\n");
     // 获取通用寄存器
     uint32_t regs[32];
     get_rf(regs);  // 调用 DPI-C 函数，获取寄存器文件内容
-
+    printf("yue yue yue yue\n");;
     for (int i = 0; i < 32; i++) {
+        printf("sun sun sun sun %d\n",i);
+        printf("当前寄存器值：regs[%d] = 0x%08x\n", i, regs[i]);
         dut_cpu_state->gpr[i] = regs[i];
+        printf("赋值后的 dut_cpu_state->gpr[%d] = 0x%08x\n", i, dut_cpu_state->gpr[i]);
     }
+    printf("shu shu shu shu\n");
 }
 
 bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
@@ -126,7 +150,7 @@ int main(int argc, char **argv) {
     // 加载程序到存储器，并获取程序大小
     load_memory(program_path, program_size);
     // 将程序加载到参考模型的内存中
-    difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
+    difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, 1);//true代表什么意思？？具体方向是什么 会不会是传递有误
     // 初始化参考模型的寄存器状态
     CPU_state cpu_state = {0};
     cpu_state.pc = PROGRAM_START_ADDRESS;
@@ -194,18 +218,19 @@ int main(int argc, char **argv) {
         top->eval();
         trace->dump(Verilated::time());
         Verilated::timeInc(1);
-           printf("111111111111112323111");
+           
         // 执行参考模型
         difftest_exec(1);
 
         // 获取 DUT CPU 状态
         CPU_state dut_cpu_state;
         get_dut_cpu_state(top, &dut_cpu_state);
-
+         printf("shen shen shen\n");
         // 获取参考模型的 CPU 状态
         CPU_state ref_cpu_state;
+        printf("zhang zhang zhang\n");
         difftest_regcpy(&ref_cpu_state, false);
-
+         printf("wei wei wei wei\n");
         // 比较 CPU 状态
         if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
             std::cerr << "Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
