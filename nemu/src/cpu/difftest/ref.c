@@ -31,6 +31,7 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
     for (size_t i = 0; i < n; i++) {
       // 将 DUT 的内存逐字节写入到参考模型
       paddr_write(addr + i, 1, buf_char[i]);
+        printf("Writing to REF address 0x%08x: value = 0x%02x\n", (uint32_t)(addr + i), buf_char[i]);
     }
   }
 }
