@@ -7,7 +7,8 @@
 #define PROGRAM_START_ADDRESS 0x80000000
 #define MEM_BASE 0x80000000
 
-void load_memory(const char *program_path, size_t &program_size, uint8_t *memory) {
+void load_memory(const char *program_path, size_t &program_size) {
+    // 打开文件
     std::ifstream infile(program_path, std::ios::binary | std::ios::in);
     if (!infile) {
         std::cerr << "Cannot open program file: " << program_path << std::endl;
@@ -19,12 +20,13 @@ void load_memory(const char *program_path, size_t &program_size, uint8_t *memory
     infile.seekg(0, std::ios::beg);
 
     if (program_size > MEM_SIZE) {
-        std::cerr << "Program size exceeds memory size." << std::endl;
+        std::cerr << "Program size (" << program_size << " bytes) exceeds memory size (" << MEM_SIZE << " bytes)." << std::endl;
         exit(1);
     }
 
     infile.read(reinterpret_cast<char *>(memory), program_size);
     infile.close();
+
     std::cout << "Loaded program: " << program_path << ", size: " << program_size << " bytes." << std::endl;
 }
 

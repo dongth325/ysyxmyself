@@ -51,7 +51,7 @@ void get_dut_cpu_state(Vysyx_24090012_NPC *top, CPU_state *dut_cpu_state) {
 for(int i=0;i<32;i++){
 int reg_value;
 reg_value = get_reg_value(i);
-printf("Register %d value: 0x%08x\n", i,reg_value);
+//printf("Register %d value: 0x%08x\n", i,reg_value);
    }
    // printf("yue yue yue yue\n");;
     for (int i = 0; i < 32; i++) {

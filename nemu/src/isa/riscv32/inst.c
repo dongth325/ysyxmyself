@@ -190,10 +190,10 @@ static int decode_exec(Decode *s) {
 }
 
 int isa_exec_once(Decode *s) {
-  printf("999999999999999999999\n");//dddddddddddddddddd
+  //printf("999999999999999999999\n");//dddddddddddddddddd
   s->isa.inst.val = inst_fetch(&s->snpc, 4);
  
-printf("10 10 10 10 10 10 10\n");//ddddddddddddddddddddddddddddd
+//printf("10 10 10 10 10 10 10\n");//ddddddddddddddddddddddddddddd
   // 将指令的 PC 和二进制表示加入环形缓冲区
   //char disasm[64];//目前在实现difftest 并未把disassemble 相关函数作为nemu共享库  先注释掉
  // disassemble(disasm, sizeof(disasm), s->pc, (uint8_t *)&s->isa.inst.val, 4);//目前在实现difftest 并未把disassemble 相关函数作为nemu共享库  先注释掉
@@ -203,5 +203,5 @@ printf("10 10 10 10 10 10 10\n");//ddddddddddddddddddddddddddddd
 
 
   return decode_exec(s);
-  printf("11 11 11 11 11 11 11 \n");//dddddddddddddddddddddddddddddddddds
+  //printf("11 11 11 11 11 11 11 \n");//dddddddddddddddddddddddddddddddddds
 }

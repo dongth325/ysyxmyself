@@ -25,14 +25,14 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
   } 
   else if (direction == 1) {// 当方向为 DIFFTEST_TO_REF，表示从 DUT 复制到参考模型 (REF)
     
-    Log("loglogloglog%x,%lx", addr, n); // 打印地址和大小
+    //Log("loglogloglog%x,%lx", addr, n); // 打印地址和大小
 
    
     char *buf_char = (char *)buf; // 将 buf 视为字节数组，逐字节复制
     for (size_t i = 0; i < n; i++) {
      
       paddr_write(addr + i, 1, buf_char[i]); // 将 DUT 的内存逐字节写入到参考模型
-        printf("Writing to REF address 0x%08x: value = 0x%02x\n", (uint32_t)(addr + i), buf_char[i]);
+        printf("Writing to REF address 0x%08x: value = 0x%02x  from void (difftest_memcpy)\n", (uint32_t)(addr + i), buf_char[i]);
     }
   }
 }
