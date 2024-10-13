@@ -92,7 +92,6 @@ void Vysyx_24090012_NPC___024root__trace_chg_0_sub_0(Vysyx_24090012_NPC___024roo
     bufp->chgIData(oldp+48,(vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data),32);
     bufp->chgIData(oldp+49,(vlSelfRef.ysyx_24090012_NPC__DOT__result),32);
     bufp->chgIData(oldp+50,(vlSelfRef.ysyx_24090012_NPC__DOT__next_pc),32);
-    bufp->chgIData(oldp+51,(vlSelfRef.ysyx_24090012_NPC__DOT__regfile__DOT__get_rf__Vstatic__i),32);
 }
 
 void Vysyx_24090012_NPC___024root__trace_cleanup(void* voidSelf, VerilatedVcd* /*unused*/) {

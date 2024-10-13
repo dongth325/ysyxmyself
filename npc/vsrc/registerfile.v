@@ -9,9 +9,9 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
   output [DATA_WIDTH-1:0] rdata1,
   output [DATA_WIDTH-1:0] rdata2
 );
-   // 导出 get_rf 任务
-  export "DPI-C" task get_rf;
-
+ 
+  // 导出函数供C语言访问
+export "DPI-C" function get_reg_value;
   reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
   // 读出数据
   assign rdata1 = (raddr1 == 5'b0) ? 32'b0 : rf[raddr1];
@@ -41,16 +41,17 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
     end
   end
 
+ // 实现 get_reg0 函数以返回寄存器0的值
+  function void get_reg0(output int reg0_value);
+    reg0_value = rf[0];  // 假设 rf 存储寄存器值的数组
+  endfunction
 
-  // 实现 get_rf 任务
-  task get_rf(output reg [31:0] regs [0:31]);
-    integer i;
-    begin
-      for (i = 0; i < 32; i = i + 1) begin
-        regs[i] = rf[i];
-      end
-    end
-  endtask
+
+
+function int get_reg_value(input int reg_index);
+  get_reg_value = rf[reg_index]; // 根据索引返回寄存器的值
+endfunction
+ 
  
 endmodule
 

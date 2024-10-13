@@ -17,7 +17,7 @@
 #include "Vysyx_24090012_NPC___024root.h"
 
 // DPI TYPES for DPI Export callbacks (Internal use)
-using Vysyx_24090012_NPC__Vcb_get_rf_t = void (*) (Vysyx_24090012_NPC__Syms* __restrict vlSymsp, VlUnpacked<IData/*31:0*/, 32> &regs);
+using Vysyx_24090012_NPC__Vcb_get_reg_value_t = void (*) (Vysyx_24090012_NPC__Syms* __restrict vlSymsp, IData/*31:0*/ reg_index, IData/*31:0*/ &get_reg_value__Vfuncrtn);
 
 // SYMS CLASS (contains all model state)
 class alignas(VL_CACHE_LINE_BYTES)Vysyx_24090012_NPC__Syms final : public VerilatedSyms {

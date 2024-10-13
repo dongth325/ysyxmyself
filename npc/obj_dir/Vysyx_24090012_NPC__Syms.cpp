@@ -5,7 +5,7 @@
 #include "Vysyx_24090012_NPC.h"
 #include "Vysyx_24090012_NPC___024root.h"
 
-void Vysyx_24090012_NPC___024root____Vdpiexp_ysyx_24090012_NPC__DOT__regfile__DOT__get_rf_TOP(Vysyx_24090012_NPC__Syms* __restrict vlSymsp, VlUnpacked<IData/*31:0*/, 32> &regs);
+void Vysyx_24090012_NPC___024root____Vdpiexp_ysyx_24090012_NPC__DOT__regfile__DOT__get_reg_value_TOP(Vysyx_24090012_NPC__Syms* __restrict vlSymsp, IData/*31:0*/ reg_index, IData/*31:0*/ &get_reg_value__Vfuncrtn);
 
 // FUNCTIONS
 Vysyx_24090012_NPC__Syms::~Vysyx_24090012_NPC__Syms()
@@ -20,7 +20,7 @@ Vysyx_24090012_NPC__Syms::Vysyx_24090012_NPC__Syms(VerilatedContext* contextp, c
     , TOP{this, namep}
 {
         // Check resources
-        Verilated::stackCheck(425);
+        Verilated::stackCheck(61);
     // Configure time unit / time precision
     _vm_contextp__->timeunit(-12);
     _vm_contextp__->timeprecision(-12);
@@ -31,6 +31,6 @@ Vysyx_24090012_NPC__Syms::Vysyx_24090012_NPC__Syms(VerilatedContext* contextp, c
     __Vscope_ysyx_24090012_NPC__regfile.configure(this, name(), "ysyx_24090012_NPC.regfile", "regfile", -12, VerilatedScope::SCOPE_OTHER);
     // Setup export functions
     for (int __Vfinal = 0; __Vfinal < 2; ++__Vfinal) {
-        __Vscope_ysyx_24090012_NPC__regfile.exportInsert(__Vfinal, "get_rf", (void*)(&Vysyx_24090012_NPC___024root____Vdpiexp_ysyx_24090012_NPC__DOT__regfile__DOT__get_rf_TOP));
+        __Vscope_ysyx_24090012_NPC__regfile.exportInsert(__Vfinal, "get_reg_value", (void*)(&Vysyx_24090012_NPC___024root____Vdpiexp_ysyx_24090012_NPC__DOT__regfile__DOT__get_reg_value_TOP));
     }
 }

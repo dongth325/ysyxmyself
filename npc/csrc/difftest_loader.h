@@ -4,6 +4,7 @@
 #include <dlfcn.h>
 #include </home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/src/isa/riscv32/include/isa-def.h>
 #include "/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/common.h"
+#include "Vysyx_24090012_NPC.h"
 
 
 #include </home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/isa.h>        // 这个是定义与 ISA 相关的头文件
@@ -23,5 +24,7 @@ extern difftest_regcpy_t difftest_regcpy;
 extern difftest_exec_t difftest_exec;
 
 void load_difftest_library();
+void get_dut_cpu_state(Vysyx_24090012_NPC *top, CPU_state *dut_cpu_state);
+bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref);
 
 #endif
