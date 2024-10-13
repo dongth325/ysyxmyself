@@ -90,11 +90,11 @@ int main(int argc, char **argv) {
     
     load_memory(program_path, program_size);// 加载程序到存储器，并获取程序大小
     
-    difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, 1);// 将程序加载到参考模型的内存中
+   // difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, 1);// 将程序加载到参考模型的内存中
     
     CPU_state cpu_state = {0};// 初始化参考模型的寄存器状态
     cpu_state.pc = PROGRAM_START_ADDRESS;
-    difftest_regcpy(&cpu_state, 1);//将传入的结构体状态赋值给ref 
+    //difftest_regcpy(&cpu_state, 1);//将传入的结构体状态赋值给ref 
 
     // 复位处理器
     top->rst = 1;      // 设置复位信号为高
@@ -160,16 +160,16 @@ int main(int argc, char **argv) {
         Verilated::timeInc(1);
            
         
-        difftest_exec(1);// 执行参考模型
+        //difftest_exec(1);// 执行参考模型
 
         // 获取 DUT CPU 状态
         CPU_state dut_cpu_state;
-        get_dut_cpu_state(top, &dut_cpu_state);
+       // get_dut_cpu_state(top, &dut_cpu_state);
         // printf("shen shen shen\n");
        
         CPU_state ref_cpu_state; // 获取参考模型的 CPU 状态
        // printf("zhang zhang zhang\n");
-        difftest_regcpy(&ref_cpu_state, false);
+       // difftest_regcpy(&ref_cpu_state, false);
          //printf("wei wei wei wei\n");
         // 比较 CPU 状态
         /*if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
