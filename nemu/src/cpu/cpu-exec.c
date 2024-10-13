@@ -163,10 +163,10 @@ void cpu_exec(uint64_t n) {
           nemu_state.halt_pc);
 
           // 当程序异常终止时，打印最近的指令踪迹
-        printf("Assertion failed! Printing recent instruction trace:\n");
+      //  printf("Assertion failed! Printing recent instruction trace:\n");
 
   // 调用 get_trace 打印指令踪迹
-  get_trace(&rb);  // 假设环形缓冲区是全局的 rb 变量
+ // get_trace(&rb);  // 假设环形缓冲区是全局的 rb 变量
 
      // printf("kkkkkkkkkkkkkkkkkkkkkk\n");//ddddddddddddddddddddddddd
       // fall through
