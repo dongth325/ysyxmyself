@@ -68,7 +68,7 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
     // 比较通用寄存器
   for (int i = 0; i < 32; i++) {
     if (dut->gpr[i] != ref->gpr[i]) {
-        std::cerr << "Register x" << i << " mismatch: "
+        std::cerr << "Register " << i << " mismatch: "
                   << "DUT = 0x" << std::hex << dut->gpr[i] 
                   << ", REF = 0x" << ref->gpr[i] << std::endl;
         return false;
