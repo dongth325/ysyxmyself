@@ -7,6 +7,7 @@
 #include "difftest_loader.h"  // 包含 DiffTest 加载的头文件
 #include "isa.h" // 包含 CPU_state 的定义
 #include "svdpi.h"
+#include "npc_init.h"
 
 #define MEM_SIZE (128 * 1024 * 1024)// 定义简单的存储器，假设大小为 128MB（与 NEMU 一致）
 uint8_t *memory = new uint8_t[MEM_SIZE];
@@ -165,8 +166,8 @@ int main(int argc, char **argv) {
         CPU_state dut_cpu_state;
         get_dut_cpu_state(top, &dut_cpu_state);
          printf("shen shen shen\n");
-        // 获取参考模型的 CPU 状态
-        CPU_state ref_cpu_state;
+       
+        CPU_state ref_cpu_state; // 获取参考模型的 CPU 状态
         printf("zhang zhang zhang\n");
         difftest_regcpy(&ref_cpu_state, false);
          printf("wei wei wei wei\n");
