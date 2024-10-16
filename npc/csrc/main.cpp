@@ -98,6 +98,7 @@ int main(int argc, char **argv) {
 
     // 复位处理器
     top->rst = 1;      // 设置复位信号为高
+  
     top->clk = 0;      // 初始化时钟为低
 
     uint32_t reset_pc = PROGRAM_START_ADDRESS;
@@ -127,13 +128,16 @@ int main(int argc, char **argv) {
     while (!Verilated::gotFinish()) {
         // 读取当前 PC
         uint32_t current_pc = top->pc;
-
+            printf("current_pc = 0x%08x",current_pc);//dddddddddddddddddddddd
         // 在时钟上升沿前更新 mem_data
         if (prev_pc >= PROGRAM_START_ADDRESS && prev_pc < PROGRAM_START_ADDRESS + MEM_SIZE) {
+            printf("11111111111\n");
+           
             uint32_t inst = pmem_read(prev_pc);
             top->mem_data = inst;
             std::cout << "Current time: " << Verilated::time() << "     PC: 0x" << std::hex << prev_pc << std::dec << std::endl;
             std::cout << "Fetched Instruction: 0x" << std::hex << inst << std::dec << std::endl;
+            std::cout << "       \n" << std::endl;
         } else {
             std::cerr << "Error: PC out of bounds: 0x" << std::hex << prev_pc << std::dec << std::endl;
             exit(1);
@@ -142,8 +146,11 @@ int main(int argc, char **argv) {
         prev_pc = current_pc;  // 更新 prev_pc
 
         // 时钟上升沿
+        printf("clock = 1\n");
         top->clk = 1;
+        printf("eval begin\n");
         top->eval();
+        printf("eval end\n");
         trace->dump(Verilated::time());
         Verilated::timeInc(1);
 
@@ -154,8 +161,11 @@ int main(int argc, char **argv) {
         }
 
         // 时钟下降沿
+        printf("clock = 0\n");
         top->clk = 0;
+        printf("eval begin\n");
         top->eval();
+        printf("eval end\n");
         trace->dump(Verilated::time());
         Verilated::timeInc(1);
            

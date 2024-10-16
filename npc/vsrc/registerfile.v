@@ -1,6 +1,7 @@
 module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WIDTH = 32) (
   input clk,
   input rst,
+  input [31:0] pc,
   input [ADDR_WIDTH-1:0] raddr1,
   input [ADDR_WIDTH-1:0] raddr2,
   input [ADDR_WIDTH-1:0] waddr,
@@ -10,6 +11,12 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
   output [DATA_WIDTH-1:0] rdata2
 );
  
+always @(*) begin
+      $display("At time %t: rigister touch PC = 0x%08x", $time, pc);
+    end
+
+
+
   // 导出函数供C语言访问
 export "DPI-C" function get_reg_value;
   reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
@@ -24,7 +31,7 @@ export "DPI-C" function get_reg_value;
       rf[waddr] <= wdata;  // 忽略对x0寄存器的写操作
 
          if (waddr == 10) begin  // 10 是 a0 寄存器的地址
-        $display("At time %t: Writing to a0 (rf[10]), new value = %h", $time, wdata);
+        //$display("At time %t: Writing to a0 (rf[10]), new value = %h", $time, wdata);
       end
 
 

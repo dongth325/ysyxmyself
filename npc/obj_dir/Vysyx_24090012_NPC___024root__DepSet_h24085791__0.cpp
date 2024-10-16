@@ -58,8 +58,16 @@ void Vysyx_24090012_NPC___024root___eval_triggers__act(Vysyx_24090012_NPC___024r
                                           & (~ (IData)(vlSelfRef.__Vtrigprevexpr___TOP__rst__0)))));
     vlSelfRef.__VactTriggered.set(1U, ((IData)(vlSelfRef.clk) 
                                        & (~ (IData)(vlSelfRef.__Vtrigprevexpr___TOP__clk__0))));
+    vlSelfRef.__VactTriggered.set(2U, (vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
+                                       != vlSelfRef.__Vtrigprevexpr___TOP__ysyx_24090012_NPC__DOT__next_pc__0));
     vlSelfRef.__Vtrigprevexpr___TOP__clk__0 = vlSelfRef.clk;
     vlSelfRef.__Vtrigprevexpr___TOP__rst__0 = vlSelfRef.rst;
+    vlSelfRef.__Vtrigprevexpr___TOP__ysyx_24090012_NPC__DOT__next_pc__0 
+        = vlSelfRef.ysyx_24090012_NPC__DOT__next_pc;
+    if (VL_UNLIKELY((1U & (~ (IData)(vlSelfRef.__VactDidInit))))) {
+        vlSelfRef.__VactDidInit = 1U;
+        vlSelfRef.__VactTriggered.set(2U, 1U);
+    }
 #ifdef VL_DEBUG
     if (VL_UNLIKELY(vlSymsp->_vm_contextp__->debug())) {
         Vysyx_24090012_NPC___024root___dump_triggers__act(vlSelf);

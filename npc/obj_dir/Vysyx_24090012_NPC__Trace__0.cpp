@@ -24,7 +24,9 @@ void Vysyx_24090012_NPC___024root__trace_chg_0_sub_0(Vysyx_24090012_NPC___024roo
     // Init
     uint32_t* const oldp VL_ATTR_UNUSED = bufp->oldp(vlSymsp->__Vm_baseCode + 1);
     // Body
-    if (VL_UNLIKELY(vlSelfRef.__Vm_traceActivity[1U])) {
+    if (VL_UNLIKELY((vlSelfRef.__Vm_traceActivity[1U] 
+                     | vlSelfRef.__Vm_traceActivity
+                     [2U]))) {
         bufp->chgCData(oldp+0,(vlSelfRef.ysyx_24090012_NPC__DOT__opcode),7);
         bufp->chgCData(oldp+1,(vlSelfRef.ysyx_24090012_NPC__DOT__func3),3);
         bufp->chgCData(oldp+2,(vlSelfRef.ysyx_24090012_NPC__DOT__func7),7);
@@ -42,7 +44,7 @@ void Vysyx_24090012_NPC___024root__trace_chg_0_sub_0(Vysyx_24090012_NPC___024roo
                                                 | (3U 
                                                    == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)))))))))));
     }
-    if (VL_UNLIKELY(vlSelfRef.__Vm_traceActivity[2U])) {
+    if (VL_UNLIKELY(vlSelfRef.__Vm_traceActivity[3U])) {
         bufp->chgIData(oldp+6,(vlSelfRef.ysyx_24090012_NPC__DOT__regfile__DOT__rf[0]),32);
         bufp->chgIData(oldp+7,(vlSelfRef.ysyx_24090012_NPC__DOT__regfile__DOT__rf[1]),32);
         bufp->chgIData(oldp+8,(vlSelfRef.ysyx_24090012_NPC__DOT__regfile__DOT__rf[2]),32);
@@ -78,8 +80,8 @@ void Vysyx_24090012_NPC___024root__trace_chg_0_sub_0(Vysyx_24090012_NPC___024roo
     }
     bufp->chgBit(oldp+38,(vlSelfRef.clk));
     bufp->chgBit(oldp+39,(vlSelfRef.rst));
-    bufp->chgIData(oldp+40,(vlSelfRef.pc),32);
-    bufp->chgIData(oldp+41,(vlSelfRef.mem_data),32);
+    bufp->chgIData(oldp+40,(vlSelfRef.mem_data),32);
+    bufp->chgIData(oldp+41,(vlSelfRef.pc),32);
     bufp->chgBit(oldp+42,(vlSelfRef.ebreak_flag));
     bufp->chgIData(oldp+43,(vlSelfRef.exit_code),32);
     bufp->chgCData(oldp+44,((0x1fU & (vlSelfRef.mem_data 
@@ -104,4 +106,5 @@ void Vysyx_24090012_NPC___024root__trace_cleanup(void* voidSelf, VerilatedVcd* /
     vlSymsp->TOP.__Vm_traceActivity[0U] = 0U;
     vlSymsp->TOP.__Vm_traceActivity[1U] = 0U;
     vlSymsp->TOP.__Vm_traceActivity[2U] = 0U;
+    vlSymsp->TOP.__Vm_traceActivity[3U] = 0U;
 }

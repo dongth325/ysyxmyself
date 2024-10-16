@@ -1,5 +1,6 @@
 module ysyx_24090012_IDU(
   input [31:0] inst,
+  input [31:0] pc,
   output reg [4:0] rs1,
   output reg [4:0] rs2,
   output reg [4:0] rd,
@@ -10,13 +11,14 @@ module ysyx_24090012_IDU(
   output reg [3:0] alu_op
 );
 
-  always @(*) begin
+    always @(*) begin
     opcode = inst[6:0];
     func3  = inst[14:12];
     func7  = inst[31:25];
     rs1    = inst[19:15];
     rs2    = inst[24:20];
     rd     = inst[11:7];
+    $display("At time %t: idu touch PC = 0x%08x", $time, pc);
 
     // 根据指令类型，提取立即数和 ALU 操作码
     case (opcode)
@@ -50,6 +52,7 @@ module ysyx_24090012_IDU(
       end
       7'b1101111: begin  // JAL
         imm = {{12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0};
+        $display("At time %t: idu   jal  imm= 0x%08x", $time, imm);
         alu_op = 4'b0011;  // JAL
       end
       7'b1100111: begin  // JALR
@@ -78,6 +81,7 @@ module ysyx_24090012_IDU(
         imm = 32'b0;
         alu_op = 4'b1011;  // EBREAK
       end
+
       // 其他指令类型
       default: begin
         imm = 32'b0;

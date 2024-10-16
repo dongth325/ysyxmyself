@@ -13,8 +13,8 @@ Vysyx_24090012_NPC::Vysyx_24090012_NPC(VerilatedContext* _vcontextp__, const cha
     , clk{vlSymsp->TOP.clk}
     , rst{vlSymsp->TOP.rst}
     , ebreak_flag{vlSymsp->TOP.ebreak_flag}
-    , pc{vlSymsp->TOP.pc}
     , mem_data{vlSymsp->TOP.mem_data}
+    , pc{vlSymsp->TOP.pc}
     , exit_code{vlSymsp->TOP.exit_code}
     , rootp{&(vlSymsp->TOP)}
 {
