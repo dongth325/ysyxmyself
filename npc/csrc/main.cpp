@@ -126,14 +126,14 @@ int main(int argc, char **argv) {
 
     // 主仿真循环
     while (!Verilated::gotFinish()) {
-        // 读取当前 PC
-        uint32_t current_pc = top->pc;
-            printf("current_pc = 0x%08x",current_pc);//dddddddddddddddddddddd
+        
+        uint32_t prev_pc = top->pc; // 更新current_pcddddddddddddddd
+            //printf("current_pc = 0x%08x",current_pc);//dddddddddddddddddddddd
         // 在时钟上升沿前更新 mem_data
         if (prev_pc >= PROGRAM_START_ADDRESS && prev_pc < PROGRAM_START_ADDRESS + MEM_SIZE) {
             printf("11111111111\n");
            
-            uint32_t inst = pmem_read(prev_pc);
+            uint32_t inst = pmem_read(prev_pc);//dddddddddddddddddddd传入pc
             top->mem_data = inst;
             std::cout << "Current time: " << Verilated::time() << "     PC: 0x" << std::hex << prev_pc << std::dec << std::endl;
             std::cout << "Fetched Instruction: 0x" << std::hex << inst << std::dec << std::endl;
@@ -143,7 +143,7 @@ int main(int argc, char **argv) {
             exit(1);
         }
 
-        prev_pc = current_pc;  // 更新 prev_pc
+        //prev_pc = current_pc;  // 更新 prev_pcddddddddddddddddddddddddddd
 
         // 时钟上升沿
         printf("clock = 1\n");
