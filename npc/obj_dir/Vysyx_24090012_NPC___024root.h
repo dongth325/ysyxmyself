@@ -27,7 +27,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_24090012_NPC___024root final : public V
     CData/*0:0*/ __VicoFirstIteration;
     CData/*0:0*/ __Vtrigprevexpr___TOP__clk__0;
     CData/*0:0*/ __Vtrigprevexpr___TOP__rst__0;
-    CData/*0:0*/ __VactDidInit;
     CData/*0:0*/ __VactContinue;
     VL_IN(mem_data,31,0);
     VL_OUT(pc,31,0);
@@ -38,14 +37,13 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_24090012_NPC___024root final : public V
     IData/*31:0*/ ysyx_24090012_NPC__DOT__result;
     IData/*31:0*/ ysyx_24090012_NPC__DOT__next_pc;
     IData/*31:0*/ __VdlyVal__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0;
-    IData/*31:0*/ __Vtrigprevexpr___TOP__ysyx_24090012_NPC__DOT__next_pc__0;
     IData/*31:0*/ __VactIterCount;
     VlUnpacked<IData/*31:0*/, 32> ysyx_24090012_NPC__DOT__regfile__DOT__rf;
-    VlUnpacked<CData/*0:0*/, 4> __Vm_traceActivity;
+    VlUnpacked<CData/*0:0*/, 3> __Vm_traceActivity;
     VlTriggerVec<1> __VstlTriggered;
     VlTriggerVec<1> __VicoTriggered;
-    VlTriggerVec<3> __VactTriggered;
-    VlTriggerVec<3> __VnbaTriggered;
+    VlTriggerVec<2> __VactTriggered;
+    VlTriggerVec<2> __VnbaTriggered;
 
     // INTERNAL VARIABLES
     Vysyx_24090012_NPC__Syms* const vlSymsp;

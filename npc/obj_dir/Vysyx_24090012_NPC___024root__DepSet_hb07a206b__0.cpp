@@ -56,8 +56,6 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___ico_sequent__TOP__0(Vysyx_2409
                                                 >> 0xcU));
     vlSelfRef.ysyx_24090012_NPC__DOT__func7 = (vlSelfRef.mem_data 
                                                >> 0x19U);
-    VL_WRITEF_NX("At time %t: idu touch PC = 0x%08x\n",0,
-                 64,VL_TIME_UNITED_Q(1),-12,32,vlSelfRef.pc);
     if ((0x40U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
         if ((0x20U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
             if ((0x10U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
@@ -82,7 +80,7 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___ico_sequent__TOP__0(Vysyx_2409
             } else if ((8U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
                 if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
                     if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                        if (VL_UNLIKELY((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)))) {
+                        if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
                             vlSelfRef.ysyx_24090012_NPC__DOT__imm 
                                 = (((- (IData)((vlSelfRef.mem_data 
                                                 >> 0x1fU))) 
@@ -94,9 +92,6 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___ico_sequent__TOP__0(Vysyx_2409
                                                     | (0x7feU 
                                                        & (vlSelfRef.mem_data 
                                                           >> 0x14U)))));
-                            VL_WRITEF_NX("At time %t: idu   jal  imm= 0x%08x\n",0,
-                                         64,VL_TIME_UNITED_Q(1),
-                                         -12,32,vlSelfRef.ysyx_24090012_NPC__DOT__imm);
                             vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 3U;
                         } else {
                             vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
@@ -276,26 +271,47 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___ico_sequent__TOP__0(Vysyx_2409
         vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
         vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
     }
-    vlSelfRef.ysyx_24090012_NPC__DOT__result = 0U;
-    VL_WRITEF_NX("At time %t: exu touch before PC = 0x%08x\n",0,
-                 64,VL_TIME_UNITED_Q(1),-12,32,vlSelfRef.pc);
-    if (((((3U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)) 
-           | (4U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) 
-          | (6U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) 
-         | (7U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)))) {
-        VL_WRITEF_NX("At time %t: exu middle PC = 0x%08x\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,32,
-                     vlSelfRef.pc);
-        vlSelfRef.ysyx_24090012_NPC__DOT__next_pc = 0U;
-    } else {
-        vlSelfRef.ysyx_24090012_NPC__DOT__next_pc = 
-            ((IData)(4U) + vlSelfRef.pc);
-        VL_WRITEF_NX("At time %t: exu after next_pc = 0x%08x\nAt time %t: exu after PC = 0x%08x\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,32,
-                     vlSelfRef.ysyx_24090012_NPC__DOT__next_pc,
-                     64,VL_TIME_UNITED_Q(1),-12,32,
-                     vlSelfRef.pc);
+    vlSelfRef.ysyx_24090012_NPC__DOT__next_pc = (((
+                                                   ((3U 
+                                                     == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)) 
+                                                    | (4U 
+                                                       == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) 
+                                                   | (6U 
+                                                      == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) 
+                                                  | (7U 
+                                                     == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)))
+                                                  ? 0U
+                                                  : 
+                                                 ((IData)(4U) 
+                                                  + vlSelfRef.pc));
+    if ((1U & (~ ((IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op) 
+                  >> 3U)))) {
+        if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
+            if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
+                if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
+                    if ((vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
+                         != vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data)) {
+                        vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
+                            = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
+                    }
+                } else if ((vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
+                            == vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data)) {
+                    vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
+                        = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
+                }
+            } else if ((1U & (~ (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)))) {
+                vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
+                    = (0xfffffffeU & (vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
+                                      + vlSelfRef.ysyx_24090012_NPC__DOT__imm));
+            }
+        } else if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
+            if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
+                vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
+                    = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
+            }
+        }
     }
+    vlSelfRef.ysyx_24090012_NPC__DOT__result = 0U;
     if ((8U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
         if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
             if ((1U & (~ ((IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op) 
@@ -321,49 +337,24 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___ico_sequent__TOP__0(Vysyx_2409
                        + vlSelfRef.ysyx_24090012_NPC__DOT__imm));
         }
     } else if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
-        if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
-            if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
-                if ((vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
-                     != vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data)) {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
-                        = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
-                }
-            } else if ((vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
-                        == vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data)) {
-                vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
-                    = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
-            }
-        } else if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
+        if ((1U & (~ ((IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op) 
+                      >> 1U)))) {
             vlSelfRef.ysyx_24090012_NPC__DOT__result 
-                = (vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
-                   + vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data);
-        } else {
-            vlSelfRef.ysyx_24090012_NPC__DOT__result 
-                = ((IData)(4U) + vlSelfRef.pc);
-            vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
-                = (0xfffffffeU & (vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
-                                  + vlSelfRef.ysyx_24090012_NPC__DOT__imm));
-        }
-    } else if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
-        if (VL_UNLIKELY((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)))) {
-            vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
-                = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
-            vlSelfRef.ysyx_24090012_NPC__DOT__result 
-                = ((IData)(4U) + vlSelfRef.pc);
-            VL_WRITEF_NX("At time %t: exu  jal pc = 0x%08x\nAt time %t: exu next_pc = 0x%08x\n",0,
-                         64,VL_TIME_UNITED_Q(1),-12,
-                         32,vlSelfRef.pc,64,VL_TIME_UNITED_Q(1),
-                         -12,32,vlSelfRef.ysyx_24090012_NPC__DOT__next_pc);
-        } else {
-            vlSelfRef.ysyx_24090012_NPC__DOT__result 
-                = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
+                = ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))
+                    ? (vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
+                       + vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data)
+                    : ((IData)(4U) + vlSelfRef.pc));
         }
     } else {
         vlSelfRef.ysyx_24090012_NPC__DOT__result = 
-            ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))
-              ? vlSelfRef.ysyx_24090012_NPC__DOT__imm
-              : (vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
-                 + vlSelfRef.ysyx_24090012_NPC__DOT__imm));
+            ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))
+              ? ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))
+                  ? ((IData)(4U) + vlSelfRef.pc) : 
+                 (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm))
+              : ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))
+                  ? vlSelfRef.ysyx_24090012_NPC__DOT__imm
+                  : (vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
+                     + vlSelfRef.ysyx_24090012_NPC__DOT__imm)));
     }
 }
 
@@ -395,7 +386,6 @@ void Vysyx_24090012_NPC___024root___eval_act(Vysyx_24090012_NPC___024root* vlSel
 void Vysyx_24090012_NPC___024root___nba_sequent__TOP__0(Vysyx_24090012_NPC___024root* vlSelf);
 void Vysyx_24090012_NPC___024root___nba_sequent__TOP__1(Vysyx_24090012_NPC___024root* vlSelf);
 void Vysyx_24090012_NPC___024root___nba_sequent__TOP__2(Vysyx_24090012_NPC___024root* vlSelf);
-void Vysyx_24090012_NPC___024root___nba_sequent__TOP__3(Vysyx_24090012_NPC___024root* vlSelf);
 void Vysyx_24090012_NPC___024root___nba_comb__TOP__0(Vysyx_24090012_NPC___024root* vlSelf);
 
 void Vysyx_24090012_NPC___024root___eval_nba(Vysyx_24090012_NPC___024root* vlSelf) {
@@ -404,19 +394,15 @@ void Vysyx_24090012_NPC___024root___eval_nba(Vysyx_24090012_NPC___024root* vlSel
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___eval_nba\n"); );
     auto &vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    if ((4ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
+    if ((2ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
         Vysyx_24090012_NPC___024root___nba_sequent__TOP__0(vlSelf);
     }
-    if ((2ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
+    if ((1ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
         Vysyx_24090012_NPC___024root___nba_sequent__TOP__1(vlSelf);
     }
-    if ((1ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
+    if ((2ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
         Vysyx_24090012_NPC___024root___nba_sequent__TOP__2(vlSelf);
         vlSelfRef.__Vm_traceActivity[2U] = 1U;
-    }
-    if ((2ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
-        Vysyx_24090012_NPC___024root___nba_sequent__TOP__3(vlSelf);
-        vlSelfRef.__Vm_traceActivity[3U] = 1U;
     }
     if ((3ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
         Vysyx_24090012_NPC___024root___nba_comb__TOP__0(vlSelf);
@@ -429,30 +415,6 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___nba_sequent__TOP__0(Vysyx_2409
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___nba_sequent__TOP__0\n"); );
     auto &vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    VL_WRITEF_NX("next_pc change to = 0x%08x%10#\n",0,
-                 64,VL_TIME_UNITED_Q(1),32,vlSelfRef.ysyx_24090012_NPC__DOT__next_pc);
-}
-
-VL_INLINE_OPT void Vysyx_24090012_NPC___024root___nba_sequent__TOP__1(Vysyx_24090012_NPC___024root* vlSelf) {
-    (void)vlSelf;  // Prevent unused variable warning
-    Vysyx_24090012_NPC__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___nba_sequent__TOP__1\n"); );
-    auto &vlSelfRef = std::ref(*vlSelf).get();
-    // Body
-    if (VL_UNLIKELY((0xaU == (0x1fU & (vlSelfRef.mem_data 
-                                       >> 0xfU))))) {
-        VL_WRITEF_NX("At time %t: Reading from a0 (rf[10]), value = %x\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,32,
-                     vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data);
-    }
-    if (VL_UNLIKELY((0xaU == (0x1fU & (vlSelfRef.mem_data 
-                                       >> 0x14U))))) {
-        VL_WRITEF_NX("At time %t: Reading from a0 (rf[10]), value = %x\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,32,
-                     vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data);
-    }
-    VL_WRITEF_NX("At time %t: ifu PC = 0x%08x\n",0,
-                 64,VL_TIME_UNITED_Q(1),-12,32,vlSelfRef.pc);
     vlSelfRef.__VdlySet__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0 = 0U;
     if ((((0x13U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
           | ((0x37U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
@@ -473,18 +435,14 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___nba_sequent__TOP__1(Vysyx_2409
 
 void Vysyx_24090012_NPC___024root____Vdpiimwrap_ysyx_24090012_NPC__DOT__ebreak_TOP(IData/*31:0*/ exit_code);
 
-VL_INLINE_OPT void Vysyx_24090012_NPC___024root___nba_sequent__TOP__2(Vysyx_24090012_NPC___024root* vlSelf) {
+VL_INLINE_OPT void Vysyx_24090012_NPC___024root___nba_sequent__TOP__1(Vysyx_24090012_NPC___024root* vlSelf) {
     (void)vlSelf;  // Prevent unused variable warning
     Vysyx_24090012_NPC__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___nba_sequent__TOP__2\n"); );
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___nba_sequent__TOP__1\n"); );
     auto &vlSelfRef = std::ref(*vlSelf).get();
-    // Init
-    IData/*31:0*/ __Vdly__pc;
-    __Vdly__pc = 0;
     // Body
-    __Vdly__pc = vlSelfRef.pc;
     if (vlSelfRef.rst) {
-        __Vdly__pc = 0x80000000U;
+        vlSelfRef.pc = 0x80000000U;
         vlSelfRef.ebreak_flag = 0U;
     } else if ((0x100073U == vlSelfRef.mem_data)) {
         Vysyx_24090012_NPC___024root____Vdpiimwrap_ysyx_24090012_NPC__DOT__ebreak_TOP(
@@ -493,258 +451,15 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___nba_sequent__TOP__2(Vysyx_2409
         vlSelfRef.ebreak_flag = 1U;
         vlSelfRef.exit_code = vlSelfRef.ysyx_24090012_NPC__DOT__regfile__DOT__rf
             [0xaU];
-    } else if (((3U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)) 
-                | (4U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)))) {
-        VL_WRITEF_NX("At time %t: NPC before update-pc PC = 0x%08x\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,32,
-                     vlSelfRef.pc);
-        __Vdly__pc = vlSelfRef.ysyx_24090012_NPC__DOT__next_pc;
     } else {
-        VL_WRITEF_NX("At time %t: NPC before update-pc PC = 0x%08x\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,32,
-                     vlSelfRef.pc);
-        __Vdly__pc = vlSelfRef.ysyx_24090012_NPC__DOT__next_pc;
-    }
-    VL_WRITEF_NX("At time %t: NPC after update-pc PC = 0x%08x\n",0,
-                 64,VL_TIME_UNITED_Q(1),-12,32,vlSelfRef.pc);
-    vlSelfRef.pc = __Vdly__pc;
-    VL_WRITEF_NX("At time %t: npc touch PC = 0x%08x\nAt time %t: ifu touch PC = 0x%08x\nAt time %t: rigister touch PC = 0x%08x\n",0,
-                 64,VL_TIME_UNITED_Q(1),-12,32,vlSelfRef.pc,
-                 64,VL_TIME_UNITED_Q(1),-12,32,vlSelfRef.pc,
-                 64,VL_TIME_UNITED_Q(1),-12,32,vlSelfRef.pc);
-    vlSelfRef.ysyx_24090012_NPC__DOT__opcode = (0x7fU 
-                                                & vlSelfRef.mem_data);
-    vlSelfRef.ysyx_24090012_NPC__DOT__func3 = (7U & 
-                                               (vlSelfRef.mem_data 
-                                                >> 0xcU));
-    vlSelfRef.ysyx_24090012_NPC__DOT__func7 = (vlSelfRef.mem_data 
-                                               >> 0x19U);
-    VL_WRITEF_NX("At time %t: idu touch PC = 0x%08x\n",0,
-                 64,VL_TIME_UNITED_Q(1),-12,32,vlSelfRef.pc);
-    if ((0x40U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-        if ((0x20U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-            if ((0x10U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                if ((8U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                    vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                } else if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                    vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                } else if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                    if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                        vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                        vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xbU;
-                    } else {
-                        vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                        vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                    }
-                } else {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                    vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                }
-            } else if ((8U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                    if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                        if (VL_UNLIKELY((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)))) {
-                            vlSelfRef.ysyx_24090012_NPC__DOT__imm 
-                                = (((- (IData)((vlSelfRef.mem_data 
-                                                >> 0x1fU))) 
-                                    << 0x14U) | ((0xff000U 
-                                                  & vlSelfRef.mem_data) 
-                                                 | ((0x800U 
-                                                     & (vlSelfRef.mem_data 
-                                                        >> 9U)) 
-                                                    | (0x7feU 
-                                                       & (vlSelfRef.mem_data 
-                                                          >> 0x14U)))));
-                            VL_WRITEF_NX("At time %t: idu   jal  imm= 0x%08x\n",0,
-                                         64,VL_TIME_UNITED_Q(1),
-                                         -12,32,vlSelfRef.ysyx_24090012_NPC__DOT__imm);
-                            vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 3U;
-                        } else {
-                            vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                            vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                        }
-                    } else {
-                        vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                        vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                    }
-                } else {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                    vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                }
-            } else if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                    if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                        vlSelfRef.ysyx_24090012_NPC__DOT__imm 
-                            = (((- (IData)((vlSelfRef.mem_data 
-                                            >> 0x1fU))) 
-                                << 0xcU) | (vlSelfRef.mem_data 
-                                            >> 0x14U));
-                        vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 4U;
-                    } else {
-                        vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                        vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                    }
-                } else {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                    vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                }
-            } else if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__imm 
-                        = (((- (IData)((vlSelfRef.mem_data 
-                                        >> 0x1fU))) 
-                            << 0xdU) | ((0x1000U & 
-                                         (vlSelfRef.mem_data 
-                                          >> 0x13U)) 
-                                        | ((0x800U 
-                                            & (vlSelfRef.mem_data 
-                                               << 4U)) 
-                                           | ((0x7e0U 
-                                               & (vlSelfRef.mem_data 
-                                                  >> 0x14U)) 
-                                              | (0x1eU 
-                                                 & (vlSelfRef.mem_data 
-                                                    >> 7U))))));
-                    vlSelfRef.ysyx_24090012_NPC__DOT__alu_op 
-                        = ((0U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
-                            ? 6U : ((1U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
-                                     ? 7U : 0xfU));
-                } else {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                    vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                }
-            } else {
-                vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-            }
-        } else {
-            vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-            vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-        }
-    } else if ((0x20U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-        if ((0x10U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-            if ((8U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-            } else if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                    if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                        vlSelfRef.ysyx_24090012_NPC__DOT__imm 
-                            = (0xfffff000U & vlSelfRef.mem_data);
-                        vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 1U;
-                    } else {
-                        vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                        vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                    }
-                } else {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                    vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                }
-            } else if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                    vlSelfRef.ysyx_24090012_NPC__DOT__alu_op 
-                        = (((0U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3)) 
-                            & (0U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func7)))
-                            ? 5U : (((0U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3)) 
-                                     & (0x20U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func7)))
-                                     ? 0xcU : 0xfU));
-                } else {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                    vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                }
-            } else {
-                vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-            }
-        } else if ((8U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-            vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-            vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-        } else if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-            vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-            vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-        } else if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-            if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                vlSelfRef.ysyx_24090012_NPC__DOT__imm 
-                    = (((- (IData)((vlSelfRef.mem_data 
-                                    >> 0x1fU))) << 0xcU) 
-                       | ((0xfe0U & (vlSelfRef.mem_data 
-                                     >> 0x14U)) | (0x1fU 
-                                                   & (vlSelfRef.mem_data 
-                                                      >> 7U))));
-                vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 9U;
-            } else {
-                vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-            }
-        } else {
-            vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-            vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-        }
-    } else if ((0x10U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-        if ((8U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-            vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-            vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-        } else if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-            if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__imm 
-                        = (0xfffff000U & vlSelfRef.mem_data);
-                    vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 2U;
-                } else {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                    vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-                }
-            } else {
-                vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-            }
-        } else if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-            if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-                vlSelfRef.ysyx_24090012_NPC__DOT__imm 
-                    = (((- (IData)((vlSelfRef.mem_data 
-                                    >> 0x1fU))) << 0xcU) 
-                       | (vlSelfRef.mem_data >> 0x14U));
-                vlSelfRef.ysyx_24090012_NPC__DOT__alu_op 
-                    = ((0U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
-                        ? 0U : ((6U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
-                                 ? 0xaU : 0xfU));
-            } else {
-                vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-                vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-            }
-        } else {
-            vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-            vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-        }
-    } else if ((8U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-        vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-        vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-    } else if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-        vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-        vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-    } else if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-        if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))) {
-            vlSelfRef.ysyx_24090012_NPC__DOT__imm = 
-                (((- (IData)((vlSelfRef.mem_data >> 0x1fU))) 
-                  << 0xcU) | (vlSelfRef.mem_data >> 0x14U));
-            vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 8U;
-        } else {
-            vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-            vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
-        }
-    } else {
-        vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
-        vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
+        vlSelfRef.pc = vlSelfRef.ysyx_24090012_NPC__DOT__next_pc;
     }
 }
 
-VL_INLINE_OPT void Vysyx_24090012_NPC___024root___nba_sequent__TOP__3(Vysyx_24090012_NPC___024root* vlSelf) {
+VL_INLINE_OPT void Vysyx_24090012_NPC___024root___nba_sequent__TOP__2(Vysyx_24090012_NPC___024root* vlSelf) {
     (void)vlSelf;  // Prevent unused variable warning
     Vysyx_24090012_NPC__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___nba_sequent__TOP__3\n"); );
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___nba_sequent__TOP__2\n"); );
     auto &vlSelfRef = std::ref(*vlSelf).get();
     // Body
     if (vlSelfRef.__VdlySet__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0) {
@@ -783,26 +498,47 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___nba_comb__TOP__0(Vysyx_2409001
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___nba_comb__TOP__0\n"); );
     auto &vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    vlSelfRef.ysyx_24090012_NPC__DOT__result = 0U;
-    VL_WRITEF_NX("At time %t: exu touch before PC = 0x%08x\n",0,
-                 64,VL_TIME_UNITED_Q(1),-12,32,vlSelfRef.pc);
-    if (((((3U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)) 
-           | (4U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) 
-          | (6U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) 
-         | (7U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)))) {
-        VL_WRITEF_NX("At time %t: exu middle PC = 0x%08x\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,32,
-                     vlSelfRef.pc);
-        vlSelfRef.ysyx_24090012_NPC__DOT__next_pc = 0U;
-    } else {
-        vlSelfRef.ysyx_24090012_NPC__DOT__next_pc = 
-            ((IData)(4U) + vlSelfRef.pc);
-        VL_WRITEF_NX("At time %t: exu after next_pc = 0x%08x\nAt time %t: exu after PC = 0x%08x\n",0,
-                     64,VL_TIME_UNITED_Q(1),-12,32,
-                     vlSelfRef.ysyx_24090012_NPC__DOT__next_pc,
-                     64,VL_TIME_UNITED_Q(1),-12,32,
-                     vlSelfRef.pc);
+    vlSelfRef.ysyx_24090012_NPC__DOT__next_pc = (((
+                                                   ((3U 
+                                                     == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)) 
+                                                    | (4U 
+                                                       == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) 
+                                                   | (6U 
+                                                      == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) 
+                                                  | (7U 
+                                                     == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)))
+                                                  ? 0U
+                                                  : 
+                                                 ((IData)(4U) 
+                                                  + vlSelfRef.pc));
+    if ((1U & (~ ((IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op) 
+                  >> 3U)))) {
+        if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
+            if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
+                if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
+                    if ((vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
+                         != vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data)) {
+                        vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
+                            = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
+                    }
+                } else if ((vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
+                            == vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data)) {
+                    vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
+                        = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
+                }
+            } else if ((1U & (~ (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)))) {
+                vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
+                    = (0xfffffffeU & (vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
+                                      + vlSelfRef.ysyx_24090012_NPC__DOT__imm));
+            }
+        } else if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
+            if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
+                vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
+                    = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
+            }
+        }
     }
+    vlSelfRef.ysyx_24090012_NPC__DOT__result = 0U;
     if ((8U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
         if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
             if ((1U & (~ ((IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op) 
@@ -828,49 +564,24 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___nba_comb__TOP__0(Vysyx_2409001
                        + vlSelfRef.ysyx_24090012_NPC__DOT__imm));
         }
     } else if ((4U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
-        if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
-            if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
-                if ((vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
-                     != vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data)) {
-                    vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
-                        = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
-                }
-            } else if ((vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
-                        == vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data)) {
-                vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
-                    = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
-            }
-        } else if ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
+        if ((1U & (~ ((IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op) 
+                      >> 1U)))) {
             vlSelfRef.ysyx_24090012_NPC__DOT__result 
-                = (vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
-                   + vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data);
-        } else {
-            vlSelfRef.ysyx_24090012_NPC__DOT__result 
-                = ((IData)(4U) + vlSelfRef.pc);
-            vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
-                = (0xfffffffeU & (vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
-                                  + vlSelfRef.ysyx_24090012_NPC__DOT__imm));
-        }
-    } else if ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))) {
-        if (VL_UNLIKELY((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op)))) {
-            vlSelfRef.ysyx_24090012_NPC__DOT__next_pc 
-                = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
-            vlSelfRef.ysyx_24090012_NPC__DOT__result 
-                = ((IData)(4U) + vlSelfRef.pc);
-            VL_WRITEF_NX("At time %t: exu  jal pc = 0x%08x\nAt time %t: exu next_pc = 0x%08x\n",0,
-                         64,VL_TIME_UNITED_Q(1),-12,
-                         32,vlSelfRef.pc,64,VL_TIME_UNITED_Q(1),
-                         -12,32,vlSelfRef.ysyx_24090012_NPC__DOT__next_pc);
-        } else {
-            vlSelfRef.ysyx_24090012_NPC__DOT__result 
-                = (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm);
+                = ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))
+                    ? (vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
+                       + vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data)
+                    : ((IData)(4U) + vlSelfRef.pc));
         }
     } else {
         vlSelfRef.ysyx_24090012_NPC__DOT__result = 
-            ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))
-              ? vlSelfRef.ysyx_24090012_NPC__DOT__imm
-              : (vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
-                 + vlSelfRef.ysyx_24090012_NPC__DOT__imm));
+            ((2U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))
+              ? ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))
+                  ? ((IData)(4U) + vlSelfRef.pc) : 
+                 (vlSelfRef.pc + vlSelfRef.ysyx_24090012_NPC__DOT__imm))
+              : ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op))
+                  ? vlSelfRef.ysyx_24090012_NPC__DOT__imm
+                  : (vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data 
+                     + vlSelfRef.ysyx_24090012_NPC__DOT__imm)));
     }
 }
 
@@ -882,7 +593,7 @@ bool Vysyx_24090012_NPC___024root___eval_phase__act(Vysyx_24090012_NPC___024root
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___eval_phase__act\n"); );
     auto &vlSelfRef = std::ref(*vlSelf).get();
     // Init
-    VlTriggerVec<3> __VpreTriggered;
+    VlTriggerVec<2> __VpreTriggered;
     CData/*0:0*/ __VactExecute;
     // Body
     Vysyx_24090012_NPC___024root___eval_triggers__act(vlSelf);

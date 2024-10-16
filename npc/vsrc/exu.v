@@ -10,23 +10,23 @@ module ysyx_24090012_EXU(
 
   
     always @(next_pc) begin
-      $display("next_pc change to = 0x%08x", $time, next_pc);
+     // $display("next_pc change to = 0x%08x", $time, next_pc);
     end
     always @(*) begin
     // 初始化默认值，防止锁存器推断
     result = 32'b0;
-    $display("At time %t: exu touch before PC = 0x%08x", $time, pc);
+   // $display("At time %t: exu touch before PC = 0x%08x", $time, pc);
      // 根据 alu_op 判断是否需要在 case 中单独赋值 next_pc
     if (alu_op == 4'b0011 || alu_op == 4'b0100 || alu_op == 4'b0110 || alu_op == 4'b0111) begin
       // 对于需要单独处理的指令，在 case 中赋值 next_pc
       // 为了防止锁存器推断，先给 next_pc 赋一个默认值
      next_pc = 32'b0;
-      $display("At time %t: exu middle PC = 0x%08x", $time, pc);
+      //$display("At time %t: exu middle PC = 0x%08x", $time, pc);
     end else begin
       // 对于其他指令，统一赋值 next_pc = pc + 4
       next_pc = pc + 4;
-      $display("At time %t: exu after next_pc = 0x%08x", $time, next_pc);
-      $display("At time %t: exu after PC = 0x%08x", $time, pc);
+      //$display("At time %t: exu after next_pc = 0x%08x", $time, next_pc);
+      //$display("At time %t: exu after PC = 0x%08x", $time, pc);
     end
     
     case (alu_op)
@@ -46,8 +46,8 @@ module ysyx_24090012_EXU(
         // JAL
         result = pc + 4;          // 保存返回地址
         next_pc = pc + imm;       // 跳转到目标地址
-        $display("At time %t: exu  jal pc = 0x%08x", $time, pc);
-        $display("At time %t: exu next_pc = 0x%08x", $time, next_pc);
+       // $display("At time %t: exu  jal pc = 0x%08x", $time, pc);
+       // $display("At time %t: exu next_pc = 0x%08x", $time, next_pc);
       end
       4'b0100: begin
         // JALR

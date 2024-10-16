@@ -47,7 +47,7 @@ module ysyx_24090012_NPC(
                 opcode == 7'b0100011 || opcode == 7'b0000011);
 
     always @(*) begin
-      $display("At time %t: npc touch PC = 0x%08x", $time, pc);
+      //$display("At time %t: npc touch PC = 0x%08x", $time, pc);
     end
 
   
@@ -64,15 +64,15 @@ module ysyx_24090012_NPC(
     end 
 
     else if (alu_op == 4'b0011 || alu_op == 4'b0100) begin  // JAL 或 JALR
-    $display("At time %t: NPC before update-pc PC = 0x%08x", $time, pc);
+    //$display("At time %t: NPC before update-pc PC = 0x%08x", $time, pc);
       pc <= next_pc;
     end 
     else begin//normal
-     $display("At time %t: NPC before update-pc PC = 0x%08x", $time, pc);
+     //$display("At time %t: NPC before update-pc PC = 0x%08x", $time, pc);
       pc <= next_pc;
     end
 
-    $display("At time %t: NPC after update-pc PC = 0x%08x", $time, pc);
+    //$display("At time %t: NPC after update-pc PC = 0x%08x", $time, pc);
   end
 endmodule
 
