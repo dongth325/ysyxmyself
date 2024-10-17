@@ -49,7 +49,7 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
     ((CPU_state *)dut)->pc = cpu.pc; // 复制程序计数器 (PC)
    // printf("yang yang yang \n");
   } else if (direction == DIFFTEST_TO_REF) {
-   // printf("da da da da \n");
+    printf("da da da da \n");
     // 将 DUT 的寄存器状态复制到参考模型 (REF)
     cpu = *(CPU_state *)dut; // 直接将整个 CPU 状态复制到参考模型
     for(int j=0;j<32;j++){

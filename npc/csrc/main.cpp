@@ -178,9 +178,9 @@ int main(int argc, char **argv) {
         // printf("shen shen shen\n");
        
         CPU_state ref_cpu_state; // 获取参考模型的 CPU 状态
-       // printf("zhang zhang zhang\n");
+        printf("zhang zhang zhang\n");
         difftest_regcpy(&ref_cpu_state, false);
-         //printf("wei wei wei wei\n");
+         printf("wei wei wei wei\n");
         // 比较 CPU 状态
         if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
             std::cerr << "Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
