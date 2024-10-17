@@ -52,6 +52,9 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
    // printf("da da da da \n");
     // 将 DUT 的寄存器状态复制到参考模型 (REF)
     cpu = *(CPU_state *)dut; // 直接将整个 CPU 状态复制到参考模型
+    for(int j=0;j<32;j++){
+      printf("REF->cpu->gpr[%d]=0x%08x from (difftest_regcopy)\n",j,cpu.gpr[j]);
+    }
     //printf("sha sha sha sha\n");
   }
 
