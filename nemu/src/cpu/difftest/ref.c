@@ -38,6 +38,7 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 }
 
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
+  printf("maekmakemakemakemakemakem\n");
       if (direction == DIFFTEST_TO_DUT) {
        // printf("zzzzzzzzzzzz\n");
     // 将参考模型 (REF) 的寄存器状态复制到 DUT
