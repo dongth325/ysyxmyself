@@ -45,17 +45,16 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
     for (int i = 0; i < 32; i++) {
       //printf("dong dong dong %d\n",i);
       ((CPU_state *)dut)->gpr[i] = cpu.gpr[i]; // 将每个通用寄存器从 REF 复制到 DUT
+      printf("REF->gpr[%d] = 0x%08x from (difftest_regcopy)\n",i,cpu.gpr[i]);
      // printf("ang ang ang ang %d\n",i);
     }
     ((CPU_state *)dut)->pc = cpu.pc; // 复制程序计数器 (PC)
    // printf("yang yang yang \n");
   } else if (direction == DIFFTEST_TO_REF) {
-    printf("da da da da \n");
+    //printf("da da da da \n");
     // 将 DUT 的寄存器状态复制到参考模型 (REF)
     cpu = *(CPU_state *)dut; // 直接将整个 CPU 状态复制到参考模型
-    for(int j=0;j<32;j++){
-      printf("REF->cpu->gpr[%d]=0x%08x from (difftest_regcopy)\n",j,cpu.gpr[j]);
-    }
+    
     //printf("sha sha sha sha\n");
   }
 
