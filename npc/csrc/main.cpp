@@ -174,18 +174,18 @@ int main(int argc, char **argv) {
 
         // 获取 DUT CPU 状态
         CPU_state dut_cpu_state;
-        //get_dut_cpu_state(top, &dut_cpu_state);
+        get_dut_cpu_state(top, &dut_cpu_state);
         // printf("shen shen shen\n");
        
         CPU_state ref_cpu_state; // 获取参考模型的 CPU 状态
         printf("zhang zhang zhang\n");
-       // difftest_regcpy(&ref_cpu_state, false);
-        // printf("wei wei wei wei\n");
+        difftest_regcpy(&ref_cpu_state, false);
+         printf("wei wei wei wei\n");
         // 比较 CPU 状态
-       /*if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
+       if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
             std::cerr << "Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
             exit(1);
-        }*/
+        }
     }
 
     // 释放资源
