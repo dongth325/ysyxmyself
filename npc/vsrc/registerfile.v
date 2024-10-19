@@ -30,9 +30,9 @@ export "DPI-C" function get_reg_value;
     if (wen && waddr != 5'b0) begin
       rf[waddr] <= wdata;  // 忽略对x0寄存器的写操作
 
-         if (waddr == 10) begin  // 10 是 a0 寄存器的地址
-        //$display("At time %t: Writing to a0 (rf[10]), new value = %h", $time, wdata);
-      end
+         //if (waddr == 8 ) begin  // 10 是 a0 寄存器的地址
+        $display("At time %t: Writing to  (rf[%d]), new value = %h from (registerfile.v)", $time, waddr,wdata);
+     // end
 
 
     end

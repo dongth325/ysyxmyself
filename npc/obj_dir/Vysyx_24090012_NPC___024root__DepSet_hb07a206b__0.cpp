@@ -416,15 +416,21 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___nba_sequent__TOP__0(Vysyx_2409
     auto &vlSelfRef = std::ref(*vlSelf).get();
     // Body
     vlSelfRef.__VdlySet__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0 = 0U;
-    if ((((0x13U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
-          | ((0x37U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
-             | ((0x17U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
-                | ((0x6fU == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
-                   | ((0x67U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
-                      | ((0x33U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
-                         | ((0x23U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
-                            | (3U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))))))))) 
-         & (0U != (0x1fU & (vlSelfRef.mem_data >> 7U))))) {
+    if (VL_UNLIKELY((((0x13U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
+                      | ((0x37U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
+                         | ((0x17U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
+                            | ((0x6fU == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
+                               | ((0x67U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
+                                  | ((0x33U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
+                                     | ((0x23U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
+                                        | (3U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))))))))) 
+                     & (0U != (0x1fU & (vlSelfRef.mem_data 
+                                        >> 7U)))))) {
+        VL_WRITEF_NX("At time %t: Writing to  (rf[%2#]), new value = %x from (registerfile.v)\n",0,
+                     64,VL_TIME_UNITED_Q(1),-12,5,(0x1fU 
+                                                   & (vlSelfRef.mem_data 
+                                                      >> 7U)),
+                     32,vlSelfRef.ysyx_24090012_NPC__DOT__result);
         vlSelfRef.__VdlyVal__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0 
             = vlSelfRef.ysyx_24090012_NPC__DOT__result;
         vlSelfRef.__VdlyDim0__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0 
