@@ -21,12 +21,12 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
     
   if (cpu.pc != pc) {
    printf("PC mismatch: NEMU PC = 0x%x, REF PC = 0x%x from (bool isa_difftest_checkregs)\n", cpu.pc, pc);
-    //return false;
+    return false;
   }
 
   
   for (int i = 0; i < 32; i++) {
-    printf("difftest ref REG(%d) = 0x%x\n",i,ref_r->gpr[i]);
+    //printf("difftest ref REG(%d) = 0x%x\n",i,ref_r->gpr[i]);
     if (cpu.gpr[i] != ref_r->gpr[i]) {
      printf("Register x%d mismatch: NEMU = 0x%x, REF = 0x%x from (bool isa_difftest_checkregs)\n",
        i, cpu.gpr[i], ref_r->gpr[i]);
