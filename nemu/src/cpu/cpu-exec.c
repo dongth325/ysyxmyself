@@ -57,11 +57,15 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
+  //printf("pppcccc = 0x%08x\n",pc);//ddddddddddddddddddddddddddddddd
   s->pc = pc;
   s->snpc = pc;
+  //printf("6666666666666666666666666666\n");//dddddddddddddddddddddddd
   //Log("Current cpu.pc -2-2-2-2-2-2-2-2-2-2-2= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
   isa_exec_once(s);
+ // printf("777777777777777777777777777777777\n");//dddddddddddddddddddddddddddd
   cpu.pc = s->dnpc;//在这里更新了cpu.pc地址
+  //printf("88888888888888888888888888888\n");//ddddddddddddddddddddddddddddddd
   //Log("Current cpu.pc -1-1-1-1-1-1-1-1-1-1-1= " FMT_WORD "\n", cpu.pc);//dddddddddddddddddddddddddddddddddddddddddd
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
@@ -91,9 +95,10 @@ static void exec_once(Decode *s, vaddr_t pc) {
 
 static void execute(uint64_t n) {
   Decode s;
+  //printf("444444444444444444444444\n");//ddddddddddddddddddddddd
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
-    
+    //printf("55555555555555555555555555555\n");//ddddddddddddddddddddddddd
     g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;
@@ -122,6 +127,7 @@ void assert_fail_msg() {
 
 /* Simulate how the CPU works. */
 void cpu_exec(uint64_t n) {
+ // printf("11111111111111111\n");//ddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
   g_print_step = (n < MAX_INST_TO_PRINT);
   switch (nemu_state.state) {
     case NEMU_END: case NEMU_ABORT:
@@ -131,9 +137,9 @@ void cpu_exec(uint64_t n) {
   }
 
   uint64_t timer_start = get_time();
-
+  //  printf("2222222222222222222222\n");//ddddddddddddddddddddddddddddddddd
   execute(n);
-
+  // printf("333333333333333333333333333\n");//ddddddddddddddddddddddddddddddddddddddd
   uint64_t timer_end = get_time();
   g_timer += timer_end - timer_start;
 
@@ -157,12 +163,12 @@ void cpu_exec(uint64_t n) {
           nemu_state.halt_pc);
 
           // 当程序异常终止时，打印最近的指令踪迹
-        printf("Assertion failed! Printing recent instruction trace:\n");
+      //  printf("Assertion failed! Printing recent instruction trace:\n");
 
   // 调用 get_trace 打印指令踪迹
-  //get_trace(&rb);  // 假设环形缓冲区是全局的 rb 变量
+ // get_trace(&rb);  // 假设环形缓冲区是全局的 rb 变量
 
-
+     // printf("kkkkkkkkkkkkkkkkkkkkkk\n");//ddddddddddddddddddddddddd
       // fall through
     case NEMU_QUIT: statistic();
   }

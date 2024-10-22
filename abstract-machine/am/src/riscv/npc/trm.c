@@ -18,6 +18,9 @@ void putch(char ch) {
 }
 
 void halt(int code) {
+  asm volatile ("mv a0, a0");  // 添加 'mv a0, a0' 指令
+  asm volatile("ebreak");  // 触发 ebreak 指令ddddddddddddddddddddddddddddddd
+  
   while (1);
 }
 

@@ -32,11 +32,11 @@ static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #include <stdio.h>
 
 void mtrace_read(paddr_t addr, int len, word_t data) {
-    printf("MTRACE: Read %d bytes from 0x%x, data = 0x%x\n", len, addr, data);
+    printf("MTRACE: Read %d bytes from 0x%x, data = 0x%x from (void mtrace_read)\n", len, addr, data);
 }
 
 void mtrace_write(paddr_t addr, int len, word_t data) {
-    printf("MTRACE: Write %d bytes to 0x%x, data = 0x%x\n", len, addr, data);
+    printf("MTRACE: Write %d bytes to 0x%x, data = 0x%x from (void mtrace_write)\n", len, addr, data);
 }
 #endif
 
@@ -82,10 +82,15 @@ void init_mem() {
 word_t paddr_read(paddr_t addr, int len) {
   word_t data;
   if (likely(in_pmem(addr))) {
+    //printf("dt dt dt dt dt from (word_t paddr_read)\n");
     data = pmem_read(addr, len);
+    //printf("th th th th th th from(word_t paddr_read)\n");
   } else {
+   // printf("aaaaaaaaaa from (word_t paddr_read)\n");
     IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
+   // printf("bbbbbbbbbbbbbbb from (word_t paddr_read)\n");
     out_of_bound(addr);
+    //printf("cccccccccccccccc from (word_t paddr_read)\n");
     return 0;
   }
 #ifdef CONFIG_MTRACE
