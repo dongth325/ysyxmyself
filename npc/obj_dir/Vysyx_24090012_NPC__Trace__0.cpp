@@ -37,10 +37,8 @@ void Vysyx_24090012_NPC___024root__trace_chg_0_sub_0(Vysyx_24090012_NPC___024roo
                                        | ((0x67U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
                                           | ((0x33U 
                                               == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
-                                             | ((0x23U 
-                                                 == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
-                                                | (3U 
-                                                   == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)))))))))));
+                                             | (3U 
+                                                == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode))))))))));
     }
     if (VL_UNLIKELY(vlSelfRef.__Vm_traceActivity[2U])) {
         bufp->chgIData(oldp+6,(vlSelfRef.ysyx_24090012_NPC__DOT__regfile__DOT__rf[0]),32);

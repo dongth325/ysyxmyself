@@ -368,7 +368,8 @@ else{		int n;
 
     else if(tokens[p].type == DEREF)
       return 0;
-    return strtol(tokens[p].str,NULL,0);
+
+    return strtol(tokens[p].str,NULL,0);//说明是十六进制或十进制数字
                  }    
   
   

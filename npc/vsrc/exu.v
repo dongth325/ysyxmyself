@@ -7,6 +7,8 @@ module ysyx_24090012_EXU(
   output reg [31:0] result,
   output reg [31:0] next_pc
 );
+ import "DPI-C" function void pmem_write(input int addr, input int data, input int mask);
+ import "DPI-C" function int pmem_read(input int addr);
 
   
     always @(next_pc) begin
@@ -70,11 +72,12 @@ module ysyx_24090012_EXU(
       end
       4'b1000: begin
         // LW
-        result = rs1_data + imm;  // 计算加载地址
+         result = pmem_read(rs1_data + imm);// 计算内存地址并从该地址读取数据
       end
       4'b1001: begin
         // SW
         result = rs1_data + imm;  // 计算存储地址
+         pmem_write(result, rs2_data, 4);  // 将 rs2_data 写入 result 指定的地址，mask为4表示写入4个字节
       end
       4'b1010: begin
         // SEQZ (Set Equal to Zero)

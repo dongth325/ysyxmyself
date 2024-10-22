@@ -41,15 +41,28 @@ void load_memory(const char *program_path, size_t &program_size) {
 }
 
 
+extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
+    if (addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
+        uint32_t offset = addr - MEM_BASE;
+        *(uint32_t *)(memory + offset) = data;
+        std::cout << "MTRACE: Write " << (int)mask << " bytes to 0x" << std::hex << addr 
+                  << ", data = 0x" << std::hex << data << " from (pmem_write)" << std::dec << std::endl;
+    } else {
+        std::cerr << "Error: Attempt to write to invalid memory address: 0x from (extern \"C\" void pmem_write)\n"
+                  << std::hex << addr << std::dec << std::endl;
+        exit(1);
+    }
+}
 
 
-uint32_t pmem_read(uint32_t addr) {
+extern "C"  uint32_t pmem_read(uint32_t addr) {
     if (addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
         uint32_t offset = addr - MEM_BASE;
         uint32_t data = *(uint32_t *)(memory + offset);
         return data;
     } else {
-        printf("Error: Accessing invalid memory address: 0x%08x\n", addr);
+        printf("Error: Accessing invalid memory address: 0x%08x from (pmem_read)\n", addr);
+
         exit(1);
     }
 }

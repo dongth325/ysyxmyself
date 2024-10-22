@@ -1,14 +1,16 @@
 module ysyx_24090012_IDU(
   input [31:0] inst,
   input [31:0] pc,
-  output reg [4:0] rs1,
-  output reg [4:0] rs2,
-  output reg [4:0] rd,
-  output reg [31:0] imm,
+  
   output reg [6:0] opcode,
   output reg [2:0] func3,
   output reg [6:0] func7,
-  output reg [3:0] alu_op
+  output reg [4:0] rs1,
+  output reg [4:0] rs2,
+  output reg [4:0] rd,
+  
+  output reg [3:0] alu_op,
+  output reg [31:0] imm
 );
 
     always @(*) begin

@@ -19,11 +19,11 @@
 #include <memory/paddr.h>
 
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
-    if (direction == 0) { // 当方向为 DIFFTEST_TO_DUT，表示从参考模型 (REF) 复制到 DUT
+    if (direction == DIFFTEST_TO_DUT) { // 当方向为 DIFFTEST_TO_DUT，表示从参考模型 (REF) 复制到 DUT
    
     buf = (void *)guest_to_host(addr);
   } 
-  else if (direction == 1) {// 当方向为 DIFFTEST_TO_REF，表示从 DUT 复制到参考模型 (REF)
+  else if (direction == DIFFTEST_TO_REF) {// 当方向为 DIFFTEST_TO_REF，表示从 DUT 复制到参考模型 (REF)
     
     //Log("loglogloglog%x,%lx", addr, n); // 打印地址和大小
 

@@ -44,7 +44,7 @@ module ysyx_24090012_NPC(
 );
    assign wen = (opcode == 7'b0010011 || opcode == 7'b0110111 || opcode == 7'b0010111 || 
                 opcode == 7'b1101111 || opcode == 7'b1100111 || opcode == 7'b0110011 || 
-                opcode == 7'b0100011 || opcode == 7'b0000011);
+                 opcode == 7'b0000011);
 
     always @(*) begin
       //$display("At time %t: npc touch PC = 0x%08x", $time, pc);

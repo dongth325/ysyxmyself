@@ -190,6 +190,7 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___ctor_var_reset(Vysyx_24090012_N
     for (int __Vi0 = 0; __Vi0 < 32; ++__Vi0) {
         vlSelf->ysyx_24090012_NPC__DOT__regfile__DOT__rf[__Vi0] = VL_RAND_RESET_I(32);
     }
+    vlSelf->__Vfunc_ysyx_24090012_NPC__DOT__exu__DOT__pmem_read__2__Vfuncout = 0;
     vlSelf->__VdlyVal__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0 = VL_RAND_RESET_I(32);
     vlSelf->__VdlyDim0__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0 = VL_RAND_RESET_I(5);
     vlSelf->__VdlySet__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0 = 0;
