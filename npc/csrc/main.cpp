@@ -164,6 +164,7 @@ int main(int argc, char **argv) {
         printf("clock = 1\n");
         top->clk = 1;
         printf("eval begin\n");
+       
         top->eval();
         printf("eval end\n");
         trace->dump(Verilated::time());
