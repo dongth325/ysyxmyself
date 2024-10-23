@@ -68,6 +68,17 @@ extern "C"  uint32_t pmem_read(uint32_t addr) {
         exit(1);
     }
 }
+void print_memory(uint32_t start_addr, uint32_t end_addr) {
+    if (start_addr >= MEM_BASE && end_addr <= MEM_BASE + MEM_SIZE) {
+        for (uint32_t addr = start_addr; addr < end_addr; addr += 4) {
+            uint32_t data = pmem_read(addr);
+            printf("Memory at 0x%08x: 0x%08x\n", addr, data);
+        }
+    } else {
+        std::cerr << "Error: Address out of bounds." << std::endl;
+    }
+}
+
 
 
 // 定义外部的 ebreak 函数，用于处理 ebreak 指令
@@ -164,7 +175,8 @@ int main(int argc, char **argv) {
         printf("clock = 1\n");
         top->clk = 1;
         printf("eval begin\n");
-       
+       //print_memory(0x80000000, 0x8008000);//dddddddddddddddddd
+           //exit(1);//dddddddddddddddddd
         top->eval();
         printf("eval end\n");
         trace->dump(Verilated::time());
