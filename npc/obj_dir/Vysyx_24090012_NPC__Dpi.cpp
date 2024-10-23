@@ -17,7 +17,7 @@
 #ifndef VL_DPIDECL_get_reg_value_
 #define VL_DPIDECL_get_reg_value_
 int get_reg_value(int reg_index) {
-    // DPI export at vsrc/registerfile.v:58:14
+    // DPI export at vsrc/registerfile.v:59:14
     return Vysyx_24090012_NPC::get_reg_value(reg_index);
 }
 #endif

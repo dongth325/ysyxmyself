@@ -72,10 +72,15 @@ module ysyx_24090012_EXU(
       end
       4'b1000: begin
         // LW
+        $display("Memory at 0x80000220 = %h", pmem_read(32'h80000220));
+        
+
+
         $display( "rs1_data = %h from (exu.v)",  rs1_data);
         $display( "rs2_data = %h from (exu.v)",  rs2_data);
         $display( "imm = %h from (exu.v)",  imm);
          result = pmem_read(rs1_data + imm);// 计算内存地址并从该地址读取数据
+         $display( "result = %h from (exu.v)",  result);
       end
       4'b1001: begin
         // SW

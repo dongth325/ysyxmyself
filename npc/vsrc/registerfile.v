@@ -28,10 +28,11 @@ export "DPI-C" function get_reg_value;
   // 写数据
   always @(posedge clk) begin
     if (wen && waddr != 5'b0) begin
+      $display("At time %t: Writing to  (rf[%d]), old value = %h from (registerfile.v11111)", $time, waddr,rf[waddr]);
       rf[waddr] <= wdata;  // 忽略对x0寄存器的写操作
 
-         //if (waddr == 8 ) begin  // 10 是 a0 寄存器的地址
-        $display("At time %t: Writing to  (rf[%d]), new value = %h from (registerfile.v)", $time, waddr,wdata);
+        $display("At time %t: Writing to  (rf[%d]), new value = %h from (registerfile.v22222)", $time, waddr,wdata);
+        $display("At time %t: Writing to  (rf[%d]), new value = %h from (registerfile.v22222)", $time, waddr,rf[waddr]);
      // end
 
 
@@ -41,7 +42,7 @@ export "DPI-C" function get_reg_value;
     // 调试语句：监控 raddr1 和 raddr2 的读取
   always @(posedge clk) begin
     if (raddr1 == 15) begin  // 当读取  寄存器时
-      $display("At time %t: Reading from a (rf[15]), value = %h", $time, rdata1);
+      $display("At time %t: Reading from a (rf[15]), value = %h from (registerfile.v)", $time, rdata1);
     end
     if (raddr2 == 15) begin  // 当从 raddr2 读取  寄存器时
       $display("At time %t: Reading from a (rf[15]), value = %h", $time, rdata2);

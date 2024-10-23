@@ -47,6 +47,8 @@ extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
         *(uint32_t *)(memory + offset) = data;
         std::cout << "MTRACE: Write " << (int)mask << " bytes to 0x" << std::hex << addr 
                   << ", data = 0x" << std::hex << data << " from (pmem_write)" << std::dec << std::endl;
+                  
+                 
     } else {
         std::cerr << "Error: Attempt to write to invalid memory address: 0x from (extern \"C\" void pmem_write)\n"
                   << std::hex << addr << std::dec << std::endl;
