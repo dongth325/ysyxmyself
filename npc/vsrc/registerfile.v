@@ -40,11 +40,11 @@ export "DPI-C" function get_reg_value;
 
     // 调试语句：监控 raddr1 和 raddr2 的读取
   always @(posedge clk) begin
-    if (raddr1 == 10) begin  // 当读取 a0 寄存器时
-    //  $display("At time %t: Reading from a0 (rf[10]), value = %h", $time, rdata1);
+    if (raddr1 == 15) begin  // 当读取  寄存器时
+      $display("At time %t: Reading from a (rf[15]), value = %h", $time, rdata1);
     end
-    if (raddr2 == 10) begin  // 当从 raddr2 读取 a0 寄存器时
-     // $display("At time %t: Reading from a0 (rf[10]), value = %h", $time, rdata2);
+    if (raddr2 == 15) begin  // 当从 raddr2 读取  寄存器时
+      $display("At time %t: Reading from a (rf[15]), value = %h", $time, rdata2);
     end
   end
 
