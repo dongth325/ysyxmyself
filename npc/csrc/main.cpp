@@ -3,19 +3,17 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
-#include "verilated_vcd_c.h"  // 确保包含 Verilator VCD 支持头文件
-#include "difftest_loader.h"  // 包含 DiffTest 加载的头文件
-#include "isa.h" // 包含 CPU_state 的定义
+#include "verilated_vcd_c.h"
+#include "difftest_loader.h"
+#include "isa.h"
 #include "svdpi.h"
-//#include "npc_init.h"
 
-#define MEM_SIZE (128 * 1024 * 1024)// 定义简单的存储器，假设大小为 128MB（与 NEMU 一致）
-uint8_t *memory = new uint8_t[MEM_SIZE];
+#define MEM_SIZE (128 * 1024 * 1024)
+uint8_t *memory = nullptr;
 
-#define PROGRAM_START_ADDRESS 0x80000000// 程序加载地址，与链接脚本中的 `_pmem_start` 一致
+#define PROGRAM_START_ADDRESS 0x80000000
 size_t program_size = 0;
 #define MEM_BASE 0x80000000
-
 
 void load_memory(const char *program_path, size_t &program_size) {
     // 打开文件
@@ -68,19 +66,8 @@ extern "C"  uint32_t pmem_read(uint32_t addr) {
         exit(1);
     }
 }
-void print_memory(uint32_t start_addr, uint32_t end_addr) {
-    if (start_addr >= MEM_BASE && end_addr <= MEM_BASE + MEM_SIZE) {
-        for (uint32_t addr = start_addr; addr < end_addr; addr += 4) {
-            uint32_t data = pmem_read(addr);
-            printf("Memory at 0x%08x: 0x%08x\n", addr, data);
-        }
-    } else {
-        std::cerr << "Error: Address out of bounds." << std::endl;
-    }
-}
 
-
-
+// ebreak 处理函数
 // 定义外部的 ebreak 函数，用于处理 ebreak 指令
 extern "C" void ebreak(uint32_t exit_code) {
     if (exit_code == 0) {
@@ -92,46 +79,113 @@ extern "C" void ebreak(uint32_t exit_code) {
 }
 
 
+// 定义仿真状态结构体
+struct NpcState {
+    Vysyx_24090012_NPC *top;
+    uint64_t inst_count;
+    bool ebreak_encountered;
+    uint32_t pc;
+};
 
+// 执行单条指令的函数（类似于 NEMU 的 exec_once）
+void exec_once(NpcState *s) {
+    // 从内存中获取指令
+    uint32_t pc = s->pc;
+    if (pc >= MEM_BASE && pc < MEM_BASE + MEM_SIZE) {
+        uint32_t inst = pmem_read(pc);
+        s->top->mem_data = inst;
+    } else {
+        std::cerr << "Error: PC out of bounds: 0x" << std::hex << pc << std::dec << std::endl;
+        exit(1);
+    }
 
+    // 模拟一个时钟周期（上升沿和下降沿）
+    s->top->clk = 1;
+    s->top->eval();
+    // 可在此添加跟踪代码
+    s->top->clk = 0;
+    s->top->eval();
 
+    // 更新指令计数
+    s->inst_count++;
+
+    // 检查 ebreak 信号
+    if (s->top->ebreak_flag) {
+        s->ebreak_encountered = true;
+    }
+
+    // 更新 PC
+    s->pc = s->top->pc;
+
+    // 执行 DiffTest
+    difftest_exec(1);
+
+    // 获取 DUT 和 REF 的 CPU 状态
+    CPU_state dut_cpu_state;
+    get_dut_cpu_state(s->top, &dut_cpu_state);
+
+    CPU_state ref_cpu_state;
+    difftest_regcpy(&ref_cpu_state, false);
+
+    // 比较 CPU 状态
+    if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
+        std::cerr << "Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
+        exit(1);
+    }
+}
+
+// 执行多条指令的函数（类似于 NEMU 的 execute）
+void execute(NpcState *s, uint64_t n) {
+    for (uint64_t i = 0; i < n; i++) {
+        exec_once(s);
+        if (s->ebreak_encountered) {
+            std::cout << "Encountered ebreak. Exiting simulation." << std::endl;
+            break;
+        }
+    }
+}
+
+// 主函数
 int main(int argc, char **argv) {
+    // 初始化部分（与之前相同）
     Verilated::commandArgs(argc, argv);
-    load_difftest_library(); // 加载 DiffTest 库
-    Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;// 初始化顶层模块实例
-    VerilatedVcdC *trace = new VerilatedVcdC;// 创建 VCD 文件
-    Verilated::traceEverOn(true);  // 启用追踪功能
-    top->trace(trace, 99);  // 设置追踪深度
-    trace->open("npc_trace.vcd");  // 打开 VCD 文件
 
     if (argc < 2) {
         std::cout << "Usage: " << argv[0] << " <program.bin>" << std::endl;
         return 1;
-                  }
+    }
 
-    
-    memory = new uint8_t[MEM_SIZE];// 分配存储器
-    memset(memory, 0, MEM_SIZE);
     const char *program_path = argv[1];
-    
-    load_memory(program_path, program_size);// 加载程序到存储器，并获取程序大小
-    
-    difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, 1);// 将程序加载到参考模型的内存中
-    
-    CPU_state cpu_state = {0};// 初始化参考模型的寄存器状态
+
+    // 初始化内存
+    memory = new uint8_t[MEM_SIZE];
+    memset(memory, 0, MEM_SIZE);
+
+    // 加载程序到内存
+    load_memory(program_path, program_size);
+
+    // 初始化 Verilated 模型
+    Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;
+
+    // 初始化波形追踪
+    VerilatedVcdC *trace = new VerilatedVcdC;
+    Verilated::traceEverOn(true);
+    top->trace(trace, 99);
+    trace->open("npc_trace.vcd");
+
+    // 初始化 DiffTest
+    load_difftest_library();
+    difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
+
+    CPU_state cpu_state = {0};
     cpu_state.pc = PROGRAM_START_ADDRESS;
-    difftest_regcpy(&cpu_state, 1);//将传入的结构体状态赋值给ref 
+    difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
 
-    // 复位处理器
-    top->rst = 1;      // 设置复位信号为高
-  
-    top->clk = 0;      // 初始化时钟为低
+    // 复位 DUT
+    top->rst = 1;
+    top->clk = 0;
 
-    uint32_t reset_pc = PROGRAM_START_ADDRESS;
-    uint32_t inst = pmem_read(reset_pc);
-    top->mem_data = inst;
-
-    // 保持复位高电平 5 个时钟周期
+    // 施加复位信号若干周期
     for (int i = 0; i < 5; i++) {
         top->clk = 1;
         top->eval();
@@ -144,83 +198,27 @@ int main(int argc, char **argv) {
         Verilated::timeInc(1);
     }
 
-    // 释放复位
+    // 释放复位信号
     top->rst = 0;
     top->eval();
 
-    uint32_t prev_pc = PROGRAM_START_ADDRESS;
+    // 初始化仿真状态
+    NpcState npc_state;
+    npc_state.top = top;
+    npc_state.inst_count = 0;
+    npc_state.ebreak_encountered = false;
+    npc_state.pc = PROGRAM_START_ADDRESS;
 
-    // 主仿真循环
-    while (!Verilated::gotFinish()) {
-        
-        uint32_t prev_pc = top->pc; // 更新current_pcddddddddddddddd
-            //printf("current_pc = 0x%08x",current_pc);//dddddddddddddddddddddd
-        // 在时钟上升沿前更新 mem_data
-        if (prev_pc >= PROGRAM_START_ADDRESS && prev_pc < PROGRAM_START_ADDRESS + MEM_SIZE) {
-            printf("11111111111\n");
-           
-            uint32_t inst = pmem_read(prev_pc);//dddddddddddddddddddd传入pc
-            top->mem_data = inst;
-            std::cout << "Current time: " << Verilated::time() << "     PC: 0x" << std::hex << prev_pc << std::dec << std::endl;
-            std::cout << "Fetched Instruction: 0x" << std::hex << inst << std::dec << std::endl;
-            std::cout << "       \n" << std::endl;
-        } else {
-            std::cerr << "Error: PC out of bounds: 0x" << std::hex << prev_pc << std::dec << std::endl;
-            exit(1);
-        }
-
-        //prev_pc = current_pc;  // 更新 prev_pcddddddddddddddddddddddddddd
-
-        // 时钟上升沿
-        printf("clock = 1\n");
-        top->clk = 1;
-        printf("eval begin\n");
-       //print_memory(0x80000000, 0x8008000);//dddddddddddddddddd
-           //exit(1);//dddddddddddddddddd
-        top->eval();
-        printf("eval end\n");
-        trace->dump(Verilated::time());
-        Verilated::timeInc(1);
-
-        // 检查 ebreak_flag
-        if (top->ebreak_flag) {
-            std::cout << "Encountered ebreak_flag. Exiting simulation." << std::endl;
-            break;
-        }
-
-        // 时钟下降沿
-        printf("clock = 0\n");
-        top->clk = 0;
-        printf("eval begin\n");
-        top->eval();
-        printf("eval end\n");
-        trace->dump(Verilated::time());
-        Verilated::timeInc(1);
-           
-        
-        difftest_exec(1);// 执行参考模型
-
-        // 获取 DUT CPU 状态
-        CPU_state dut_cpu_state;
-        get_dut_cpu_state(top, &dut_cpu_state);
-        // printf("shen shen shen\n");
-       
-        CPU_state ref_cpu_state; // 获取参考模型的 CPU 状态
-        printf("zhang zhang zhang\n");
-        difftest_regcpy(&ref_cpu_state, false);
-         printf("wei wei wei wei\n");
-        // 比较 CPU 状态
-       if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
-            std::cerr << "Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
-            exit(1);
-        }
+    // 执行指令
+    while (!Verilated::gotFinish() && !npc_state.ebreak_encountered) {
+        exec_once(&npc_state);
     }
 
-    // 释放资源
-    top->final();            // 完成仿真
-    delete top;              // 删除顶层模块实例
-    delete[] memory;         // 释放内存
-    trace->close();  // 关闭 VCD 文件
+    // 完成仿真
+    top->final();
+    delete top;
+    delete[] memory;
+    trace->close();
 
     return 0;
 }
