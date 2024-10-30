@@ -7,13 +7,146 @@
 #include "difftest_loader.h"
 #include "isa.h"
 #include "svdpi.h"
-
+//dddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+#include <readline/readline.h>
+#include <readline/history.h>
 #define MEM_SIZE (128 * 1024 * 1024)
 uint8_t *memory = nullptr;
 
 #define PROGRAM_START_ADDRESS 0x80000000
 size_t program_size = 0;
 #define MEM_BASE 0x80000000
+// 定义仿真状态结构体
+struct NpcState {
+    Vysyx_24090012_NPC *top;
+    uint64_t inst_count;
+    bool ebreak_encountered;
+    uint32_t pc;
+};
+  
+struct Command {
+    const char *name;
+    const char *description;
+    int (*handler)(char *args);
+};
+
+// 全局变量 npc_state 声明
+NpcState npc_state;
+
+// 函数声明
+void execute(NpcState *s, uint64_t n);
+extern "C"  uint32_t pmem_read(uint32_t addr);
+void exec_once(NpcState *s);
+// 定义简单命令函数
+int cmd_c(char *args);
+int cmd_si(char *args);
+int cmd_q(char *args);
+int cmd_info(char *args);
+int cmd_x(char *args);
+
+// 将命令添加到命令表中
+Command cmd_table[] = {
+    {"c", "Continue the execution of the program", cmd_c},
+    {"si", "Step one instruction", cmd_si},
+    {"q", "Quit the simulation", cmd_q},
+    {"info", "Show register or memory information", cmd_info},
+    {"x", "Examine memory at address", cmd_x}
+};
+
+#define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
+
+bool is_running = true; // 控制 sdb 主循环
+  
+  // 命令处理函数实现
+int cmd_c(char *args) {
+    std::cout << "Continuing execution..." << std::endl;
+    
+      while (!Verilated::gotFinish() && !npc_state.ebreak_encountered) {    //while循环=批处理模式 dddddddddd
+        exec_once(&npc_state);
+    }
+    return 0;
+}
+
+int cmd_si(char *args) {
+    int steps = 1;
+    if (args) {
+        steps = atoi(args);
+    }
+    std::cout << "Stepping " << steps << " instruction(s)" << std::endl;
+    execute(&npc_state,steps);
+    return 0;
+}
+
+int cmd_q(char *args) {
+    std::cout << "Exiting simulation." << std::endl;
+    is_running = false; // 停止 sdb_mainloop
+    return -1;
+}
+
+int cmd_info(char *args) {
+    if (args && strcmp(args, "r") == 0) {
+        // 显示寄存器信息
+    } else if (args && strcmp(args, "m") == 0) {
+        // 显示内存信息
+    } else {
+        std::cout << "Unknown info argument: " << args << std::endl;
+    }
+    return 0;
+}
+
+int cmd_x(char *args) {
+    int n = 0;  // 表示要读取的4字节块的数量
+    uint32_t address = 0;  // 起始地址
+
+    // 解析参数，n 是要读取的块数，address 是起始地址
+    if (sscanf(args, "%d %x", &n, &address) != 2) {
+        std::cout << "Usage: x <num> <address>" << std::endl;
+        return 1;  // 参数解析失败，返回错误
+    }
+
+    std::cout << "Reading " << n << " memory block(s) from address 0x" 
+              << std::hex << address << std::dec << std::endl;
+
+    // 遍历 n 个块，假设每块 4 字节
+    for (int i = 0; i < n; ++i) {
+        uint32_t data = pmem_read(address + i * 4);  // 读取 4 字节数据
+        std::cout << "Address 0x" << std::hex << (address + i * 4) 
+                  << ": 0x" << data << std::dec << std::endl;
+    }
+    
+    return 0;
+}
+
+void sdb_mainloop() {
+ 
+    while (is_running) {
+        char *line = readline("(npc) ");
+        if (line == nullptr) break;
+        add_history(line);
+
+        char *cmd = strtok(line, " ");
+        char *args = cmd ? cmd + strlen(cmd) + 1 : nullptr;
+
+        bool found = false;
+        for (int i = 0; i < NR_CMD; i++) {
+            if (strcmp(cmd, cmd_table[i].name) == 0) {
+                found = true;
+                if (cmd_table[i].handler(args) < 0) {
+                    is_running = false;
+                }
+                break;
+            }
+        }
+        if (!found) {
+            printf("Unknown command '%s'\n", cmd);
+        }
+
+        free(line);
+    }
+}
+//ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+
+
 
 void load_memory(const char *program_path, size_t &program_size) {
     // 打开文件
@@ -79,13 +212,7 @@ extern "C" void ebreak(uint32_t exit_code) {
 }
 
 
-// 定义仿真状态结构体
-struct NpcState {
-    Vysyx_24090012_NPC *top;
-    uint64_t inst_count;
-    bool ebreak_encountered;
-    uint32_t pc;
-};
+
 
 // 执行单条指令的函数（类似于 NEMU 的 exec_once）
 void exec_once(NpcState *s) {
@@ -112,6 +239,8 @@ void exec_once(NpcState *s) {
     // 检查 ebreak 信号
     if (s->top->ebreak_flag) {
         s->ebreak_encountered = true;
+          std::cout << "Encountered ebreak. Exiting simulation." << std::endl;
+        return;
     }
 
     // 更新 PC
@@ -139,7 +268,7 @@ void execute(NpcState *s, uint64_t n) {
     for (uint64_t i = 0; i < n; i++) {
         exec_once(s);
         if (s->ebreak_encountered) {
-            std::cout << "Encountered ebreak. Exiting simulation." << std::endl;
+          
             break;
         }
     }
@@ -166,6 +295,13 @@ int main(int argc, char **argv) {
 
     // 初始化 Verilated 模型
     Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;
+     
+
+        // 设置 npc_state 的初始值
+    npc_state.top = top;
+    npc_state.inst_count = 0;
+    npc_state.ebreak_encountered = false;
+    npc_state.pc = PROGRAM_START_ADDRESS;
 
     // 初始化波形追踪
     VerilatedVcdC *trace = new VerilatedVcdC;
@@ -209,10 +345,12 @@ int main(int argc, char **argv) {
     npc_state.ebreak_encountered = false;
     npc_state.pc = PROGRAM_START_ADDRESS;
 
+     sdb_mainloop();  //dddddddddddddddddddd
+
     // 执行指令
-    while (!Verilated::gotFinish() && !npc_state.ebreak_encountered) {
+   /* while (!Verilated::gotFinish() && !npc_state.ebreak_encountered) {    //while循环=批处理模式 dddddddddd
         exec_once(&npc_state);
-    }
+    }*/
 
     // 完成仿真
     top->final();
