@@ -158,7 +158,8 @@ module ysyx_24090012_EXU(
     6'b011000: begin
     // LBU (Load Byte Unsigned)
     $display("Executing LBU operation in EXU.");
-    result = {24'b0, pmem_read(rs1_data + imm)[7:0]};  // 读取一个字节并将其扩展为32位
+    result = {24'b0, pmem_read(rs1_data + imm)[7:0]};  // 提取最低字节并零扩展
+
     $display("1111111 rsdata = %h",pmem_read(rs1_data + imm));
     $display("2222222 result = %h",result);
     
