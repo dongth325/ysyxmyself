@@ -175,17 +175,32 @@ void load_memory(const char *program_path, size_t &program_size) {
 extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
     if (addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
         uint32_t offset = addr - MEM_BASE;
-        *(uint32_t *)(memory + offset) = data;
-        std::cout << "MTRACE: Write " << (int)mask << " bytes to 0x" << std::hex << addr 
+        uint8_t *bytePtr = reinterpret_cast<uint8_t *>(memory + offset);
+
+        switch (mask) {
+            case 1:  // Write 1 byte
+                *bytePtr = data & 0xFF;
+                break;
+            case 2:  // Write 2 bytes
+                *reinterpret_cast<uint16_t *>(bytePtr) = data & 0xFFFF;
+                break;
+            case 4:  // Write 4 bytes
+                *reinterpret_cast<uint32_t *>(bytePtr) = data;
+                break;
+            default:
+                std::cerr << "Error: Invalid write mask in pmem_write\n";
+                exit(1);
+        }
+
+        std::cout << "MTRACE: Write " << (int)mask << " bytes to 0x" << std::hex << addr
                   << ", data = 0x" << std::hex << data << " from (pmem_write)" << std::dec << std::endl;
-                  
-                 
     } else {
-        std::cerr << "Error: Attempt to write to invalid memory address: 0x from (extern \"C\" void pmem_write)\n"
-                  << std::hex << addr << std::dec << std::endl;
+        std::cerr << "Error: Attempt to write to invalid memory address: 0x"
+                  << std::hex << addr << " from (pmem_write)" << std::dec << std::endl;
         exit(1);
     }
 }
+
 
 
 extern "C"  uint32_t pmem_read(uint32_t addr) {

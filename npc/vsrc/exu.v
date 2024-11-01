@@ -221,6 +221,13 @@ module ysyx_24090012_EXU(
     // SRL (逻辑右移)
     result = rs1_data >> rs2_data[4:0];  // 使用 rs2_data 的低 5 位作为移位位数
     end
+    6'b100011: begin
+    // SB (Store Byte)
+    result = rs1_data + imm;  // 计算存储地址
+    pmem_write(result, rs2_data, 1);  // 将 rs2_data 的低8位写入 result 指定的地址，mask为1表示写入1个字节
+    $display("Executing SB operation in EXU. Writing %h to address %h", rs2_data[7:0], result);
+    end
+
 
 
 

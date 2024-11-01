@@ -58,6 +58,7 @@ module ysyx_24090012_IDU(
         else begin
           alu_op = 6'b001111;  // 未实现的操作
           $display("got this place....... from (idu.v)");//ddddddddddd
+          
         end
       end
       7'b0110111: begin  // LUI
@@ -98,6 +99,7 @@ module ysyx_24090012_IDU(
 
     else begin
           alu_op = 6'b001111;  // 未实现的操作
+          
         end
       end
       7'b0010111: begin  // AUIPC
@@ -133,10 +135,12 @@ module ysyx_24090012_IDU(
       end
         else begin
           alu_op = 6'b001111;  // 未实现的操作
+          
         end
       end
       7'b0000011: begin  // I-type (LW)
         imm = {{20{inst[31]}}, inst[31:20]};
+        $display("imm of L = %d",imm);//ddddddddddd
          case (func3)
         3'b010: alu_op = 6'b001000;  // LW (Load Word)
         3'b100: alu_op = 6'b011000;  // LBU (Load Byte Unsigned)
@@ -145,12 +149,22 @@ module ysyx_24090012_IDU(
         default: begin
             alu_op = 6'b001111; // 未实现的操作
             $display("Unimplemented LOAD operation in IDU.");
+            
         end
     endcase
       end
       7'b0100011: begin  // S-type (SW)
         imm = {{20{inst[31]}}, inst[31:25], inst[11:7]};
-        alu_op = 6'b001001;  // SW
+        case (func3)
+        3'b000: alu_op = 6'b100011;  // SB (Store Byte)
+        3'b010: alu_op = 6'b001001;  // SW (Store Word)
+        // 添加其他S-type指令处理...
+        default: begin
+            alu_op = 6'b001111;  // 未实现的操作
+            $display("Unimplemented STORE operation in IDU.");
+            
+        end
+    endcase
       end
       7'b1110011: begin  // SYSTEM (EBREAK)
         imm = 32'b0;
@@ -162,6 +176,7 @@ module ysyx_24090012_IDU(
         imm = 32'b0;
         alu_op = 6'b001111;  // NOP 或未实现
         $display("default default from (idu.v)");
+        
       end
     endcase
     
