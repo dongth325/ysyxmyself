@@ -13,7 +13,7 @@ module ysyx_24090012_NPC(
   wire [2:0] func3;
   wire [6:0] func7;
   wire [31:0] imm;
-  wire [3:0] alu_op;
+  wire [5:0] alu_op;
   wire [31:0] rs1_data, rs2_data, result, next_pc;
   wire wen;
   wire [31:0] inst;
@@ -34,6 +34,7 @@ module ysyx_24090012_NPC(
     .rdata2(rs2_data));
   
   ysyx_24090012_EXU exu(
+    .clk(clk),
   .pc(pc),
   .rs1_data(rs1_data),
   .rs2_data(rs2_data),  // 添加 rs2_data 连接
@@ -63,7 +64,7 @@ module ysyx_24090012_NPC(
       ebreak(regfile.rf[10]);       // 调用 DPI-C 函数
     end 
 
-    else if (alu_op == 4'b0011 || alu_op == 4'b0100) begin  // JAL 或 JALR
+    else if (alu_op == 6'b000011 || alu_op == 6'b000100) begin  // JAL 或 JALR
     //$display("At time %t: NPC before update-pc PC = 0x%08x", $time, pc);
       pc <= next_pc;
     end 

@@ -17,10 +17,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_24090012_NPC___024root final : public V
     VL_IN8(clk,0,0);
     VL_IN8(rst,0,0);
     VL_OUT8(ebreak_flag,0,0);
+    CData/*4:0*/ ysyx_24090012_NPC__DOT__rs1;
+    CData/*4:0*/ ysyx_24090012_NPC__DOT__rs2;
     CData/*6:0*/ ysyx_24090012_NPC__DOT__opcode;
     CData/*2:0*/ ysyx_24090012_NPC__DOT__func3;
     CData/*6:0*/ ysyx_24090012_NPC__DOT__func7;
-    CData/*3:0*/ ysyx_24090012_NPC__DOT__alu_op;
+    CData/*5:0*/ ysyx_24090012_NPC__DOT__alu_op;
     CData/*4:0*/ __VdlyDim0__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0;
     CData/*0:0*/ __VdlySet__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0;
     CData/*0:0*/ __VstlFirstIteration;
@@ -36,12 +38,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_24090012_NPC___024root final : public V
     IData/*31:0*/ ysyx_24090012_NPC__DOT__rs2_data;
     IData/*31:0*/ ysyx_24090012_NPC__DOT__result;
     IData/*31:0*/ ysyx_24090012_NPC__DOT__next_pc;
-    IData/*31:0*/ __Vfunc_ysyx_24090012_NPC__DOT__exu__DOT__pmem_read__2__Vfuncout;
-    IData/*31:0*/ __Vfunc_ysyx_24090012_NPC__DOT__exu__DOT__pmem_read__3__Vfuncout;
     IData/*31:0*/ __VdlyVal__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0;
     IData/*31:0*/ __VactIterCount;
     VlUnpacked<IData/*31:0*/, 32> ysyx_24090012_NPC__DOT__regfile__DOT__rf;
-    VlUnpacked<CData/*0:0*/, 3> __Vm_traceActivity;
+    VlUnpacked<CData/*0:0*/, 4> __Vm_traceActivity;
     VlTriggerVec<1> __VstlTriggered;
     VlTriggerVec<1> __VicoTriggered;
     VlTriggerVec<2> __VactTriggered;
