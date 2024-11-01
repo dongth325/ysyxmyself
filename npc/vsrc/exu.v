@@ -159,6 +159,9 @@ module ysyx_24090012_EXU(
     // LBU (Load Byte Unsigned)
     $display("Executing LBU operation in EXU.");
     result = {24'b0, pmem_read(rs1_data + imm)[7:0]};  // 读取一个字节并将其扩展为32位
+    $display("1111111 rsdata = %h",pmem_read(rs1_data + imm));
+    $display("2222222 result = %h",result);
+    
     end
     6'b011001: begin
     // SLLI (Shift Left Logical Immediate)
@@ -209,6 +212,16 @@ module ysyx_24090012_EXU(
     $display("Executing LHU operation in EXU.");
     result = {16'b0, pmem_read(rs1_data + imm)[15:0]};  // 读取半字并零扩展为32位
     end
+    6'b100001: begin
+    // SRA (算术右移，带符号扩展)
+    result = $signed(rs1_data) >>> rs2_data[4:0];  // 使用 rs2_data 的低 5 位作为移位位数
+    end 
+    6'b100010: begin
+    // SRL (逻辑右移)
+    result = rs1_data >> rs2_data[4:0];  // 使用 rs2_data 的低 5 位作为移位位数
+    end
+
+
 
 
 

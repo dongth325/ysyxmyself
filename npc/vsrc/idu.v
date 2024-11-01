@@ -90,7 +90,12 @@ module ysyx_24090012_IDU(
     end
     else if (func3 == 3'b010 && func7 == 7'b0000000) begin
         alu_op = 6'b011101;  // SLT
+    end else if (func3 == 3'b101 && func7 == 7'b0100000) begin
+        alu_op = 6'b100001;  // SRA
+    end else if (func3 == 3'b101 && func7 == 7'b0000000) begin
+    alu_op = 6'b100010;  // SRL
     end
+
     else begin
           alu_op = 6'b001111;  // 未实现的操作
         end
