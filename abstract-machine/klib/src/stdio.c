@@ -6,7 +6,7 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
-  
+  putch('d');
   char buffer[256];
   va_list ap;
   va_start(ap, fmt);
