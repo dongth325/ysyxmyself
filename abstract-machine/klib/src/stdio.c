@@ -5,9 +5,19 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
-  panic("Not implemented");
+  char buffer[256];
+  va_list ap;
+  va_start(ap, fmt);
+  int len = vsprintf(buffer, fmt, ap);
+  va_end(ap);
+  
+  // 逐字符输出到终端
+  for (int i = 0; i < len; i++) {
+    putch(buffer[i]);
+  }
+  
+  return len;  // 返回输出的字符数
 }
-
 static int itoa(int n, char *s) {
   int i = 0, sign = n;
   if (sign < 0) n = -n;
