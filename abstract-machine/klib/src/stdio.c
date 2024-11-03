@@ -2,9 +2,12 @@
 #include <klib-macros.h>
 #include <stdarg.h>
 
+
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
+  panic("Not implemented");//dddddddddddddddddd
+  return 0;//ddddddddddddddddd
   char buffer[256];
   va_list ap;
   va_start(ap, fmt);
@@ -15,7 +18,7 @@ int printf(const char *fmt, ...) {
   for (int i = 0; i < len; i++) {
     putch(buffer[i]);
   }
-  
+ 
   return len;  // 返回输出的字符数
 }
 static int itoa(int n, char *s) {
