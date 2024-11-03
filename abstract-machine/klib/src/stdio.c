@@ -5,20 +5,18 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
-int printf(const char *fmt, ...) {
-  
-  char buffer[256];
-  va_list ap;
-  va_start(ap, fmt);
-  int len = vsprintf(buffer, fmt, ap);
-  va_end(ap);
-  
-  // 逐字符输出到终端
-  for (int i = 0; i < len; i++) {
-    putch(buffer[i]);
-  }
- 
-  return len;  // 返回输出的字符数
+static char sprint_buf[1024];
+/*可变函数在内部实现的过程中是从右向左压入堆栈，从而保证了可变参数的第一个参数始终位于栈顶*/
+int printf(const char *fmt, ...)//可以有一个或多个固定参数
+{
+  va_list args; //用于存放参数列表的数据结构
+  int n;
+  /*根据最后一个fmt来初始化参数列表，至于为什么是最后一个参数，是与va_start有关。*/
+  va_start(args, fmt);
+  n = vsprintf(sprint_buf, fmt, args);
+  va_end(args);//执行清理参数列表的工作
+  putstr(sprint_buf);
+  return n;
 }
 static int itoa(int n, char *s) {
   int i = 0, sign = n;
