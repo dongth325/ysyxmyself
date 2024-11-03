@@ -106,11 +106,11 @@ extern int symbol_count; // 符号数量
 void trace_function_call(paddr_t addr) {
     for (int i = 0; i < symbol_count; i++) {
         if (symbols[i].addr == addr) {
-            Log("Calling function: %s at address: %u", symbols[i].name, addr);
+            //Log("Calling function: %s at address: %u", symbols[i].name, addr);
             return;
         }
     }
-    Log("Calling unknown function at address: %u", addr);
+    //Log("Calling unknown function at address: %u", addr);
 }
 
 void trace_function_return(paddr_t addr) {
