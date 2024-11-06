@@ -32,7 +32,7 @@ module ysyx_24090012_EXU(
       //$display("At time %t: exu after next_pc = 0x%08x", $time, next_pc);
       //$display("At time %t: exu after PC = 0x%08x", $time, pc);
     end
-    $display("4444444444");
+    //$display("4444444444");
     case (alu_op)
       6'b000000: begin
         // ADDI
@@ -78,15 +78,15 @@ module ysyx_24090012_EXU(
       end
       6'b001000: begin
         // LW
-        $display("Memory at 0x80000220 = %h", pmem_read(32'h80000220));
+       // $display("Memory at 0x80000220 = %h", pmem_read(32'h80000220));
         
 
 
-        $display( "rs1_data = %h from (exu.v)",  rs1_data);
-        $display( "rs2_data = %h from (exu.v)",  rs2_data);
-        $display( "imm = %h from (exu.v)",  imm);
+       // $display( "rs1_data = %h from (exu.v)",  rs1_data);
+        //$display( "rs2_data = %h from (exu.v)",  rs2_data);
+        //$display( "imm = %h from (exu.v)",  imm);
          result = pmem_read(rs1_data + imm);// 计算内存地址并从该地址读取数据
-         $display( "result = %h from (exu.v)",  result);
+        // $display( "result = %h from (exu.v)",  result);
       end
       6'b001001: begin
         // SW
@@ -130,8 +130,8 @@ module ysyx_24090012_EXU(
     6'b010010: begin
   // SNEZ (Set Not Equal to Zero)
   result = (rs2_data != 0) ? 32'b1 : 32'b0;
-  $display("rrrrrrrrrrrs1data = %h from (exu.v)",rs1_data);
-  $display("rrrrrrrrrrrs2data = %h from (exu.v)",rs2_data);
+  //$display("rrrrrrrrrrrs1data = %h from (exu.v)",rs1_data);
+  //$display("rrrrrrrrrrrs2data = %h from (exu.v)",rs2_data);
     end
     6'b010011: begin
   // ANDI (按位与立即数)
@@ -157,21 +157,21 @@ module ysyx_24090012_EXU(
     end
     6'b011000: begin
     // LBU (Load Byte Unsigned)
-    $display("Executing LBU operation in EXU.");
+   // $display("Executing LBU operation in EXU.");
     result = {24'b0, pmem_read(rs1_data + imm)[7:0]};  // 提取最低字节并零扩展
 
-    $display("1111111 rsdata = %h",pmem_read(rs1_data + imm));
-    $display("2222222 result = %h",result);
+   // $display("1111111 rsdata = %h",pmem_read(rs1_data + imm));
+    //$display("2222222 result = %h",result);
     
     end
     6'b011001: begin
     // SLLI (Shift Left Logical Immediate)
-    $display("Executing SLLI operation in EXU.");
+   // $display("Executing SLLI operation in EXU.");
     result = rs1_data << imm[4:0];  // SLLI 使用 imm 的低 5 位进行移位操作
     end
     6'b011010: begin
     // BGEU (Branch if Greater Than or Equal, Unsigned)
-    $display("Executing BGEU operation in EXU.");
+   // $display("Executing BGEU operation in EXU.");
     if (rs1_data >= rs2_data) begin
         next_pc = pc + imm;  // 跳转到目标地址
     end else begin
@@ -180,7 +180,7 @@ module ysyx_24090012_EXU(
     end
     6'b011011: begin
     // BLTU (Branch if Less Than, Unsigned)
-    $display("Executing BLTU operation in EXU.");
+   // $display("Executing BLTU operation in EXU.");
     if (rs1_data < rs2_data) begin
         next_pc = pc + imm;  // 跳转到目标地址
     end else begin
@@ -205,12 +205,12 @@ module ysyx_24090012_EXU(
     end
     6'b011111: begin
     // LH (Load Halfword)
-    $display("Executing LH operation in EXU.");
+   // $display("Executing LH operation in EXU.");
     result = {{16{pmem_read(rs1_data + imm)[15]}}, pmem_read(rs1_data + imm)[15:0]};  // 读取半字并符号扩展为32位
     end
     6'b100000: begin
     // LHU (Load Halfword Unsigned)
-    $display("Executing LHU operation in EXU.");
+   // $display("Executing LHU operation in EXU.");
     result = {16'b0, pmem_read(rs1_data + imm)[15:0]};  // 读取半字并零扩展为32位
     end
     6'b100001: begin
@@ -225,7 +225,7 @@ module ysyx_24090012_EXU(
     // SB (Store Byte)
     result = rs1_data + imm;  // 计算存储地址
     pmem_write(result, rs2_data, 1);  // 将 rs2_data 的低8位写入 result 指定的地址，mask为1表示写入1个字节
-    $display("Executing SB operation in EXU. Writing %h to address %h", rs2_data[7:0], result);
+   // $display("Executing SB operation in EXU. Writing %h to address %h", rs2_data[7:0], result);
     end
 
 

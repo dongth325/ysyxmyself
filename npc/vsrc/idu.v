@@ -21,13 +21,13 @@ module ysyx_24090012_IDU(
     rs1    = inst[19:15];
     rs2    = inst[24:20];
     rd     = inst[11:7];
-    $display("rs1 = %d from (idu.v)",rs1);
-    $display("rs2 = %d from (idu.v)",rs2);
-    $display("pc = %h from (idu.v)",pc);
-    $display("inst = %h from (idu.v)",inst);
-    $display("func3 = %b from (idu.v)",func3);
-    $display("func7 = %b from (idu.v)",func7);
-    $display("opcode = %b from (idu.v)",opcode);
+    //$display("rs1 = %d from (idu.v)",rs1);
+    //$display("rs2 = %d from (idu.v)",rs2);
+    //$display("pc = %h from (idu.v)",pc);
+    //$display("inst = %h from (idu.v)",inst);
+    //$display("func3 = %b from (idu.v)",func3);
+   // $display("func7 = %b from (idu.v)",func7);
+    //$display("opcode = %b from (idu.v)",opcode);
    // $display("At time %t: idu touch PC = 0x%08x", $time, pc);
 
     // 根据指令类型，提取立即数和 ALU 操作码
@@ -57,7 +57,7 @@ module ysyx_24090012_IDU(
     end
         else begin
           alu_op = 6'b001111;  // 未实现的操作
-          $display("got this place....... from (idu.v)");//ddddddddddd
+         // $display("got this place....... from (idu.v)");//ddddddddddd
           
         end
       end
@@ -119,7 +119,7 @@ module ysyx_24090012_IDU(
         imm = {{19{inst[31]}}, inst[31], inst[7], inst[30:25], inst[11:8], 1'b0};
         if (func3 == 3'b000) begin
           alu_op = 6'b000110;  // BEQ
-          $display("BEQ imm = %h",imm);
+         // $display("BEQ imm = %h",imm);
         end else if (func3 == 3'b001) begin
           alu_op = 6'b000111;  // BNE
         end  else if (func3 == 3'b101) begin
@@ -140,7 +140,7 @@ module ysyx_24090012_IDU(
       end
       7'b0000011: begin  // I-type (LW)
         imm = {{20{inst[31]}}, inst[31:20]};
-        $display("imm of L = %d",imm);//ddddddddddd
+       // $display("imm of L = %d",imm);//ddddddddddd
          case (func3)
         3'b010: alu_op = 6'b001000;  // LW (Load Word)
         3'b100: alu_op = 6'b011000;  // LBU (Load Byte Unsigned)
@@ -148,7 +148,7 @@ module ysyx_24090012_IDU(
             3'b101: alu_op = 6'b100000;  // LHU (Load Halfword Unsigned)
         default: begin
             alu_op = 6'b001111; // 未实现的操作
-            $display("Unimplemented LOAD operation in IDU.");
+           // $display("Unimplemented LOAD operation in IDU.");
             
         end
     endcase
@@ -161,7 +161,7 @@ module ysyx_24090012_IDU(
         // 添加其他S-type指令处理...
         default: begin
             alu_op = 6'b001111;  // 未实现的操作
-            $display("Unimplemented STORE operation in IDU.");
+           // $display("Unimplemented STORE operation in IDU.");
             
         end
     endcase
@@ -175,12 +175,12 @@ module ysyx_24090012_IDU(
       default: begin
         imm = 32'b0;
         alu_op = 6'b001111;  // NOP 或未实现
-        $display("default default from (idu.v)");
+       // $display("default default from (idu.v)");
         
       end
     endcase
     
-    $display("alu_op = %b from (idu.v)",alu_op);
+    //$display("alu_op = %b from (idu.v)",alu_op);
   end
     
 endmodule
