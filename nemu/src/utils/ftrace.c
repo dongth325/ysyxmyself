@@ -84,7 +84,8 @@ if (read_count != 1) {  // 因为我们读取了一个块
         for (int j = 0; j < num_symbols; j++) {
             if (ELF32_ST_TYPE(symtab[j].st_info) == STT_FUNC) {
                 char *name = shstrtab_data + symtab[j].st_name;
-                strncpy(symbols[j].name, name, sizeof(symbols[j].name));
+                strncpy(symbols[j].name, name, sizeof(symbols[j].name) - 1);
+symbols[j].name[sizeof(symbols[j].name) - 1] = '\0';  // Ensure null-termination
                 symbols[j].addr = symtab[j].st_value; // 函数地址
                 symbols[j].size = symtab[j].st_size;  // 函数大小
             }
