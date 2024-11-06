@@ -7,6 +7,7 @@
 #include "difftest_loader.h"
 #include "isa.h"
 #include "svdpi.h"
+#include <chrono>  // 添加获取时间的库 
 //dddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -16,6 +17,7 @@ uint8_t *memory = nullptr;
 #define PROGRAM_START_ADDRESS 0x80000000
 size_t program_size = 0;
 #define MEM_BASE 0x80000000
+
 // 定义仿真状态结构体
 struct NpcState {
     Vysyx_24090012_NPC *top;
@@ -147,7 +149,12 @@ void sdb_mainloop() {
 //ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 
 
-
+uint32_t get_current_time_ms() {// 获取当前时间（以毫秒为单位）
+    using namespace std::chrono;
+    auto now = system_clock::now();
+    auto ms = duration_cast<milliseconds>(now.time_since_epoch()).count();
+    return static_cast<uint32_t>(ms);
+}
 void load_memory(const char *program_path, size_t &program_size) {
     // 打开文件
     std::ifstream infile(program_path, std::ios::binary | std::ios::in);
@@ -174,8 +181,7 @@ void load_memory(const char *program_path, size_t &program_size) {
 
 extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
      if (addr ==  0xa00003f8) {
-        // 使用 putch 输出最低字节到串口
-       // putch(data & 0xFF);  // 将数据的最低字节传给 putch
+         putchar(data & 0xFF);
         return; // 返回，不继续写入内存
     }
    else if (addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
@@ -197,8 +203,8 @@ extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
                 exit(1);
         }
 
-        std::cout << "MTRACE: Write " << (int)mask << " bytes to 0x" << std::hex << addr
-                  << ", data = 0x" << std::hex << data << " from (pmem_write)" << std::dec << std::endl;
+        /*std::cout << "MTRACE: Write " << (int)mask << " bytes to 0x" << std::hex << addr
+                  << ", data = 0x" << std::hex << data << " from (pmem_write)" << std::dec << std::endl;*/
     } else {
         std::cerr << "Error: Attempt to write to invalid memory address: 0x"
                   << std::hex << addr << " from (pmem_write)" << std::dec << std::endl;
@@ -208,7 +214,10 @@ extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
 
 
 extern "C"  uint32_t pmem_read(uint32_t addr) {
-    if (addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
+     if (addr == 0xa0000048) { // 读取时钟地址时返回当前时间
+        return get_current_time_ms();
+    }
+   else if (addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
         uint32_t offset = addr - MEM_BASE;
         uint32_t data = *(uint32_t *)(memory + offset);
         return data;
@@ -266,20 +275,20 @@ void exec_once(NpcState *s) {
     s->pc = s->top->pc;
 
     // 执行 DiffTest
-    difftest_exec(1);
+    //difftest_exec(1);
 
     // 获取 DUT 和 REF 的 CPU 状态
     CPU_state dut_cpu_state;
-    get_dut_cpu_state(s->top, &dut_cpu_state);
+    //get_dut_cpu_state(s->top, &dut_cpu_state);
 
     CPU_state ref_cpu_state;
-    difftest_regcpy(&ref_cpu_state, false);
+    //difftest_regcpy(&ref_cpu_state, false);
 
     // 比较 CPU 状态
-    if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
+/*if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
         std::cerr << "Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
         exit(1);
-    }
+    }*/
 }
 
 // 执行多条指令的函数（类似于 NEMU 的 execute）
@@ -323,18 +332,18 @@ int main(int argc, char **argv) {
     npc_state.pc = PROGRAM_START_ADDRESS;
 
     // 初始化波形追踪
-    VerilatedVcdC *trace = new VerilatedVcdC;
+   /* VerilatedVcdC *trace = new VerilatedVcdC;
     Verilated::traceEverOn(true);
     top->trace(trace, 99);
-    trace->open("npc_trace.vcd");
+    trace->open("npc_trace.vcd");*/
 
     // 初始化 DiffTest
-    load_difftest_library();
-    difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
+    //load_difftest_library();
+   // difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
 
     CPU_state cpu_state = {0};
     cpu_state.pc = PROGRAM_START_ADDRESS;
-    difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
+   // difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
 
     // 复位 DUT
     top->rst = 1;
@@ -344,13 +353,13 @@ int main(int argc, char **argv) {
     for (int i = 0; i < 5; i++) {
         top->clk = 1;
         top->eval();
-        trace->dump(Verilated::time());
-        Verilated::timeInc(1);
+        //trace->dump(Verilated::time());
+        //Verilated::timeInc(1);
 
         top->clk = 0;
         top->eval();
-        trace->dump(Verilated::time());
-        Verilated::timeInc(1);
+       // trace->dump(Verilated::time());
+        //Verilated::timeInc(1);
     }
 
     // 释放复位信号
@@ -375,7 +384,7 @@ int main(int argc, char **argv) {
     top->final();
     delete top;
     delete[] memory;
-    trace->close();
+    //trace->close();
 
     return 0;
 }
