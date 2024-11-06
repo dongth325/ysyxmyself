@@ -173,7 +173,12 @@ void load_memory(const char *program_path, size_t &program_size) {
 
 
 extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
-    if (addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
+     if (addr ==  0xa00003f8) {
+        // 使用 putch 输出最低字节到串口
+       // putch(data & 0xFF);  // 将数据的最低字节传给 putch
+        return; // 返回，不继续写入内存
+    }
+   else if (addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
         uint32_t offset = addr - MEM_BASE;
         uint8_t *bytePtr = reinterpret_cast<uint8_t *>(memory + offset);
 
@@ -200,7 +205,6 @@ extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
         exit(1);
     }
 }
-
 
 
 extern "C"  uint32_t pmem_read(uint32_t addr) {
