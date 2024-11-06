@@ -52,7 +52,7 @@ for(int i=0;i<32;i++){
 int reg_value;
 reg_value = get_reg_value(i);
 dut_cpu_state->gpr[i]=get_reg_value(i);
-printf("register DUT %d value: 0x%08x from (get_dut_cpu_state)\n", i,dut_cpu_state->gpr[i]);
+//printf("register DUT %d value: 0x%08x from (get_dut_cpu_state)\n", i,dut_cpu_state->gpr[i]);
    }
    // printf("yue yue yue yue\n");;
     for (int i = 0; i < 32; i++) {
