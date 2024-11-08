@@ -148,12 +148,21 @@ void sdb_mainloop() {
 }
 //ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 
+// 系统启动时的基准时间
+auto start_time = std::chrono::steady_clock::now();//dddddddddddddd  time
 
-uint32_t get_current_time_ms() {// 获取当前时间（以毫秒为单位）
+uint32_t get_current_time_low() {//get time
     using namespace std::chrono;
-    auto now = system_clock::now();
-    auto ms = duration_cast<milliseconds>(now.time_since_epoch()).count();
-    return static_cast<uint32_t>(ms);
+    auto now = steady_clock::now();
+    auto elapsed = duration_cast<microseconds>(now - start_time).count();
+    return static_cast<uint32_t>(elapsed & 0xFFFFFFFF); // 返回低32位
+}
+
+uint32_t get_current_time_high() {//get time
+    using namespace std::chrono;
+    auto now = steady_clock::now();
+    auto elapsed = duration_cast<microseconds>(now - start_time).count();
+    return static_cast<uint32_t>((elapsed >> 32) & 0xFFFFFFFF); // 返回高32位
 }
 void load_memory(const char *program_path, size_t &program_size) {
     // 打开文件
@@ -214,8 +223,11 @@ extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
 
 
 extern "C"  uint32_t pmem_read(uint32_t addr) {
-     if (addr == 0xa0000048) { // 读取时钟地址时返回当前时间
-        return get_current_time_ms();
+      if (addr == 0xa0000048) { 
+        return get_current_time_low();  // 返回时间的低32位
+    }
+    else if (addr == 0xa000004c) { 
+        return get_current_time_high(); // 返回时间的高32位
     }
    else if (addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
         uint32_t offset = addr - MEM_BASE;
