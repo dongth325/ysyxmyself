@@ -227,6 +227,20 @@ module ysyx_24090012_EXU(
     pmem_write(result, rs2_data, 1);  // 将 rs2_data 的低8位写入 result 指定的地址，mask为1表示写入1个字节
    // $display("Executing SB operation in EXU. Writing %h to address %h", rs2_data[7:0], result);
     end
+    6'b100100: begin
+  // LB (Load Byte)
+  result = {{24{pmem_read(rs1_data + imm)[7]}}, pmem_read(rs1_data + imm)[7:0]};  // 从内存读取字节并符号扩展到32位
+    end
+    6'b100101: begin
+  // ORI (按位或立即数)
+  result = rs1_data | imm;
+   end
+   6'b100110: begin
+  // SLTI (Set Less Than Immediate)
+  result = ($signed(rs1_data) < $signed(imm)) ? 32'b1 : 32'b0;
+   end
+
+
 
 
 
