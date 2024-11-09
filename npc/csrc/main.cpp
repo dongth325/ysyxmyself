@@ -13,7 +13,7 @@
 #include <readline/history.h>
 #define MEM_SIZE (128 * 1024 * 1024)
 uint8_t *memory = nullptr;
-
+uint64_t execution_count = 0;//统计exec_once真实执行多少次 可以截止到报错
 #define PROGRAM_START_ADDRESS 0x80000000
 size_t program_size = 0;
 #define MEM_BASE 0x80000000
@@ -257,12 +257,15 @@ extern "C" void ebreak(uint32_t exit_code) {
 // 执行单条指令的函数（类似于 NEMU 的 exec_once）
 void exec_once(NpcState *s) {
     // 从内存中获取指令
+    
+    execution_count++;//实际循环了多少次exec_once 也就是真实执行次数 可截止到报错（可在下方添加以便追寻报错）
     uint32_t pc = s->pc;
     if (pc >= MEM_BASE && pc < MEM_BASE + MEM_SIZE) {
         uint32_t inst = pmem_read(pc);
         s->top->mem_data = inst;
     } else {
         std::cerr << "Error: PC out of bounds: 0x" << std::hex << pc << std::dec << std::endl;
+        std::cout << "Total instructions executed before error: " << execution_count << std::endl;  // 输出执行次数
         exit(1);
     }
 
