@@ -19,6 +19,7 @@ Context* __am_irq_handle(Context *c) {
       printf("ev.event4=%d",ev.event);
     assert(c != NULL);
   }
+  printf("c->gpr[17] (a7) = %ld\n", c->gpr[17]);
 
   return c;
 }
