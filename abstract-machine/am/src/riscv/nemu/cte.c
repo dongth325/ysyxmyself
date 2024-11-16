@@ -10,16 +10,17 @@ Context* __am_irq_handle(Context *c) {
     printf("ev.event1=%d\n",ev.event);
     printf("c->mcause = %d\n",c->mcause);
     switch (c->mcause) {
+     
        case 1:
       ev.event=EVENT_YIELD;  printf("ev.event2=%d\n",ev.event); break;
-      default: ev.event = EVENT_ERROR; printf("ev.event3=%d\n",ev.event); break;
+      default: ev.event = EVENT_ERROR; printf("ev.event3=%d\n",ev.event);  printf("c->gpr[17] (a7) = %ld\n", c->gpr[17]);break;
     }
 
     c = user_handler(ev, c);
       printf("ev.event4=%d",ev.event);
     assert(c != NULL);
   }
-  printf("c->gpr[17] (a7) = %ld\n", c->gpr[17]);
+  
 
   return c;
 }
