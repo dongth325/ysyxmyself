@@ -11,6 +11,20 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 extern RingBuffer rb; //加上extern避免重复定义导致导致链接器错误
 
+static word_t *csr_reg(word_t imm) {
+  switch (imm) {
+    case 0x300 :  return &(cpu.csr.mstatus);
+    case 0x305 :  return &(cpu.csr.mtvec);
+    case 0x341 :  return &(cpu.csr.mepc);
+    case 0x342 :  return &(cpu.csr.mcause);
+    default : Log("csr error");
+  }
+  return NULL;
+}
+
+#define CSR(i) *csr_reg(i)
+#define ECALL(dnpc) { bool success; dnpc = (isa_raise_intr(isa_reg_str2val("a7", &success), s->pc)); }
+
 
 #define R(i) gpr(i)
 #define Mr vaddr_read
@@ -147,6 +161,9 @@ static int decode_exec(Decode *s) {
 });
 
 
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, R(rd) = CSR(imm); CSR(imm) |= src1);
+INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, R(rd) = CSR(imm); CSR(imm) = src1);
+INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, ECALL(s->dnpc));
 
 
 
