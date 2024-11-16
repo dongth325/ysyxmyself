@@ -36,11 +36,11 @@ module ysyx_24090012_IDU(
         imm = {{20{inst[31]}}, inst[31:20]};
         if (func3 == 3'b000) begin
           alu_op = 6'b000000;  // ADDI
-        end  else if (func3 == 3'b110) begin
-        alu_op = 6'b100101;  // ORI
+        end  /*else if (func3 == 3'b110) begin
+        alu_op = 6'b100101;  // ORI//ddddddddddddddddddddddddddddddddddddddddd
         end else if (func3 == 3'b010) begin
          alu_op = 6'b100110;  // SLTI
-       end
+       end*/
         else if (func3 == 3'b011) begin
           alu_op = 6'b001010;  // SEQZ
         
@@ -147,7 +147,7 @@ module ysyx_24090012_IDU(
         imm = {{20{inst[31]}}, inst[31:20]};
        // $display("imm of L = %d",imm);//ddddddddddd
          case (func3)
-          3'b000: alu_op = 6'b011110;  // LB (Load Byte)
+          //3'b000: alu_op = 6'b011110;  // LB (Load Byte)ddddddddddddddddddddddddddd
         3'b010: alu_op = 6'b001000;  // LW (Load Word)
         3'b100: alu_op = 6'b011000;  // LBU (Load Byte Unsigned)
           3'b001: alu_op = 6'b011111;  // LH (Load Halfword)

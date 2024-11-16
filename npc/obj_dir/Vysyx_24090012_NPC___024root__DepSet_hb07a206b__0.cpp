@@ -299,47 +299,37 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___ico_sequent__TOP__0(Vysyx_2409
                        | (vlSelfRef.mem_data >> 0x14U));
                 vlSelfRef.ysyx_24090012_NPC__DOT__alu_op 
                     = ((0U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
-                        ? 0U : ((6U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
-                                 ? 0x25U : ((2U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
-                                             ? 0x26U
-                                             : ((3U 
-                                                 == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
-                                                 ? 0xaU
+                        ? 0U : ((3U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
+                                 ? 0xaU : ((4U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
+                                            ? 0xeU : 
+                                           (((7U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3)) 
+                                             & (0x20U 
+                                                == 
+                                                (vlSelfRef.mem_data 
+                                                 >> 0x19U)))
+                                             ? 0xfU
+                                             : (((5U 
+                                                  == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3)) 
+                                                 & (0x20U 
+                                                    == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func7)))
+                                                 ? 0x11U
                                                  : 
-                                                ((4U 
+                                                ((7U 
                                                   == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
-                                                  ? 0xeU
+                                                  ? 0x13U
                                                   : 
-                                                 (((7U 
+                                                 (((5U 
                                                     == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3)) 
-                                                   & (0x20U 
-                                                      == 
-                                                      (vlSelfRef.mem_data 
-                                                       >> 0x19U)))
-                                                   ? 0xfU
+                                                   & (0U 
+                                                      == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func7)))
+                                                   ? 0x16U
                                                    : 
-                                                  (((5U 
+                                                  (((1U 
                                                      == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3)) 
-                                                    & (0x20U 
+                                                    & (0U 
                                                        == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func7)))
-                                                    ? 0x11U
-                                                    : 
-                                                   ((7U 
-                                                     == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
-                                                     ? 0x13U
-                                                     : 
-                                                    (((5U 
-                                                       == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3)) 
-                                                      & (0U 
-                                                         == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func7)))
-                                                      ? 0x16U
-                                                      : 
-                                                     (((1U 
-                                                        == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3)) 
-                                                       & (0U 
-                                                          == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func7)))
-                                                       ? 0x19U
-                                                       : 0xfU))))))))));
+                                                    ? 0x19U
+                                                    : 0xfU))))))));
             } else {
                 vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
                 vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
@@ -368,7 +358,7 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___ico_sequent__TOP__0(Vysyx_2409
                         ? ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
                             ? 0xfU : 8U) : ((1U & (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3))
                                              ? 0x1fU
-                                             : 0x1eU)));
+                                             : 0xfU)));
         } else {
             vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
             vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
