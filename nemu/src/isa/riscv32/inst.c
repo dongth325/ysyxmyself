@@ -164,15 +164,18 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, R(rd) = CSR(imm); CSR(imm) |= src1);
 INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, R(rd) = CSR(imm); CSR(imm) = src1);
 INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, ECALL(s->dnpc));
+  
+    INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc=cpu.csr.mepc;
+  if((cpu.csr.mstatus & 0x80) != 0 )
+    cpu.csr.mstatus |= 0x8;
+  else 
+    cpu.csr.mstatus &= 0xFFFFFFF7;
+  cpu.csr.mstatus |= 0x80;
+  cpu.csr.mstatus &= 0xffffe7ff;
 
-INSTPAT("0000000 00000 00000 000 00000 01110011", mret, N, {
-    // 恢复机器模式的状态
-    cpu.csr.mstatus = cpu.csr.mstatus & ~(1 << 3);  // 清除 MIE 位
-    s->dnpc = cpu.csr.mepc;  // 设置返回地址
-    IFDEF(CONFIG_ITRACE, { 
-        trace_function_return(s->pc);  // 如果启用了跟踪，记录返回
-    });
-});
+  );
+  
+
 
 
 
