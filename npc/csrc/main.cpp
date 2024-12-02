@@ -296,10 +296,10 @@ void exec_once(NpcState *s) {
     CPU_state dut_cpu_state;
     get_dut_cpu_state(s->top, &dut_cpu_state);
 
-    CPU_state ref_cpu_state;
-    difftest_regcpy(&ref_cpu_state, false);
+   CPU_state ref_cpu_state;
+   difftest_regcpy(&ref_cpu_state, false);
 
-    // 比较 CPU 状态
+    //比较 CPU 状态
 if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
         std::cerr << "Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
         exit(1);
