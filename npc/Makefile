@@ -1,5 +1,5 @@
 # 定义 Verilog 文件和生成的可执行文件
-VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v
+VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v vsrc/csr.v
 CSRC = csrc/main.cpp csrc/difftest_loader.cpp
 
 TOP = ysyx_24090012_NPC

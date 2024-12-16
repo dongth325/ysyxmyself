@@ -34,8 +34,15 @@ export "DPI-C" function get_reg_value;
       //  $display("At time %t: Writing to  (rf[%d]), new value = %h from (registerfile.v22222)", $time, waddr,wdata);
        // $display("At time %t: Writing to  (rf[%d]), new value = %h from (registerfile.v22222)", $time, waddr,rf[waddr]);
      // end
-
-
+     if(pc == 32'h80001324) begin
+        $display(" addr = %08x     wdata = %08x   rf[waddr] = %08x from (registerfile.v)",waddr,wdata,rf[waddr]);
+    end
+    if(pc == 32'h80001328) begin
+        $display(" addr =  %08x     wdata = %08x   rf[waddr] = %08x from (reginsterfile.v)",waddr,wdata,rf[waddr]);
+    end
+    if(pc == 32'h8000132c) begin
+        $display(" addr =   %08x    wdata = %08x   rf[waddr] = %08x from (registerfile.v)",waddr,wdata,rf[waddr]);
+    end
     end
   end
 
@@ -58,6 +65,7 @@ export "DPI-C" function get_reg_value;
 
 function int get_reg_value(input int reg_index);
   get_reg_value = rf[reg_index]; // 根据索引返回寄存器的值
+  
 endfunction
  
  

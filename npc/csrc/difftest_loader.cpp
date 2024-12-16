@@ -8,6 +8,7 @@ difftest_regcpy_t difftest_regcpy = nullptr;
 difftest_exec_t difftest_exec = nullptr;
 
 extern "C" int get_reg_value(int reg_index);
+extern "C" int get_csr_reg_value(int csr_reg_index);
 
 // 调用该函数来确保DPI上下文已设置
 void set_dpi_context() {
@@ -17,6 +18,7 @@ void set_dpi_context() {
         exit(1);
     }
     svSetScope(scope);
+ 
 }
 
 
@@ -54,6 +56,31 @@ reg_value = get_reg_value(i);
 dut_cpu_state->gpr[i]=get_reg_value(i);
 //printf("register DUT %d value: 0x%08x from (get_dut_cpu_state)\n", i,dut_cpu_state->gpr[i]);
    }
+        // 设置 CSR 上下文
+   svScope csr_scope = svGetScopeFromName("TOP.ysyx_24090012_NPC.csr");
+if (csr_scope == NULL) {
+    fprintf(stderr, "Error: Unable to set DPI scope for CSR\n");
+    exit(1);
+}
+svSetScope(csr_scope);
+   int csr1,csr2,csr3,csr4;
+   csr1 = get_csr_reg_value(1);
+   csr2 = get_csr_reg_value(2);
+   csr3 = get_csr_reg_value(3);
+   csr4 = get_csr_reg_value(4);
+    //printf("mcause = %d",csr1);
+    // printf("mtvec = %d",csr2);
+     // printf("mepc = %d",csr3);
+     //  printf("mstatus = %d",csr4);
+    dut_cpu_state->csr.mcause = get_csr_reg_value(1);  
+    dut_cpu_state->csr.mtvec = get_csr_reg_value(2);   
+    dut_cpu_state->csr.mepc = get_csr_reg_value(3);    
+    dut_cpu_state->csr.mstatus = get_csr_reg_value(4); 
+   
+       printf("mcause2 = %d\n",dut_cpu_state->csr.mcause);
+       printf("mtvec2 = %d\n",dut_cpu_state->csr.mtvec);
+       printf("mepc2 = %d\n",dut_cpu_state->csr.mepc);
+       printf("mstatus2 = %d\n",dut_cpu_state->csr.mstatus);
    // printf("yue yue yue yue\n");;
     for (int i = 0; i < 32; i++) {
        // printf("sun sun sun sun %d\n",i);
@@ -68,20 +95,46 @@ dut_cpu_state->gpr[i]=get_reg_value(i);
 bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
     // 比较通用寄存器
   for (int i = 0; i < 32; i++) {
-     // 比较 PC
-    if (dut->pc != ref->pc) {
-        std::cerr << "PC mismatch: "
-                  << "DUT = 0x" << std::hex << dut->pc
-                  << ", REF = 0x" << ref->pc << std::dec << std::endl;
-        return false;
-    }
-    if (dut->gpr[i] != ref->gpr[i]) {
+   
+   if (dut->gpr[i] != ref->gpr[i]) {
         std::cerr << "Register " << i << " mismatch: "
                   << "DUT = 0x" << std::hex << dut->gpr[i] 
                   << ", REF = 0x" << ref->gpr[i] << std::endl;
         return false;
     }
+     if (dut->pc != ref->pc) {
+        std::cerr << "PC mismatch: "
+                  << "DUT = 0x" << std::hex << dut->pc
+                  << ", REF = 0x" << ref->pc << std::dec << std::endl;
+        return false;
+    }
 }
-   
+   if (dut->csr.mcause != ref->csr.mcause) {
+        std::cerr << "mcause mismatch: "
+                  << "DUT = 0x" << std::hex << dut->csr.mcause
+                  << ", REF = 0x" << ref->csr.mcause << std::dec << std::endl;
+        //return false;
+    }
+
+    if (dut->csr.mtvec != ref->csr.mtvec) {
+        std::cerr << "mtvec mismatch: "
+                  << "DUT = 0x" << std::hex << dut->csr.mtvec
+                  << ", REF = 0x" << ref->csr.mtvec << std::dec << std::endl;
+        //return false;
+    }
+
+    if (dut->csr.mepc != ref->csr.mepc) {
+        std::cerr << "mepc mismatch: "
+                  << "DUT = 0x" << std::hex << dut->csr.mepc
+                  << ", REF = 0x" << ref->csr.mepc << std::dec << std::endl;
+        //return false;
+    }
+
+    if (dut->csr.mstatus != ref->csr.mstatus) {
+        std::cerr << "mstatus mismatch: "
+                  << "DUT = 0x" << std::hex << dut->csr.mstatus
+                  << ", REF = 0x" << ref->csr.mstatus << std::dec << std::endl;
+        //return false;
+    }
     return true;
 }

@@ -5,7 +5,13 @@ module ysyx_24090012_EXU(
   input [31:0] rs2_data,
   input [31:0] imm,
   input [5:0] alu_op,
+    input [31:0] mtvec,//csr csr
+    input [31:0] mepc,//csr csr
   output reg [31:0] result,
+  input [31:0] csr_rdata,//csr csr csr csr
+output reg [31:0] csr_wdata,//csr csr csr csr
+output reg csr_wen,//csr csr csr csr
+
   output reg [31:0] next_pc
 );
  import "DPI-C" function void pmem_write(input int addr, input int data, input int mask);
@@ -21,7 +27,7 @@ module ysyx_24090012_EXU(
     result = 32'b0;
    // $display("At time %t: exu touch before PC = 0x%08x", $time, pc);
      // 根据 alu_op 判断是否需要在 case 中单独赋值 next_pc
-    if (alu_op == 6'b000011 || alu_op == 6'b000100 || alu_op == 6'b000110 || alu_op == 6'b000111) begin
+    if (alu_op == 6'b000011 || alu_op == 6'b000100 || alu_op == 6'b000110 || alu_op == 6'b000111 || alu_op == 6'b110010) begin
       // 对于需要单独处理的指令，在 case 中赋值 next_pc
       // 为了防止锁存器推断，先给 next_pc 赋一个默认值
      next_pc = 32'b0;
@@ -29,14 +35,14 @@ module ysyx_24090012_EXU(
     end else begin
       // 对于其他指令，统一赋值 next_pc = pc + 4
       next_pc = pc + 4;
-      //$display("At time %t: exu after next_pc = 0x%08x", $time, next_pc);
-      //$display("At time %t: exu after PC = 0x%08x", $time, pc);
+     
     end
     //$display("4444444444");
     case (alu_op)
       6'b000000: begin
         // ADDI
         result = rs1_data + imm;
+        
       end
       6'b000001: begin
         // LUI
@@ -139,7 +145,8 @@ module ysyx_24090012_EXU(
     end 6'b010100: begin
     // OR (R-type)
     result = rs1_data | rs2_data;
-    end 6'b010101: begin
+    end 
+    6'b010101: begin
     // BGE (Branch if Greater or Equal)
     if ($signed(rs1_data) >= $signed(rs2_data)) begin
         next_pc = pc + imm;  // 跳转地址
@@ -239,6 +246,32 @@ module ysyx_24090012_EXU(
   // SLTI (Set Less Than Immediate)
   result = ($signed(rs1_data) < $signed(imm)) ? 32'b1 : 32'b0;
    end
+
+   6'b110000: begin  // CSRRW
+  result = csr_rdata;
+  $display("csr_rdata1 = %08x from (exu.v)",csr_rdata);
+  csr_wdata = rs1_data;
+  csr_wen = 1;
+end
+6'b110001: begin  // CSRRS
+  result = csr_rdata;
+  csr_wdata = csr_rdata | rs1_data;
+  csr_wen = 1;
+  $display("csr_rdata2 = %08x from (exu.v)",csr_rdata);
+end
+6'b110010: begin  // ECALL
+  next_pc = mtvec;
+  // 在CSR模块中设置mcause和mepc
+end
+6'b110011: begin  // MRET
+  next_pc = mepc;
+end
+6'b110100: begin
+    // SH (Store Halfword)
+   
+  result = rs1_data + imm;  // 先计算存储地址
+    pmem_write(result, rs2_data, 2);  // 将rs2_data的低16位写入计算出的地址
+end
 
 
 

@@ -17,6 +17,7 @@ uint64_t execution_count = 0;//统计exec_once真实执行多少次 可以截止
 #define PROGRAM_START_ADDRESS 0x80000000
 size_t program_size = 0;
 #define MEM_BASE 0x80000000
+extern "C" int get_reg_value(int reg_index);
 
 // 定义仿真状态结构体
 struct NpcState {
@@ -87,7 +88,14 @@ int cmd_q(char *args) {
 
 int cmd_info(char *args) {
     if (args && strcmp(args, "r") == 0) {
-        // 显示寄存器信息
+        for(int i=0;i<32;i++){
+int reg_value;
+reg_value = get_reg_value(i);
+printf("reg[%d] = %08x\n",i+1,reg_value);
+//printf("register DUT %d value: 0x%08x from (get_dut_cpu_state)\n", i,dut_cpu_state->gpr[i]);
+   }
+   uint32_t pc = npc_state.pc;
+   printf(" PC = %08x\n",pc);
     } else if (args && strcmp(args, "m") == 0) {
         // 显示内存信息
     } else {
@@ -257,12 +265,14 @@ extern "C" void ebreak(uint32_t exit_code) {
 // 执行单条指令的函数（类似于 NEMU 的 exec_once）
 void exec_once(NpcState *s) {
     // 从内存中获取指令
-    
+    uint32_t inst;
     execution_count++;//实际循环了多少次exec_once 也就是真实执行次数 可截止到报错（可在下方添加以便追寻报错）
     uint32_t pc = s->pc;
     if (pc >= MEM_BASE && pc < MEM_BASE + MEM_SIZE) {
-        uint32_t inst = pmem_read(pc);
+         inst = pmem_read(pc);
+         //std::cout << "Fetched instruction: 0x" << std::hex << inst << std::dec << std::endl;
         s->top->mem_data = inst;
+
     } else {
         std::cerr << "Error: PC out of bounds: 0x" << std::hex << pc << std::dec << std::endl;
         std::cout << "Total instructions executed before error: " << execution_count << std::endl;  // 输出执行次数
@@ -289,10 +299,10 @@ void exec_once(NpcState *s) {
     // 更新 PC
     s->pc = s->top->pc;
 
-    // 执行 DiffTest
+     //执行 DiffTest
     difftest_exec(1);
 
-    // 获取 DUT 和 REF 的 CPU 状态
+     //获取 DUT 和 REF 的 CPU 状态
     CPU_state dut_cpu_state;
     get_dut_cpu_state(s->top, &dut_cpu_state);
 
@@ -302,6 +312,7 @@ void exec_once(NpcState *s) {
     //比较 CPU 状态
 if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
         std::cerr << "Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
+         std::cout << "old instruction: 0x" << std::hex << inst << std::dec << std::endl;
         exit(1);
     }
 }

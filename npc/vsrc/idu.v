@@ -10,7 +10,13 @@ module ysyx_24090012_IDU(
   output reg [4:0] rd,
   
   output reg [5:0] alu_op,
-  output reg [31:0] imm
+  output reg [31:0] imm,
+
+output reg [11:0] csr_addr,//csr csr csr
+output reg csr_wen,//csr csr csr
+output reg is_ecall,//csr csr csr
+output reg is_mret//csr csr csr
+
 );
 
     always @(*) begin
@@ -21,6 +27,9 @@ module ysyx_24090012_IDU(
     rs1    = inst[19:15];
     rs2    = inst[24:20];
     rd     = inst[11:7];
+      is_ecall = 0;
+      is_mret = 0;
+      csr_wen = 0;
     //$display("rs1 = %d from (idu.v)",rs1);
     //$display("rs2 = %d from (idu.v)",rs2);
     //$display("pc = %h from (idu.v)",pc);
@@ -32,15 +41,71 @@ module ysyx_24090012_IDU(
 
     // 根据指令类型，提取立即数和 ALU 操作码
     case (opcode)
+
+  7'b1110011: begin  // 系统指令
+  // 默认值设置
+  imm = 32'b0;
+  csr_wen = 0;
+  is_ecall = 0;
+  is_mret = 0;
+  
+  if (func3 == 3'b000) begin  // ECALL/MRET/EBREAK
+    if (inst[31:20] == 12'b000000000001) begin
+      alu_op = 6'b001011;  // EBREAK
+    end
+    else if (inst[31:20] == 12'b0) begin
+      alu_op = 6'b110010;  // ECALL
+      is_ecall = 1;
+        rs1 = 5'd17;  // a7寄存器的地址
+    end
+    else if (inst[31:20] == 12'b001100000010) begin
+      alu_op = 6'b110011;  // MRET
+      is_mret = 1;
+    end
+  end
+  else begin  // CSR instructions
+    case (func3)
+      3'b001: begin  // CSRRW
+        alu_op = 6'b110000;
+        csr_addr = inst[31:20];
+        csr_wen = 1;
+        $display("csr_addr1 = %08x from (idu.v)",csr_addr);
+      end
+      3'b010: begin  // CSRRS
+        alu_op = 6'b110001;
+        csr_addr = inst[31:20];
+        csr_wen = 1;
+        $display("csr_addr2 = %08x from (idu.v)",csr_addr);
+        $display("rd = %d from (idu.v) from (idu.v)",rd);
+      end
+      default: alu_op = 6'b001111;  // 未实现的操作
+    endcase
+  end
+end
+
+
+
+
+
+
+
+
+
+
+
+
          7'b0010011: begin  // I-type (ADDI, SEQZ)
         imm = {{20{inst[31]}}, inst[31:20]};
         if (func3 == 3'b000) begin
+        
           alu_op = 6'b000000;  // ADDI
-        end  /*else if (func3 == 3'b110) begin
+         // $display("addi alu_op = 0x%08x from (idu.v)\n",alu_op);
+        end  else if (func3 == 3'b110) begin
         alu_op = 6'b100101;  // ORI//ddddddddddddddddddddddddddddddddddddddddd
         end else if (func3 == 3'b010) begin
          alu_op = 6'b100110;  // SLTI
-       end*/
+       end
+      
         else if (func3 == 3'b011) begin
           alu_op = 6'b001010;  // SEQZ
         
@@ -147,7 +212,7 @@ module ysyx_24090012_IDU(
         imm = {{20{inst[31]}}, inst[31:20]};
        // $display("imm of L = %d",imm);//ddddddddddd
          case (func3)
-          //3'b000: alu_op = 6'b011110;  // LB (Load Byte)ddddddddddddddddddddddddddd
+           3'b000: alu_op = 6'b100100;  // LB (Load Byte)
         3'b010: alu_op = 6'b001000;  // LW (Load Word)
         3'b100: alu_op = 6'b011000;  // LBU (Load Byte Unsigned)
           3'b001: alu_op = 6'b011111;  // LH (Load Halfword)
@@ -163,6 +228,7 @@ module ysyx_24090012_IDU(
         imm = {{20{inst[31]}}, inst[31:25], inst[11:7]};
         case (func3)
         3'b000: alu_op = 6'b100011;  // SB (Store Byte)
+          3'b001: alu_op = 6'b110100;  // SH (Store Halfword)
         3'b010: alu_op = 6'b001001;  // SW (Store Word)
         // 添加其他S-type指令处理...
         default: begin
@@ -172,10 +238,10 @@ module ysyx_24090012_IDU(
         end
     endcase
       end
-      7'b1110011: begin  // SYSTEM (EBREAK)
+     /* 7'b1110011: begin  // SYSTEM (EBREAK)
         imm = 32'b0;
         alu_op = 6'b001011;  // EBREAK
-      end
+      end*/
 
       // 其他指令类型
       default: begin
