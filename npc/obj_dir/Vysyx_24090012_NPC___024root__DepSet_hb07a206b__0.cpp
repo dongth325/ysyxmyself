@@ -847,7 +847,7 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___nba_sequent__TOP__1(Vysyx_2409
     __Vdly__ysyx_24090012_NPC__DOT__mepc = vlSelfRef.ysyx_24090012_NPC__DOT__mepc;
     __Vdly__ysyx_24090012_NPC__DOT__mtvec = vlSelfRef.ysyx_24090012_NPC__DOT__mtvec;
     if (vlSelfRef.rst) {
-        vlSelfRef.ysyx_24090012_NPC__DOT__mstatus = 0x1800U;
+        vlSelfRef.ysyx_24090012_NPC__DOT__mstatus = 0U;
         __Vdly__ysyx_24090012_NPC__DOT__mtvec = 0U;
         __Vdly__ysyx_24090012_NPC__DOT__mepc = 0U;
         __Vdly__ysyx_24090012_NPC__DOT__mcause = 0U;

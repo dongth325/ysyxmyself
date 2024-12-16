@@ -28,7 +28,7 @@ export "DPI-C" function get_csr_reg_value;
   // CSR寄存器初始化和写入逻辑
   always @(posedge clk or posedge rst) begin
     if (rst) begin
-      mstatus <= 32'h1800;  // MPP = 11 (M模式)
+      mstatus <= 32'h0;  // MPP = 11 (M模式)
       mtvec   <= 32'h0;
       mepc    <= 32'h0;
       mcause  <= 32'h0;

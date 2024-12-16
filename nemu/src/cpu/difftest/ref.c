@@ -53,9 +53,9 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
     ((CPU_state *)dut)->csr.mepc = cpu.csr.mepc;
     ((CPU_state *)dut)->csr.mstatus = cpu.csr.mstatus;
     ((CPU_state *)dut)->csr.mtvec = cpu.csr.mtvec;
-    printf("yang yang yang \n");
+    //printf("yang yang yang \n");
   } else if (direction == DIFFTEST_TO_REF) {
-    printf("yang yang yangwww \n");
+    //printf("yang yang yangwww \n");
     //printf("da da da da \n");
     // 将 DUT 的寄存器状态复制到参考模型 (REF)
     cpu = *(CPU_state *)dut; // 直接将整个 CPU 状态复制到参考模型

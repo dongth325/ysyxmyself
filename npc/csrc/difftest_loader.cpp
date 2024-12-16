@@ -77,10 +77,10 @@ svSetScope(csr_scope);
     dut_cpu_state->csr.mepc = get_csr_reg_value(3);    
     dut_cpu_state->csr.mstatus = get_csr_reg_value(4); 
    
-       printf("mcause2 = %d\n",dut_cpu_state->csr.mcause);
-       printf("mtvec2 = %d\n",dut_cpu_state->csr.mtvec);
-       printf("mepc2 = %d\n",dut_cpu_state->csr.mepc);
-       printf("mstatus2 = %d\n",dut_cpu_state->csr.mstatus);
+     //  printf("mcause2 = %d\n",dut_cpu_state->csr.mcause);
+     //  printf("mtvec2 = %d\n",dut_cpu_state->csr.mtvec);
+     //  printf("mepc2 = %d\n",dut_cpu_state->csr.mepc);
+     //  printf("mstatus2 = %d\n",dut_cpu_state->csr.mstatus);
    // printf("yue yue yue yue\n");;
     for (int i = 0; i < 32; i++) {
        // printf("sun sun sun sun %d\n",i);
