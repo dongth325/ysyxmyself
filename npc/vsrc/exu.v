@@ -249,7 +249,7 @@ output reg csr_wen,//csr csr csr csr
 
    6'b110000: begin  // CSRRW
   result = csr_rdata;
-  $display("csr_rdata1 = %08x from (exu.v)",csr_rdata);
+  //$display("csr_rdata1 = %08x from (exu.v)",csr_rdata);
   csr_wdata = rs1_data;
   csr_wen = 1;
 end
@@ -257,7 +257,7 @@ end
   result = csr_rdata;
   csr_wdata = csr_rdata | rs1_data;
   csr_wen = 1;
-  $display("csr_rdata2 = %08x from (exu.v)",csr_rdata);
+ // $display("csr_rdata2 = %08x from (exu.v)",csr_rdata);
 end
 6'b110010: begin  // ECALL
   next_pc = mtvec;

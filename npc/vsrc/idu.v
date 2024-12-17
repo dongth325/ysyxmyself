@@ -69,14 +69,14 @@ output reg is_mret//csr csr csr
         alu_op = 6'b110000;
         csr_addr = inst[31:20];
         csr_wen = 1;
-        $display("csr_addr1 = %08x from (idu.v)",csr_addr);
+       // $display("csr_addr1 = %08x from (idu.v)",csr_addr);
       end
       3'b010: begin  // CSRRS
         alu_op = 6'b110001;
         csr_addr = inst[31:20];
         csr_wen = 1;
-        $display("csr_addr2 = %08x from (idu.v)",csr_addr);
-        $display("rd = %d from (idu.v) from (idu.v)",rd);
+       // $display("csr_addr2 = %08x from (idu.v)",csr_addr);
+       // $display("rd = %d from (idu.v) from (idu.v)",rd);
       end
       default: alu_op = 6'b001111;  // 未实现的操作
     endcase

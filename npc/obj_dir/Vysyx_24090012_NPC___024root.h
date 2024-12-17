@@ -19,7 +19,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_24090012_NPC___024root final : public V
     VL_OUT8(ebreak_flag,0,0);
     CData/*4:0*/ ysyx_24090012_NPC__DOT__rs1;
     CData/*4:0*/ ysyx_24090012_NPC__DOT__rs2;
-    CData/*4:0*/ ysyx_24090012_NPC__DOT__rd;
     CData/*6:0*/ ysyx_24090012_NPC__DOT__opcode;
     CData/*2:0*/ ysyx_24090012_NPC__DOT__func3;
     CData/*6:0*/ ysyx_24090012_NPC__DOT__func7;

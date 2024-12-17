@@ -51,8 +51,8 @@ export "DPI-C" function get_csr_reg_value;
        
          default: ; 
       endcase
-        $display("csr_wdata1 = %08x",csr_wdata1);
-        $display("mcause = %08x",mcause);
+        //$display("csr_wdata1 = %08x",csr_wdata1);
+        //$display("mcause = %08x",mcause);
     end
       if (csr_wen2) begin
       case (csr_addr2)
@@ -62,8 +62,8 @@ export "DPI-C" function get_csr_reg_value;
         MCAUSE:  mcause  <= csr_wdata2;
          default: ; 
       endcase
-        $display("csr_wdata2 = %08x",csr_wdata2);
-        $display("mepc = %08x",mepc);
+        //$display("csr_wdata2 = %08x",csr_wdata2);
+        //$display("mepc = %08x",mepc);
     end
   end
 

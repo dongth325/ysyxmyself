@@ -123,7 +123,7 @@ else begin
 
         else if (is_ecall) begin//csr csr csr cssr csr
       pc <= mtvec;
-      // 设置mcause和mepc
+      // 设置mepc
       csr_addr2 <= 12'h341;            // MEPC 地址
       csr_wdata2 <= pc;                 // 当前 PC
       csr_wen2 <= 1;                    // 使能写入

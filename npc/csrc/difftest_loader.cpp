@@ -56,7 +56,7 @@ reg_value = get_reg_value(i);
 dut_cpu_state->gpr[i]=get_reg_value(i);
 //printf("register DUT %d value: 0x%08x from (get_dut_cpu_state)\n", i,dut_cpu_state->gpr[i]);
    }
-        // 设置 CSR 上下文
+        // 设置 new CSR 上下文
    svScope csr_scope = svGetScopeFromName("TOP.ysyx_24090012_NPC.csr");
 if (csr_scope == NULL) {
     fprintf(stderr, "Error: Unable to set DPI scope for CSR\n");
@@ -90,6 +90,7 @@ svSetScope(csr_scope);
         //printf("赋值后的 dut_cpu_state->pc = 0x%08x\n", dut_cpu_state->pc);
     }
     //printf("shu shu shu shu\n");
+    set_dpi_context();//切换 回来 上下文 
 }
 
 bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
