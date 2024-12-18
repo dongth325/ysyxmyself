@@ -12,7 +12,7 @@ void __am_gpu_init() {
   uint32_t *fb = (uint32_t *)(uintptr_t)FB_ADDR;
 
   // 用不同颜色填充整个帧缓冲区
-  for (int i = 0; i < w * h-10; i++) {
+  for (int i = 0; i < w * h; i++) {
     fb[i] = i;  // 每个像素使用不同的颜色值
   }
   
