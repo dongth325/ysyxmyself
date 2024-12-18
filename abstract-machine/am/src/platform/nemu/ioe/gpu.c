@@ -5,19 +5,19 @@
 
 void __am_gpu_init() {
   // 读取屏幕大小//dddddddddddddddddddddddddddddddddddddddd
-  //int w = io_read(AM_GPU_CONFIG).width;
-  //int h = io_read(AM_GPU_CONFIG).height;
+  int w = io_read(AM_GPU_CONFIG).width;
+  int h = io_read(AM_GPU_CONFIG).height;
   
   // 获取帧缓冲区地址
-  //uint32_t *fb = (uint32_t *)(uintptr_t)FB_ADDR;
+  uint32_t *fb = (uint32_t *)(uintptr_t)FB_ADDR;
 
   // 用不同颜色填充整个帧缓冲区
-  //for (int i = 0; i < w * h; i++) {
-    //fb[i] = i;  // 每个像素使用不同的颜色值
-  //}
+  for (int i = 0; i < w * h; i++) {
+    fb[i] = i;  // 每个像素使用不同的颜色值
+  }
   
   // 同步帧缓冲区到屏幕
-  //outl(SYNC_ADDR, 1);//dddddddddddddddddddddddddddd
+  outl(SYNC_ADDR, 1);//dddddddddddddddddddddddddddd
 }
 
 void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
