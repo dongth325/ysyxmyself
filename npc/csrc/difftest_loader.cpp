@@ -10,6 +10,29 @@ difftest_exec_t difftest_exec = nullptr;
 extern "C" int get_reg_value(int reg_index);
 extern "C" int get_csr_reg_value(int csr_reg_index);
 
+// 跳过控制变量
+static bool is_skip_ref = false;//add difftest skip........
+static int skip_dut_nr_inst = 0;//add difftest skip........
+
+//  difftest_skip_ref 
+extern "C" void difftest_skip_ref() {//add difftest skip........
+    is_skip_ref = true;
+    skip_dut_nr_inst = 0;
+}
+
+//  difftest_skip_dut 
+extern "C" void difftest_skip_dut(int nr_ref, int nr_dut) {//add difftest skip........
+    skip_dut_nr_inst += nr_dut;
+
+    while (nr_ref-- > 0) {
+        difftest_exec(1);
+    }
+}
+
+
+
+
+
 // 调用该函数来确保DPI上下文已设置
 void set_dpi_context() {
     svScope scope = svGetScopeFromName("TOP.ysyx_24090012_NPC.regfile");
@@ -139,3 +162,72 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
     }
     return true;
 }
+
+
+
+// 实现 difftest_step 函数
+/*extern "C" void difftest_step(uint32_t pc, uint32_t npc) {
+    CPU_state ref_cpu_state;
+
+    // 处理需要跳过的 DUT 指令比较
+    if (skip_dut_nr_inst > 0) {          //目前只需将npc作为dut nemu作为ref  关于设备skip只需ref skip   dut skip暂时不实现 。。。。
+        // 复制 REF 的寄存器状态到 ref_r
+        difftest_regcpy(&ref_cpu_state, false);
+
+        // 检查 REF 的 PC 是否已同步到 DUT 的下一个 PC
+        if (ref_cpu_state.pc == npc) {
+            // 同步完成，重置跳过计数器
+            skip_dut_nr_inst = 0;
+
+            // 获取 DUT 的 CPU 状态
+            CPU_state dut_cpu_state;
+            get_dut_cpu_state(s->top, &dut_cpu_state);
+
+            // 进行寄存器比较
+            if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
+                std::cerr << "[DiffTest] Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
+                exit(1);
+            }
+            return;
+        }
+
+        // 递减跳过计数器
+        skip_dut_nr_inst--;
+
+        // 如果跳过计数器减至 0，且 REF 的 PC 仍未同步，触发错误
+        if (skip_dut_nr_inst == 0) {
+            std::cerr << "[DiffTest] Error: Cannot catch up with REF at PC = 0x" << std::hex << ref_cpu_state.pc << std::dec << std::endl;
+            exit(1);
+        }
+        return;
+    }
+
+    // 处理需要跳过 REF 的当前指令比较
+    if (is_skip_ref) {
+        // 获取 DUT 的 CPU 状态
+        CPU_state dut_cpu_state;
+        get_dut_cpu_state(s->top, &dut_cpu_state);//’s‘  是否定义？？
+
+        // 将 DUT 的寄存器状态复制到 REF 中
+        difftest_regcpy(&dut_cpu_state, DIFFTEST_TO_REF);
+
+        // 重置跳过标志
+        is_skip_ref = false;
+        std::cout << "[DiffTest] Skipped register comparison for current instruction." << std::endl;
+        return;
+    }
+
+    // 正常执行 DiffTest 步骤
+    difftest_exec(1); // 让 REF 执行一条指令
+    difftest_regcpy(&ref_cpu_state, false); // 复制 REF 的寄存器状态
+
+    // 获取 DUT 的 CPU 状态
+    CPU_state dut_cpu_state;
+    get_dut_cpu_state(s->top, &dut_cpu_state);
+
+    // 比较寄存器状态
+    if (!isa_difftest_checkregs(&dut_state, &ref_r)) {
+        std::cerr << "[DiffTest] Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
+        exit(1);
+    }
+}*/

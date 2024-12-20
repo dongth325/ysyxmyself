@@ -300,21 +300,24 @@ void exec_once(NpcState *s) {
     s->pc = s->top->pc;
 
      //执行 DiffTest
-   // difftest_exec(1);
+    difftest_exec(1);
 
-     //获取 DUT 和 REF 的 CPU 状态
-  //  CPU_state dut_cpu_state;
-  //  get_dut_cpu_state(s->top, &dut_cpu_state);
 
-  // CPU_state ref_cpu_state;
-   //difftest_regcpy(&ref_cpu_state, false);
+    //difftest_step(pc, s->pc);
 
-    //比较 CPU 状态
-/*if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
+    //获取 DUT 和 REF 的 CPU 状态                    
+    CPU_state dut_cpu_state;                            //以下被纳入到difftest_step里!!!!!!
+    get_dut_cpu_state(s->top, &dut_cpu_state);
+
+   CPU_state ref_cpu_state;
+   difftest_regcpy(&ref_cpu_state, false);
+
+    比较 CPU 状态
+if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
         std::cerr << "Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
          std::cout << "old instruction: 0x" << std::hex << inst << std::dec << std::endl;
         exit(1);
-    }*/
+    }
 }
 
 // 执行多条指令的函数（类似于 NEMU 的 execute）
@@ -364,12 +367,12 @@ int main(int argc, char **argv) {
     trace->open("npc_trace.vcd");*/
 
     // 初始化 DiffTest
-   // load_difftest_library();
-   // difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
+    load_difftest_library();
+    difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
 
-    //CPU_state cpu_state = {0};
-   // cpu_state.pc = PROGRAM_START_ADDRESS;
-    //difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
+    CPU_state cpu_state = {0};
+    cpu_state.pc = PROGRAM_START_ADDRESS;
+    difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
 
     // 复位 DUT
     top->rst = 1;
