@@ -166,7 +166,7 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
 
 
 // 实现 difftest_step 函数
-/*extern "C" void difftest_step(uint32_t pc, uint32_t npc) {
+extern "C" void difftest_step(uint32_t pc, uint32_t npc) {
     CPU_state ref_cpu_state;
 
     // 处理需要跳过的 DUT 指令比较
@@ -230,4 +230,4 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
         std::cerr << "[DiffTest] Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
         exit(1);
     }
-}*/
+}

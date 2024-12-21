@@ -6,6 +6,8 @@
 #include "verilated_vcd_c.h"
 #include "difftest_loader.h"
 #include "isa.h"
+#include <stdint.h>
+#include <sys/time.h>
 #include "svdpi.h"
 #include <chrono>  // 添加获取时间的库 
 //dddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
@@ -157,7 +159,8 @@ void sdb_mainloop() {
 //ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 
 // 系统启动时的基准时间
-auto start_time = std::chrono::steady_clock::now();//dddddddddddddd  time
+// 获取当前时间的低32位（微秒）
+auto start_time = std::chrono::steady_clock::now();
 
 uint32_t get_current_time_low() {//get time
     using namespace std::chrono;
@@ -233,9 +236,11 @@ extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
 extern "C"  uint32_t pmem_read(uint32_t addr) {
       if (addr == 0xa0000048) { 
         return get_current_time_low();  // 返回时间的低32位
+        //return 0;
     }
     else if (addr == 0xa000004c) { 
         return get_current_time_high(); // 返回时间的高32位
+        //return 0;
     }
    else if (addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
         uint32_t offset = addr - MEM_BASE;
@@ -303,21 +308,21 @@ void exec_once(NpcState *s) {
     difftest_exec(1);
 
 
-    //difftest_step(pc, s->pc);
+    difftest_step(pc, s->pc);
 
     //获取 DUT 和 REF 的 CPU 状态                    
-    CPU_state dut_cpu_state;                            //以下被纳入到difftest_step里!!!!!!
-    get_dut_cpu_state(s->top, &dut_cpu_state);
+    //CPU_state dut_cpu_state;                            //以下被纳入到difftest_step里!!!!!!
+    //get_dut_cpu_state(s->top, &dut_cpu_state);
 
-   CPU_state ref_cpu_state;
-   difftest_regcpy(&ref_cpu_state, false);
+   //CPU_state ref_cpu_state;
+   //difftest_regcpy(&ref_cpu_state, false);
 
-    比较 CPU 状态
-if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
+   // 比较 CPU 状态
+/*if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
         std::cerr << "Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
          std::cout << "old instruction: 0x" << std::hex << inst << std::dec << std::endl;
         exit(1);
-    }
+    }*/
 }
 
 // 执行多条指令的函数（类似于 NEMU 的 execute）
