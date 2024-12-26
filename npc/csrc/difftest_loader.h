@@ -26,7 +26,7 @@ extern difftest_exec_t difftest_exec;
 
 extern "C" void difftest_skip_ref();//add difftest skip
 extern "C" void difftest_skip_dut(int nr_ref, int nr_dut);//add difftest skip
-extern "C" void difftest_step(uint32_t pc, uint32_t npc);//add difftest skip
+extern "C" void difftest_step(Vysyx_24090012_NPC *top,uint32_t pc, uint32_t npc);//add difftest skip
 
 
 

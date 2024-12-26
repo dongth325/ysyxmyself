@@ -100,7 +100,27 @@ wire [31:0] mcause;
                  opcode == 7'b0000011);
 
     always @(*) begin
-      //$display("At time %t: npc touch PC = 0x%08x", $time, pc);
+     // 默认值
+    csr_addr1 = 12'b0;
+    csr_wdata1 = 32'b0;
+    csr_wen1 = 1'b0;
+
+    csr_addr2 = 12'b0;
+    csr_wdata2 = 32'b0;
+    csr_wen2 = 1'b0;
+            if (is_ecall) begin//csr csr csr cssr csr
+      
+      // 设置mepc
+      csr_addr2 = 12'h341;            // MEPC 地址
+      csr_wdata2 = pc;                 // 当前 PC
+      csr_wen2 = 1;                    // 使能写入
+
+      // 写入 mcause
+      csr_addr1 = 12'h342;              // MCAUSE 地址
+      csr_wdata1 = 32'd17;        // ECALL 的原因码（根据需求调整）
+      csr_wen1 = 1;                      // 使能写入
+       
+    end
     end
 
   
@@ -111,8 +131,8 @@ wire [31:0] mcause;
       ebreak_flag <= 0;
     end 
 else begin 
-          csr_wen1 <= 1'b0;
-        csr_wen2 <= 1'b0;
+          //csr_wen1 <= 1'b0;
+        //csr_wen2 <= 1'b0;
 
      if (inst == 32'h00100073) begin  // ebreak 指令
       ebreak_flag <= 1;
@@ -124,14 +144,14 @@ else begin
         else if (is_ecall) begin//csr csr csr cssr csr
       pc <= mtvec;
       // 设置mepc
-      csr_addr2 <= 12'h341;            // MEPC 地址
-      csr_wdata2 <= pc;                 // 当前 PC
-      csr_wen2 <= 1;                    // 使能写入
+     // csr_addr2 <= 12'h341;            // MEPC 地址
+     // csr_wdata2 <= pc;                 // 当前 PC
+     // csr_wen2 <= 1;                    // 使能写入
 
       // 写入 mcause
-      csr_addr1 <= 12'h342;              // MCAUSE 地址
-      csr_wdata1 <= 32'd17;        // ECALL 的原因码（根据需求调整）
-      csr_wen1 <= 1;                      // 使能写入
+     // csr_addr1 <= 12'h342;              // MCAUSE 地址
+     // csr_wdata1 <= 32'd17;        // ECALL 的原因码（根据需求调整）
+     // csr_wen1 <= 1;                      // 使能写入
        
     end
     else if (is_mret) begin

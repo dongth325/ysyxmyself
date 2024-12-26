@@ -25,6 +25,9 @@ export "DPI-C" function get_csr_reg_value;
   localparam MEPC    = 12'h341;
   localparam MCAUSE  = 12'h342;
 
+// 初始化标志
+   //reg initialized;     //明天再来弄  使通过difftest
+
   // CSR寄存器初始化和写入逻辑
   always @(posedge clk or posedge rst) begin
     if (rst) begin
@@ -33,6 +36,12 @@ export "DPI-C" function get_csr_reg_value;
       mepc    <= 32'h0;
       mcause  <= 32'h0;
     end
+
+ /*if (!initialized) begin                  //明天再来弄  使通过difftest
+            mstatus <= 32'h00000708; // 设置 mstatus 为初始值1800
+            initialized <= 1'b1; // 设置初始化标志为已初始化
+        end*/
+
      if (csr_wen) begin
       case (csr_addr)
         MSTATUS: mstatus <= csr_wdata;

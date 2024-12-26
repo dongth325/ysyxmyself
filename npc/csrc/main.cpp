@@ -62,6 +62,7 @@ Command cmd_table[] = {
 
 bool is_running = true; // 控制 sdb 主循环
   
+
   // 命令处理函数实现
 int cmd_c(char *args) {
     std::cout << "Continuing execution..." << std::endl;
@@ -93,7 +94,7 @@ int cmd_info(char *args) {
         for(int i=0;i<32;i++){
 int reg_value;
 reg_value = get_reg_value(i);
-printf("reg[%d] = %08x\n",i+1,reg_value);
+printf("reg[%d] = %08x\n",i,reg_value);
 //printf("register DUT %d value: 0x%08x from (get_dut_cpu_state)\n", i,dut_cpu_state->gpr[i]);
    }
    uint32_t pc = npc_state.pc;
@@ -202,6 +203,7 @@ void load_memory(const char *program_path, size_t &program_size) {
 extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
      if (addr ==  0xa00003f8) {
          putchar(data & 0xFF);
+          difftest_skip_ref();
         return; // 返回，不继续写入内存
     }
    else if (addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
@@ -235,10 +237,12 @@ extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
 
 extern "C"  uint32_t pmem_read(uint32_t addr) {
       if (addr == 0xa0000048) { 
+       difftest_skip_ref();
         return get_current_time_low();  // 返回时间的低32位
         //return 0;
     }
     else if (addr == 0xa000004c) { 
+          difftest_skip_ref();
         return get_current_time_high(); // 返回时间的高32位
         //return 0;
     }
@@ -308,14 +312,14 @@ void exec_once(NpcState *s) {
     difftest_exec(1);
 
 
-    difftest_step(pc, s->pc);
+    difftest_step(s->top, pc, s->pc);
 
     //获取 DUT 和 REF 的 CPU 状态                    
     //CPU_state dut_cpu_state;                            //以下被纳入到difftest_step里!!!!!!
     //get_dut_cpu_state(s->top, &dut_cpu_state);
 
    //CPU_state ref_cpu_state;
-   //difftest_regcpy(&ref_cpu_state, false);
+  // difftest_regcpy(&ref_cpu_state, false);
 
    // 比较 CPU 状态
 /*if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
@@ -377,7 +381,7 @@ int main(int argc, char **argv) {
 
     CPU_state cpu_state = {0};
     cpu_state.pc = PROGRAM_START_ADDRESS;
-    difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
+   difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
 
     // 复位 DUT
     top->rst = 1;

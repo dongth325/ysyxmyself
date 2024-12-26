@@ -9,6 +9,7 @@ difftest_exec_t difftest_exec = nullptr;
 
 extern "C" int get_reg_value(int reg_index);
 extern "C" int get_csr_reg_value(int csr_reg_index);
+//extern NpcState npc_state;
 
 // 跳过控制变量
 static bool is_skip_ref = false;//add difftest skip........
@@ -137,28 +138,28 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
         std::cerr << "mcause mismatch: "
                   << "DUT = 0x" << std::hex << dut->csr.mcause
                   << ", REF = 0x" << ref->csr.mcause << std::dec << std::endl;
-        //return false;
-    }
+        return false;
+   }
 
     if (dut->csr.mtvec != ref->csr.mtvec) {
         std::cerr << "mtvec mismatch: "
                   << "DUT = 0x" << std::hex << dut->csr.mtvec
                   << ", REF = 0x" << ref->csr.mtvec << std::dec << std::endl;
-        //return false;
+        return false;
     }
 
     if (dut->csr.mepc != ref->csr.mepc) {
         std::cerr << "mepc mismatch: "
                   << "DUT = 0x" << std::hex << dut->csr.mepc
                   << ", REF = 0x" << ref->csr.mepc << std::dec << std::endl;
-        //return false;
+        return false;
     }
 
     if (dut->csr.mstatus != ref->csr.mstatus) {
         std::cerr << "mstatus mismatch: "
                   << "DUT = 0x" << std::hex << dut->csr.mstatus
                   << ", REF = 0x" << ref->csr.mstatus << std::dec << std::endl;
-        //return false;
+        return false;
     }
     return true;
 }
@@ -166,7 +167,7 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
 
 
 // 实现 difftest_step 函数
-extern "C" void difftest_step(uint32_t pc, uint32_t npc) {
+extern "C" void difftest_step(Vysyx_24090012_NPC *top,uint32_t pc, uint32_t npc) {
     CPU_state ref_cpu_state;
 
     // 处理需要跳过的 DUT 指令比较
@@ -181,7 +182,7 @@ extern "C" void difftest_step(uint32_t pc, uint32_t npc) {
 
             // 获取 DUT 的 CPU 状态
             CPU_state dut_cpu_state;
-            get_dut_cpu_state(s->top, &dut_cpu_state);
+            get_dut_cpu_state(top, &dut_cpu_state);
 
             // 进行寄存器比较
             if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
@@ -206,27 +207,27 @@ extern "C" void difftest_step(uint32_t pc, uint32_t npc) {
     if (is_skip_ref) {
         // 获取 DUT 的 CPU 状态
         CPU_state dut_cpu_state;
-        get_dut_cpu_state(s->top, &dut_cpu_state);//’s‘  是否定义？？
+        get_dut_cpu_state(top, &dut_cpu_state);//’s‘  是否定义？？
 
         // 将 DUT 的寄存器状态复制到 REF 中
-        difftest_regcpy(&dut_cpu_state, DIFFTEST_TO_REF);
+        difftest_regcpy(&dut_cpu_state, true);
 
         // 重置跳过标志
         is_skip_ref = false;
-        std::cout << "[DiffTest] Skipped register comparison for current instruction." << std::endl;
+       // std::cout << "[DiffTest] Skipped register comparison for current instruction." << std::endl;
         return;
     }
 
     // 正常执行 DiffTest 步骤
-    difftest_exec(1); // 让 REF 执行一条指令
+    //difftest_exec(1); // 让 REF 执行一条指令
     difftest_regcpy(&ref_cpu_state, false); // 复制 REF 的寄存器状态
 
     // 获取 DUT 的 CPU 状态
     CPU_state dut_cpu_state;
-    get_dut_cpu_state(s->top, &dut_cpu_state);
+    get_dut_cpu_state(top, &dut_cpu_state);
 
     // 比较寄存器状态
-    if (!isa_difftest_checkregs(&dut_state, &ref_r)) {
+    if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
         std::cerr << "[DiffTest] Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
         exit(1);
     }

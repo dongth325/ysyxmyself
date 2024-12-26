@@ -16,7 +16,7 @@ extern "C" {
 
 
     // DPI EXPORTS
-    // DPI export at vsrc/csr.v:81:14
+    // DPI export at vsrc/csr.v:90:14
     extern int get_csr_reg_value(int csr_reg_index);
     // DPI export at vsrc/registerfile.v:66:14
     extern int get_reg_value(int reg_index);
