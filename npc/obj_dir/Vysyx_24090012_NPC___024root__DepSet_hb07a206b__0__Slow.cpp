@@ -88,7 +88,6 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___eval_stl(Vysyx_24090012_NPC___0
     // Body
     if ((1ULL & vlSelfRef.__VstlTriggered.word(0U))) {
         Vysyx_24090012_NPC___024root___ico_sequent__TOP__0(vlSelf);
-        vlSelfRef.__Vm_traceActivity[4U] = 1U;
         vlSelfRef.__Vm_traceActivity[3U] = 1U;
         vlSelfRef.__Vm_traceActivity[2U] = 1U;
         vlSelfRef.__Vm_traceActivity[1U] = 1U;
@@ -200,6 +199,7 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___ctor_var_reset(Vysyx_24090012_N
     vlSelf->ysyx_24090012_NPC__DOT__csr_addr = VL_RAND_RESET_I(12);
     vlSelf->ysyx_24090012_NPC__DOT__csr_wdata = VL_RAND_RESET_I(32);
     vlSelf->ysyx_24090012_NPC__DOT__csr_wen = VL_RAND_RESET_I(1);
+    vlSelf->ysyx_24090012_NPC__DOT__mstatus_new = VL_RAND_RESET_I(32);
     vlSelf->ysyx_24090012_NPC__DOT__is_ecall = VL_RAND_RESET_I(1);
     vlSelf->ysyx_24090012_NPC__DOT__is_mret = VL_RAND_RESET_I(1);
     vlSelf->ysyx_24090012_NPC__DOT__csr_rdata = VL_RAND_RESET_I(32);
@@ -215,7 +215,7 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___ctor_var_reset(Vysyx_24090012_N
     vlSelf->__VdlySet__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0 = 0;
     vlSelf->__Vtrigprevexpr___TOP__clk__0 = VL_RAND_RESET_I(1);
     vlSelf->__Vtrigprevexpr___TOP__rst__0 = VL_RAND_RESET_I(1);
-    for (int __Vi0 = 0; __Vi0 < 5; ++__Vi0) {
+    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
         vlSelf->__Vm_traceActivity[__Vi0] = 0;
     }
 }

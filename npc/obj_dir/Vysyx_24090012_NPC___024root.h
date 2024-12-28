@@ -49,6 +49,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_24090012_NPC___024root final : public V
     IData/*31:0*/ ysyx_24090012_NPC__DOT__csr_wdata1;
     IData/*31:0*/ ysyx_24090012_NPC__DOT__csr_wdata2;
     IData/*31:0*/ ysyx_24090012_NPC__DOT__csr_wdata;
+    IData/*31:0*/ ysyx_24090012_NPC__DOT__mstatus_new;
     IData/*31:0*/ ysyx_24090012_NPC__DOT__csr_rdata;
     IData/*31:0*/ ysyx_24090012_NPC__DOT__mstatus;
     IData/*31:0*/ ysyx_24090012_NPC__DOT__mtvec;
@@ -57,7 +58,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_24090012_NPC___024root final : public V
     IData/*31:0*/ __VdlyVal__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0;
     IData/*31:0*/ __VactIterCount;
     VlUnpacked<IData/*31:0*/, 32> ysyx_24090012_NPC__DOT__regfile__DOT__rf;
-    VlUnpacked<CData/*0:0*/, 5> __Vm_traceActivity;
+    VlUnpacked<CData/*0:0*/, 4> __Vm_traceActivity;
     VlTriggerVec<1> __VstlTriggered;
     VlTriggerVec<1> __VicoTriggered;
     VlTriggerVec<2> __VactTriggered;
