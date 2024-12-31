@@ -16,15 +16,17 @@ extern "C" {
 
 
     // DPI EXPORTS
-    // DPI export at vsrc/registerfile.v:58:14
+    // DPI export at vsrc/csr.v:104:14
+    extern int get_csr_reg_value(int csr_reg_index);
+    // DPI export at vsrc/registerfile.v:66:14
     extern int get_reg_value(int reg_index);
 
     // DPI IMPORTS
     // DPI import at vsrc/NPC.v:9:32
     extern void ebreak(int exit_code);
-    // DPI import at vsrc/exu.v:11:30
+    // DPI import at vsrc/exu.v:18:30
     extern int pmem_read(int addr);
-    // DPI import at vsrc/exu.v:10:31
+    // DPI import at vsrc/exu.v:17:31
     extern void pmem_write(int addr, int data, int mask);
 
 #ifdef __cplusplus

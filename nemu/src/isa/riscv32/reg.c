@@ -33,6 +33,11 @@ void isa_reg_display() {
         // 使用%08x来输出32位寄存器的值，以16进制显示，并保持8位对齐
         printf("reg$%s ---> 0x%08x\n", regs[i], (uint32_t)cpu.gpr[i]);
     }
+          // 输出CSR寄存器的值
+    printf("mstatus = 0x%08x\n", (uint32_t)cpu.csr.mstatus);
+    printf("mtvec = 0x%08x\n", (uint32_t)cpu.csr.mtvec);
+    printf("mepc = 0x%08x\n", (uint32_t)cpu.csr.mepc);
+    printf("mcause = 0x%08x\n", (uint32_t)cpu.csr.mcause);
     // 同样使用16进制输出程序计数器(pc)，假设pc也是32位
     printf("pc = 0x%08x\n", (uint32_t)cpu.pc);
 }

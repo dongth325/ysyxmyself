@@ -32,11 +32,11 @@ static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #include <stdio.h>
 
 void mtrace_read(paddr_t addr, int len, word_t data) {
-    printf("MTRACE: Read %d bytes from 0x%x, data = 0x%x from (void mtrace_read)\n", len, addr, data);
+   // printf("MTRACE: Read %d bytes from 0x%x, data = 0x%x from (void mtrace_read)\n", len, addr, data);
 }
 
 void mtrace_write(paddr_t addr, int len, word_t data) {
-    printf("MTRACE: Write %d bytes to 0x%x, data = 0x%x from (void mtrace_write)\n", len, addr, data);
+    //printf("MTRACE: Write %d bytes to 0x%x, data = 0x%x from (void mtrace_write)\n", len, addr, data);
 }
 #endif
 
@@ -59,10 +59,10 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
   host_write(guest_to_host(addr), len, data);
 }
 
-static void out_of_bound(paddr_t addr) {
+/*static void out_of_bound(paddr_t addr) {
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
       addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
-}
+}*/     //npc difftest的时候nemu设备device不能开启 要把这一部分判定注释掉 才能跑diff
 
 void init_mem() {
 #if   defined(CONFIG_PMEM_MALLOC)
@@ -89,7 +89,7 @@ word_t paddr_read(paddr_t addr, int len) {
    // printf("aaaaaaaaaa from (word_t paddr_read)\n");
     IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
    // printf("bbbbbbbbbbbbbbb from (word_t paddr_read)\n");
-    out_of_bound(addr);
+    //out_of_bound(addr);//npc difftest的时候nemu设备device不能开启 要把这一部分判定注释掉 才能跑diffdddddddddddddddddd
     //printf("cccccccccccccccc from (word_t paddr_read)\n");
     return 0;
   }
@@ -104,7 +104,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     pmem_write(addr, len, data);
   } else {
     IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
-    out_of_bound(addr);
+    //out_of_bound(addr);//npc difftest的时候nemu设备device不能开启 要把这一部分判定注释掉 才能跑diffddddddddddddddddddd
     return;
   }
 #ifdef CONFIG_MTRACE

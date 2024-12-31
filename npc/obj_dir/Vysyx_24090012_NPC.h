@@ -78,6 +78,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_24090012_NPC VL_NOT_FINAL : public Veri
     const char* name() const;
 
     /// DPI Export functions
+    static int get_csr_reg_value(int csr_reg_index);
     static int get_reg_value(int reg_index);
 
     // Abstract methods from VerilatedModel

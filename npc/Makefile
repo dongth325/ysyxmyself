@@ -1,5 +1,5 @@
 # 定义 Verilog 文件和生成的可执行文件
-VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v
+VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v vsrc/csr.v
 CSRC = csrc/main.cpp csrc/difftest_loader.cpp
 
 TOP = ysyx_24090012_NPC
@@ -24,8 +24,8 @@ CXXFLAGS += -D__GUEST_ISA__=$(GUEST_ISA)#原本在nemu的makefile中定义guest_
 VERILATOR = verilator
 VERILATOR_FLAGS = --cc $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
 	--sv \
-    -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA)"#changed
-
+    -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA)" \
+	-LDFLAGS "-lreadline -lhistory"  # 直接添加 -lreadline -lhistory 到 LDFLAGS
 
 
 
@@ -40,10 +40,14 @@ sim: $(EXE)
 
    # 默认目标
 all: sim
-# 生成可执行文件
+# 添加对 readline 和 history 库的链接
+LDFLAGS += -lreadline -lhistory
+
+# 生成可执行文件时包含 LDFLAGS
 $(EXE):
 	$(VERILATOR) $(VERILATOR_FLAGS)
-	make -C obj_dir -f V$(TOP).mk
+	make -C obj_dir -f V$(TOP).mk LDFLAGS="$(LDFLAGS)" EXTRACXXFLAGS="$(LDFLAGS)"
+
 
 # 运行仿真并传递镜像
 run: $(EXE)

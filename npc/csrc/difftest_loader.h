@@ -23,6 +23,13 @@ extern difftest_memcpy_t difftest_memcpy;
 extern difftest_regcpy_t difftest_regcpy;
 extern difftest_exec_t difftest_exec;
 
+
+extern "C" void difftest_skip_ref();//add difftest skip
+extern "C" void difftest_skip_dut(int nr_ref, int nr_dut);//add difftest skip
+extern "C" void difftest_step(Vysyx_24090012_NPC *top,uint32_t pc, uint32_t npc);//add difftest skip
+
+
+
 void load_difftest_library();
 void get_dut_cpu_state(Vysyx_24090012_NPC *top, CPU_state *dut_cpu_state);
 bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref);

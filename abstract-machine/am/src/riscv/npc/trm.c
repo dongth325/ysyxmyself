@@ -13,8 +13,12 @@ Area heap = RANGE(&_heap_start, PMEM_END);
 #define MAINARGS ""
 #endif
 static const char mainargs[] = MAINARGS;
+static inline void outb(uintptr_t addr, uint8_t  data) { *(volatile uint8_t  *)addr = data; }//ddddddddddddddddddd
+#define DEVICE_BASE     0xa0000000//ddddddddddddddddddddddd
+#define SERIAL_PORT     (DEVICE_BASE + 0x00003f8)//dddddddddddddddddddddd
 
 void putch(char ch) {
+   outb(SERIAL_PORT, ch);
 }
 
 void halt(int code) {
