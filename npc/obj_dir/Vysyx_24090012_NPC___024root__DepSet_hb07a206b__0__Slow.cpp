@@ -12,14 +12,33 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___eval_static(Vysyx_24090012_NPC_
     auto &vlSelfRef = std::ref(*vlSelf).get();
 }
 
+VL_ATTR_COLD void Vysyx_24090012_NPC___024root___eval_initial__TOP(Vysyx_24090012_NPC___024root* vlSelf);
+
 VL_ATTR_COLD void Vysyx_24090012_NPC___024root___eval_initial(Vysyx_24090012_NPC___024root* vlSelf) {
     (void)vlSelf;  // Prevent unused variable warning
     Vysyx_24090012_NPC__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___eval_initial\n"); );
     auto &vlSelfRef = std::ref(*vlSelf).get();
     // Body
+    Vysyx_24090012_NPC___024root___eval_initial__TOP(vlSelf);
+    vlSelfRef.__Vm_traceActivity[4U] = 1U;
+    vlSelfRef.__Vm_traceActivity[3U] = 1U;
+    vlSelfRef.__Vm_traceActivity[2U] = 1U;
+    vlSelfRef.__Vm_traceActivity[1U] = 1U;
+    vlSelfRef.__Vm_traceActivity[0U] = 1U;
     vlSelfRef.__Vtrigprevexpr___TOP__clk__0 = vlSelfRef.clk;
     vlSelfRef.__Vtrigprevexpr___TOP__rst__0 = vlSelfRef.rst;
+}
+
+VL_ATTR_COLD void Vysyx_24090012_NPC___024root___eval_initial__TOP(Vysyx_24090012_NPC___024root* vlSelf) {
+    (void)vlSelf;  // Prevent unused variable warning
+    Vysyx_24090012_NPC__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___eval_initial__TOP\n"); );
+    auto &vlSelfRef = std::ref(*vlSelf).get();
+    // Body
+    vlSelfRef.ysyx_24090012_NPC__DOT__csr_wen = 0U;
+    vlSelfRef.ysyx_24090012_NPC__DOT__csr_wdata = 0U;
+    vlSelfRef.ysyx_24090012_NPC__DOT__csr_addr = 0U;
 }
 
 VL_ATTR_COLD void Vysyx_24090012_NPC___024root___eval_final(Vysyx_24090012_NPC___024root* vlSelf) {
@@ -88,6 +107,7 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___eval_stl(Vysyx_24090012_NPC___0
     // Body
     if ((1ULL & vlSelfRef.__VstlTriggered.word(0U))) {
         Vysyx_24090012_NPC___024root___ico_sequent__TOP__0(vlSelf);
+        vlSelfRef.__Vm_traceActivity[4U] = 1U;
         vlSelfRef.__Vm_traceActivity[3U] = 1U;
         vlSelfRef.__Vm_traceActivity[2U] = 1U;
         vlSelfRef.__Vm_traceActivity[1U] = 1U;
@@ -190,6 +210,9 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___ctor_var_reset(Vysyx_24090012_N
     vlSelf->ysyx_24090012_NPC__DOT__rs2_data = VL_RAND_RESET_I(32);
     vlSelf->ysyx_24090012_NPC__DOT__result = VL_RAND_RESET_I(32);
     vlSelf->ysyx_24090012_NPC__DOT__next_pc = VL_RAND_RESET_I(32);
+    vlSelf->ysyx_24090012_NPC__DOT__csr_addr3 = VL_RAND_RESET_I(12);
+    vlSelf->ysyx_24090012_NPC__DOT__csr_wdata3 = VL_RAND_RESET_I(32);
+    vlSelf->ysyx_24090012_NPC__DOT__csr_wen3 = VL_RAND_RESET_I(1);
     vlSelf->ysyx_24090012_NPC__DOT__csr_addr1 = VL_RAND_RESET_I(12);
     vlSelf->ysyx_24090012_NPC__DOT__csr_wdata1 = VL_RAND_RESET_I(32);
     vlSelf->ysyx_24090012_NPC__DOT__csr_wen1 = VL_RAND_RESET_I(1);
@@ -215,7 +238,7 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___ctor_var_reset(Vysyx_24090012_N
     vlSelf->__VdlySet__ysyx_24090012_NPC__DOT__regfile__DOT__rf__v0 = 0;
     vlSelf->__Vtrigprevexpr___TOP__clk__0 = VL_RAND_RESET_I(1);
     vlSelf->__Vtrigprevexpr___TOP__rst__0 = VL_RAND_RESET_I(1);
-    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
+    for (int __Vi0 = 0; __Vi0 < 5; ++__Vi0) {
         vlSelf->__Vm_traceActivity[__Vi0] = 0;
     }
 }

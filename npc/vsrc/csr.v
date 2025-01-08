@@ -10,6 +10,9 @@ module ysyx_24090012_CSR (
     input [11:0] csr_addr2,
   input [31:0] csr_wdata2,
   input csr_wen2,
+   input [11:0] csr_addr3,
+  input [31:0] csr_wdata3,
+  input csr_wen3,
   output reg [31:0] csr_rdata,
   
   // CSR寄存器
@@ -69,6 +72,17 @@ export "DPI-C" function get_csr_reg_value;
         MTVEC:   mtvec   <= csr_wdata2;
         MEPC:    mepc    <= csr_wdata2;
         MCAUSE:  mcause  <= csr_wdata2;
+         default: ; 
+      endcase
+        //$display("csr_wdata2 = %08x",csr_wdata2);
+        //$display("mepc = %08x",mepc);
+    end
+    if (csr_wen3) begin
+      case (csr_addr3)
+        MSTATUS: mstatus <= csr_wdata3;
+        MTVEC:   mtvec   <= csr_wdata3;
+        MEPC:    mepc    <= csr_wdata3;
+        MCAUSE:  mcause  <= csr_wdata3;
          default: ; 
       endcase
         //$display("csr_wdata2 = %08x",csr_wdata2);

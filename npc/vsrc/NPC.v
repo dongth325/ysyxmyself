@@ -19,6 +19,9 @@ module ysyx_24090012_NPC(
   wire [31:0] inst;
 
     // CSR相关信号
+reg [11:0] csr_addr3;
+reg [31:0] csr_wdata3;
+reg csr_wen3;
 reg [11:0] csr_addr1;
 reg [31:0] csr_wdata1;
 reg csr_wen1;
@@ -86,6 +89,9 @@ wire [31:0] mcause;
    .csr_addr2(csr_addr2),
   .csr_wdata2(csr_wdata2),
   .csr_wen2(csr_wen2),
+  .csr_addr3(csr_addr3),
+  .csr_wdata3(csr_wdata3),
+  .csr_wen3(csr_wen3),
   .csr_rdata(csr_rdata),
   .mstatus(mstatus),
   .mtvec(mtvec),
@@ -114,6 +120,10 @@ wire [31:0] mcause;
     csr_addr2 = 12'b0;
     csr_wdata2 = 32'b0;
     csr_wen2 = 1'b0;
+
+    csr_addr3 = 12'b0;
+    csr_wdata3 = 32'b0;
+    csr_wen3 = 1'b0;
 mstatus_new = mstatus; // 为 mstatus_new 赋予默认值，避免锁存器
 
             if (is_ecall) begin//csr csr csr cssr csr
@@ -129,29 +139,26 @@ mstatus_new = mstatus; // 为 mstatus_new 赋予默认值，避免锁存器
       csr_wdata1 = 32'd17;        // ECALL 的原因码（根据需求调整）
       csr_wen1 = 1;                      // 使能写入
        
-           end  else if (is_mret) begin
-    // 设置 csr_addr 为 MSTATUS 地址，以便读取当前的 mstatus
-    csr_addr  = 12'h300; // MSTATUS 地址
+           end   else if (is_mret) begin
+            // 处理 MRET
+            // 直接访问 mstatus 寄存器，并根据逻辑修改 mstatus_new
+          
+            if ((mstatus_new & 32'h80) != 0) begin
+                mstatus_new = mstatus_new | 32'h8;    // 设置 MPIE 位（位 3）
+            end 
+            else begin
+                mstatus_new = mstatus_new & 32'hFFFFFFF7; // 清除 MPIE 位（位 3）
+            end
 
-    // 假设 csr_rdata 已经包含了当前的 mstatus 值
-    // 使用 csr_rdata 而不是直接访问 mstatus
-    mstatus_new = csr_rdata;
+            mstatus_new = mstatus_new | 32'h80;       // 设置 MIE 位（位 7）
+            mstatus_new = mstatus_new & 32'hFFFFE7FF; // 根据掩码清除特定位
 
-    // 应用 mret 指令的逻辑
-    if ((mstatus_new & 32'h80) != 0) begin
-        mstatus_new = mstatus_new | 32'h8;    // 设置 MPIE 位（位 3）
-    end 
-    else begin
-        mstatus_new = mstatus_new & 32'hFFFFFFF7; // 清除 MPIE 位（位 3）
-    end
-
-    mstatus_new = mstatus_new | 32'h80;       // 设置 MIE 位（位 7）
-    mstatus_new = mstatus_new & 32'hFFFFE7FF; // 根据掩码清除特定位
-
-    // 将修改后的 mstatus 写回 CSR
-    csr_wdata = mstatus_new;
-    csr_wen   = 1'b1; // 启用写入
-end   /*else begin 
+            // 将修改后的 mstatus 写回 CSR
+            csr_addr3 = 12'h300;
+            csr_wdata3 = mstatus_new;
+            csr_wen3   = 1'b1; // 启用写入
+        end
+        /*else begin 
             // 默认情况，防止锁存器推断
             csr_addr  = 12'b0;
             csr_wdata = 32'b0;
