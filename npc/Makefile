@@ -24,8 +24,8 @@ CXXFLAGS += -D__GUEST_ISA__=$(GUEST_ISA)#原本在nemu的makefile中定义guest_
 VERILATOR = verilator
 VERILATOR_FLAGS = --cc $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
 	--sv \
-    -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA)" \
-	-LDFLAGS "-lreadline -lhistory"  # 直接添加 -lreadline -lhistory 到 LDFLAGS
+    -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA) -g -o0" \
+	-LDFLAGS "-lreadline -lhistory -g -o0"  # 直接添加 -lreadline -lhistory 到 LDFLAGS
 
 
 
@@ -46,7 +46,7 @@ LDFLAGS += -lreadline -lhistory
 # 生成可执行文件时包含 LDFLAGS
 $(EXE):
 	$(VERILATOR) $(VERILATOR_FLAGS)
-	make -C obj_dir -f V$(TOP).mk LDFLAGS="$(LDFLAGS)" EXTRACXXFLAGS="$(LDFLAGS)"
+	make -C obj_dir -f V$(TOP).mk LDFLAGS="$(LDFLAGS)" EXTRACXXFLAGS="$(LDFLAGS) -g -o0"
 
 
 # 运行仿真并传递镜像
