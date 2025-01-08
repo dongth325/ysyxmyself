@@ -55,7 +55,7 @@ run: $(EXE)
 
 # GDB 调试目标
 gdb: $(EXE)
-	$(NPC_EXEC) --gdb $(IMG) $(ARGS)
+	gdb -s ./obj_dir/$(EXE) --args ./obj_dir/$(EXE) $(IMG) $(ARGS)
 
 # 清理生成的文件
 clean:
