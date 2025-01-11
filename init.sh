@@ -38,13 +38,6 @@ function init() {
   fi
 }
 
-# Initialize RT-Thread
-function init_rtthread() {
-  if [ ! -d rt-thread ]; then
-    git clone -b am https://github.com/RT-Thread/rt-thread.git
-  fi
-}
-
 case $1 in
   nemu)
     init NJU-ProjectN/nemu ysyx2204 nemu true NEMU_HOME
