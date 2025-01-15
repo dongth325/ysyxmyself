@@ -309,10 +309,10 @@ void exec_once(NpcState *s) {
     s->pc = s->top->pc;
 
      //执行 DiffTest
-    difftest_exec(1);
+    //difftest_exec(1);
 
 
-    difftest_step(s->top, pc, s->pc);
+    //difftest_step(s->top, pc, s->pc);
 
     //获取 DUT 和 REF 的 CPU 状态                    
   /*  CPU_state dut_cpu_state;                            //以下被纳入到difftest_step里!!!!!!
@@ -376,12 +376,12 @@ int main(int argc, char **argv) {
     trace->open("npc_trace.vcd");*/
 
     // 初始化 DiffTest
-    load_difftest_library();
-    difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
+   // load_difftest_library();
+   // difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
 
-    CPU_state cpu_state = {0};
-    cpu_state.pc = PROGRAM_START_ADDRESS;
-   difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
+  //  CPU_state cpu_state = {0};
+  //  cpu_state.pc = PROGRAM_START_ADDRESS;
+   //difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
 
     // 复位 DUT
     top->rst = 1;
