@@ -340,10 +340,10 @@ VL_INLINE_OPT void Vysyx_24090012_NPC___024root___ico_sequent__TOP__0(Vysyx_2409
                                                   : 
                                                  (((7U 
                                                     == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__func3)) 
-                                                   & (0x20U 
+                                                   & (0xffU 
                                                       == 
                                                       (vlSelfRef.mem_data 
-                                                       >> 0x19U)))
+                                                       >> 0x14U)))
                                                    ? 0xfU
                                                    : 
                                                   (((5U 

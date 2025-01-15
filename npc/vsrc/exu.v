@@ -1,31 +1,28 @@
 module ysyx_24090012_EXU(
-    input clk,  // 添加时钟输入
+  input clk,  // 添加时钟输入
   input [31:0] pc,
   input [31:0] rs1_data,
   input [31:0] rs2_data,
   input [31:0] imm,
   input [5:0] alu_op,
-    input [31:0] mtvec,//csr csr
-    input [31:0] mepc,//csr csr
+  input [31:0] mtvec,//csr csr
+  input [31:0] mepc,//csr csr
   output reg [31:0] result,
   input [31:0] csr_rdata,//csr csr csr csr
-output reg [31:0] csr_wdata,//csr csr csr csr
-output reg csr_wen,//csr csr csr csr
-
+  output reg [31:0] csr_wdata,//csr csr csr csr
+  output reg csr_wen,//csr csr csr csr
   output reg [31:0] next_pc
 );
  import "DPI-C" function void pmem_write(input int addr, input int data, input int mask);
  import "DPI-C" function int pmem_read(input int addr);
 
-  
-    always @(next_pc) begin
-     // $display("next_pc change to = 0x%08x", $time, next_pc);
-    end
     always @(posedge clk) begin
-      
+        //always @(*) begin
+    // $display("\n[Time %t] EXU: entering clock edge", $time);
+   // $display("Current PC = %h, alu_op = %b", pc, alu_op);
     // 初始化默认值，防止锁存器推断
     result = 32'b0;
-   // $display("At time %t: exu touch before PC = 0x%08x", $time, pc);
+  
      // 根据 alu_op 判断是否需要在 case 中单独赋值 next_pc
     if (alu_op == 6'b000011 || alu_op == 6'b000100 || alu_op == 6'b000110 || alu_op == 6'b000111 || alu_op == 6'b110010) begin
       // 对于需要单独处理的指令，在 case 中赋值 next_pc
@@ -124,6 +121,10 @@ output reg csr_wen,//csr csr csr csr
     6'b001111: begin
     // ZEXT.B (Zero Extend Byte)
     result = {24'b0, rs1_data[7:0]};  // 提取 rs1_data 的最低 8 位，并将其扩展为 32 位
+     //$display("ANDI operation:11111111");
+        //    $display("rs1_data = %h", rs1_data);
+         //   $display("imm = %h", imm);
+         //   $display("result = %h", result);
     end
     6'b010000: begin
     // AND (R-type)
@@ -142,6 +143,10 @@ output reg csr_wen,//csr csr csr csr
     6'b010011: begin
   // ANDI (按位与立即数)
   result = rs1_data & imm;
+         //$display("ANDI operation:");
+        //    $display("rs1_data = %h", rs1_data);    // 应该是 0x43
+         //   $display("imm = %h", imm);              // 应该是 0x400
+          //  $display("result = %h", rs1_data & imm);// 应该是 0x0
     end 6'b010100: begin
     // OR (R-type)
     result = rs1_data | rs2_data;

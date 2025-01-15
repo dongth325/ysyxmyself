@@ -24,9 +24,9 @@ extern "C" {
     // DPI IMPORTS
     // DPI import at vsrc/NPC.v:9:32
     extern void ebreak(int exit_code);
-    // DPI import at vsrc/exu.v:18:30
+    // DPI import at vsrc/exu.v:17:30
     extern int pmem_read(int addr);
-    // DPI import at vsrc/exu.v:17:31
+    // DPI import at vsrc/exu.v:16:31
     extern void pmem_write(int addr, int data, int mask);
 
 #ifdef __cplusplus

@@ -111,7 +111,8 @@ end
         
         end else if (func3 == 3'b100) begin
       alu_op = 6'b001110;  // XORI
-    end else if (func3 == 3'b111 && inst[31:25] == 7'b0100000) begin
+    //end else if (func3 == 3'b111 && inst[31:25] == 7'b0100000) begin
+   end else if (func3 == 3'b111 && inst[31:20] == 12'b000011111111) begin
         alu_op = 6'b001111;  // ZEXT.B  注意  若都不匹配的情况alu_op也是001111 注意不要弄混
     end else if (func3 == 3'b101 && func7 == 7'b0100000) begin
   alu_op = 6'b010001;  // SRAI

@@ -288,10 +288,10 @@ void exec_once(NpcState *s) {
         exit(1);
     }
 
-    // 模拟一个时钟周期（上升沿和下降沿）
+    // 一个时钟周期
     s->top->clk = 1;
     s->top->eval();
-    // 可在此添加跟踪代码
+    
     s->top->clk = 0;
     s->top->eval();
 
@@ -315,7 +315,7 @@ void exec_once(NpcState *s) {
     difftest_step(s->top, pc, s->pc);
 
     //获取 DUT 和 REF 的 CPU 状态                    
-    CPU_state dut_cpu_state;                            //以下被纳入到difftest_step里!!!!!!
+  /*  CPU_state dut_cpu_state;                            //以下被纳入到difftest_step里!!!!!!
     get_dut_cpu_state(s->top, &dut_cpu_state);
 
    CPU_state ref_cpu_state;
@@ -325,8 +325,8 @@ void exec_once(NpcState *s) {
 if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
         std::cerr << "Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
          std::cout << "old instruction: 0x" << std::hex << inst << std::dec << std::endl;
-        exit(1);
-    }
+       // exit(1);
+    }*/
 }
 
 // 执行多条指令的函数（类似于 NEMU 的 execute）
@@ -385,7 +385,7 @@ int main(int argc, char **argv) {
 
     // 复位 DUT
     top->rst = 1;
-    top->clk = 0;
+   // top->clk = 0;
 
     // 施加复位信号若干周期
     for (int i = 0; i < 5; i++) {
@@ -401,15 +401,15 @@ int main(int argc, char **argv) {
     }
 
     // 释放复位信号
-    top->rst = 0;
+   top->rst = 0;
     top->eval();
 
     // 初始化仿真状态
-    NpcState npc_state;
+   /* NpcState npc_state;
     npc_state.top = top;
     npc_state.inst_count = 0;
     npc_state.ebreak_encountered = false;
-    npc_state.pc = PROGRAM_START_ADDRESS;
+    npc_state.pc = PROGRAM_START_ADDRESS;*/
 
      sdb_mainloop();  //dddddddddddddddddddd
 
