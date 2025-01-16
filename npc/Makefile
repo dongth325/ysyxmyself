@@ -43,20 +43,46 @@ WAVE_FILE = $(abspath $(BUILD_DIR)/wave.vcd)#ddddddddd
 # 仿真目标：编译和执行
 sim: $(EXE)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$(NPC_EXEC)
-	@echo "Running simulation..."
-	@cd $(BUILD_DIR) && $(NPC_EXEC) $(IMG)
-	@echo "Wave file generated at: $(WAVE_FILE)"
+#	$(NPC_EXEC)
+	@if [ ! -z "$(IMG)" ]; then \
+	echo "$(IMG)" > $(LAST_RUN_FILE); \
+	fi
+	@if [ -f $(LAST_RUN_FILE) ]; then \
+	IMG_PATH=$$(cat $(LAST_RUN_FILE)); \
+	echo "Running simulation with $$IMG_PATH"; \
+	$(NPC_EXEC) $$IMG_PATH; \
+	else \
+	echo "Error: No program specified. Please run with IMG=path/to/program.bin first"; \
+	exit 1; \
+	fi
 
 
-wave: sim
+# 修改 wave 目标
+wave:
+	@if [ ! -f $(WAVE_FILE) ]; then \
+	if [ -f $(LAST_RUN_FILE) ]; then \
+	make sim; \
+	else \
+	echo "Error: No previous run found. Please run with IMG=path/to/program.bin first"; \
+	exit 1; \
+	fi; \
+	fi
 	@if [ -f $(WAVE_FILE) ]; then \
+	echo "Opening waveform viewer..."; \
 	gtkwave $(WAVE_FILE); \
 	else \
 	echo "Error: Wave file not found at $(WAVE_FILE)"; \
 	fi
 
-.PHONY: sim wave
+# 添加一个显示最近运行程序的目标
+show-last:
+	@if [ -f $(LAST_RUN_FILE) ]; then \
+	echo "Last run program: $$(cat $(LAST_RUN_FILE))"; \
+	else \
+	echo "No previous run recorded"; \
+	fi
+
+.PHONY: sim wave show-last
 
    # 默认目标
 all: sim
