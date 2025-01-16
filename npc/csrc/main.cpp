@@ -21,6 +21,11 @@ size_t program_size = 0;
 #define MEM_BASE 0x80000000
 extern "C" int get_reg_value(int reg_index);
 
+
+static VerilatedVcdC* tfp = nullptr;
+static vluint64_t main_time = 0;
+
+
 // 定义仿真状态结构体
 struct NpcState {
     Vysyx_24090012_NPC *top;
@@ -28,6 +33,8 @@ struct NpcState {
     bool ebreak_encountered;
     uint32_t pc;
 };
+NpcState npc_state;
+
   
 struct Command {
     const char *name;
@@ -35,8 +42,7 @@ struct Command {
     int (*handler)(char *args);
 };
 
-// 全局变量 npc_state 声明
-NpcState npc_state;
+
 
 // 函数声明
 void execute(NpcState *s, uint64_t n);
@@ -86,6 +92,11 @@ int cmd_si(char *args) {
 int cmd_q(char *args) {
     std::cout << "Exiting simulation." << std::endl;
     is_running = false; // 停止 sdb_mainloop
+
+     if (tfp) {
+        tfp->close();
+       delete tfp;
+   }
     return -1;
 }
 
@@ -291,9 +302,11 @@ void exec_once(NpcState *s) {
     // 一个时钟周期
     s->top->clk = 1;
     s->top->eval();
-    
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
     s->top->clk = 0;
     s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
 
     // 更新指令计数
     s->inst_count++;
@@ -333,6 +346,8 @@ if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
 void execute(NpcState *s, uint64_t n) {
     for (uint64_t i = 0; i < n; i++) {
         exec_once(s);
+        // tfp->dump(main_time);  // 记录波形
+     // main_time++;           // 更新时间
         if (s->ebreak_encountered) {
           
             break;
@@ -365,15 +380,20 @@ int main(int argc, char **argv) {
 
         // 设置 npc_state 的初始值
     npc_state.top = top;
-    npc_state.inst_count = 0;
-    npc_state.ebreak_encountered = false;
+   npc_state.inst_count = 0;
+   npc_state.ebreak_encountered = false;
     npc_state.pc = PROGRAM_START_ADDRESS;
 
-    // 初始化波形追踪
+    // 初始化波形追踪   原来的。。。。。。
    /* VerilatedVcdC *trace = new VerilatedVcdC;
     Verilated::traceEverOn(true);
     top->trace(trace, 99);
     trace->open("npc_trace.vcd");*/
+
+       Verilated::traceEverOn(true);
+    VerilatedVcdC* tfp = new VerilatedVcdC;
+    top->trace(tfp, 99);  // 99 是追踪的层级深度
+    tfp->open("wave.vcd");  // 指定波形文件名
 
     // 初始化 DiffTest
     load_difftest_library();
@@ -385,6 +405,7 @@ int main(int argc, char **argv) {
 
     // 复位 DUT
     top->rst = 1;
+   
    // top->clk = 0;
 
     // 施加复位信号若干周期
@@ -402,7 +423,7 @@ int main(int argc, char **argv) {
 
     // 释放复位信号
    top->rst = 0;
-    top->eval();
+   // top->eval();
 
     // 初始化仿真状态
    /* NpcState npc_state;
@@ -422,6 +443,8 @@ int main(int argc, char **argv) {
     top->final();
     delete top;
     delete[] memory;
+   
+
     //trace->close();
 
     return 0;
