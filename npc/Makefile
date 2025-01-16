@@ -33,10 +33,30 @@ VERILATOR_FLAGS = --cc $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
 # 定义 NPC 仿真器的可执行文件路径
 NPC_EXEC = ./obj_dir/$(EXE)
 
+
+
+
+# 在原有 Makefile 基础上添加
+WAVE_FILE = $(abspath $(BUILD_DIR)/wave.vcd)#ddddddddd
+
+
 # 仿真目标：编译和执行
 sim: $(EXE)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$(NPC_EXEC) 
+	$(NPC_EXEC)
+	@echo "Running simulation..."
+	@cd $(BUILD_DIR) && $(NPC_EXEC) $(IMG)
+	@echo "Wave file generated at: $(WAVE_FILE)"
+
+
+wave: sim
+	@if [ -f $(WAVE_FILE) ]; then \
+	gtkwave $(WAVE_FILE); \
+	else \
+	echo "Error: Wave file not found at $(WAVE_FILE)"; \
+	fi
+
+.PHONY: sim wave
 
    # 默认目标
 all: sim
