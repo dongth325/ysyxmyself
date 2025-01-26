@@ -65,22 +65,26 @@ void Vysyx_24090012_NPC___024root____Vdpiexp_ysyx_24090012_NPC__DOT__csr__DOT__g
     }
 }
 
-#ifdef VL_DEBUG
-VL_ATTR_COLD void Vysyx_24090012_NPC___024root___dump_triggers__ico(Vysyx_24090012_NPC___024root* vlSelf);
-#endif  // VL_DEBUG
-
-void Vysyx_24090012_NPC___024root___eval_triggers__ico(Vysyx_24090012_NPC___024root* vlSelf) {
-    (void)vlSelf;  // Prevent unused variable warning
-    Vysyx_24090012_NPC__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___eval_triggers__ico\n"); );
-    auto &vlSelfRef = std::ref(*vlSelf).get();
+VL_INLINE_OPT void Vysyx_24090012_NPC___024root____Vdpiimwrap_ysyx_24090012_NPC__DOT__sram__DOT__pmem_read_TOP(IData/*31:0*/ raddr, IData/*31:0*/ &pmem_read__Vfuncrtn) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root____Vdpiimwrap_ysyx_24090012_NPC__DOT__sram__DOT__pmem_read_TOP\n"); );
     // Body
-    vlSelfRef.__VicoTriggered.set(0U, (IData)(vlSelfRef.__VicoFirstIteration));
-#ifdef VL_DEBUG
-    if (VL_UNLIKELY(vlSymsp->_vm_contextp__->debug())) {
-        Vysyx_24090012_NPC___024root___dump_triggers__ico(vlSelf);
-    }
-#endif
+    int raddr__Vcvt;
+    for (size_t raddr__Vidx = 0; raddr__Vidx < 1; ++raddr__Vidx) raddr__Vcvt = raddr;
+    int pmem_read__Vfuncrtn__Vcvt;
+    pmem_read__Vfuncrtn__Vcvt = pmem_read(raddr__Vcvt);
+    pmem_read__Vfuncrtn = pmem_read__Vfuncrtn__Vcvt;
+}
+
+VL_INLINE_OPT void Vysyx_24090012_NPC___024root____Vdpiimwrap_ysyx_24090012_NPC__DOT__sram__DOT__pmem_write_TOP(IData/*31:0*/ waddr, IData/*31:0*/ wdata, IData/*31:0*/ wmask) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root____Vdpiimwrap_ysyx_24090012_NPC__DOT__sram__DOT__pmem_write_TOP\n"); );
+    // Body
+    int waddr__Vcvt;
+    for (size_t waddr__Vidx = 0; waddr__Vidx < 1; ++waddr__Vidx) waddr__Vcvt = waddr;
+    int wdata__Vcvt;
+    for (size_t wdata__Vidx = 0; wdata__Vidx < 1; ++wdata__Vidx) wdata__Vcvt = wdata;
+    int wmask__Vcvt;
+    for (size_t wmask__Vidx = 0; wmask__Vidx < 1; ++wmask__Vidx) wmask__Vcvt = wmask;
+    pmem_write(waddr__Vcvt, wdata__Vcvt, wmask__Vcvt);
 }
 
 #ifdef VL_DEBUG
@@ -93,12 +97,12 @@ void Vysyx_24090012_NPC___024root___eval_triggers__act(Vysyx_24090012_NPC___024r
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___eval_triggers__act\n"); );
     auto &vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    vlSelfRef.__VactTriggered.set(0U, (((IData)(vlSelfRef.clk) 
+    vlSelfRef.__VactTriggered.set(0U, ((IData)(vlSelfRef.clk) 
+                                       & (~ (IData)(vlSelfRef.__Vtrigprevexpr___TOP__clk__0))));
+    vlSelfRef.__VactTriggered.set(1U, (((IData)(vlSelfRef.clk) 
                                         & (~ (IData)(vlSelfRef.__Vtrigprevexpr___TOP__clk__0))) 
                                        | ((IData)(vlSelfRef.rst) 
                                           & (~ (IData)(vlSelfRef.__Vtrigprevexpr___TOP__rst__0)))));
-    vlSelfRef.__VactTriggered.set(1U, ((IData)(vlSelfRef.clk) 
-                                       & (~ (IData)(vlSelfRef.__Vtrigprevexpr___TOP__clk__0))));
     vlSelfRef.__Vtrigprevexpr___TOP__clk__0 = vlSelfRef.clk;
     vlSelfRef.__Vtrigprevexpr___TOP__rst__0 = vlSelfRef.rst;
 #ifdef VL_DEBUG

@@ -7,18 +7,17 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
   input [ADDR_WIDTH-1:0] waddr,
   input [DATA_WIDTH-1:0] wdata,
   input wen,
+  input  rd_valid, // 来自EXU的写请求
+  output reg  rd_ready,  // 写就绪信号 
   output [DATA_WIDTH-1:0] rdata1,
   output [DATA_WIDTH-1:0] rdata2
 );
  
-always @(*) begin
-    //  $display("At time %t: rigister touch PC = 0x%08x", $time, pc);
-    end
 
-
+  
 
   // 导出函数供C语言访问
-export "DPI-C" function get_reg_value;
+  export "DPI-C" function get_reg_value;
   reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
   // 读出数据
   assign rdata1 = (raddr1 == 5'b0) ? 32'b0 : rf[raddr1];
@@ -26,35 +25,31 @@ export "DPI-C" function get_reg_value;
       
 
   // 写数据
-  always @(posedge clk) begin
-    if (wen && waddr != 5'b0) begin
+  /*always @(posedge clk) begin
+    if (wen && rd_valid && rd_ready && waddr != 5'b0) begin
      // $display("At time %t: Writing to  (rf[%d]), old value = %h from (registerfile.v11111)", $time, waddr,rf[waddr]);
       rf[waddr] <= wdata;  // 忽略对x0寄存器的写操作
+ 
+    end
+  end*/
+    always @(posedge clk) begin
+        if (rst) begin
+            rd_ready <= 1;
+        end else if (rd_valid && rd_ready) begin
+            // 握手成功，写入数据并拉低ready
+            
+            if (waddr != 0) begin
+                rf[waddr] <= wdata;
+            end
+            rd_ready <= 0;  // 写入过程中拉低ready
+        end else if (!rd_ready) begin
+            // 写入已完成，重新拉高readys
+            rd_ready <= 1;
+        end
+    end
 
-      //  $display("At time %t: Writing to  (rf[%d]), new value = %h from (registerfile.v22222)", $time, waddr,wdata);
-       // $display("At time %t: Writing to  (rf[%d]), new value = %h from (registerfile.v22222)", $time, waddr,rf[waddr]);
-     // end
-     if(pc == 32'h80001324) begin
-      //  $display(" addr = %08x     wdata = %08x   rf[waddr] = %08x from (registerfile.v)",waddr,wdata,rf[waddr]);
-    end
-    if(pc == 32'h80001328) begin
-     //   $display(" addr =  %08x     wdata = %08x   rf[waddr] = %08x from (reginsterfile.v)",waddr,wdata,rf[waddr]);
-    end
-    if(pc == 32'h8000132c) begin
-       // $display(" addr =   %08x    wdata = %08x   rf[waddr] = %08x from (registerfile.v)",waddr,wdata,rf[waddr]);
-    end
-    end
-  end
 
-    // 调试语句：监控 raddr1 和 raddr2 的读取
-  always @(posedge clk) begin
-    if (raddr1 == 15) begin  // 当读取  寄存器时
-      //$display("At time %t: Reading from a (rf[15]), value = %h from (registerfile.v)", $time, rdata1);
-    end
-    if (raddr2 == 15) begin  // 当从 raddr2 读取  寄存器时
-      //$display("At time %t: Reading from a (rf[15]), value = %h", $time, rdata2);
-    end
-  end
+ 
 
  // 实现 get_reg0 函数以返回寄存器0的值
   function void get_reg0(output int reg0_value);
