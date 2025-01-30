@@ -71,22 +71,23 @@ void Vysyx_24090012_NPC___024root__trace_chg_0_sub_0(Vysyx_24090012_NPC___024roo
         bufp->chgBit(oldp+42,(vlSelfRef.ysyx_24090012_NPC__DOT__sram__DOT__state));
     }
     if (VL_UNLIKELY(vlSelfRef.__Vm_traceActivity[2U])) {
-        bufp->chgIData(oldp+43,(vlSelfRef.ysyx_24090012_NPC__DOT__mstatus),32);
-        bufp->chgIData(oldp+44,(vlSelfRef.ysyx_24090012_NPC__DOT__mtvec),32);
-        bufp->chgIData(oldp+45,(vlSelfRef.ysyx_24090012_NPC__DOT__mepc),32);
-        bufp->chgIData(oldp+46,(vlSelfRef.ysyx_24090012_NPC__DOT__mcause),32);
+        bufp->chgBit(oldp+43,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_rd_ready));
+        bufp->chgIData(oldp+44,(vlSelfRef.ysyx_24090012_NPC__DOT__mstatus),32);
+        bufp->chgIData(oldp+45,(vlSelfRef.ysyx_24090012_NPC__DOT__mtvec),32);
+        bufp->chgIData(oldp+46,(vlSelfRef.ysyx_24090012_NPC__DOT__mepc),32);
+        bufp->chgIData(oldp+47,(vlSelfRef.ysyx_24090012_NPC__DOT__mcause),32);
     }
     if (VL_UNLIKELY(vlSelfRef.__Vm_traceActivity[3U])) {
-        bufp->chgCData(oldp+47,(vlSelfRef.ysyx_24090012_NPC__DOT__rs1),5);
-        bufp->chgCData(oldp+48,(vlSelfRef.ysyx_24090012_NPC__DOT__rs2),5);
-        bufp->chgCData(oldp+49,(vlSelfRef.ysyx_24090012_NPC__DOT__opcode),7);
-        bufp->chgCData(oldp+50,(vlSelfRef.ysyx_24090012_NPC__DOT__func3),3);
-        bufp->chgCData(oldp+51,(vlSelfRef.ysyx_24090012_NPC__DOT__func7),7);
-        bufp->chgIData(oldp+52,(vlSelfRef.ysyx_24090012_NPC__DOT__imm),32);
-        bufp->chgCData(oldp+53,(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op),6);
-        bufp->chgIData(oldp+54,(vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data),32);
-        bufp->chgIData(oldp+55,(vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data),32);
-        bufp->chgBit(oldp+56,(((0x13U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
+        bufp->chgCData(oldp+48,(vlSelfRef.ysyx_24090012_NPC__DOT__rs1),5);
+        bufp->chgCData(oldp+49,(vlSelfRef.ysyx_24090012_NPC__DOT__rs2),5);
+        bufp->chgCData(oldp+50,(vlSelfRef.ysyx_24090012_NPC__DOT__opcode),7);
+        bufp->chgCData(oldp+51,(vlSelfRef.ysyx_24090012_NPC__DOT__func3),3);
+        bufp->chgCData(oldp+52,(vlSelfRef.ysyx_24090012_NPC__DOT__func7),7);
+        bufp->chgIData(oldp+53,(vlSelfRef.ysyx_24090012_NPC__DOT__imm),32);
+        bufp->chgCData(oldp+54,(vlSelfRef.ysyx_24090012_NPC__DOT__alu_op),6);
+        bufp->chgIData(oldp+55,(vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data),32);
+        bufp->chgIData(oldp+56,(vlSelfRef.ysyx_24090012_NPC__DOT__rs2_data),32);
+        bufp->chgBit(oldp+57,(((0x13U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
                                | ((0x37U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
                                   | ((0x17U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
                                      | ((0x73U == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
@@ -97,47 +98,48 @@ void Vysyx_24090012_NPC___024root__trace_chg_0_sub_0(Vysyx_24090012_NPC___024roo
                                                   == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)) 
                                                  | (3U 
                                                     == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__opcode)))))))))));
-        bufp->chgSData(oldp+57,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_addr3),12);
-        bufp->chgBit(oldp+58,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wen3));
-        bufp->chgSData(oldp+59,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_addr1),12);
-        bufp->chgIData(oldp+60,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wdata1),32);
-        bufp->chgBit(oldp+61,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wen1));
-        bufp->chgSData(oldp+62,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_addr2),12);
-        bufp->chgIData(oldp+63,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wdata2),32);
-        bufp->chgBit(oldp+64,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wen2));
-        bufp->chgSData(oldp+65,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_addr),12);
-        bufp->chgBit(oldp+66,(vlSelfRef.ysyx_24090012_NPC__DOT__is_ecall));
-        bufp->chgBit(oldp+67,(vlSelfRef.ysyx_24090012_NPC__DOT__is_mret));
+        bufp->chgSData(oldp+58,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_addr),12);
+        bufp->chgBit(oldp+59,(vlSelfRef.ysyx_24090012_NPC__DOT__is_ecall));
+        bufp->chgBit(oldp+60,(vlSelfRef.ysyx_24090012_NPC__DOT__is_mret));
     }
     if (VL_UNLIKELY(vlSelfRef.__Vm_traceActivity[4U])) {
-        bufp->chgIData(oldp+68,(vlSelfRef.ysyx_24090012_NPC__DOT__result),32);
-        bufp->chgIData(oldp+69,(vlSelfRef.ysyx_24090012_NPC__DOT__next_pc),32);
-        bufp->chgIData(oldp+70,(vlSelfRef.ysyx_24090012_NPC__DOT__mem_addr),32);
-        bufp->chgBit(oldp+71,(vlSelfRef.ysyx_24090012_NPC__DOT__sram_valid));
-        bufp->chgIData(oldp+72,(vlSelfRef.ysyx_24090012_NPC__DOT__mem_wdata),32);
-        bufp->chgCData(oldp+73,(vlSelfRef.ysyx_24090012_NPC__DOT__mem_wmask),4);
-        bufp->chgBit(oldp+74,(vlSelfRef.ysyx_24090012_NPC__DOT__mem_wen));
-        bufp->chgBit(oldp+75,(vlSelfRef.ysyx_24090012_NPC__DOT__idu_ready));
-        bufp->chgBit(oldp+76,(vlSelfRef.ysyx_24090012_NPC__DOT__pc_valid));
-        bufp->chgBit(oldp+77,(vlSelfRef.ysyx_24090012_NPC__DOT__mem_valid));
-        bufp->chgIData(oldp+78,(vlSelfRef.ysyx_24090012_NPC__DOT__rd_data),32);
-        bufp->chgBit(oldp+79,(vlSelfRef.ysyx_24090012_NPC__DOT__rd_valid));
-        bufp->chgIData(oldp+80,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wdata3),32);
-        bufp->chgIData(oldp+81,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wdata),32);
-        bufp->chgIData(oldp+82,(vlSelfRef.ysyx_24090012_NPC__DOT__mstatus_new),32);
-        bufp->chgIData(oldp+83,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_rdata),32);
-        bufp->chgBit(oldp+84,(vlSelfRef.ysyx_24090012_NPC__DOT__exu__DOT__next_state));
-        bufp->chgBit(oldp+85,(vlSelfRef.ysyx_24090012_NPC__DOT__lsu__DOT__next_state));
-        bufp->chgBit(oldp+86,(vlSelfRef.ysyx_24090012_NPC__DOT__sram__DOT__next_state));
+        bufp->chgIData(oldp+61,(vlSelfRef.ysyx_24090012_NPC__DOT__result),32);
+        bufp->chgIData(oldp+62,(vlSelfRef.ysyx_24090012_NPC__DOT__next_pc),32);
+        bufp->chgIData(oldp+63,(vlSelfRef.ysyx_24090012_NPC__DOT__mem_addr),32);
+        bufp->chgBit(oldp+64,(vlSelfRef.ysyx_24090012_NPC__DOT__sram_valid));
+        bufp->chgIData(oldp+65,(vlSelfRef.ysyx_24090012_NPC__DOT__mem_wdata),32);
+        bufp->chgCData(oldp+66,(vlSelfRef.ysyx_24090012_NPC__DOT__mem_wmask),4);
+        bufp->chgBit(oldp+67,(vlSelfRef.ysyx_24090012_NPC__DOT__mem_wen));
+        bufp->chgBit(oldp+68,(vlSelfRef.ysyx_24090012_NPC__DOT__idu_ready));
+        bufp->chgBit(oldp+69,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_rd_valid));
+        bufp->chgBit(oldp+70,(vlSelfRef.ysyx_24090012_NPC__DOT__pc_valid));
+        bufp->chgBit(oldp+71,(vlSelfRef.ysyx_24090012_NPC__DOT__mem_valid));
+        bufp->chgIData(oldp+72,(vlSelfRef.ysyx_24090012_NPC__DOT__rd_data),32);
+        bufp->chgBit(oldp+73,(vlSelfRef.ysyx_24090012_NPC__DOT__rd_valid));
+        bufp->chgSData(oldp+74,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_addr3),12);
+        bufp->chgIData(oldp+75,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wdata3),32);
+        bufp->chgBit(oldp+76,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wen3));
+        bufp->chgSData(oldp+77,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_addr1),12);
+        bufp->chgIData(oldp+78,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wdata1),32);
+        bufp->chgBit(oldp+79,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wen1));
+        bufp->chgSData(oldp+80,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_addr2),12);
+        bufp->chgIData(oldp+81,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wdata2),32);
+        bufp->chgBit(oldp+82,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wen2));
+        bufp->chgIData(oldp+83,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wdata),32);
+        bufp->chgIData(oldp+84,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_rdata),32);
+        bufp->chgBit(oldp+85,(vlSelfRef.ysyx_24090012_NPC__DOT__exu__DOT__next_state));
+        bufp->chgIData(oldp+86,(vlSelfRef.ysyx_24090012_NPC__DOT__exu__DOT__unnamedblk1__DOT__mstatus_new),32);
+        bufp->chgBit(oldp+87,(vlSelfRef.ysyx_24090012_NPC__DOT__lsu__DOT__next_state));
+        bufp->chgBit(oldp+88,(vlSelfRef.ysyx_24090012_NPC__DOT__sram__DOT__next_state));
     }
-    bufp->chgBit(oldp+87,(vlSelfRef.clk));
-    bufp->chgBit(oldp+88,(vlSelfRef.rst));
-    bufp->chgIData(oldp+89,(vlSelfRef.mem_data),32);
-    bufp->chgIData(oldp+90,(vlSelfRef.pc),32);
-    bufp->chgBit(oldp+91,(vlSelfRef.ebreak_flag));
-    bufp->chgIData(oldp+92,(vlSelfRef.exit_code),32);
-    bufp->chgBit(oldp+93,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wen));
-    bufp->chgBit(oldp+94,((1U & (~ ((IData)(vlSelfRef.clk) 
+    bufp->chgBit(oldp+89,(vlSelfRef.clk));
+    bufp->chgBit(oldp+90,(vlSelfRef.rst));
+    bufp->chgIData(oldp+91,(vlSelfRef.mem_data),32);
+    bufp->chgIData(oldp+92,(vlSelfRef.pc),32);
+    bufp->chgBit(oldp+93,(vlSelfRef.ebreak_flag));
+    bufp->chgIData(oldp+94,(vlSelfRef.exit_code),32);
+    bufp->chgBit(oldp+95,(vlSelfRef.ysyx_24090012_NPC__DOT__csr_wen));
+    bufp->chgBit(oldp+96,((1U & (~ ((IData)(vlSelfRef.clk) 
                                     | (IData)(vlSelfRef.rst))))));
 }
 

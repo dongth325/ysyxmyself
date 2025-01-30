@@ -29,6 +29,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_24090012_NPC___024root final : public V
         CData/*0:0*/ ysyx_24090012_NPC__DOT__sram_ready;
         CData/*0:0*/ ysyx_24090012_NPC__DOT__idu_valid;
         CData/*0:0*/ ysyx_24090012_NPC__DOT__idu_ready;
+        CData/*0:0*/ ysyx_24090012_NPC__DOT__csr_rd_valid;
+        CData/*0:0*/ ysyx_24090012_NPC__DOT__csr_rd_ready;
         CData/*0:0*/ ysyx_24090012_NPC__DOT__pc_valid;
         CData/*0:0*/ ysyx_24090012_NPC__DOT__pc_ready;
         CData/*0:0*/ ysyx_24090012_NPC__DOT__mem_valid;
@@ -78,10 +80,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_24090012_NPC___024root final : public V
         IData/*31:0*/ ysyx_24090012_NPC__DOT__csr_rdata;
         IData/*31:0*/ ysyx_24090012_NPC__DOT__mstatus;
         IData/*31:0*/ ysyx_24090012_NPC__DOT__mtvec;
-        IData/*31:0*/ ysyx_24090012_NPC__DOT__mepc;
-        IData/*31:0*/ ysyx_24090012_NPC__DOT__mcause;
     };
     struct {
+        IData/*31:0*/ ysyx_24090012_NPC__DOT__mepc;
+        IData/*31:0*/ ysyx_24090012_NPC__DOT__mcause;
+        IData/*31:0*/ ysyx_24090012_NPC__DOT__exu__DOT__unnamedblk1__DOT__mstatus_new;
         IData/*31:0*/ __VactIterCount;
         VlUnpacked<IData/*31:0*/, 32> ysyx_24090012_NPC__DOT__regfile__DOT__rf;
         VlUnpacked<CData/*0:0*/, 5> __Vm_traceActivity;

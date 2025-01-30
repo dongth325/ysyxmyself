@@ -17,7 +17,7 @@
 #ifndef VL_DPIDECL_get_csr_reg_value_
 #define VL_DPIDECL_get_csr_reg_value_
 int get_csr_reg_value(int csr_reg_index) {
-    // DPI export at vsrc/csr.v:104:14
+    // DPI export at vsrc/csr.v:136:14
     return Vysyx_24090012_NPC::get_csr_reg_value(csr_reg_index);
 }
 #endif

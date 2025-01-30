@@ -25,18 +25,39 @@ module ysyx_24090012_EXU(
    
     output reg        pc_valid,
     input            pc_ready,
+    
+    output reg        csr_rd_valid,
+    input            csr_rd_ready,
+
+
+    input [31:0] mtvec,
+    input [31:0] mepc,
+    input [31:0] mstatus,
+    input [31:0] mcause,
 
   input [31:0] rs1_data,
   input [31:0] rs2_data,
   input [31:0] imm,
   input [5:0] alu_op,
   input exec_enable,
-  input [31:0] mtvec,//csr csr
-  input [31:0] mepc,//csr csr
+ 
   output reg [31:0] result,
-  input [31:0] csr_rdata,//csr csr csr csr
-  output reg [31:0] csr_wdata,//csr csr csr csr
-  output reg csr_wen,//csr csr csr csr
+
+    input [31:0] csr_rdata,//csr csr csr csr
+
+    output reg [11:0] csr_addr,
+    output reg [31:0] csr_wdata,//csr csr csr csr
+    output reg csr_wen,//csr csr csr csr
+    output reg [11:0] csr_addr1,
+    output reg [31:0] csr_wdata1,
+    output reg csr_wen1,
+    output reg [11:0] csr_addr2,
+    output reg [31:0] csr_wdata2,
+    output reg csr_wen2,
+    output reg [11:0] csr_addr3,
+    output reg [31:0] csr_wdata3,
+    output reg csr_wen3,
+
   output reg [31:0] next_pc
 );
  import "DPI-C" function void pmem_write(input int addr, input int data, input int mask);
@@ -84,7 +105,24 @@ always @(*) begin
         rd_data = 0;
         rd_valid = 0;
         
-      
+              csr_addr = 12'h0;
+        csr_wdata = 32'h0;
+        csr_wen = 1'b0;
+        
+        csr_addr1 = 12'h0;
+        csr_wdata1 = 32'h0;
+        csr_wen1 = 1'b0;
+        
+        csr_addr2 = 12'h0;
+        csr_wdata2 = 32'h0;
+        csr_wen2 = 1'b0;
+        
+        csr_addr3 = 12'h0;
+        csr_wdata3 = 32'h0;
+        csr_wen3 = 1'b0;  
+      csr_rd_valid = 0;//dddddddddddd
+
+
       //pc接口默认值
       pc_valid = 0;
 
@@ -508,29 +546,77 @@ always @(*) begin
 
    6'b110000: begin  // CSRRW
   result = csr_rdata;
-  //$display("csr_rdata1 = %08x from (exu.v)",csr_rdata);
+  rd_data = result;
   csr_wdata = rs1_data;
   csr_wen = 1;
   next_pc = pc + 4;
-  rd_data = result;
+  
   rd_valid = 1;
   pc_valid = 1;
+
+  csr_rd_valid = 1;
    next_state = WAIT_READY;  // 进入等待状态
 end
 6'b110001: begin  // CSRRS
   result = csr_rdata;
+  rd_data = result;
   csr_wdata = csr_rdata | rs1_data;
   csr_wen = 1;
- // $display("csr_rdata2 = %08x from (exu.v)",csr_rdata);
+ 
   next_pc = pc + 4;
+    rd_valid = 1;
+  pc_valid = 1;
+  csr_rd_valid = 1;
    next_state = WAIT_READY;  // 进入等待状态
 end
 6'b110010: begin  // ECALL
+       csr_addr2 = 12'h341;            // MEPC 地址
+      csr_wdata2 = pc;                 // 当前 PC
+      csr_wen2 = 1;                    // 使能写入
+
+      // 写入 mcause
+      
+      csr_addr1 = 12'h342;              // MCAUSE 地址
+      csr_wdata1 = 32'd17;        // ECALL 的原因码（根据需求调整）
+      csr_wen1 = 1;                      // 使能写入
+
+csr_rd_valid = 1;
   next_pc = mtvec;
+  pc_valid = 1;
+  next_state = WAIT_READY;
   // 在CSR模块中设置mcause和mepc
 end
 6'b110011: begin  // MRET
+ 
+ // 修改mstatus
+    reg [31:0] mstatus_new;
+    mstatus_new = mstatus;  // 先复制当前值
+    
+    // 1. 将MPIE（位3）的值复制到MIE（位7）
+    if ((mstatus_new & 32'h80) != 0) begin  // 如果MPIE为1
+        mstatus_new = mstatus_new | 32'h8;  // 设置MIE位
+    end else begin
+        mstatus_new = mstatus_new & ~32'h8; // 清除MIE位
+    end
+    
+    // 2. 设置MPIE为1
+    mstatus_new = mstatus_new | 32'h80;
+    
+    // 3. 清除MPP字段（bits 12:11）
+    mstatus_new = mstatus_new & 32'hFFFFE7FF;
+
+     csr_addr3 = 12'h300;
+  csr_wdata3 = mstatus_new;
+  csr_wen3 = 1;
+  
+
+
+
+
+  csr_rd_valid = 1;
+  pc_valid = 1;
   next_pc = mepc;
+  next_state = WAIT_READY;
 end
 6'b110100: begin
     // SH (Store Halfword)
@@ -586,9 +672,8 @@ WAIT_READY: begin
         6'b011100,      // SLTU
         6'b011101,      // SLT
         6'b100101,      // ORI
-        6'b100110,      // SLTI
-        6'b110000,      // CSRRW
-        6'b110001: begin // CSRRS
+        6'b100110:begin      // SLTI
+       
             rd_valid = 1;
             pc_valid = 1;
             if (rd_ready && pc_ready) begin
@@ -598,15 +683,31 @@ WAIT_READY: begin
             end
         end
 
+
+
+         6'b110000,      // CSRRW
+        6'b110001: begin // CSRRS
+           rd_valid = 1;
+            pc_valid = 1;
+            csr_rd_valid = 1;
+            if (rd_ready && pc_ready && csr_rd_ready) begin
+                next_state = IDLE;
+                rd_valid = 0;
+                pc_valid = 0;
+                csr_rd_valid = 0;
+            end
+        end
+
+
+
         // 只需要更新PC的指令
         6'b000110,      // BEQ
         6'b000111,      // BNE
         6'b010101,      // BGE
         6'b011010,      // BGEU
         6'b011011,      // BLTU
-        6'b011110,      // BLT
-        6'b110010,      // ECALL
-        6'b110011: begin // MRET
+        6'b011110: begin      // BLT
+     
             pc_valid = 1;
 
             if (pc_ready) begin
@@ -615,7 +716,26 @@ WAIT_READY: begin
             end
         end
 
+   6'b110010 : begin      // ECALL
+     csr_rd_valid = 1;
+     pc_valid = 1;
+     if(csr_rd_ready && pc_ready && rd_ready)begin
+      next_state = IDLE;
+      csr_rd_valid = 0;
+      pc_valid = 0;
 
+     end
+
+   end
+        6'b110011: begin // MRET
+       csr_rd_valid = 1;
+       pc_valid = 1;
+       if(csr_rd_ready && pc_ready && rd_ready) begin
+        next_state = IDLE;
+        csr_rd_valid  = 0;
+        pc_valid = 0;
+        end
+        end
 
 
 
@@ -714,7 +834,7 @@ WAIT_READY: begin
 
 
       default: begin
-        $display("222default:didnt match any inst from (exu.v)");
+        //$display("222default:didnt match any inst from (exu.v)");
         // NOP 或未实现的操作
         // 已经在开始时赋值了 result 和 next_pc 的默认值
         next_state = IDLE;

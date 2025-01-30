@@ -31,6 +31,10 @@ module ysyx_24090012_NPC(
 
    wire idu_valid;
    wire idu_ready;
+
+   
+   wire csr_rd_valid;
+   wire csr_rd_ready;
     // PC更新接口
    
     wire        pc_valid;
@@ -135,15 +139,40 @@ wire [31:0] mcause;
         .pc_valid(pc_valid),
         .pc_ready(pc_ready),
 
+    .mstatus(mstatus),
+    .mtvec(mtvec),
+    .mcause(mcause),
+    .mepc(mepc),
+
+
+
   .result(result),
   .next_pc(next_pc),
    .csr_rdata(csr_rdata),
+
     .csr_wdata(csr_wdata),
     .csr_wen(csr_wen),
-      .mtvec(mtvec),    // 添加mtvec连接
-    .mepc(mepc)       // 添加mepc连接
+      .csr_addr(csr_addr),
+     
+        .csr_addr1(csr_addr1),
+        .csr_wdata1(csr_wdata1),
+        .csr_wen1(csr_wen1),
+
+        .csr_addr2(csr_addr2),
+        .csr_wdata2(csr_wdata2),
+        .csr_wen2(csr_wen2),
+
+        .csr_addr3(csr_addr3),
+        .csr_wdata3(csr_wdata3),
+        .csr_wen3(csr_wen3),
+
+        .csr_rd_valid(csr_rd_valid),
+        .csr_rd_ready(csr_rd_ready)
+       
 );
    ysyx_24090012_CSR csr(
+         .csr_rd_valid(csr_rd_valid),    // 添加这行
+        .csr_rd_ready(csr_rd_ready),    // 添加这行
   .clk(clk),
   .rst(rst),
   .csr_addr(csr_addr),
@@ -222,7 +251,7 @@ end*/
                 opcode == 7'b1101111 || opcode == 7'b1100111 || opcode == 7'b0110011 || 
                  opcode == 7'b0000011);
 
-    always @(*) begin
+   /* always @(*) begin
      // 默认值
     csr_addr = 12'b0;
     csr_wdata = 32'b0;
@@ -273,13 +302,8 @@ mstatus_new = mstatus; // 为 mstatus_new 赋予默认值，避免锁存器
             csr_wdata3 = mstatus_new;
             csr_wen3   = 1'b1; // 启用写入
         end
-        /*else begin 
-            // 默认情况，防止锁存器推断
-            csr_addr  = 12'b0;
-            csr_wdata = 32'b0;
-            csr_wen   = 1'b0;
-        end */
-    end
+    
+    end*/
 
 
 
@@ -303,7 +327,7 @@ else begin
     end 
 
 
-        else if (is_ecall) begin//csr csr csr cssr csr
+       /* else if (is_ecall) begin//csr csr csr cssr csr
       pc <= mtvec;
       // 设置mepc
      // csr_addr2 <= 12'h341;            // MEPC 地址
@@ -324,11 +348,11 @@ else begin
 
 
 
-   /* else if (pc_valid && pc_ready) begin  // 普通指令
+   else if (pc_valid && pc_ready) begin  // 普通指令
                 pc <= next_pc;
-            end*/
+            end
 
-    //$display("At time %t: NPC after update-pc PC = 0x%08x", $time, pc);
+    //$display("At time %t: NPC after update-pc PC = 0x%08x", $time, pc);*/
 end
   end
       always @(posedge clk) begin
