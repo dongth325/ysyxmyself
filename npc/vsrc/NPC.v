@@ -251,60 +251,7 @@ end*/
                 opcode == 7'b1101111 || opcode == 7'b1100111 || opcode == 7'b0110011 || 
                  opcode == 7'b0000011);
 
-   /* always @(*) begin
-     // 默认值
-    csr_addr = 12'b0;
-    csr_wdata = 32'b0;
-    csr_wen = 1'b0;
-
-    csr_addr1 = 12'b0;
-    csr_wdata1 = 32'b0;
-    csr_wen1 = 1'b0;
-
-    csr_addr2 = 12'b0;
-    csr_wdata2 = 32'b0;
-    csr_wen2 = 1'b0;
-
-    csr_addr3 = 12'b0;
-    csr_wdata3 = 32'b0;
-    csr_wen3 = 1'b0;
-mstatus_new = mstatus; // 为 mstatus_new 赋予默认值，避免锁存器
-
-            if (is_ecall) begin//csr csr csr cssr csr
-      
-      // 设置mepc
-      csr_addr2 = 12'h341;            // MEPC 地址
-      csr_wdata2 = pc;                 // 当前 PC
-      csr_wen2 = 1;                    // 使能写入
-
-      // 写入 mcause
-      
-      csr_addr1 = 12'h342;              // MCAUSE 地址
-      csr_wdata1 = 32'd17;        // ECALL 的原因码（根据需求调整）
-      csr_wen1 = 1;                      // 使能写入
-       
-           end   else if (is_mret) begin
-            // 处理 MRET
-            // 直接访问 mstatus 寄存器，并根据逻辑修改 mstatus_new
-          
-            if ((mstatus_new & 32'h80) != 0) begin
-                mstatus_new = mstatus_new | 32'h8;    // 设置 MPIE 位（位 3）
-            end 
-            else begin
-                mstatus_new = mstatus_new & 32'hFFFFFFF7; // 清除 MPIE 位（位 3）
-            end
-
-            mstatus_new = mstatus_new | 32'h80;       // 设置 MIE 位（位 7）
-            mstatus_new = mstatus_new & 32'hFFFFE7FF; // 根据掩码清除特定位
-
-            // 将修改后的 mstatus 写回 CSR
-            csr_addr3 = 12'h300;
-            csr_wdata3 = mstatus_new;
-            csr_wen3   = 1'b1; // 启用写入
-        end
-    
-    end*/
-
+ 
 
 
 
@@ -317,8 +264,7 @@ mstatus_new = mstatus; // 为 mstatus_new 赋予默认值，避免锁存器
       ebreak_flag <= 0;
     end 
 else begin 
-          //csr_wen1 <= 1'b0;
-        //csr_wen2 <= 1'b0;
+        
 
      if (inst == 32'h00100073) begin  // ebreak 指令
       ebreak_flag <= 1;
@@ -327,22 +273,6 @@ else begin
     end 
 
 
-       /* else if (is_ecall) begin//csr csr csr cssr csr
-      pc <= mtvec;
-      // 设置mepc
-     // csr_addr2 <= 12'h341;            // MEPC 地址
-     // csr_wdata2 <= pc;                 // 当前 PC
-     // csr_wen2 <= 1;                    // 使能写入
-
-      // 写入 mcause
-     // csr_addr1 <= 12'h342;              // MCAUSE 地址
-     // csr_wdata1 <= 32'd17;        // ECALL 的原因码（根据需求调整）
-     // csr_wen1 <= 1;                      // 使能写入
-       
-    end
-    else if (is_mret) begin
-      pc <= mepc;
-    end//csr csr csr csr csr csr csr
 
 
 
@@ -355,6 +285,8 @@ else begin
     //$display("At time %t: NPC after update-pc PC = 0x%08x", $time, pc);*/
 end
   end
+
+  
       always @(posedge clk) begin
         if (rst) begin
             pc <= 32'h80000000;
