@@ -290,10 +290,13 @@ void exec_once(NpcState *s) {
     execution_count++;//实际循环了多少次exec_once 也就是真实执行次数 可截止到报错（可在下方添加以便追寻报错）
     uint32_t pc = s->pc;
     if (pc >= MEM_BASE && pc < MEM_BASE + MEM_SIZE) {
-         inst = pmem_read(pc);
+        //inst = pmem_read(pc);
          //std::cout << "Fetched instruction: 0x" << std::hex << inst << std::dec << std::endl;
-        s->top->mem_data = inst;
-
+        //s->top->mem_data = inst;
+         s->top->input_pc = pc;
+         
+         s->top->input_valid = 1;
+         
     } else {
         std::cerr << "Error: PC out of bounds: 0x" << std::hex << pc << std::dec << std::endl;
         std::cout << "Total instructions executed before error: " << execution_count << std::endl;  // 输出执行次数
@@ -360,19 +363,9 @@ void exec_once(NpcState *s) {
 
 
 
-            s->top->clk = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
+s->top->input_valid = 0;//ifu中手动置0，因为当一个指令执行完如果不传入新的inputpc就会重新执行该指令，暂时不完善，所以手动置0使得每个指令ifu组合逻辑只执行一次
 
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
 
-    s->top->clk = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
 
 
 
@@ -395,6 +388,24 @@ void exec_once(NpcState *s) {
 
 
 
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
             s->top->clk = 0;
     s->top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
@@ -415,6 +426,37 @@ void exec_once(NpcState *s) {
 
 
             s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+                s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+                   s->top->clk = 0;
     s->top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
 

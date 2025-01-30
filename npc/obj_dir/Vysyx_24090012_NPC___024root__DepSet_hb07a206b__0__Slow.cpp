@@ -119,6 +119,12 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___stl_sequent__TOP__0(Vysyx_24090
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___stl_sequent__TOP__0\n"); );
     auto &vlSelfRef = std::ref(*vlSelf).get();
     // Body
+    if ((1U & (~ (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__state)))) {
+        if (((IData)(vlSelfRef.input_valid) & (~ (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__idu_valid)))) {
+            vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__test = 1U;
+        }
+    }
+    vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__ifu_sram_ready = 0U;
     vlSelfRef.ysyx_24090012_NPC__DOT__sram_ready = 0U;
     vlSelfRef.ysyx_24090012_NPC__DOT__opcode = (0x7fU 
                                                 & vlSelfRef.ysyx_24090012_NPC__DOT__inst);
@@ -503,6 +509,26 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___stl_sequent__TOP__0(Vysyx_24090
         vlSelfRef.ysyx_24090012_NPC__DOT__imm = 0U;
         vlSelfRef.ysyx_24090012_NPC__DOT__alu_op = 0xfU;
     }
+    vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__next_state 
+        = vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__state;
+    vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__ifu_sram_valid = 0U;
+    if (vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__inst_sram__DOT__state) {
+        if (vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__inst_sram__DOT__state) {
+            vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__ifu_sram_ready = 1U;
+        }
+    }
+    if (vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__state) {
+        if (vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__state) {
+            vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__ifu_sram_valid = 1U;
+            if (vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__ifu_sram_ready) {
+                vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__next_state = 0U;
+                vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__ifu_sram_valid = 0U;
+            }
+        }
+    } else if (((IData)(vlSelfRef.input_valid) & (~ (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__idu_valid)))) {
+        vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__next_state = 1U;
+        vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__ifu_sram_valid = 1U;
+    }
     vlSelfRef.ysyx_24090012_NPC__DOT__mem_ready = 0U;
     vlSelfRef.ysyx_24090012_NPC__DOT__rs1_data = ((0U 
                                                    == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__rs1))
@@ -533,6 +559,19 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___stl_sequent__TOP__0(Vysyx_24090
                                                        == (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__csr_addr))
                                                        ? vlSelfRef.ysyx_24090012_NPC__DOT__mcause
                                                        : 0U))));
+    if (vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__inst_sram__DOT__state) {
+        vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__inst_sram__DOT__next_state = 1U;
+        if (vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__inst_sram__DOT__state) {
+            if ((1U & (~ (IData)(vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__ifu_sram_valid)))) {
+                vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__inst_sram__DOT__next_state = 0U;
+            }
+        }
+    } else {
+        vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__inst_sram__DOT__next_state = 0U;
+        if (vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__ifu_sram_valid) {
+            vlSelfRef.ysyx_24090012_NPC__DOT__ifu__DOT__inst_sram__DOT__next_state = 1U;
+        }
+    }
     vlSelfRef.ysyx_24090012_NPC__DOT__exu__DOT__next_state 
         = vlSelfRef.ysyx_24090012_NPC__DOT__exu__DOT__state;
     vlSelfRef.ysyx_24090012_NPC__DOT__idu_ready = (1U 
@@ -1469,6 +1508,22 @@ VL_ATTR_COLD bool Vysyx_24090012_NPC___024root___eval_phase__stl(Vysyx_24090012_
 }
 
 #ifdef VL_DEBUG
+VL_ATTR_COLD void Vysyx_24090012_NPC___024root___dump_triggers__ico(Vysyx_24090012_NPC___024root* vlSelf) {
+    (void)vlSelf;  // Prevent unused variable warning
+    Vysyx_24090012_NPC__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_24090012_NPC___024root___dump_triggers__ico\n"); );
+    auto &vlSelfRef = std::ref(*vlSelf).get();
+    // Body
+    if ((1U & (~ vlSelfRef.__VicoTriggered.any()))) {
+        VL_DBG_MSGF("         No triggers active\n");
+    }
+    if ((1ULL & vlSelfRef.__VicoTriggered.word(0U))) {
+        VL_DBG_MSGF("         'ico' region trigger index 0 is active: Internal 'ico' trigger - first iteration\n");
+    }
+}
+#endif  // VL_DEBUG
+
+#ifdef VL_DEBUG
 VL_ATTR_COLD void Vysyx_24090012_NPC___024root___dump_triggers__act(Vysyx_24090012_NPC___024root* vlSelf) {
     (void)vlSelf;  // Prevent unused variable warning
     Vysyx_24090012_NPC__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
@@ -1515,6 +1570,8 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___ctor_var_reset(Vysyx_24090012_N
     vlSelf->clk = VL_RAND_RESET_I(1);
     vlSelf->rst = VL_RAND_RESET_I(1);
     vlSelf->mem_data = VL_RAND_RESET_I(32);
+    vlSelf->input_pc = VL_RAND_RESET_I(32);
+    vlSelf->input_valid = VL_RAND_RESET_I(1);
     vlSelf->pc = VL_RAND_RESET_I(32);
     vlSelf->ebreak_flag = VL_RAND_RESET_I(1);
     vlSelf->exit_code = VL_RAND_RESET_I(32);
@@ -1568,6 +1625,14 @@ VL_ATTR_COLD void Vysyx_24090012_NPC___024root___ctor_var_reset(Vysyx_24090012_N
     vlSelf->ysyx_24090012_NPC__DOT__mtvec = VL_RAND_RESET_I(32);
     vlSelf->ysyx_24090012_NPC__DOT__mepc = VL_RAND_RESET_I(32);
     vlSelf->ysyx_24090012_NPC__DOT__mcause = VL_RAND_RESET_I(32);
+    vlSelf->ysyx_24090012_NPC__DOT__ifu__DOT__ifu_sram_valid = VL_RAND_RESET_I(1);
+    vlSelf->ysyx_24090012_NPC__DOT__ifu__DOT__ifu_sram_ready = VL_RAND_RESET_I(1);
+    vlSelf->ysyx_24090012_NPC__DOT__ifu__DOT__ifu_sram_rdata = VL_RAND_RESET_I(32);
+    vlSelf->ysyx_24090012_NPC__DOT__ifu__DOT__state = VL_RAND_RESET_I(1);
+    vlSelf->ysyx_24090012_NPC__DOT__ifu__DOT__next_state = VL_RAND_RESET_I(1);
+    vlSelf->ysyx_24090012_NPC__DOT__ifu__DOT__test = VL_RAND_RESET_I(1);
+    vlSelf->ysyx_24090012_NPC__DOT__ifu__DOT__inst_sram__DOT__state = VL_RAND_RESET_I(1);
+    vlSelf->ysyx_24090012_NPC__DOT__ifu__DOT__inst_sram__DOT__next_state = VL_RAND_RESET_I(1);
     for (int __Vi0 = 0; __Vi0 < 32; ++__Vi0) {
         vlSelf->ysyx_24090012_NPC__DOT__regfile__DOT__rf[__Vi0] = VL_RAND_RESET_I(32);
     }

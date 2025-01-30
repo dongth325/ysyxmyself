@@ -2,7 +2,8 @@ module ysyx_24090012_NPC(
   input clk,
   input rst,
   input [31:0] mem_data,
-
+  input [31:0] input_pc,
+  input input_valid,
   output reg [31:0] pc,
   output reg ebreak_flag,
   output reg [31:0] exit_code
@@ -81,14 +82,13 @@ wire [31:0] mtvec;
 wire [31:0] mepc;
 wire [31:0] mcause;
 
- 
-  wire exec_enable = !clk && !rst;  // 在时钟低电平且非复位时有效
+wire exec_enable = !clk && !rst;  // 在时钟低电平且非复位时有效
 
-
+wire inst_done = pc_ready & csr_rd_ready & rd_ready;
 
 
   // 实例化各个模块
-  ysyx_24090012_IFU ifu(.clk(clk), .rst(rst), .pc(pc), .inst(inst), .mem_data(mem_data),.idu_valid(idu_valid),.idu_ready(idu_ready));
+  ysyx_24090012_IFU ifu(.clk(clk), .rst(rst), .pc(pc), .inst(inst),.idu_valid(idu_valid),.idu_ready(idu_ready),.inst_done(inst_done),.input_pc(input_pc),.input_valid(input_valid));
   ysyx_24090012_IDU idu(.inst(inst), .rs1(rs1), .rs2(rs2), .pc(pc), .rd(rd), .imm(imm), .opcode(opcode), .func3(func3), .func7(func7), .alu_op(alu_op),    .csr_addr(csr_addr),
     .csr_wen(csr_wen),
     .is_ecall(is_ecall),
@@ -286,7 +286,7 @@ else begin
 end
   end
 
-  
+
       always @(posedge clk) begin
         if (rst) begin
             pc <= 32'h80000000;

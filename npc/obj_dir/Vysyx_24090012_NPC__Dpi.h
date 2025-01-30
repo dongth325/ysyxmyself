@@ -22,12 +22,12 @@ extern "C" {
     extern int get_reg_value(int reg_index);
 
     // DPI IMPORTS
-    // DPI import at vsrc/NPC.v:10:32
+    // DPI import at vsrc/NPC.v:11:32
     extern void ebreak(int exit_code);
-    // DPI import at vsrc/exu.v:64:30
-    extern int pmem_read(int addr);
-    // DPI import at vsrc/exu.v:63:31
-    extern void pmem_write(int addr, int data, int mask);
+    // DPI import at vsrc/sram.v:14:33
+    extern int pmem_read(int raddr);
+    // DPI import at vsrc/sram.v:15:34
+    extern void pmem_write(int waddr, int wdata, int wmask);
 
 #ifdef __cplusplus
 }

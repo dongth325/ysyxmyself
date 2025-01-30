@@ -754,6 +754,9 @@ WAIT_READY: begin
                     if (rd_ready && pc_ready) begin
                         //inst_ready = 1;
                         next_state = IDLE;
+                            //rd_valid = 0;
+                            //pc_valid = 0;
+                            //csr_rd_valid = 0;
                     end
                 end
             end
@@ -781,6 +784,9 @@ WAIT_READY: begin
                     if (pc_ready) begin
                        // inst_ready = 1;
                         next_state = IDLE;
+                          //  rd_valid = 0;
+                          //  pc_valid = 0;
+                            //csr_rd_valid = 0;
                     end
                 end
             end
