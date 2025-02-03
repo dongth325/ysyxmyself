@@ -50,6 +50,15 @@ module ysyx_24090012_NPC(
     wire        mem_ready;
     wire [31:0] mem_rdata;
 
+
+    // LSU接口信号
+wire [31:0] lsu_sram_addr;
+wire        lsu_arvalid;    // LSU -> SRAM (地址有效)
+wire        lsu_arready;    // SRAM -> LSU (地址准备好)
+wire [31:0] lsu_rdata;      // SRAM -> LSU (读出的数据)
+wire        lsu_rvalid;     // SRAM -> LSU (数据有效)
+wire        lsu_rready;     // LSU -> SRAM (数据准备好)
+
         // RegisterFile写回接口
     wire [4:0]  rd_addr;
     wire [31:0] rd_data;
@@ -72,7 +81,13 @@ reg csr_wen;
 reg [31:0] mstatus_new;//用于mret指令对mstatus寄存器访问取值后的保存............
 
 
-
+// IFU接口信号
+wire [31:0] ifu_sram_addr;
+wire        ifu_arvalid;    // IFU -> SRAM (地址有效)
+wire        ifu_arready;    // SRAM -> IFU (地址准备好)
+wire [31:0] ifu_rdata;      // SRAM -> IFU (读出的数据)
+wire        ifu_rvalid;     // SRAM -> IFU (数据有效)
+wire        ifu_rready;     // IFU -> SRAM (数据准备好)
 
 
 wire is_ecall, is_mret;
@@ -88,7 +103,24 @@ wire inst_done = pc_ready & csr_rd_ready & rd_ready;
 
 
   // 实例化各个模块
-  ysyx_24090012_IFU ifu(.clk(clk), .rst(rst), .pc(pc), .inst(inst),.idu_valid(idu_valid),.idu_ready(idu_ready),.inst_done(inst_done),.input_pc(input_pc),.input_valid(input_valid));
+  ysyx_24090012_IFU ifu(
+    .clk(clk),
+    .rst(rst),
+    .pc(pc),
+    .input_pc(input_pc),
+    .input_valid(input_valid),
+    .inst(inst),
+    .idu_valid(idu_valid),
+    .idu_ready(idu_ready),
+    .inst_done(inst_done),
+    // SRAM接口
+    .ifu_sram_addr(ifu_sram_addr),
+    .ifu_arvalid(ifu_arvalid),
+    .ifu_arready(ifu_arready),
+    .ifu_rdata(ifu_rdata),
+    .ifu_rvalid(ifu_rvalid),
+    .ifu_rready(ifu_rready)
+);
   ysyx_24090012_IDU idu(.inst(inst), .rs1(rs1), .rs2(rs2), .pc(pc), .rd(rd), .imm(imm), .opcode(opcode), .func3(func3), .func7(func7), .alu_op(alu_op),    .csr_addr(csr_addr),
     .csr_wen(csr_wen),
     .is_ecall(is_ecall),
@@ -205,26 +237,42 @@ wire inst_done = pc_ready & csr_rd_ready & rd_ready;
         .wen(mem_wen),
         .ready(mem_ready),
         .rdata(mem_rdata),
-          // SRAM接口
-        .sram_addr(sram_addr),
-        .sram_valid(sram_valid),
-        .sram_ready(sram_ready),
-        .sram_rdata(sram_rdata),
-        .sram_wdata(sram_wdata),
-        .sram_wmask(sram_wmask),
-        .sram_wen(sram_wen)
+      // SRAM接口
+    .sram_addr(lsu_sram_addr),
+    .sram_arvalid(lsu_arvalid),
+    .sram_arready(lsu_arready),
+    .sram_rdata(lsu_rdata),
+    .sram_rvalid(lsu_rvalid),
+    .sram_rready(lsu_rready),
+    .sram_wdata(sram_wdata),
+    .sram_wmask(sram_wmask),
+    .sram_wen(sram_wen)
     );
-    ysyx_24090012_SRAM sram(
-        .clk(clk),
-        .rst(rst),
-        .addr(sram_addr),      // 暂时只连接LSU
-        .valid(sram_valid),
-        .ready(sram_ready),
-        .rdata(sram_rdata),
-        .wdata(sram_wdata),
-        .wmask(sram_wmask),
-        .wen(sram_wen)
-    );
+
+
+    
+ysyx_24090012_SRAM sram(
+    .clk(clk),
+    .rst(rst),
+    // IFU接口
+    .ifu_addr(ifu_sram_addr),
+    .ifu_arvalid(ifu_arvalid),
+    .ifu_arready(ifu_arready),
+    .ifu_rdata(ifu_rdata),
+    .ifu_rvalid(ifu_rvalid),
+    .ifu_rready(ifu_rready),
+    // LSU接口
+    .lsu_addr(lsu_sram_addr),
+    .lsu_arvalid(lsu_arvalid),
+    .lsu_arready(lsu_arready),
+    .lsu_rdata(lsu_rdata),
+    .lsu_rvalid(lsu_rvalid),
+    .lsu_rready(lsu_rready),
+    // 写接口
+    .wdata(sram_wdata),
+    .wmask(sram_wmask),
+    .wen(sram_wen)
+);
 /*reg [4:0] test;
 reg [4:0] test1;
 reg [4:0] test2;

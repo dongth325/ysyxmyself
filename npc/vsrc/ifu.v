@@ -5,7 +5,7 @@ module ysyx_24090012_IFU(
   input reg [31:0] input_pc,
   input inst_done,
   
-input input_valid,
+  input input_valid,
 
   output reg [31:0] inst,
   output reg idu_valid,
@@ -26,17 +26,20 @@ input input_valid,
 
 );
     reg [31:0] ifu_sram_addr;
-    reg        ifu_sram_valid;
-    wire        ifu_sram_ready;
-    wire [31:0] ifu_sram_rdata;
+     reg        ifu_arvalid;    // 地址有效
+    wire       ifu_arready;    // 地址准备好
+   wire        ifu_rvalid;    // 数据有效
+    wire [31:0] ifu_rdata;     // 读出的数据;
+    reg         ifu_rready;    // 数据准备好
 
 
-    // 状态定义
-    localparam IDLE = 1'b0;        // 空闲状态，可以发起新的取指请求
-    localparam WAIT_READY = 1'b1;  // 等待SRAM返回数据状态
+      // 状态定义
+    localparam IDLE       = 2'b00;  // 空闲状态
+    localparam ADDR_PHASE = 2'b01;  // 地址握手阶段
+    localparam DATA_PHASE = 2'b10;  // 数据握手阶段
 
-    reg state, next_state;
-   // assign sram_addr = input_pc;
+    reg [1:0] state, next_state;
+   
 
 
     // 状态转换（时序）
@@ -45,16 +48,18 @@ input input_valid,
             state <= IDLE;
             inst <= 32'b0;
             idu_valid <= 1'b0;
+            ifu_rready <= 1'b0;
         end else begin
             state <= next_state;
-            
+
             // 更新指令和valid信号
-            if (state == WAIT_READY && ifu_sram_ready) begin
-                inst <= ifu_sram_rdata;
-                idu_valid <= 1'b1;
+            if (state == DATA_PHASE && ifu_rvalid && ifu_rready) begin
+                inst <= ifu_rdata;  // 从SRAM读取指令
+                idu_valid <= 1'b1;  // 指令有效
+                ifu_rready <= 1'b0; // 复位rready
             end
             else if (idu_valid && idu_ready) begin
-                idu_valid <= 1'b0;
+                idu_valid <= 1'b0;  // 指令已被IDU接收
             end
         end
     end
@@ -64,24 +69,30 @@ input input_valid,
     always @(*) begin
         // 默认值
         next_state = state;
-        ifu_sram_valid = 1'b0;
-        
+        ifu_arvalid = 1'b0;
+        ifu_rready = 1'b0;
         ifu_sram_addr = input_pc;
 
-        case (state)
+         case (state)
             IDLE: begin
                 if (input_valid && !idu_valid) begin  // 当前指令执行完且没有未处理的指令
-                    ifu_sram_valid = 1'b1;
-                  test = 1;
-                    next_state = WAIT_READY;
+                    ifu_arvalid = 1'b1;  // 地址有效
+                    next_state = ADDR_PHASE;
                 end
             end
 
-            WAIT_READY: begin
-                ifu_sram_valid = 1'b1;  // 保持读请求有效
-                if (ifu_sram_ready) begin
+            ADDR_PHASE: begin
+                ifu_arvalid = 1'b1;  // 保持地址有效
+                if (ifu_arready) begin
+                    ifu_arvalid = 1'b0;  // 地址已接收
+                    next_state = DATA_PHASE;
+                end
+            end
+
+            DATA_PHASE: begin
+                ifu_rready = 1'b1;  // 准备好接收数据
+                if (ifu_rvalid && ifu_rready) begin
                     next_state = IDLE;
-                    ifu_sram_valid = 1'b0;
                 end
             end
         endcase
@@ -89,57 +100,24 @@ input input_valid,
 
 
 
-  // 将从外部存储器传入的 mem_data 作为当前指令
- // assign inst = mem_data;
-    // 使用 always 块打印信息
-  
-   /* always @(posedge clk) begin
-        if (rst) begin
-            idu_valid <= 0;
-        end else begin
-            idu_valid <= 1;       // 新指令到来时置1
-            if (idu_valid) begin
-                idu_valid <= 0;   // 下一周期立即清零
-            end
-        end
-
-    end*/
-
-
-
-      /*  always @(posedge clk) begin
-        if (rst) begin
-            idu_valid <= 0;
-            inst <= 0;
-        end else begin
-            if (mem_data != inst) begin  // 检测到新指令
-                inst <= mem_data;
-                idu_valid <= 1;          // 新指令到来时置1
-            end else if (idu_valid && idu_ready) begin
-                idu_valid <= 0;          // 握手成功后立即清零
-            end
-        end
-    end*/
 
 
 
 
-    // IFU专用的SRAM实例
     ysyx_24090012_SRAM inst_sram(
         .clk(clk),
         .rst(rst),
-        .addr(ifu_sram_addr),
-        .valid(ifu_sram_valid),
-        .ready(ifu_sram_ready),
-        .rdata(ifu_sram_rdata),
+        .addr(ifu_sram_addr),      // 地址
+        .arvalid(ifu_arvalid),     // 地址有效
+        .arready(ifu_arready),     // 地址准备好
+        .rdata(ifu_rdata),         // 读出的数据
+        .rvalid(ifu_rvalid),       // 数据有效
+        .rready(ifu_rready),       // 数据准备好
         // 写相关信号全部置0
         .wdata(32'b0),
         .wmask(4'b0),
         .wen(1'b0)
     );
-
-
-
 
 
 

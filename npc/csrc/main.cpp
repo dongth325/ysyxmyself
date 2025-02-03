@@ -473,6 +473,91 @@ s->top->input_valid = 0;//ifu中手动置0，因为当一个指令执行完如�
 
 
 
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
 
 
 
