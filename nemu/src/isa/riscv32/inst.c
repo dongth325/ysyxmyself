@@ -172,7 +172,7 @@ INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, ECALL(s->dnpc));
     cpu.csr.mstatus &= 0xFFFFFFF7;
   cpu.csr.mstatus |= 0x80;
   cpu.csr.mstatus &= 0xffffe7ff;*/
-
+   
   );
   
 
