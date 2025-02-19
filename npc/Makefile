@@ -1,5 +1,5 @@
 # 定义 Verilog 文件和生成的可执行文件
-VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v vsrc/csr.v
+VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v vsrc/csr.v vsrc/sram.v vsrc/lsu.v
 CSRC = csrc/main.cpp csrc/difftest_loader.cpp
 
 TOP = ysyx_24090012_NPC
@@ -35,55 +35,59 @@ NPC_EXEC = ./obj_dir/$(EXE)
 
 
 
+# 定义波形文件路径和最近运行记录
+BUILD_DIR = build
+WAVE_FILE = $(abspath $(BUILD_DIR)/wave.vcd)
+LAST_RUN_FILE = $(BUILD_DIR)/.last_run
 
-# 在原有 Makefile 基础上添加
-WAVE_FILE = $(abspath $(BUILD_DIR)/wave.vcd)#ddddddddd
+# 定义波形文件路径和最近运行记录
+BUILD_DIR = build
+WAVE_FILE = $(BUILD_DIR)/wave.vcd
+LAST_RUN_FILE = $(BUILD_DIR)/.last_run
 
+# 确保 BUILD_DIR 存在
+$(shell mkdir -p $(BUILD_DIR))
 
-# 仿真目标：编译和执行
+# 仿真目标
 sim: $(EXE)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-#	$(NPC_EXEC)
 	@if [ ! -z "$(IMG)" ]; then \
-	echo "$(IMG)" > $(LAST_RUN_FILE); \
+		echo "$(IMG)" > $(LAST_RUN_FILE); \
 	fi
 	@if [ -f $(LAST_RUN_FILE) ]; then \
-	IMG_PATH=$$(cat $(LAST_RUN_FILE)); \
-	echo "Running simulation with $$IMG_PATH"; \
-	$(NPC_EXEC) $$IMG_PATH; \
+		IMG_PATH=$$(cat $(LAST_RUN_FILE)); \
+		echo "Running simulation with $$IMG_PATH"; \
+		$(NPC_EXEC) $$IMG_PATH; \
 	else \
-	echo "Error: No program specified. Please run with IMG=path/to/program.bin first"; \
-	exit 1; \
+		echo "Error: No program specified. Please run with IMG=path/to/program.bin first"; \
+		exit 1; \
 	fi
-
-
-# 修改 wave 目标
+# 波形查看目标
 wave:
 	@if [ ! -f $(WAVE_FILE) ]; then \
-	if [ -f $(LAST_RUN_FILE) ]; then \
-	make sim; \
-	else \
-	echo "Error: No previous run found. Please run with IMG=path/to/program.bin first"; \
-	exit 1; \
-	fi; \
+		if [ -f $(LAST_RUN_FILE) ]; then \
+			make sim; \
+		else \
+			echo "Error: No previous run found. Please run with IMG=path/to/program.bin first"; \
+			exit 1; \
+		fi \
 	fi
 	@if [ -f $(WAVE_FILE) ]; then \
-	echo "Opening waveform viewer..."; \
-	gtkwave $(WAVE_FILE); \
+		echo "Opening waveform viewer..."; \
+		gtkwave $(WAVE_FILE); \
 	else \
-	echo "Error: Wave file not found at $(WAVE_FILE)"; \
+		echo "Error: Wave file not found at $(WAVE_FILE)"; \
 	fi
 
-# 添加一个显示最近运行程序的目标
+# 显示最近运行的程序
 show-last:
 	@if [ -f $(LAST_RUN_FILE) ]; then \
-	echo "Last run program: $$(cat $(LAST_RUN_FILE))"; \
+		echo "Last run program: $$(cat $(LAST_RUN_FILE))"; \
 	else \
-	echo "No previous run recorded"; \
+		echo "No previous run recorded"; \
 	fi
 
 .PHONY: sim wave show-last
-
    # 默认目标
 all: sim
 # 添加对 readline 和 history 库的链接

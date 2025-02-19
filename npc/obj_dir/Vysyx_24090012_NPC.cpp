@@ -12,8 +12,10 @@ Vysyx_24090012_NPC::Vysyx_24090012_NPC(VerilatedContext* _vcontextp__, const cha
     , vlSymsp{new Vysyx_24090012_NPC__Syms(contextp(), _vcname__, this)}
     , clk{vlSymsp->TOP.clk}
     , rst{vlSymsp->TOP.rst}
+    , input_valid{vlSymsp->TOP.input_valid}
     , ebreak_flag{vlSymsp->TOP.ebreak_flag}
     , mem_data{vlSymsp->TOP.mem_data}
+    , input_pc{vlSymsp->TOP.input_pc}
     , pc{vlSymsp->TOP.pc}
     , exit_code{vlSymsp->TOP.exit_code}
     , rootp{&(vlSymsp->TOP)}

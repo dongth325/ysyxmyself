@@ -25,7 +25,8 @@ extern "C" int get_reg_value(int reg_index);
 static VerilatedVcdC* tfp = nullptr;
 static vluint64_t main_time = 0;
 
-
+extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) { assert(0); }
 // 定义仿真状态结构体
 struct NpcState {
     Vysyx_24090012_NPC *top;
@@ -232,7 +233,7 @@ extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
                 *reinterpret_cast<uint32_t *>(bytePtr) = data;
                 break;
             default:
-                std::cerr << "Error: Invalid write mask in pmem_write\n";
+               // std::cerr << "Error: Invalid write mask in pmem_write\n";
                 exit(1);
         }
 
@@ -263,7 +264,8 @@ extern "C"  uint32_t pmem_read(uint32_t addr) {
         return data;
     } else {
         printf("Error: Accessing invalid memory address: 0x%08x from (pmem_read)\n", addr);
-
+      
+       
         exit(1);
     }
 }
@@ -289,24 +291,278 @@ void exec_once(NpcState *s) {
     execution_count++;//实际循环了多少次exec_once 也就是真实执行次数 可截止到报错（可在下方添加以便追寻报错）
     uint32_t pc = s->pc;
     if (pc >= MEM_BASE && pc < MEM_BASE + MEM_SIZE) {
-         inst = pmem_read(pc);
+        //inst = pmem_read(pc);
          //std::cout << "Fetched instruction: 0x" << std::hex << inst << std::dec << std::endl;
-        s->top->mem_data = inst;
-
+        //s->top->mem_data = inst;
+         s->top->input_pc = pc;
+         
+         s->top->input_valid = 1;
+         
     } else {
         std::cerr << "Error: PC out of bounds: 0x" << std::hex << pc << std::dec << std::endl;
         std::cout << "Total instructions executed before error: " << execution_count << std::endl;  // 输出执行次数
         exit(1);
     }
 
+        s->top->eval();
+         if (tfp) tfp->dump(main_time++);
+
+             // 时钟上升沿（更新 PC 和寄存器）
+  
+
+   /* uint32_t opcode = inst & 0x7F;  // 提取 opcode
+    if (opcode == 0x03) {  // Load 指令 (opcode = 0x03)
+        // 额外增加一个时钟周期来模拟访存延迟
+        s->top->clk = 0;
+        s->top->eval();
+        if (tfp) tfp->dump(main_time++);
+        s->top->eval();
+        if (tfp) tfp->dump(main_time++);
+
+        s->top->clk = 1;
+        s->top->eval();
+        if (tfp) tfp->dump(main_time++);
+        s->top->eval();
+        if (tfp) tfp->dump(main_time++);
+    }*/
+
+
+
+
+
     // 一个时钟周期
-    s->top->clk = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
+
 
     s->top->clk = 0;
     s->top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+        s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+s->top->input_valid = 0;//ifu中手动置0，因为当一个指令执行完如果不传入新的inputpc就会重新执行该指令，暂时不完善，所以手动置0使得每个指令ifu组合逻辑只执行一次
+
+
+
+
+
+
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+                s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+                   s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+
+            s->top->clk = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clk = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+    s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
 
     // 更新指令计数
     s->inst_count++;
@@ -320,6 +576,9 @@ void exec_once(NpcState *s) {
 
     // 更新 PC
     s->pc = s->top->pc;
+
+    s->top->eval();
+         if (tfp) tfp->dump(main_time++);
 
      //执行 DiffTest
     difftest_exec(1);
@@ -391,9 +650,9 @@ int main(int argc, char **argv) {
     trace->open("npc_trace.vcd");*/
 
        Verilated::traceEverOn(true);
-    VerilatedVcdC* tfp = new VerilatedVcdC;
+     tfp = new VerilatedVcdC;
     top->trace(tfp, 99);  // 99 是追踪的层级深度
-    tfp->open("wave.vcd");  // 指定波形文件名
+    tfp->open("build/wave.vcd");  // 指定波形文件名
 
     // 初始化 DiffTest
     load_difftest_library();
@@ -405,18 +664,20 @@ int main(int argc, char **argv) {
 
     // 复位 DUT
     top->rst = 1;
-   
+    
    // top->clk = 0;
 
     // 施加复位信号若干周期
     for (int i = 0; i < 5; i++) {
         top->clk = 1;
         top->eval();
+         if (tfp) tfp->dump(main_time++);
         //trace->dump(Verilated::time());
         //Verilated::timeInc(1);
 
         top->clk = 0;
         top->eval();
+         if (tfp) tfp->dump(main_time++);
        // trace->dump(Verilated::time());
         //Verilated::timeInc(1);
     }

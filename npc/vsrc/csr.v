@@ -15,6 +15,11 @@ module ysyx_24090012_CSR (
   input csr_wen3,
   output reg [31:0] csr_rdata,
   
+  input csr_rd_valid,
+  output reg csr_rd_ready,
+ 
+  
+  
   // CSR寄存器
   output reg [31:0] mstatus,
   output reg [31:0] mtvec,
@@ -38,12 +43,10 @@ export "DPI-C" function get_csr_reg_value;
       mtvec   <= 32'h0;
       mepc    <= 32'h0;
       mcause  <= 32'h0;
+      csr_rd_ready <= 1;
     end
 
- /*if (!initialized) begin                  //明天再来弄  使通过difftest
-            mstatus <= 32'h00000708; // 设置 mstatus 为初始值1800
-            initialized <= 1'b1; // 设置初始化标志为已初始化
-        end*/
+ else if (csr_rd_valid && csr_rd_ready) begin
 
      if (csr_wen) begin
       case (csr_addr)
@@ -88,7 +91,29 @@ export "DPI-C" function get_csr_reg_value;
         //$display("csr_wdata2 = %08x",csr_wdata2);
         //$display("mepc = %08x",mepc);
     end
+    csr_rd_ready <= 0;
+ end
+ else if (!csr_rd_ready) begin
+            // 写入已完成，重新拉高readys
+            csr_rd_ready <= 1;
+        end
   end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   // CSR读取逻辑
   always @(*) begin
@@ -100,6 +125,13 @@ export "DPI-C" function get_csr_reg_value;
       default: csr_rdata = 32'h0;
     endcase
   end
+
+
+
+
+
+
+
 
 function int get_csr_reg_value(input int csr_reg_index);
   case (csr_reg_index)

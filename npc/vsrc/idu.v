@@ -19,6 +19,8 @@ output reg is_mret//csr csr csr
 
 );
 
+
+
     always @(*) begin
     opcode = inst[6:0];
     func3  = inst[14:12];
