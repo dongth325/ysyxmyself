@@ -166,13 +166,13 @@ INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, R(rd) = CSR(imm); 
 INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, ECALL(s->dnpc));
   
     INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc=cpu.csr.mepc;
-  if((cpu.csr.mstatus & 0x80) != 0 )
+  /*if((cpu.csr.mstatus & 0x80) != 0 )
     cpu.csr.mstatus |= 0x8;
   else 
     cpu.csr.mstatus &= 0xFFFFFFF7;
   cpu.csr.mstatus |= 0x80;
-  cpu.csr.mstatus &= 0xffffe7ff;
-
+  cpu.csr.mstatus &= 0xffffe7ff;*/
+   
   );
   
 

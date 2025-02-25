@@ -1,4 +1,246 @@
 module ysyx_24090012_LSU (
+    input wire         clock,
+    input wire         reset,
+
+    // EXU Interface (slave)
+    input  wire [31:0] mem_addr,
+    input  wire        mem_valid,
+    input  wire [31:0] mem_wdata,
+    input  wire [3:0]  mem_wmask,
+    input  wire        mem_wen,
+    output reg         mem_ready,
+    output reg  [31:0] mem_rdata,
+
+    // AXI4 Master Interface
+    // Write Address Channel
+    input  wire        io_master_awready,
+    output reg         io_master_awvalid,
+    output reg  [31:0] io_master_awaddr,
+    output reg  [3:0]  io_master_awid,     // 传递事务ID
+    output reg  [7:0]  io_master_awlen,
+    output reg  [2:0]  io_master_awsize,
+    output reg  [1:0]  io_master_awburst,
+
+    // Write Data Channel
+    input  wire        io_master_wready,
+    output reg         io_master_wvalid,
+    output reg  [31:0] io_master_wdata,
+    output reg  [3:0]  io_master_wstrb,
+    output reg         io_master_wlast,     // 单次传输永远为1
+
+    // Write Response Channel
+    output reg         io_master_bready,
+    input  wire        io_master_bvalid,
+    input  wire [1:0]  io_master_bresp,    // 写响应状态
+    input  wire [3:0]  io_master_bid,      // 写响应ID
+
+    // Read Address Channel
+    input  wire        io_master_arready,
+    output reg         io_master_arvalid,
+    output reg  [31:0] io_master_araddr,
+    output reg  [3:0]  io_master_arid,     // 传递事务ID
+    output reg  [7:0]  io_master_arlen,
+    output reg  [2:0]  io_master_arsize,
+    output reg  [1:0]  io_master_arburst,
+
+    // Read Data Channel
+    output reg         io_master_rready,
+    input  wire        io_master_rvalid,
+    input  wire [31:0] io_master_rdata,
+    input  wire [1:0]  io_master_rresp,    // 读响应状态
+    input  wire [3:0]  io_master_rid       // 读响应ID
+);
+
+    // 状态定义
+    localparam IDLE        = 3'd0;
+    localparam WRITE_ADDR  = 3'd1;
+    localparam WRITE_DATA  = 3'd2;
+    localparam WRITE_RESP  = 3'd3;
+    localparam READ_ADDR   = 3'd4;
+    localparam READ_DATA   = 3'd5;
+
+    // 寄存器定义
+    reg [2:0] state;
+    reg [31:0] saved_addr;
+    reg [31:0] saved_wdata;
+    reg [3:0]  saved_wmask;
+    reg [3:0]  curr_id;    // 当前事务ID
+
+    // 时序逻辑：状态更新和数据保存
+    always @(posedge clock) begin
+        if (reset) begin
+            state <= IDLE;
+            curr_id <= 4'h0;
+        end else begin
+            // 在IDLE状态且有新请求时保存数据
+            if (state == IDLE && mem_valid) begin
+                saved_addr <= mem_addr;
+                saved_wdata <= mem_wdata;
+                saved_wmask <= mem_wmask;
+                curr_id <= curr_id + 4'h1;  // 递增事务ID
+            end
+            state <= next_state;
+        end
+    end
+
+    // 组合逻辑：状态转换和控制信号生成
+    reg [2:0] next_state;
+    always @(*) begin
+        // 默认值
+        next_state = state;
+        io_master_awvalid = 0;
+        io_master_wvalid  = 0;
+        io_master_bready  = 0;
+        io_master_arvalid = 0;
+        io_master_rready  = 0;
+        mem_ready = 0;
+        mem_rdata = io_master_rdata;
+        
+        // 固定值
+        io_master_awid    = curr_id;        // 使用当前事务ID
+        io_master_awlen   = 8'd0;           // 单次传输
+        io_master_awsize  = 3'b010;         // 4字节
+        io_master_awburst = 2'b01;          // INCR模式
+        io_master_arid    = curr_id;        // 使用当前事务ID
+        io_master_arlen   = 8'd0;           // 单次传输
+        io_master_arsize  = 3'b010;         // 4字节
+        io_master_arburst = 2'b01;          // INCR模式
+        
+        // 地址和数据连接
+        io_master_awaddr = saved_addr;
+        io_master_araddr = saved_addr;
+        io_master_wdata  = saved_wdata;
+        io_master_wstrb  = saved_wmask;
+        io_master_wlast  = 1'b1;            // 单次传输永远为1
+        
+        // 状态转换和控制信号生成
+        case (state)
+            IDLE: begin
+                if (mem_valid) begin
+                    next_state = mem_wen ? WRITE_ADDR : READ_ADDR;
+                end
+            end
+            
+            WRITE_ADDR: begin
+                io_master_awvalid = 1'b1;
+                if (io_master_awready) begin
+                    next_state = WRITE_DATA;
+                end
+            end
+            
+            WRITE_DATA: begin
+                io_master_wvalid = 1'b1;
+                if (io_master_wready) begin
+                    next_state = WRITE_RESP;
+                end
+            end
+            
+                 WRITE_RESP: begin
+                io_master_bready = 1'b1;
+                if (io_master_bvalid) begin
+                    // 检查响应和ID
+                    if (io_master_bid == curr_id && io_master_bresp == 2'b00) begin
+                        mem_ready = 1'b1;
+                    end
+                    next_state = IDLE;
+                end
+            end
+            
+            READ_ADDR: begin
+                io_master_arvalid = 1'b1;
+                if (io_master_arready) begin
+                    next_state = READ_DATA;
+                end
+            end
+            
+            READ_DATA: begin
+                io_master_rready = 1'b1;
+                if (io_master_rvalid) begin
+                    // 检查响应和ID
+                    if (io_master_rid == curr_id && io_master_rresp == 2'b00) begin
+                        mem_ready = 1'b1;
+                        mem_rdata = io_master_rdata;
+                    end
+                    next_state = IDLE;
+                end
+            end
+            
+            default: next_state = IDLE;
+        endcase
+    end
+
+endmodule
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*module ysyx_24090012_LSU (
     input clk,
     input rst,
     
@@ -78,3 +320,6 @@ module ysyx_24090012_LSU (
         endcase
     end
 endmodule
+
+
+

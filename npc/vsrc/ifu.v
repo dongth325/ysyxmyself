@@ -1,125 +1,106 @@
-module ysyx_24090012_IFU(
-  input clk,
-  input rst,
-  input [31:0] pc,
-  input reg [31:0] input_pc,
-  input inst_done,
-  
-  input input_valid,
+module ysyx_24090012_IFU (
+    input  wire         clock,
+    input  wire         reset,
+    
+    // Control Interface
+    input  wire         if_allow_in,    // 允许取指信号
+    input  wire [31:0]  if_next_pc,     // 外部传入的下一条指令地址
+    
+    // IDU Interface
+    input  wire         idu_ready,      // IDU准备好接收新指令
+    output wire         idu_valid,      // 指令有效信号
+    output wire [31:0]  idu_pc,         // 当前指令PC
+    output wire [31:0]  idu_inst,       // 当前指令
 
-  output reg [31:0] inst,
-  output reg idu_valid,
-  input idu_ready
-
-  //input [31:0] mem_data,
-
-
-
-     /* output reg [31:0] ifu_sram_addr,
-    output reg ifu_sram_valid,
-    input ifu_sram_ready,
-    input [31:0] ifu_sram_rdata
-
-    output reg [31:0] ifu_sram_wdata,
-    output reg [3:0] ifu_sram_wmask,
-    output reg ifu_sram_wen*/
-
+    // AXI4 Interface for MROM
+    input  wire         io_master_arready,
+    output wire         io_master_arvalid,
+    output wire [31:0]  io_master_araddr,
+    output wire [3:0]   io_master_arid,
+    output wire [7:0]   io_master_arlen,
+    output wire [2:0]   io_master_arsize,
+    output wire [1:0]   io_master_arburst,
+    
+    input  wire         io_master_rvalid,
+    input  wire [31:0]  io_master_rdata,
+    input  wire [3:0]   io_master_rid,
+    input  wire         io_master_rlast,
+    input  wire [1:0]   io_master_rresp,
+    output wire         io_master_rready
 );
-    reg [31:0] ifu_sram_addr;
-     reg        ifu_arvalid;    // 地址有效
-    wire       ifu_arready;    // 地址准备好
-   wire        ifu_rvalid;    // 数据有效
-    wire [31:0] ifu_rdata;     // 读出的数据;
-    reg         ifu_rready;    // 数据准备好
 
+    // 状态定义
+    localparam IDLE       = 2'b00;
+    localparam FETCH_ADDR = 2'b01;
+    localparam FETCH_DATA = 2'b10;
 
-      // 状态定义
-    localparam IDLE       = 2'b00;  // 空闲状态
-    localparam ADDR_PHASE = 2'b01;  // 地址握手阶段
-    localparam DATA_PHASE = 2'b10;  // 数据握手阶段
+    // 寄存器定义
+    reg [1:0] state;
+    reg [1:0] next_state;
+    reg [31:0] saved_pc;    // 锁存的PC
+    reg [3:0]  curr_id;     // 当前事务ID
 
-    reg [1:0] state, next_state;
-   
-
-
-    // 状态转换（时序）
-    always @(posedge clk) begin
-        if (rst) begin
+    // 时序逻辑：仅更新状态和锁存数据
+    always @(posedge clock) begin
+        if (reset) begin
             state <= IDLE;
-            inst <= 32'b0;
-            idu_valid <= 1'b0;
-            ifu_rready <= 1'b0;
+            curr_id <= 4'h0;
+            saved_pc <= 32'h0;
         end else begin
             state <= next_state;
-
-            // 更新指令和valid信号
-            if (state == DATA_PHASE && ifu_rvalid && ifu_rready) begin
-                inst <= ifu_rdata;  // 从SRAM读取指令
-                idu_valid <= 1'b1;  // 指令有效
-                ifu_rready <= 1'b0; // 复位rready
-            end
-            else if (idu_valid && idu_ready) begin
-                idu_valid <= 1'b0;  // 指令已被IDU接收
+            
+            if (next_state == FETCH_ADDR) begin
+                saved_pc <= if_next_pc;
+                curr_id <= curr_id + 4'h1;
             end
         end
     end
 
-  reg test;
-    // 组合逻辑：控制信号生成
+    // 组合逻辑：状态转换和所有输出信号生成
     always @(*) begin
         // 默认值
         next_state = state;
-        ifu_arvalid = 1'b0;
-        ifu_rready = 1'b0;
-        ifu_sram_addr = input_pc;
+        io_master_arvalid = 1'b0;
+        io_master_rready = 1'b0;
+        idu_valid = 1'b0;
 
-         case (state)
+        case (state)
             IDLE: begin
-                if (input_valid && !idu_valid) begin  // 当前指令执行完且没有未处理的指令
-                    ifu_arvalid = 1'b1;  // 地址有效
-                    next_state = ADDR_PHASE;
+                if (if_allow_in) begin
+                    next_state = FETCH_ADDR;
                 end
             end
-
-            ADDR_PHASE: begin
-                ifu_arvalid = 1'b1;  // 保持地址有效
-                if (ifu_arready) begin
-                    ifu_arvalid = 1'b0;  // 地址已接收
-                    next_state = DATA_PHASE;
+            
+            FETCH_ADDR: begin
+                io_master_arvalid = 1'b1;
+                if (io_master_arready) begin
+                    next_state = FETCH_DATA;
                 end
             end
-
-            DATA_PHASE: begin
-                ifu_rready = 1'b1;  // 准备好接收数据
-                if (ifu_rvalid && ifu_rready) begin
-                    next_state = IDLE;
+            
+            FETCH_DATA: begin
+                io_master_rready = 1'b1;
+                if (io_master_rvalid && (io_master_rid == curr_id)) begin
+                    idu_valid = 1'b1;
+                    if (idu_ready) begin
+                        next_state = IDLE;
+                    end
                 end
+            end
+            
+            default: begin
+                next_state = IDLE;
             end
         endcase
     end
 
-
-
-
-
-
-
-    ysyx_24090012_SRAM inst_sram(
-        .clk(clk),
-        .rst(rst),
-        .addr(ifu_sram_addr),      // 地址
-        .arvalid(ifu_arvalid),     // 地址有效
-        .arready(ifu_arready),     // 地址准备好
-        .rdata(ifu_rdata),         // 读出的数据
-        .rvalid(ifu_rvalid),       // 数据有效
-        .rready(ifu_rready),       // 数据准备好
-        // 写相关信号全部置0
-        .wdata(32'b0),
-        .wmask(4'b0),
-        .wen(1'b0)
-    );
-
-
-
+    // 其他输出信号直接赋值
+    assign io_master_araddr  = saved_pc;
+    assign io_master_arid    = curr_id;
+    assign io_master_arlen   = 8'b0;        // 单次传输
+    assign io_master_arsize  = 3'b010;      // 4字节
+    assign io_master_arburst = 2'b01;       // INCR模式
+    assign idu_pc    = saved_pc;
+    assign idu_inst  = io_master_rdata;
 
 endmodule

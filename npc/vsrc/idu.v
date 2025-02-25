@@ -2,6 +2,21 @@ module ysyx_24090012_IDU(
   input [31:0] inst,
   input [31:0] pc,
   
+
+  //ifu interface
+  output reg idu_ready,
+  input  idu_valid,
+
+
+
+  //exu interface
+  output reg exu_valid,
+  input  exu_ready,
+
+
+
+
+
   output reg [6:0] opcode,
   output reg [2:0] func3,
   output reg [6:0] func7,
@@ -18,10 +33,35 @@ output reg is_ecall,//csr csr csr
 output reg is_mret//csr csr csr
 
 );
+ 
+
+   // 状态定义
+    localparam IDLE = 1'b0;
+    localparam BUSY = 1'b1;
+
+    reg state, next_state;
+
+
+
+   // 状态转换
+    always @(posedge clk) begin
+        if (rst) begin
+            state <= IDLE;
+        end else begin
+            state <= next_state;
+        end
+    end
+
 
 
 
     always @(*) begin
+
+       next_state = state;
+        ifu_ready = 1'b0;
+        exu_valid = 1'b0;
+
+
     opcode = inst[6:0];
     func3  = inst[14:12];
     
@@ -40,6 +80,21 @@ output reg is_mret//csr csr csr
    // $display("func7 = %b from (idu.v)",func7);
     //$display("opcode = %b from (idu.v)",opcode);
    // $display("At time %t: idu touch PC = 0x%08x", $time, pc);
+
+   case (state)
+            IDLE: begin
+                ifu_ready = 1'b1;
+                if (ifu_valid) begin
+                    next_state = BUSY;
+                end
+            end
+ 
+            BUSY: begin
+                exu_valid = 1'b1;
+                if (exu_ready) begin
+                    next_state = IDLE;
+                end
+
 
     // 根据指令类型，提取立即数和 ALU 操作码
     case (opcode)
@@ -255,6 +310,12 @@ end
       end
     endcase
     
+      end
+            
+            default: begin
+                next_state = IDLE;
+            end
+        endcase
     //$display("alu_op = %b from (idu.v)",alu_op);
   end
     

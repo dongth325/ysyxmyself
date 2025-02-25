@@ -1,4 +1,4 @@
-module ysyx_24090012_NPC(
+module ysyx_24090012(
   input clk,
   input rst,
   input [31:0] mem_data,

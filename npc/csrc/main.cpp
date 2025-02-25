@@ -25,7 +25,8 @@ extern "C" int get_reg_value(int reg_index);
 static VerilatedVcdC* tfp = nullptr;
 static vluint64_t main_time = 0;
 
-
+extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) { assert(0); }
 // 定义仿真状态结构体
 struct NpcState {
     Vysyx_24090012_NPC *top;
@@ -556,7 +557,7 @@ s->top->input_valid = 0;//ifu中手动置0，因为当一个指令执行完如�
     s->top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
 
-         s->top->eval();
+    s->top->eval();
     if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
 
 
