@@ -1,10 +1,11 @@
-#include "Vysyx_24090012_NPC.h"
+//#include "Vysyx_24090012_NPC.h"
+#include "VysyxSoCFull.h"  // Verilator 会自动生成这个头文件
 #include "verilated.h"
 #include <iostream>
 #include <fstream>
 #include <cstring>
 #include "verilated_vcd_c.h"
-#include "difftest_loader.h"
+//#include "difftest_loader.h"
 #include "isa.h"
 #include <stdint.h>
 #include <sys/time.h>
@@ -29,7 +30,8 @@ extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
 extern "C" void mrom_read(int32_t addr, int32_t *data) { assert(0); }
 // 定义仿真状态结构体
 struct NpcState {
-    Vysyx_24090012_NPC *top;
+    //Vysyx_24090012_NPC *top;
+    VysyxSoCFull *top;
     uint64_t inst_count;
     bool ebreak_encountered;
     uint32_t pc;
@@ -215,7 +217,7 @@ void load_memory(const char *program_path, size_t &program_size) {
 extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
      if (addr ==  0xa00003f8) {
          putchar(data & 0xFF);
-          difftest_skip_ref();
+         // difftest_skip_ref();      eeeeeeeeeeee
         return; // 返回，不继续写入内存
     }
    else if (addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
@@ -249,12 +251,12 @@ extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
 
 extern "C"  uint32_t pmem_read(uint32_t addr) {
       if (addr == 0xa0000048) { 
-       difftest_skip_ref();
+       //difftest_skip_ref();eeeeeeeeeee
         return get_current_time_low();  // 返回时间的低32位
         //return 0;
     }
     else if (addr == 0xa000004c) { 
-          difftest_skip_ref();
+         // difftest_skip_ref();eeeeeeeeeeeeeee
         return get_current_time_high(); // 返回时间的高32位
         //return 0;
     }
@@ -287,7 +289,7 @@ extern "C" void ebreak(uint32_t exit_code) {
 // 执行单条指令的函数（类似于 NEMU 的 exec_once）
 void exec_once(NpcState *s) {
     // 从内存中获取指令
-    uint32_t inst;
+   /* uint32_t inst;
     execution_count++;//实际循环了多少次exec_once 也就是真实执行次数 可截止到报错（可在下方添加以便追寻报错）
     uint32_t pc = s->pc;
     if (pc >= MEM_BASE && pc < MEM_BASE + MEM_SIZE) {
@@ -333,7 +335,7 @@ void exec_once(NpcState *s) {
     // 一个时钟周期
 
 
-    s->top->clk = 0;
+   /* s->top->clk = 0;
     s->top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
 
@@ -364,7 +366,7 @@ void exec_once(NpcState *s) {
 
 
 
-s->top->input_valid = 0;//ifu中手动置0，因为当一个指令执行完如果不传入新的inputpc就会重新执行该指令，暂时不完善，所以手动置0使得每个指令ifu组合逻辑只执行一次
+//s->top->input_valid = 0;//ifu中手动置0，因为当一个指令执行完如果不传入新的inputpc就会重新执行该指令，暂时不完善，所以手动置0使得每个指令ifu组合逻辑只执行一次
 
 
 
@@ -581,10 +583,10 @@ s->top->input_valid = 0;//ifu中手动置0，因为当一个指令执行完如�
          if (tfp) tfp->dump(main_time++);
 
      //执行 DiffTest
-    difftest_exec(1);
+  //  difftest_exec(1);
 
 
-    difftest_step(s->top, pc, s->pc);
+  //  difftest_step(s->top, pc, s->pc);
 
     //获取 DUT 和 REF 的 CPU 状态                    
   /*  CPU_state dut_cpu_state;                            //以下被纳入到difftest_step里!!!!!!
@@ -634,8 +636,7 @@ int main(int argc, char **argv) {
     load_memory(program_path, program_size);
 
     // 初始化 Verilated 模型
-    Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;
-     
+   VysyxSoCFull *top = new VysyxSoCFull; 
 
         // 设置 npc_state 的初始值
     npc_state.top = top;
@@ -655,27 +656,27 @@ int main(int argc, char **argv) {
     tfp->open("build/wave.vcd");  // 指定波形文件名
 
     // 初始化 DiffTest
-    load_difftest_library();
-    difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
+    //load_difftest_library();
+    //difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
 
-    CPU_state cpu_state = {0};
-    cpu_state.pc = PROGRAM_START_ADDRESS;
-   difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
+//CPU_state cpu_state = {0};
+   // cpu_state.pc = PROGRAM_START_ADDRESS;
+  // difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
 
     // 复位 DUT
-    top->rst = 1;
+  //  top->rst = 1;
     
    // top->clk = 0;
 
     // 施加复位信号若干周期
     for (int i = 0; i < 5; i++) {
-        top->clk = 1;
+       // top->clk = 1;eeeee
         top->eval();
          if (tfp) tfp->dump(main_time++);
         //trace->dump(Verilated::time());
         //Verilated::timeInc(1);
 
-        top->clk = 0;
+        //top->clk = 0;
         top->eval();
          if (tfp) tfp->dump(main_time++);
        // trace->dump(Verilated::time());
@@ -683,8 +684,8 @@ int main(int argc, char **argv) {
     }
 
     // 释放复位信号
-   top->rst = 0;
-   // top->eval();
+  // top->rst = 0;eeeeeee
+   // top->eval();eeeeeeeee
 
     // 初始化仿真状态
    /* NpcState npc_state;

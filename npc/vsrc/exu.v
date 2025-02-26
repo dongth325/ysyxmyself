@@ -39,7 +39,7 @@ module ysyx_24090012_EXU(
   input [31:0] rs2_data,
   input [31:0] imm,
   input [5:0] alu_op,
-  input exec_enable,
+ 
  
   output reg [31:0] result,
 
@@ -133,7 +133,7 @@ always @(*) begin
   
   case (state)
     IDLE: begin
-      if (idu_valid && idu_ready) begin
+      if (idu_valid && idu_ready) begin   //idu_ready在idle时一直为1
     
     case (alu_op)
       6'b000000: begin

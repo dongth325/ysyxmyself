@@ -1,4 +1,4 @@
-#ifndef DIFFTEST_LOADER_H
+/*#ifndef DIFFTEST_LOADER_H
 #define DIFFTEST_LOADER_H
 
 #include <dlfcn.h>
@@ -35,3 +35,4 @@ void get_dut_cpu_state(Vysyx_24090012_NPC *top, CPU_state *dut_cpu_state);
 bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref);
 
 #endif
+*/

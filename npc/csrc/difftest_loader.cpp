@@ -1,3 +1,4 @@
+/*
 #include "difftest_loader.h"
 #include <iostream>
 #include "isa.h" // 包含 CPU_state 的定义
@@ -232,3 +233,4 @@ extern "C" void difftest_step(Vysyx_24090012_NPC *top,uint32_t pc, uint32_t npc)
         exit(1);
     }
 }
+*/
