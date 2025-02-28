@@ -27,7 +27,16 @@ static VerilatedVcdC* tfp = nullptr;
 static vluint64_t main_time = 0;
 
 extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
-extern "C" void mrom_read(int32_t addr, int32_t *data) {   *data = *(int32_t *)addr; }
+extern "C" void mrom_read(int32_t addr, int32_t *data) {  
+    
+    // *data = *(int32_t *)addr; 
+        if (addr >= 0x20000000 && addr < 0x20000000 + MEM_SIZE) {
+        uint32_t offset = addr - 0x20000000;  // 计算在memory数组中的偏移
+        *data = *(int32_t *)(memory + offset);
+    } else {
+        *data = 0;  // 无效地址返回0
+    }
+     }
 // 定义仿真状态结构体
 struct NpcState {
     //Vysyx_24090012_NPC *top;
