@@ -52,6 +52,7 @@ module ysyx_24090012_IFU (
             if (next_state == FETCH_ADDR) begin
                 saved_pc <= if_next_pc;
                 curr_id <= curr_id + 4'h1;
+                 $display("inst = %h", io_master_rdata);
             end
         end
     end
@@ -81,6 +82,7 @@ module ysyx_24090012_IFU (
             FETCH_DATA: begin
                 io_master_rready = 1'b1;
                 if (io_master_rvalid && (io_master_rid == curr_id)) begin
+                   
                     idu_valid = 1'b1;
                     if (idu_ready) begin
                         next_state = IDLE;

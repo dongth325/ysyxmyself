@@ -514,7 +514,7 @@ ysyx_24090012_IDU idu(
   always @(posedge clock) begin// 更新 PC
       
     if (reset) begin
-      pc <= 32'h80000000;
+      pc <= 32'h2000_0000;
      
     end 
 else begin 
@@ -542,7 +542,7 @@ end
 
       always @(posedge clock) begin
         if (reset) begin
-            pc <= 32'h80000000;
+            pc <= 32'h2000_0000;
             pc_ready <= 1;
         end else if (pc_valid && pc_ready) begin
             // 握手成功，更新PC并拉低ready
