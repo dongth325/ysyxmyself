@@ -88,19 +88,25 @@ module ysyx_24090012(
   wire [31:0] inst;
 
 
-   wire idu_valid;
-   wire idu_ready;
+   //wire idu_valid;//ifu to idu
+   //wire idu_ready;//idu to ifu
 
-   wire        exu_valid;
-   wire        exu_ready;
+   //wire        exu_valid;
+   //wire        exu_ready;
+   wire ifu_to_idu_valid;   // IFU向IDU发出的有效信号
+   wire idu_to_ifu_ready;
 
-   
+   wire idu_to_exu_valid;  // IDU向EXU发出的有效信号
+   wire exu_to_idu_ready;  // EXU向IDU发出的就绪信号
+
+    wire idu_state;  // IDU状态信号
+    wire [1:0] exu_state;  // EXU状态信号
 
    wire csr_rd_valid;
    wire csr_rd_ready;
 
     // PC更新接口
-   wire if_allow_in = pc_ready && rd_ready;
+   wire if_allow_in = pc_ready && rd_ready && idu_state == 1'b0 && exu_state == 2'b00;
 
 
     wire [31:0] ifu_to_idu_pc;    // IFU传给IDU的PC
@@ -298,8 +304,8 @@ ysyx_24090012_arbiter arbiter(
     .if_next_pc(pc),
     
     // IDU Interface
-    .idu_ready(idu_ready),//与idu握手信号和信息传输
-    .idu_valid(idu_valid),
+    .idu_ready(idu_to_ifu_ready),//与idu握手信号和信息传输
+    .idu_valid(ifu_to_idu_valid),
     .idu_pc(ifu_to_idu_pc),
     .idu_inst(inst),
 
@@ -325,17 +331,17 @@ ysyx_24090012_IDU idu(
       .ifu_to_idu_pc(ifu_to_idu_pc),  // 从IFU来的PC
       .idu_to_exu_pc(idu_to_exu_pc),  // 输出到EXU的PC
     // IFU Interface
-    .ifu_ready(idu_ready),    // output: 告诉IFU是否准备好接收新指令
-    .ifu_valid(idu_valid),    // input: IFU提供的指令是否有效
+    .ifu_ready(idu_to_ifu_ready),    // output: 告诉IFU是否准备好接收新指令
+    .ifu_valid(ifu_to_idu_valid),    // input: IFU提供的指令是否有效
     
     // EXU Interface
-    .exu_ready(exu_ready),    // input: EXU是否准备好接收新指令
-    .exu_valid(exu_valid),    // output: 向EXU提供的指令是否有效
+    .exu_ready(exu_to_idu_ready),    // input: EXU是否准备好接收新指令
+    .exu_valid(idu_to_exu_valid),    // output: 向EXU提供的指令是否有效
     
     // Instruction Information
     .inst(inst),              // input: 指令
     
-    
+    .state_out(idu_state),  // 连接状态输出
     // Decoded Information
     .rs1(rs1),               // output
     .rs2(rs2),               // output
@@ -376,10 +382,10 @@ ysyx_24090012_IDU idu(
   .rs2_data(rs2_data),  // 添加 rs2_data 连接
   .imm(imm),
   .alu_op(alu_op),
-  
+   .state_out(exu_state),
 
-  .idu_valid(idu_valid),
-  .idu_ready(idu_ready),
+  .idu_valid(idu_to_exu_valid),
+  .idu_ready(exu_to_idu_ready),
           // LSU接口
         .mem_addr(mem_addr),
         .mem_valid(mem_valid),

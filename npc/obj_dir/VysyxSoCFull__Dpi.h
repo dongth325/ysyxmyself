@@ -28,9 +28,9 @@ extern "C" {
     extern void flash_read(int addr, int* data);
     // DPI import at ../ysyxSoC/build/ysyxSoCFull.v:4648:30
     extern void mrom_read(int raddr, int* rdata);
-    // DPI import at vsrc/exu.v:64:30
+    // DPI import at vsrc/exu.v:65:30
     extern int pmem_read(int addr);
-    // DPI import at vsrc/exu.v:63:31
+    // DPI import at vsrc/exu.v:64:31
     extern void pmem_write(int addr, int data, int mask);
 
 #ifdef __cplusplus
