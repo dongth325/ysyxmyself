@@ -152,7 +152,7 @@ extern int symbol_count; // 符号数量
 void trace_function_call(paddr_t addr) {
     for (int i = 0; i < symbol_count; i++) {
         if (symbols[i].addr == addr) {
-            //Log("Calling function: %s at address: %u", symbols[i].name, addr);
+            Log("Calling function: %s at address: %u", symbols[i].name, addr);
             return;
         }
     }
@@ -162,7 +162,7 @@ void trace_function_call(paddr_t addr) {
 void trace_function_return(paddr_t addr) {
     for (int i = 0; i < symbol_count; i++) {
         if (symbols[i].addr == addr) {
-            //Log("Returning from function: %s at address: %u", symbols[i].name, addr);
+            Log("Returning from function: %s at address: %u", symbols[i].name, addr);
             return;
         }
     }
