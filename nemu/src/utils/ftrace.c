@@ -156,7 +156,7 @@ void trace_function_call(paddr_t addr) {
             return;
         }
     }
-    //Log("Calling unknown function at address: %u", addr);
+    Log("Calling unknown function at address: %u", addr);
 }
 
 void trace_function_return(paddr_t addr) {
@@ -166,5 +166,5 @@ void trace_function_return(paddr_t addr) {
             return;
         }
     }
-    //Log("Returning from unknown function at address: %u", addr);
+    Log("Returning from unknown function at address: %u", addr);
 }
