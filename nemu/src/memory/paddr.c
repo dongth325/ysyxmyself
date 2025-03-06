@@ -32,11 +32,11 @@ static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #include <stdio.h>
 
 void mtrace_read(paddr_t addr, int len, word_t data) {
-   // printf("MTRACE: Read %d bytes from 0x%x, data = 0x%x from (void mtrace_read)\n", len, addr, data);
+    printf("MTRACE: Read %d bytes from 0x%x, data = 0x%x from (void mtrace_read)\n", len, addr, data);
 }
 
 void mtrace_write(paddr_t addr, int len, word_t data) {
-    //printf("MTRACE: Write %d bytes to 0x%x, data = 0x%x from (void mtrace_write)\n", len, addr, data);
+    printf("MTRACE: Write %d bytes to 0x%x, data = 0x%x from (void mtrace_write)\n", len, addr, data);
 }
 #endif
 
