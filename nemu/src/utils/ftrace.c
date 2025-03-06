@@ -150,7 +150,7 @@ extern Symbol *symbols;  // 符号表的外部声明
 extern int symbol_count; // 符号数量
 
 void trace_function_call(paddr_t addr) {
-      printf("Debug: Trying to match call address: 0x%x\n", addr);
+     // printf("Debug: Trying to match call address: 0x%x\n", addr);
     for (int i = 0; i < symbol_count; i++) {
         if (symbols[i].addr == addr) {
             Log("Calling function: %s at address: %u", symbols[i].name, addr);
@@ -161,10 +161,12 @@ void trace_function_call(paddr_t addr) {
 }
 
 void trace_function_return(paddr_t addr) {
-        printf("Debug: Trying to match return address: 0x%x\n", addr);
-    for (int i = 0; i < symbol_count; i++) {
-        if (symbols[i].addr == addr) {
-            Log("Returning from function: %s at address: %u", symbols[i].name, addr);
+for (int i = 0; i < symbol_count; i++) {
+        // 返回时检查PC是否在函数范围内
+        if (addr >= symbols[i].addr && 
+            addr < symbols[i].addr + symbols[i].size) {
+            printf("0x%x: ret  [%s]\n", 
+                   addr, symbols[i].name);
             return;
         }
     }
