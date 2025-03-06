@@ -122,6 +122,21 @@ void parse_elf(const char *elf_file) {
             symbol_count++;
         }
     }
+        // 在解析完成后，打印所有符号信息
+    printf("\nParsed ELF symbols:\n");
+    printf("Total symbols count: %d\n", symbol_count);
+    for (int i = 0; i < symbol_count; i++) {
+        if (symbols[i].size > 0) {  // 只打印有效的函数符号
+            printf("Symbol[%d]: name='%s', addr=0x%x, size=%d\n",
+                   i,
+                   symbols[i].name,
+                   (unsigned int)symbols[i].addr,
+                   (unsigned int)symbols[i].size);
+        }
+    }
+    printf("End of symbol list\n\n");
+
+
 
     // 清理
     free(symtab);
