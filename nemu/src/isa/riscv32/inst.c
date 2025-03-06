@@ -110,7 +110,7 @@ static int decode_exec(Decode *s) {
         if (rd == 1) {
             trace_function_call(s->dnpc); // 追踪函数调用
         } else if (s->isa.inst.val == 0x00008067) {//表示jalr指令
-            trace_function_return(s->pc); // ret -> jalr x0, 0(x1)
+            trace_function_return(s->dnpc); // ret -> jalr x0, 0(x1)
         }
     
 });
