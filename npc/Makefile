@@ -26,15 +26,16 @@ CXXFLAGS += -D__GUEST_ISA__=$(GUEST_ISA)#原本在nemu的makefile中定义guest_
 
 # Verilator 相关设置 添加soc的perip
 VERILATOR = verilator
-VERILATOR_FLAGS = --cc $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
+VERILATOR_FLAGS = --cc  $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
 	--sv \
 	-I../ysyxSoC/perip/uart16550/rtl \
 	-I../ysyxSoC/perip/spi/rtl \
 	--timescale "1ns/1ns" \
 	--no-timing \
-    -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA) -g -O0" \
-	-LDFLAGS "-lreadline -lhistory"  # 直接添加 -lreadline -lhistory 到 LDFLAGS
-
+    -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA) -DDEBUG_PRINT_FULL  -g -O0" \
+    -LDFLAGS "-lreadline -lhistory" 
+    
+	
 
 
 

@@ -52,7 +52,7 @@ module ysyx_24090012_IFU (
             if (next_state == FETCH_ADDR) begin
                 saved_pc <= if_next_pc;
                 curr_id <= curr_id + 4'h1;
-                 $display("inst = %h", io_master_rdata);
+                // $display("inst = %h", io_master_rdata);
             end
         end
     end

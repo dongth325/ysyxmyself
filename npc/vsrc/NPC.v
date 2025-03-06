@@ -106,7 +106,7 @@ module ysyx_24090012(
    wire csr_rd_ready;
 
     // PC更新接口
-   wire if_allow_in = pc_ready && rd_ready && idu_state == 1'b0 && exu_state == 2'b00;
+   wire if_allow_in = !reset && pc_ready && rd_ready && idu_state == 1'b0 && exu_state == 2'b00;
 
 
     wire [31:0] ifu_to_idu_pc;    // IFU传给IDU的PC

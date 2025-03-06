@@ -35,7 +35,7 @@ VM_PREFIX = VysyxSoCFull
 VM_MODPREFIX = VysyxSoCFull
 # User CFLAGS (from -CFLAGS on Verilator command line)
 VM_USER_CFLAGS = \
-	-I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/src/isa/riscv32/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/build/generated -D__GUEST_ISA__=riscv32 -g -O0 \
+	-I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/src/isa/riscv32/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/build/generated -D__GUEST_ISA__=riscv32 -DDEBUG_PRINT_FULL  -g -O0 \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \

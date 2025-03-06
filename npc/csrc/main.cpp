@@ -612,6 +612,8 @@ void execute(NpcState *s, uint64_t n) {
 
 // 主函数
 int main(int argc, char **argv) {
+
+    
     // 初始化部分（与之前相同）
     Verilated::commandArgs(argc, argv);
 
@@ -659,19 +661,26 @@ int main(int argc, char **argv) {
 
     // 复位 
     top->reset = 1;
-    
+        top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
     top->clock = 0;
+
+        top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
 
     // 施加复位信号若干周期
     for (int i = 0; i < 5; i++) {
         top->clock = 1;
-        top->eval();
+            top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
         // if (tfp) tfp->dump(main_time++);
        // trace->dump(Verilated::time());
        // Verilated::timeInc(1);
 
         top->clock = 0;
-        top->eval();
+            top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
         // if (tfp) tfp->dump(main_time++);
        //trace->dump(Verilated::time());
        // Verilated::timeInc(1);
@@ -679,7 +688,8 @@ int main(int argc, char **argv) {
 
     // 释放复位信号
    top->reset = 0;
-    top->eval();
+        top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
 
    
 
