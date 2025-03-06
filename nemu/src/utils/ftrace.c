@@ -165,8 +165,7 @@ for (int i = 0; i < symbol_count; i++) {
         // 返回时检查PC是否在函数范围内
         if (addr >= symbols[i].addr && 
             addr < symbols[i].addr + symbols[i].size) {
-            printf("0x%x: ret  [%s]\n", 
-                   addr, symbols[i].name);
+           Log("Returning from function: %s at address: %u", symbols[i].name, addr);
             return;
         }
     }
