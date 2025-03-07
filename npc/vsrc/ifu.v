@@ -8,13 +8,13 @@ module ysyx_24090012_IFU (
     
     // IDU Interface
     input  wire         idu_ready,      // IDU准备好接收新指令
-    output wire         idu_valid,      // 指令有效信号
-    output wire [31:0]  idu_pc,         // 当前指令PC
-    output wire [31:0]  idu_inst,       // 当前指令
+    output reg         idu_valid,      // 指令有效信号
+    output reg [31:0]  idu_pc,         // 当前指令PC
+    output reg [31:0]  idu_inst,       // 当前指令
 
     // AXI4 Interface for MROM
     input  wire         io_master_arready,
-    output wire         io_master_arvalid,
+    output reg         io_master_arvalid,
     output wire [31:0]  io_master_araddr,
     output wire [3:0]   io_master_arid,
     output wire [7:0]   io_master_arlen,
@@ -26,7 +26,7 @@ module ysyx_24090012_IFU (
     input  wire [3:0]   io_master_rid,
     input  wire         io_master_rlast,
     input  wire [1:0]   io_master_rresp,
-    output wire         io_master_rready
+    output reg         io_master_rready
 );
 
     // 状态定义
@@ -52,6 +52,7 @@ module ysyx_24090012_IFU (
             if (next_state == FETCH_ADDR) begin
                 saved_pc <= if_next_pc;
                 curr_id <= curr_id + 4'h1;
+                // $display("inst = %h", io_master_rdata);
             end
         end
     end
@@ -81,6 +82,7 @@ module ysyx_24090012_IFU (
             FETCH_DATA: begin
                 io_master_rready = 1'b1;
                 if (io_master_rvalid && (io_master_rid == curr_id)) begin
+                   
                     idu_valid = 1'b1;
                     if (idu_ready) begin
                         next_state = IDLE;

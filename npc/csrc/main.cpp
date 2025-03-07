@@ -1,10 +1,11 @@
-#include "Vysyx_24090012_NPC.h"
+//#include "Vysyx_24090012_NPC.h"
+#include "VysyxSoCFull.h"  // Verilator 会自动生成这个头文件
 #include "verilated.h"
 #include <iostream>
 #include <fstream>
 #include <cstring>
 #include "verilated_vcd_c.h"
-#include "difftest_loader.h"
+//#include "difftest_loader.h"
 #include "isa.h"
 #include <stdint.h>
 #include <sys/time.h>
@@ -26,10 +27,20 @@ static VerilatedVcdC* tfp = nullptr;
 static vluint64_t main_time = 0;
 
 extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
-extern "C" void mrom_read(int32_t addr, int32_t *data) { assert(0); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) {  
+    
+    // *data = *(int32_t *)addr; 
+        if (addr >= 0x20000000 && addr < 0x20000000 + MEM_SIZE) {
+        uint32_t offset = addr - 0x20000000;  // 计算在memory数组中的偏移
+        *data = *(int32_t *)(memory + offset);
+    } else {
+        *data = 0;  // 无效地址返回0
+    }
+     }
 // 定义仿真状态结构体
 struct NpcState {
-    Vysyx_24090012_NPC *top;
+    //Vysyx_24090012_NPC *top;
+    VysyxSoCFull *top;
     uint64_t inst_count;
     bool ebreak_encountered;
     uint32_t pc;
@@ -215,7 +226,7 @@ void load_memory(const char *program_path, size_t &program_size) {
 extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
      if (addr ==  0xa00003f8) {
          putchar(data & 0xFF);
-          difftest_skip_ref();
+         // difftest_skip_ref();      eeeeeeeeeeee
         return; // 返回，不继续写入内存
     }
    else if (addr >= MEM_BASE && addr < MEM_BASE + MEM_SIZE) {
@@ -249,12 +260,12 @@ extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
 
 extern "C"  uint32_t pmem_read(uint32_t addr) {
       if (addr == 0xa0000048) { 
-       difftest_skip_ref();
+       //difftest_skip_ref();eeeeeeeeeee
         return get_current_time_low();  // 返回时间的低32位
         //return 0;
     }
     else if (addr == 0xa000004c) { 
-          difftest_skip_ref();
+         // difftest_skip_ref();eeeeeeeeeeeeeee
         return get_current_time_high(); // 返回时间的高32位
         //return 0;
     }
@@ -286,7 +297,7 @@ extern "C" void ebreak(uint32_t exit_code) {
 
 // 执行单条指令的函数（类似于 NEMU 的 exec_once）
 void exec_once(NpcState *s) {
-    // 从内存中获取指令
+    /* 从内存中获取指令
     uint32_t inst;
     execution_count++;//实际循环了多少次exec_once 也就是真实执行次数 可截止到报错（可在下方添加以便追寻报错）
     uint32_t pc = s->pc;
@@ -302,7 +313,7 @@ void exec_once(NpcState *s) {
         std::cerr << "Error: PC out of bounds: 0x" << std::hex << pc << std::dec << std::endl;
         std::cout << "Total instructions executed before error: " << execution_count << std::endl;  // 输出执行次数
         exit(1);
-    }
+    }*/
 
         s->top->eval();
          if (tfp) tfp->dump(main_time++);
@@ -310,21 +321,6 @@ void exec_once(NpcState *s) {
              // 时钟上升沿（更新 PC 和寄存器）
   
 
-   /* uint32_t opcode = inst & 0x7F;  // 提取 opcode
-    if (opcode == 0x03) {  // Load 指令 (opcode = 0x03)
-        // 额外增加一个时钟周期来模拟访存延迟
-        s->top->clk = 0;
-        s->top->eval();
-        if (tfp) tfp->dump(main_time++);
-        s->top->eval();
-        if (tfp) tfp->dump(main_time++);
-
-        s->top->clk = 1;
-        s->top->eval();
-        if (tfp) tfp->dump(main_time++);
-        s->top->eval();
-        if (tfp) tfp->dump(main_time++);
-    }*/
 
 
 
@@ -333,7 +329,165 @@ void exec_once(NpcState *s) {
     // 一个时钟周期
 
 
-    s->top->clk = 0;
+    s->top->clock = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clock = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+       s->top->clock = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clock = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+//s->top->input_valid = 0;//ifu中手动置0，因为当一个指令执行完如果不传入新的inputpc就会重新执行该指令，暂时不完善，所以手动置0使得每个指令ifu组合逻辑只执行一次
+
+
+
+
+
+
+
+            s->top->clock = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clock = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+
+            s->top->clock = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clock = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+            s->top->clock = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clock = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+
+
+            s->top->clock = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clock = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+                s->top->clock = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clock = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+                   s->top->clock = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clock = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+            s->top->clock = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+    s->top->clock = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+      /*   s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+
+
+
+
+            s->top->clk = 0;
     s->top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
 
@@ -346,26 +500,6 @@ void exec_once(NpcState *s) {
 
          s->top->eval();
     if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-        s->top->clk = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clk = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-
-s->top->input_valid = 0;//ifu中手动置0，因为当一个指令执行完如果不传入新的inputpc就会重新执行该指令，暂时不完善，所以手动置0使得每个指令ifu组合逻辑只执行一次
-
 
 
 
@@ -407,144 +541,6 @@ s->top->input_valid = 0;//ifu中手动置0，因为当一个指令执行完如�
 
 
 
-            s->top->clk = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clk = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-
-
-
-            s->top->clk = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clk = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-                s->top->clk = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clk = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-                   s->top->clk = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clk = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-
-            s->top->clk = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clk = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-
-            s->top->clk = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clk = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-
-
-
-            s->top->clk = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clk = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-
-
-            s->top->clk = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clk = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-
 
             s->top->clk = 0;
     s->top->eval();
@@ -561,30 +557,30 @@ s->top->input_valid = 0;//ifu中手动置0，因为当一个指令执行完如�
     if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
 
 
-
+*/
 
 
     // 更新指令计数
     s->inst_count++;
 
     // 检查 ebreak 信号
-    if (s->top->ebreak_flag) {
+ /*   if (s->top->ebreak_flag) {
         s->ebreak_encountered = true;
           std::cout << "Encountered ebreak. Exiting simulation." << std::endl;
         return;
     }
-
+*/
     // 更新 PC
-    s->pc = s->top->pc;
+  //  s->pc = s->top->pc;
 
     s->top->eval();
          if (tfp) tfp->dump(main_time++);
 
      //执行 DiffTest
-    difftest_exec(1);
+  //  difftest_exec(1);
 
 
-    difftest_step(s->top, pc, s->pc);
+  //  difftest_step(s->top, pc, s->pc);
 
     //获取 DUT 和 REF 的 CPU 状态                    
   /*  CPU_state dut_cpu_state;                            //以下被纳入到difftest_step里!!!!!!
@@ -605,8 +601,8 @@ if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
 void execute(NpcState *s, uint64_t n) {
     for (uint64_t i = 0; i < n; i++) {
         exec_once(s);
-        // tfp->dump(main_time);  // 记录波形
-     // main_time++;           // 更新时间
+         tfp->dump(main_time);  // 记录波形
+      main_time++;           // 更新时间
         if (s->ebreak_encountered) {
           
             break;
@@ -616,6 +612,8 @@ void execute(NpcState *s, uint64_t n) {
 
 // 主函数
 int main(int argc, char **argv) {
+
+    
     // 初始化部分（与之前相同）
     Verilated::commandArgs(argc, argv);
 
@@ -623,7 +621,10 @@ int main(int argc, char **argv) {
         std::cout << "Usage: " << argv[0] << " <program.bin>" << std::endl;
         return 1;
     }
-
+        std::cout << "Received " << argc << " arguments:\n";
+    for(int i = 0; i < argc; ++i) {
+        std::cout << "argv[" << i << "] = " << argv[i] << "\n";
+    }
     const char *program_path = argv[1];
 
     // 初始化内存
@@ -634,8 +635,7 @@ int main(int argc, char **argv) {
     load_memory(program_path, program_size);
 
     // 初始化 Verilated 模型
-    Vysyx_24090012_NPC *top = new Vysyx_24090012_NPC;
-     
+   VysyxSoCFull *top = new VysyxSoCFull; 
 
         // 设置 npc_state 的初始值
     npc_state.top = top;
@@ -643,60 +643,60 @@ int main(int argc, char **argv) {
    npc_state.ebreak_encountered = false;
     npc_state.pc = PROGRAM_START_ADDRESS;
 
-    // 初始化波形追踪   原来的。。。。。。
-   /* VerilatedVcdC *trace = new VerilatedVcdC;
-    Verilated::traceEverOn(true);
-    top->trace(trace, 99);
-    trace->open("npc_trace.vcd");*/
+    
 
-       Verilated::traceEverOn(true);
-     tfp = new VerilatedVcdC;
+    Verilated::traceEverOn(true);
+    tfp = new VerilatedVcdC;
+    //tfp->set_time_escape(".", "_");  // 新增：替换特殊字符
     top->trace(tfp, 99);  // 99 是追踪的层级深度
     tfp->open("build/wave.vcd");  // 指定波形文件名
 
     // 初始化 DiffTest
-    load_difftest_library();
-    difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
+    //load_difftest_library();
+    //difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
 
-    CPU_state cpu_state = {0};
-    cpu_state.pc = PROGRAM_START_ADDRESS;
-   difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
+//CPU_state cpu_state = {0};
+   // cpu_state.pc = PROGRAM_START_ADDRESS;
+  // difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
 
-    // 复位 DUT
-    top->rst = 1;
-    
-   // top->clk = 0;
+    // 复位 
+    top->reset = 1;
+        top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+    top->clock = 0;
+
+        top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
 
     // 施加复位信号若干周期
     for (int i = 0; i < 5; i++) {
-        top->clk = 1;
-        top->eval();
-         if (tfp) tfp->dump(main_time++);
-        //trace->dump(Verilated::time());
-        //Verilated::timeInc(1);
-
-        top->clk = 0;
-        top->eval();
-         if (tfp) tfp->dump(main_time++);
+        top->clock = 1;
+            top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+        // if (tfp) tfp->dump(main_time++);
        // trace->dump(Verilated::time());
-        //Verilated::timeInc(1);
+       // Verilated::timeInc(1);
+
+        top->clock = 0;
+            top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+        // if (tfp) tfp->dump(main_time++);
+       //trace->dump(Verilated::time());
+       // Verilated::timeInc(1);
     }
 
     // 释放复位信号
-   top->rst = 0;
-   // top->eval();
+   top->reset = 0;
+        top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
 
-    // 初始化仿真状态
-   /* NpcState npc_state;
-    npc_state.top = top;
-    npc_state.inst_count = 0;
-    npc_state.ebreak_encountered = false;
-    npc_state.pc = PROGRAM_START_ADDRESS;*/
+   
 
      sdb_mainloop();  //dddddddddddddddddddd
 
     // 执行指令
-   /* while (!Verilated::gotFinish() && !npc_state.ebreak_encountered) {    //while循环=批处理模式 dddddddddd
+    /*while (!Verilated::gotFinish() && !npc_state.ebreak_encountered) {    //while循环=批处理模式 dddddddddd
         exec_once(&npc_state);
     }*/
 

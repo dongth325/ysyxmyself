@@ -98,21 +98,21 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? ????? ????? 1101111", jal, J, {
     R(rd) = s->pc + 4;
     s->dnpc = s->pc + imm;
-     IFDEF(CONFIG_ITRACE, {
-        trace_function_call(s->pc); // 追踪函数调用
-    });
+     
+        //trace_function_call(s->dnpc); // 追踪函数调用
+    
 });
   INSTPAT("??????? ????? ????? 000 ????? 1100111", jalr, I, {
     word_t t = s->pc + 4;
     s->dnpc = (src1 + imm) & ~1;
     R(rd) = t;
-     IFDEF(CONFIG_ITRACE, {
-        if (rd == 1) {
-            trace_function_call(s->pc); // 追踪函数调用
+    
+       /* if (rd == 1) {
+            trace_function_call(s->dnpc); // 追踪函数调用
         } else if (s->isa.inst.val == 0x00008067) {//表示jalr指令
-            trace_function_return(s->pc); // ret -> jalr x0, 0(x1)
-        }
-    });
+            trace_function_return(s->dnpc); // ret -> jalr x0, 0(x1)
+        }*/
+    
 });
   INSTPAT("??????? ????? ????? 000 ????? 1100011", beq  , B, if (src1 == src2) s->dnpc = s->pc + imm; );
   INSTPAT("??????? ????? ????? 001 ????? 1100011", bne  , B, if (src1 != src2) s->dnpc = s->pc + imm; );

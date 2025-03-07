@@ -1,6 +1,6 @@
 module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WIDTH = 32) (
-  input clk,
-  input rst,
+  input clock,
+  input reset,
   input [31:0] pc,
   input [ADDR_WIDTH-1:0] raddr1,
   input [ADDR_WIDTH-1:0] raddr2,
@@ -32,8 +32,8 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
  
     end
   end*/
-    always @(posedge clk) begin
-        if (rst) begin
+    always @(posedge clock) begin
+        if (reset) begin
             rd_ready <= 1;
         end else if (rd_valid && rd_ready) begin
             // 握手成功，写入数据并拉低ready

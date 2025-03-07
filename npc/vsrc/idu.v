@@ -1,19 +1,21 @@
 module ysyx_24090012_IDU(
   input [31:0] inst,
-  input [31:0] pc,
+  input [31:0] ifu_to_idu_pc,
   
-
+    input wire clock,        // 改用clock
+    input wire reset,        // 改用reset
   //ifu interface
-  output reg idu_ready,
-  input  idu_valid,
+  output reg ifu_ready,
+  input  ifu_valid,
 
 
 
   //exu interface
   output reg exu_valid,
   input  exu_ready,
+  output reg  [31:0] idu_to_exu_pc, 
 
-
+   output  state_out,  // 添加state输出端口
 
 
 
@@ -40,12 +42,28 @@ output reg is_mret//csr csr csr
     localparam BUSY = 1'b1;
 
     reg state, next_state;
+        // IDU流水线寄存器
+    reg [31:0] inst_r;        // 指令寄存器
+    reg [31:0] pc_r;         // PC寄存器
+  
+    assign idu_to_exu_pc = ifu_to_idu_pc;
+    assign state_out = state;//向top模块输出当前state
 
+    // 流水线寄存器更新
+    always @(posedge clock) begin
+        if (reset) begin
+            inst_r <= 32'b0;
+            pc_r <= 32'b0;
+        end else if (ifu_valid && ifu_ready) begin
+            inst_r <= inst;
+            pc_r <= ifu_to_idu_pc;
+        end
+    end
 
 
    // 状态转换
-    always @(posedge clk) begin
-        if (rst) begin
+    always @(posedge clock) begin
+        if (reset) begin
             state <= IDLE;
         end else begin
             state <= next_state;
@@ -62,13 +80,13 @@ output reg is_mret//csr csr csr
         exu_valid = 1'b0;
 
 
-    opcode = inst[6:0];
-    func3  = inst[14:12];
+    opcode = inst_r[6:0];
+    func3  = inst_r[14:12];
     
-    func7  = inst[31:25];
-    rs1    = inst[19:15];
-    rs2    = inst[24:20];
-    rd     = inst[11:7];
+    func7  = inst_r[31:25];
+    rs1    = inst_r[19:15];
+    rs2    = inst_r[24:20];
+    rd     = inst_r[11:7];
       is_ecall = 0;
       is_mret = 0;
       csr_wen = 0;
@@ -90,10 +108,10 @@ output reg is_mret//csr csr csr
             end
  
             BUSY: begin
-                exu_valid = 1'b1;
+               /* exu_valid = 1'b1;
                 if (exu_ready) begin
                     next_state = IDLE;
-                end
+                end*/
 
 
     // 根据指令类型，提取立即数和 ALU 操作码
@@ -107,15 +125,15 @@ output reg is_mret//csr csr csr
   is_mret = 0;
   
   if (func3 == 3'b000) begin  // ECALL/MRET/EBREAK
-    if (inst[31:20] == 12'b000000000001) begin
+    if (inst_r[31:20] == 12'b000000000001) begin
       alu_op = 6'b001011;  // EBREAK
     end
-    else if (inst[31:20] == 12'b0) begin
+    else if (inst_r[31:20] == 12'b0) begin
       alu_op = 6'b110010;  // ECALL
       is_ecall = 1;
         rs1 = 5'd17;  // a7寄存器的地址
     end
-    else if (inst[31:20] == 12'b001100000010) begin
+    else if (inst_r[31:20] == 12'b001100000010) begin
       alu_op = 6'b110011;  // MRET
       is_mret = 1;
     end
@@ -124,13 +142,13 @@ output reg is_mret//csr csr csr
     case (func3)
       3'b001: begin  // CSRRW
         alu_op = 6'b110000;
-        csr_addr = inst[31:20];
+        csr_addr = inst_r[31:20];
         csr_wen = 1;
        // $display("csr_addr1 = %08x from (idu.v)",csr_addr);
       end
       3'b010: begin  // CSRRS
         alu_op = 6'b110001;
-        csr_addr = inst[31:20];
+        csr_addr = inst_r[31:20];
         csr_wen = 1;
        // $display("csr_addr2 = %08x from (idu.v)",csr_addr);
        // $display("rd = %d from (idu.v) from (idu.v)",rd);
@@ -138,6 +156,8 @@ output reg is_mret//csr csr csr
       default: alu_op = 6'b001111;  // 未实现的操作
     endcase
   end
+    
+
 end
 
 
@@ -152,7 +172,7 @@ end
 
 
          7'b0010011: begin  // I-type (ADDI, SEQZ)
-        imm = {{20{inst[31]}}, inst[31:20]};
+        imm = {{20{inst_r[31]}}, inst_r[31:20]};
         if (func3 == 3'b000) begin
         
           alu_op = 6'b000000;  // ADDI
@@ -169,7 +189,7 @@ end
         end else if (func3 == 3'b100) begin
       alu_op = 6'b001110;  // XORI
     //end else if (func3 == 3'b111 && inst[31:25] == 7'b0100000) begin
-   end else if (func3 == 3'b111 && inst[31:20] == 12'b000011111111) begin
+   end else if (func3 == 3'b111 && inst_r[31:20] == 12'b000011111111) begin
         alu_op = 6'b001111;  // ZEXT.B  注意  若都不匹配的情况alu_op也是001111 注意不要弄混
     end else if (func3 == 3'b101 && func7 == 7'b0100000) begin
   alu_op = 6'b010001;  // SRAI
@@ -190,7 +210,7 @@ end
         end
       end
       7'b0110111: begin  // LUI
-        imm = {inst[31:12], 12'b0};
+        imm = {inst_r[31:12], 12'b0};
         alu_op = 6'b000001;  // LUI
       end
       7'b0110011: begin  // R-type (ADD, SUB)
@@ -231,20 +251,20 @@ end
         end
       end
       7'b0010111: begin  // AUIPC
-        imm = {inst[31:12], 12'b0};
+        imm = {inst_r[31:12], 12'b0};
         alu_op = 6'b000010;  // AUIPC
       end
       7'b1101111: begin  // JAL
-        imm = {{12{inst[31]}}, inst[19:12], inst[20], inst[30:21], 1'b0};
+        imm = {{12{inst_r[31]}}, inst_r[19:12], inst_r[20], inst_r[30:21], 1'b0};
         //$display("At time %t: idu   jal  imm= 0x%08x", $time, imm);
         alu_op = 6'b000011;  // JAL
       end
       7'b1100111: begin  // JALR
-        imm = {{20{inst[31]}}, inst[31:20]};
+        imm = {{20{inst_r[31]}}, inst_r[31:20]};
         alu_op = 6'b000100;  // JALR
       end
       7'b1100011: begin  // B-type (BEQ, BNE)
-        imm = {{19{inst[31]}}, inst[31], inst[7], inst[30:25], inst[11:8], 1'b0};
+        imm = {{19{inst_r[31]}}, inst_r[31], inst_r[7], inst_r[30:25], inst_r[11:8], 1'b0};
         if (func3 == 3'b000) begin
           alu_op = 6'b000110;  // BEQ
          // $display("BEQ imm = %h",imm);
@@ -267,7 +287,7 @@ end
         end
       end
       7'b0000011: begin  // I-type (LW)
-        imm = {{20{inst[31]}}, inst[31:20]};
+        imm = {{20{inst_r[31]}}, inst_r[31:20]};
        // $display("imm of L = %d",imm);//ddddddddddd
          case (func3)
            3'b000: alu_op = 6'b100100;  // LB (Load Byte)
@@ -283,7 +303,7 @@ end
     endcase
       end
       7'b0100011: begin  // S-type (SW)
-        imm = {{20{inst[31]}}, inst[31:25], inst[11:7]};
+        imm = {{20{inst_r[31]}}, inst_r[31:25], inst_r[11:7]};
         case (func3)
         3'b000: alu_op = 6'b100011;  // SB (Store Byte)
           3'b001: alu_op = 6'b110100;  // SH (Store Halfword)
@@ -308,8 +328,13 @@ end
        // $display("default default from (idu.v)");
         
       end
+
+      
     endcase
-    
+     exu_valid = 1'b1;
+                if (exu_ready) begin
+                    next_state = IDLE;
+                end
       end
             
             default: begin

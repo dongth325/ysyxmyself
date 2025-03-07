@@ -1,4 +1,4 @@
-module ysyx_24090012(
+/*module ysyx_24090012(
   input clk,
   input rst,
   input [31:0] mem_data,
@@ -7,6 +7,73 @@ module ysyx_24090012(
   output reg [31:0] pc,
   output reg ebreak_flag,
   output reg [31:0] exit_code
+);*/
+module ysyx_24090012(
+    input         clock,          // 改名：clk -> clock
+    input         reset,          // 改名：rst -> reset
+    input         io_interrupt,   // 外部中断信号，永0
+
+    // AXI4 Master Interface
+    input         io_master_awready,
+    output        io_master_awvalid,
+    output [31:0] io_master_awaddr,
+    output [3:0]  io_master_awid,
+    output [7:0]  io_master_awlen,
+    output [2:0]  io_master_awsize,
+    output [1:0]  io_master_awburst,
+    input         io_master_wready,
+    output        io_master_wvalid,
+    output [31:0] io_master_wdata,
+    output [3:0]  io_master_wstrb,
+    output        io_master_wlast,
+    output        io_master_bready,
+    input         io_master_bvalid,
+    input  [1:0]  io_master_bresp,
+    input  [3:0]  io_master_bid,
+    input         io_master_arready,
+    output        io_master_arvalid,
+    output [31:0] io_master_araddr,
+    output [3:0]  io_master_arid,
+    output [7:0]  io_master_arlen,
+    output [2:0]  io_master_arsize,
+    output [1:0]  io_master_arburst,
+    output        io_master_rready,
+    input         io_master_rvalid,
+    input  [1:0]  io_master_rresp,
+    input  [31:0] io_master_rdata,
+    input         io_master_rlast,
+    input  [3:0]  io_master_rid,
+
+    // AXI4 Slave Interface
+    output        io_slave_awready,
+    input         io_slave_awvalid,
+    input  [31:0] io_slave_awaddr,
+    input  [3:0]  io_slave_awid,
+    input  [7:0]  io_slave_awlen,
+    input  [2:0]  io_slave_awsize,
+    input  [1:0]  io_slave_awburst,
+    output        io_slave_wready,
+    input         io_slave_wvalid,
+    input  [31:0] io_slave_wdata,
+    input  [3:0]  io_slave_wstrb,
+    input         io_slave_wlast,
+    input         io_slave_bready,
+    output        io_slave_bvalid,
+    output [1:0]  io_slave_bresp,
+    output [3:0]  io_slave_bid,
+    output        io_slave_arready,
+    input         io_slave_arvalid,
+    input  [31:0] io_slave_araddr,
+    input  [3:0]  io_slave_arid,
+    input  [7:0]  io_slave_arlen,
+    input  [2:0]  io_slave_arsize,
+    input  [1:0]  io_slave_arburst,
+    input         io_slave_rready,
+    output        io_slave_rvalid,
+    output [1:0]  io_slave_rresp,
+    output [31:0] io_slave_rdata,
+    output        io_slave_rlast,
+    output [3:0]  io_slave_rid
 );
   import "DPI-C" function void ebreak(input int exit_code);
 
@@ -20,26 +87,34 @@ module ysyx_24090012(
   wire wen;
   wire [31:0] inst;
 
-    // SRAM接口信号
-    wire [31:0] sram_addr;
-    wire        sram_valid;
-    wire        sram_ready;
-    wire [31:0] sram_rdata;
-    wire [31:0] sram_wdata;
-    wire [3:0]  sram_wmask;
-    wire       sram_wen;
 
+   //wire idu_valid;//ifu to idu
+   //wire idu_ready;//idu to ifu
 
-   wire idu_valid;
-   wire idu_ready;
+   //wire        exu_valid;
+   //wire        exu_ready;
+   wire ifu_to_idu_valid;   // IFU向IDU发出的有效信号
+   wire idu_to_ifu_ready;
 
-   
+   wire idu_to_exu_valid;  // IDU向EXU发出的有效信号
+   wire exu_to_idu_ready;  // EXU向IDU发出的就绪信号
+
+    wire idu_state;  // IDU状态信号
+    wire [1:0] exu_state;  // EXU状态信号
+
    wire csr_rd_valid;
    wire csr_rd_ready;
+
     // PC更新接口
-   
+   wire if_allow_in = !reset && pc_ready && rd_ready && idu_state == 1'b0 && exu_state == 2'b00;
+
+
+    wire [31:0] ifu_to_idu_pc;    // IFU传给IDU的PC
+    wire [31:0] idu_to_exu_pc;    // IDU传给EXU的PC
+    reg  [31:0] pc;  
     wire        pc_valid;
-      reg pc_ready;
+    reg         pc_ready;
+
 
         // LSU接口
     wire [31:0] mem_addr;
@@ -51,13 +126,7 @@ module ysyx_24090012(
     wire [31:0] mem_rdata;
 
 
-    // LSU接口信号
-wire [31:0] lsu_sram_addr;
-wire        lsu_arvalid;    // LSU -> SRAM (地址有效)
-wire        lsu_arready;    // SRAM -> LSU (地址准备好)
-wire [31:0] lsu_rdata;      // SRAM -> LSU (读出的数据)
-wire        lsu_rvalid;     // SRAM -> LSU (数据有效)
-wire        lsu_rready;     // LSU -> SRAM (数据准备好)
+ 
 
         // RegisterFile写回接口
     wire [4:0]  rd_addr;
@@ -81,13 +150,7 @@ reg csr_wen;
 reg [31:0] mstatus_new;//用于mret指令对mstatus寄存器访问取值后的保存............
 
 
-// IFU接口信号
-wire [31:0] ifu_sram_addr;
-wire        ifu_arvalid;    // IFU -> SRAM (地址有效)
-wire        ifu_arready;    // SRAM -> IFU (地址准备好)
-wire [31:0] ifu_rdata;      // SRAM -> IFU (读出的数据)
-wire        ifu_rvalid;     // SRAM -> IFU (数据有效)
-wire        ifu_rready;     // IFU -> SRAM (数据准备好)
+
 
 
 wire is_ecall, is_mret;
@@ -97,39 +160,209 @@ wire [31:0] mtvec;
 wire [31:0] mepc;
 wire [31:0] mcause;
 
-wire exec_enable = !clk && !rst;  // 在时钟低电平且非复位时有效
+// LSU到arbiter的接口线
+wire        lsu_awvalid;
+wire        lsu_awready;
+wire [31:0] lsu_awaddr;
+wire [3:0]  lsu_awid;
+wire [7:0]  lsu_awlen;
+wire [2:0]  lsu_awsize;
+wire [1:0]  lsu_awburst;
+wire        lsu_wvalid;
+wire        lsu_wready;
+wire [31:0] lsu_wdata;
+wire [3:0]  lsu_wstrb;
+wire        lsu_wlast;
+wire        lsu_bready;
+wire        lsu_bvalid;
+wire [1:0]  lsu_bresp;
+wire [3:0]  lsu_bid;
+wire        lsu_arvalid;
+wire        lsu_arready;
+wire [31:0] lsu_araddr;
+wire [3:0]  lsu_arid;
+wire [7:0]  lsu_arlen;
+wire [2:0]  lsu_arsize;
+wire [1:0]  lsu_arburst;
+wire        lsu_rready;
+wire        lsu_rvalid;
+wire [1:0]  lsu_rresp;
+wire [31:0] lsu_rdata;
+wire        lsu_rlast;
+wire [3:0]  lsu_rid;
 
-wire inst_done = pc_ready & csr_rd_ready & rd_ready;
+
+
+// IFU到arbiter的接口线
+wire        ifu_arvalid;
+wire        ifu_arready;
+wire [31:0] ifu_araddr;
+wire [3:0]  ifu_arid;
+wire [7:0]  ifu_arlen;
+wire [2:0]  ifu_arsize;
+wire [1:0]  ifu_arburst;
+wire        ifu_rready;
+wire        ifu_rvalid;
+wire [1:0]  ifu_rresp;
+wire [31:0] ifu_rdata;
+wire        ifu_rlast;
+wire [3:0]  ifu_rid;
+
+// 实例化arbiter
+ysyx_24090012_arbiter arbiter(
+    .clk(clock),
+    .rst(reset),
+
+    // LSU Master Interface
+    .lsu_awvalid(lsu_awvalid),
+    .lsu_awready(lsu_awready),
+    .lsu_awaddr(lsu_awaddr),
+    .lsu_awid(lsu_awid),
+    .lsu_awlen(lsu_awlen),
+    .lsu_awsize(lsu_awsize),
+    .lsu_awburst(lsu_awburst),
+    .lsu_wvalid(lsu_wvalid),
+    .lsu_wready(lsu_wready),
+    .lsu_wdata(lsu_wdata),
+    .lsu_wstrb(lsu_wstrb),
+    .lsu_wlast(lsu_wlast),
+    .lsu_bready(lsu_bready),
+    .lsu_bvalid(lsu_bvalid),
+    .lsu_bresp(lsu_bresp),
+    .lsu_bid(lsu_bid),
+    .lsu_arvalid(lsu_arvalid),
+    .lsu_arready(lsu_arready),
+    .lsu_araddr(lsu_araddr),
+    .lsu_arid(lsu_arid),
+    .lsu_arlen(lsu_arlen),
+    .lsu_arsize(lsu_arsize),
+    .lsu_arburst(lsu_arburst),
+    .lsu_rready(lsu_rready),
+    .lsu_rvalid(lsu_rvalid),
+    .lsu_rresp(lsu_rresp),
+    .lsu_rdata(lsu_rdata),
+    .lsu_rlast(lsu_rlast),
+    .lsu_rid(lsu_rid),
+
+        // IFU Master Interface
+    .ifu_arvalid(ifu_arvalid),
+    .ifu_arready(ifu_arready),
+    .ifu_araddr(ifu_araddr),
+    .ifu_arid(ifu_arid),
+    .ifu_arlen(ifu_arlen),
+    .ifu_arsize(ifu_arsize),
+    .ifu_arburst(ifu_arburst),
+    .ifu_rready(ifu_rready),
+    .ifu_rvalid(ifu_rvalid),
+    .ifu_rresp(ifu_rresp),
+    .ifu_rdata(ifu_rdata),
+    .ifu_rlast(ifu_rlast),
+    .ifu_rid(ifu_rid),
+
+    // AXI4 Slave Interface (to memory)
+    .io_master_awvalid(io_master_awvalid),
+    .io_master_awready(io_master_awready),
+    .io_master_awaddr(io_master_awaddr),
+    .io_master_awid(io_master_awid),
+    .io_master_awlen(io_master_awlen),
+    .io_master_awsize(io_master_awsize),
+    .io_master_awburst(io_master_awburst),
+    .io_master_wvalid(io_master_wvalid),
+    .io_master_wready(io_master_wready),
+    .io_master_wdata(io_master_wdata),
+    .io_master_wstrb(io_master_wstrb),
+    .io_master_wlast(io_master_wlast),
+    .io_master_bready(io_master_bready),
+    .io_master_bvalid(io_master_bvalid),
+    .io_master_bresp(io_master_bresp),
+    .io_master_bid(io_master_bid),
+    .io_master_arvalid(io_master_arvalid),
+    .io_master_arready(io_master_arready),
+    .io_master_araddr(io_master_araddr),
+    .io_master_arid(io_master_arid),
+    .io_master_arlen(io_master_arlen),
+    .io_master_arsize(io_master_arsize),
+    .io_master_arburst(io_master_arburst),
+    .io_master_rready(io_master_rready),
+    .io_master_rvalid(io_master_rvalid),
+    .io_master_rresp(io_master_rresp),
+    .io_master_rdata(io_master_rdata),
+    .io_master_rlast(io_master_rlast),
+    .io_master_rid(io_master_rid)
+);
+
+
 
 
   // 实例化各个模块
   ysyx_24090012_IFU ifu(
-    .clk(clk),
-    .rst(rst),
-    .pc(pc),
-    .input_pc(input_pc),
-    .input_valid(input_valid),
-    .inst(inst),
-    .idu_valid(idu_valid),
-    .idu_ready(idu_ready),
-    .inst_done(inst_done),
-    // SRAM接口
-    .ifu_sram_addr(ifu_sram_addr),
-    .ifu_arvalid(ifu_arvalid),
-    .ifu_arready(ifu_arready),
-    .ifu_rdata(ifu_rdata),
-    .ifu_rvalid(ifu_rvalid),
-    .ifu_rready(ifu_rready)
+    .clock(clock),
+    .reset(reset),
+
+        // Control Interface
+    .if_allow_in(if_allow_in),    // 暂时设为常开
+    .if_next_pc(pc),
+    
+    // IDU Interface
+    .idu_ready(idu_to_ifu_ready),//与idu握手信号和信息传输
+    .idu_valid(ifu_to_idu_valid),
+    .idu_pc(ifu_to_idu_pc),
+    .idu_inst(inst),
+
+    // AXI4 Interface
+    .io_master_arready(ifu_arready),
+    .io_master_arvalid(ifu_arvalid),
+    .io_master_araddr(ifu_araddr),
+    .io_master_arid(ifu_arid),
+    .io_master_arlen(ifu_arlen),
+    .io_master_arsize(ifu_arsize),
+    .io_master_arburst(ifu_arburst),
+    .io_master_rvalid(ifu_rvalid),
+    .io_master_rdata(ifu_rdata),
+    .io_master_rid(ifu_rid),
+    .io_master_rlast(ifu_rlast),
+    .io_master_rresp(ifu_rresp),
+    .io_master_rready(ifu_rready)
 );
-  ysyx_24090012_IDU idu(.inst(inst), .rs1(rs1), .rs2(rs2), .pc(pc), .rd(rd), .imm(imm), .opcode(opcode), .func3(func3), .func7(func7), .alu_op(alu_op),    .csr_addr(csr_addr),
-    .csr_wen(csr_wen),
-    .is_ecall(is_ecall),
-    .is_mret(is_mret));
+ // 修改IDU实例化
+ysyx_24090012_IDU idu(
+    .clock(clock),
+    .reset(reset),
+      .ifu_to_idu_pc(ifu_to_idu_pc),  // 从IFU来的PC
+      .idu_to_exu_pc(idu_to_exu_pc),  // 输出到EXU的PC
+    // IFU Interface
+    .ifu_ready(idu_to_ifu_ready),    // output: 告诉IFU是否准备好接收新指令
+    .ifu_valid(ifu_to_idu_valid),    // input: IFU提供的指令是否有效
+    
+    // EXU Interface
+    .exu_ready(exu_to_idu_ready),    // input: EXU是否准备好接收新指令
+    .exu_valid(idu_to_exu_valid),    // output: 向EXU提供的指令是否有效
+    
+    // Instruction Information
+    .inst(inst),              // input: 指令
+    
+    .state_out(idu_state),  // 连接状态输出
+    // Decoded Information
+    .rs1(rs1),               // output
+    .rs2(rs2),               // output
+    .rd(rd),                 // output
+    .imm(imm),               // output
+    .opcode(opcode),         // output
+    .func3(func3),           // output
+    .func7(func7),           // output
+    .alu_op(alu_op),         // output
+    
+    // CSR Related
+    .csr_addr(csr_addr),     // output
+    .csr_wen(csr_wen),       // output
+    .is_ecall(is_ecall),     // output
+    .is_mret(is_mret)        // output
+);
   ysyx_24090012_RegisterFile regfile(
     .pc(pc),
-    .clk(clk),
+    .clock(clock),
     
-    .rst(rst),
+    .reset(reset),
     .raddr1(rs1),
     .raddr2(rs2),
     .waddr(rd),
@@ -142,17 +375,17 @@ wire inst_done = pc_ready & csr_rd_ready & rd_ready;
     .rdata2(rs2_data));
   
   ysyx_24090012_EXU exu(
-    .rst(rst),
-    .clk(clk),
-  .pc(pc),
+    .rst(reset),
+    .clk(clock),
+  .pc(idu_to_exu_pc),
   .rs1_data(rs1_data),
   .rs2_data(rs2_data),  // 添加 rs2_data 连接
   .imm(imm),
   .alu_op(alu_op),
-  .exec_enable(exec_enable),
+   .state_out(exu_state),
 
-  .idu_valid(idu_valid),
-  .idu_ready(idu_ready),
+  .idu_valid(idu_to_exu_valid),
+  .idu_ready(exu_to_idu_ready),
           // LSU接口
         .mem_addr(mem_addr),
         .mem_valid(mem_valid),
@@ -205,8 +438,8 @@ wire inst_done = pc_ready & csr_rd_ready & rd_ready;
    ysyx_24090012_CSR csr(
          .csr_rd_valid(csr_rd_valid),    // 添加这行
         .csr_rd_ready(csr_rd_ready),    // 添加这行
-  .clk(clk),
-  .rst(rst),
+  .clk(clock),
+  .rst(reset),
   .csr_addr(csr_addr),
   .csr_wdata(csr_wdata),
   .csr_wen(csr_wen),
@@ -228,72 +461,51 @@ wire inst_done = pc_ready & csr_rd_ready & rd_ready;
 
     // 实例化LSU
     ysyx_24090012_LSU lsu(
-        .clk(clk),
-        .rst(rst),
-        .addr(mem_addr),
-        .valid(mem_valid),
-        .wdata(mem_wdata),
-        .wmask(mem_wmask),
-        .wen(mem_wen),
-        .ready(mem_ready),
-        .rdata(mem_rdata),
-      // SRAM接口
-    .sram_addr(lsu_sram_addr),
-    .sram_arvalid(lsu_arvalid),
-    .sram_arready(lsu_arready),
-    .sram_rdata(lsu_rdata),
-    .sram_rvalid(lsu_rvalid),
-    .sram_rready(lsu_rready),
-    .sram_wdata(sram_wdata),
-    .sram_wmask(sram_wmask),
-    .sram_wen(sram_wen)
+    .clock(clock),
+    .reset(reset),
+
+    // EXU Interface
+    .mem_addr(mem_addr),
+    .mem_valid(mem_valid),
+    .mem_wdata(mem_wdata),
+    .mem_wmask(mem_wmask),
+    .mem_wen(mem_wen),
+    .mem_ready(mem_ready),
+    .mem_rdata(mem_rdata),
+
+    // AXI4 Interface
+    .io_master_awready(lsu_awready),
+    .io_master_awvalid(lsu_awvalid),
+    .io_master_awaddr(lsu_awaddr),
+    .io_master_awid(lsu_awid),
+    .io_master_awlen(lsu_awlen),
+    .io_master_awsize(lsu_awsize),
+    .io_master_awburst(lsu_awburst),
+    .io_master_wready(lsu_wready),
+    .io_master_wvalid(lsu_wvalid),
+    .io_master_wdata(lsu_wdata),
+    .io_master_wstrb(lsu_wstrb),
+    .io_master_wlast(lsu_wlast),
+    .io_master_bready(lsu_bready),
+    .io_master_bvalid(lsu_bvalid),
+    .io_master_bresp(lsu_bresp),
+    .io_master_bid(lsu_bid),
+    .io_master_arready(lsu_arready),
+    .io_master_arvalid(lsu_arvalid),
+    .io_master_araddr(lsu_araddr),
+    .io_master_arid(lsu_arid),
+    .io_master_arlen(lsu_arlen),
+    .io_master_arsize(lsu_arsize),
+    .io_master_arburst(lsu_arburst),
+    .io_master_rready(lsu_rready),
+    .io_master_rvalid(lsu_rvalid),
+    .io_master_rdata(lsu_rdata),
+    .io_master_rresp(lsu_rresp),
+    .io_master_rid(lsu_rid)
     );
 
 
-    
-ysyx_24090012_SRAM sram(
-    .clk(clk),
-    .rst(rst),
-    // IFU接口
-    .ifu_addr(ifu_sram_addr),
-    .ifu_arvalid(ifu_arvalid),
-    .ifu_arready(ifu_arready),
-    .ifu_rdata(ifu_rdata),
-    .ifu_rvalid(ifu_rvalid),
-    .ifu_rready(ifu_rready),
-    // LSU接口
-    .lsu_addr(lsu_sram_addr),
-    .lsu_arvalid(lsu_arvalid),
-    .lsu_arready(lsu_arready),
-    .lsu_rdata(lsu_rdata),
-    .lsu_rvalid(lsu_rvalid),
-    .lsu_rready(lsu_rready),
-    // 写接口
-    .wdata(sram_wdata),
-    .wmask(sram_wmask),
-    .wen(sram_wen)
-);
-/*reg [4:0] test;
-reg [4:0] test1;
-reg [4:0] test2;
-reg [4:0] test3;
 
-always @(posedge clk) begin
-  if(test == 5'd8)
-  test3 <= 2;
-  else if(test == 5'd2)
-  test3 <= 3;
-
-end
-
-
-always @(posedge clk) begin
-  test <= rd;
-  test2 <= test;
-end
-always @(*) begin
-  test1 = test;
-end*/
 
    assign wen = (opcode == 7'b0010011 || opcode == 7'b0110111 || opcode == 7'b0010111 || opcode == 7'b1110011||
                 opcode == 7'b1101111 || opcode == 7'b1100111 || opcode == 7'b0110011 || 
@@ -305,18 +517,17 @@ end*/
 
 
   
-  always @(posedge clk) begin// 更新 PC
+  always @(posedge clock) begin// 更新 PC
       
-    if (rst) begin
-      pc <= 32'h80000000;
-      ebreak_flag <= 0;
+    if (reset) begin
+      pc <= 32'h2000_0000;
+     
     end 
 else begin 
         
 
      if (inst == 32'h00100073) begin  // ebreak 指令
-      ebreak_flag <= 1;
-      exit_code <= regfile.rf[10];  // 获取 a0 寄存器的值
+    
       ebreak(regfile.rf[10]);       // 调用 DPI-C 函数
     end 
 
@@ -335,9 +546,9 @@ end
   end
 
 
-      always @(posedge clk) begin
-        if (rst) begin
-            pc <= 32'h80000000;
+      always @(posedge clock) begin
+        if (reset) begin
+            pc <= 32'h2000_0000;
             pc_ready <= 1;
         end else if (pc_valid && pc_ready) begin
             // 握手成功，更新PC并拉低ready

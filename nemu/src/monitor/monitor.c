@@ -12,7 +12,7 @@
 *
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
-
+#include "../utils/ftrace.h" 
 #include <isa.h>
 #include <memory/paddr.h>
 
@@ -100,8 +100,22 @@ static int parse_args(int argc, char *argv[]) {
 
 void init_monitor(int argc, char *argv[]) {
   /* Perform some global initialization. */
-
+  for(int i = 0; i < argc; i++) {//dddddddddd  add
+    printf("argv[%d]: %s\n", i, argv[i]);
+  }//ddddddddddddddddd   add
   /* Parse arguments. */
+
+    char elf_path[1024];//求出elf路径
+  if (argc > 3) {
+    strcpy(elf_path, argv[3]);
+    char *dot = strrchr(elf_path, '.');
+    if (dot) {
+      strcpy(dot, ".elf");  // 将 .bin 替换为 .elf
+    }
+  }
+
+   parse_elf(elf_path);
+
   parse_args(argc, argv);
 
   /* Set random seed. */

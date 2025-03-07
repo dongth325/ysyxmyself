@@ -2,9 +2,9 @@
 # DESCRIPTION: Verilator output: Makefile for building Verilated archive or executable
 #
 # Execute this makefile from the object directory:
-#    make -f Vysyx_24090012_NPC.mk
+#    make -f VysyxSoCFull.mk
 
-default: Vysyx_24090012_NPC
+default: VysyxSoCFull
 
 ### Constants...
 # Perl executable (from $PERL)
@@ -30,16 +30,16 @@ VM_SC_TARGET_ARCH = linux
 
 ### Vars...
 # Design prefix (from --prefix)
-VM_PREFIX = Vysyx_24090012_NPC
+VM_PREFIX = VysyxSoCFull
 # Module prefix (from --prefix)
-VM_MODPREFIX = Vysyx_24090012_NPC
+VM_MODPREFIX = VysyxSoCFull
 # User CFLAGS (from -CFLAGS on Verilator command line)
 VM_USER_CFLAGS = \
-	-I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/src/isa/riscv32/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/build/generated -D__GUEST_ISA__=riscv32 -g -o0 \
+	-I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/src/isa/riscv32/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/build/generated -D__GUEST_ISA__=riscv32 -DDEBUG_PRINT_FULL  -g -O0 \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \
-	-lreadline -lhistory -g -o0 \
+	-lreadline -lhistory \
 
 # User .cpp files (from .cpp's on Verilator command line)
 VM_USER_CLASSES = \
@@ -53,7 +53,7 @@ VM_USER_DIR = \
 
 ### Default rules...
 # Include list of all generated classes
-include Vysyx_24090012_NPC_classes.mk
+include VysyxSoCFull_classes.mk
 # Include global rules
 include $(VERILATOR_ROOT)/include/verilated.mk
 
@@ -66,7 +66,7 @@ main.o: csrc/main.cpp
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -c -o $@ $<
 
 ### Link rules... (from --exe)
-Vysyx_24090012_NPC: $(VK_USER_OBJS) $(VK_GLOBAL_OBJS) $(VM_PREFIX)__ALL.a $(VM_HIER_LIBS)
+VysyxSoCFull: $(VK_USER_OBJS) $(VK_GLOBAL_OBJS) $(VM_PREFIX)__ALL.a $(VM_HIER_LIBS)
 	$(LINK) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) $(LIBS) $(SC_LIBS) -o $@
 
 

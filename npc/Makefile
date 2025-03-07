@@ -1,8 +1,12 @@
 # 定义 Verilog 文件和生成的可执行文件
-VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v vsrc/csr.v vsrc/sram.v vsrc/lsu.v
+VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v vsrc/csr.v vsrc/arbiter.v vsrc/lsu.v
 CSRC = csrc/main.cpp csrc/difftest_loader.cpp
 
-TOP = ysyx_24090012_NPC
+# 添加ysyxSoC/perip下的所有.v文件
+VSRCS += $(shell find ../ysyxSoC/perip -name "*.v")
+VSRCS += ../ysyxSoC/build/ysyxSoCFull.v
+
+TOP = ysyxSoCFull
 EXE = V$(TOP)
 # NEMU 根目录
 NEMU_HOME = /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu
@@ -20,13 +24,18 @@ CXXFLAGS += -D__GUEST_ISA__=$(GUEST_ISA)#原本在nemu的makefile中定义guest_
 
 
 
-# Verilator 相关设置
+# Verilator 相关设置 添加soc的perip
 VERILATOR = verilator
-VERILATOR_FLAGS = --cc $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
+VERILATOR_FLAGS = --cc  $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
 	--sv \
-    -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA) -g -o0" \
-	-LDFLAGS "-lreadline -lhistory -g -o0"  # 直接添加 -lreadline -lhistory 到 LDFLAGS
-
+	-I../ysyxSoC/perip/uart16550/rtl \
+	-I../ysyxSoC/perip/spi/rtl \
+	--timescale "1ns/1ns" \
+	--no-timing \
+    -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA) -DDEBUG_PRINT_FULL  -g -O0" \
+    -LDFLAGS "-lreadline -lhistory" 
+    
+	
 
 
 
@@ -94,10 +103,11 @@ all: sim
 LDFLAGS += -lreadline -lhistory
 
 # 生成可执行文件时包含 LDFLAGS
+
+
 $(EXE):
 	$(VERILATOR) $(VERILATOR_FLAGS)
-	make -C obj_dir -f V$(TOP).mk LDFLAGS="$(LDFLAGS)" EXTRACXXFLAGS="$(LDFLAGS) -g -o0"
-
+	$(MAKE) -C obj_dir -f V$(TOP).mk
 
 # 运行仿真并传递镜像
 run: $(EXE)
