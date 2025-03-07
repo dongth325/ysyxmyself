@@ -99,7 +99,7 @@ static int decode_exec(Decode *s) {
     R(rd) = s->pc + 4;
     s->dnpc = s->pc + imm;
      
-        trace_function_call(s->dnpc); // 追踪函数调用
+        //trace_function_call(s->dnpc); // 追踪函数调用
     
 });
   INSTPAT("??????? ????? ????? 000 ????? 1100111", jalr, I, {
@@ -107,11 +107,11 @@ static int decode_exec(Decode *s) {
     s->dnpc = (src1 + imm) & ~1;
     R(rd) = t;
     
-        if (rd == 1) {
+        /*if (rd == 1) {
             trace_function_call(s->dnpc); // 追踪函数调用
         } else if (s->isa.inst.val == 0x00008067) {//表示jalr指令
             trace_function_return(s->dnpc); // ret -> jalr x0, 0(x1)
-        }
+        }*/
     
 });
   INSTPAT("??????? ????? ????? 000 ????? 1100011", beq  , B, if (src1 == src2) s->dnpc = s->pc + imm; );
