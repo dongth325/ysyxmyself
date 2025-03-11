@@ -565,14 +565,14 @@ end
     end
 
 
-export "DPI-C" function get_pc_value;
+export "DPI-C"  function get_pc_value;
 
 // 实现获取PC值的函数
 function int get_pc_value();
   get_pc_value = pc; // 返回当前PC值
 endfunction
 
-export "DPI-C" function get_if_allow_in;
+export "DPI-C"  function get_if_allow_in;
 function int get_if_allow_in();
   get_if_allow_in = {31'b0, if_allow_in}; // 返回if_allow_in信号
 endfunction

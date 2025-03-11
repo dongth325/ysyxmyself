@@ -30,7 +30,6 @@ extern "C" int get_saved_addr();
 
 
 
-
 static VerilatedVcdC* tfp = nullptr;
 static vluint64_t main_time = 0;
 
@@ -341,7 +340,7 @@ void exec_once(NpcState *s) {
              // 时钟上升沿（更新 PC 和寄存器）
   
         // 设置CPU上下文
-    svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu");
+    svScope cpu_scope = svGetScopeFromName("TOP.asic.cpu.cpu");
     if (cpu_scope == NULL) {
         fprintf(stderr, "Error: Unable to set DPI scope for CPU\n");
         exit(1);
@@ -706,7 +705,34 @@ int main(int argc, char **argv) {
      if (tfp) tfp->dump(main_time++);  // 记录波形
 
    
-
+    // 获取当前作用域
+    svScope current_scope = svGetScope();
+    printf("Current scope: %s\n", svGetNameFromScope(current_scope));
+    
+    // 尝试一些常见的作用域路径
+    const char* possible_paths[] = {
+        "TOP",
+        "TOP.asic",
+        "TOP.asic.cpu",
+        "TOP.asic.cpu.cpu",
+        "TOP.cpu",
+        "TOP.cpu.cpu",
+        "asic",
+        "asic.cpu",
+        "asic.cpu.cpu",
+        "cpu",
+        "cpu.cpu"
+    };
+    
+    printf("Checking possible scopes:\n");
+    for (size_t i = 0; i < sizeof(possible_paths) / sizeof(possible_paths[0]); i++) {
+        svScope scope = svGetScopeFromName(possible_paths[i]);
+        if (scope != NULL) {
+            printf("  Found scope: %s\n", possible_paths[i]);
+        } else {
+            printf("  Scope not found: %s\n", possible_paths[i]);
+        }
+    }
      sdb_mainloop();  //dddddddddddddddddddd
 
     // 执行指令
