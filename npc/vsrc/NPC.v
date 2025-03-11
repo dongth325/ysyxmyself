@@ -101,12 +101,13 @@ module ysyx_24090012(
 
     wire idu_state;  // IDU状态信号
     wire [1:0] exu_state;  // EXU状态信号
+    wire [1:0] ifu_state;  // IFU状态信号
 
    wire csr_rd_valid;
    wire csr_rd_ready;
 
     // PC更新接口
-   wire if_allow_in = !reset && pc_ready && rd_ready && idu_state == 1'b0 && exu_state == 2'b00;
+   wire if_allow_in = !reset && pc_ready && rd_ready && idu_state == 1'b0 && exu_state == 2'b00 && ifu_state == 2'b00;
 
 
     wire [31:0] ifu_to_idu_pc;    // IFU传给IDU的PC
@@ -298,7 +299,7 @@ ysyx_24090012_arbiter arbiter(
   ysyx_24090012_IFU ifu(
     .clock(clock),
     .reset(reset),
-
+    .state_out(ifu_state),
         // Control Interface
     .if_allow_in(if_allow_in),    // 暂时设为常开
     .if_next_pc(pc),
