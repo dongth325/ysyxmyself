@@ -2,7 +2,7 @@
 #include "difftest_loader.h"
 #include <iostream>
 #include "isa.h" // 包含 CPU_state 的定义
-#include "Vysyx_24090012_NPC.h"
+#include "VysyxSoCFull.h" 
 #include "svdpi.h"
 difftest_memcpy_t difftest_memcpy = nullptr;
 difftest_regcpy_t difftest_regcpy = nullptr;
@@ -10,6 +10,7 @@ difftest_exec_t difftest_exec = nullptr;
 
 extern "C" int get_reg_value(int reg_index);
 extern "C" int get_csr_reg_value(int csr_reg_index);
+extern "C" int get_pc_value();
 //extern NpcState npc_state;
 
 // 跳过控制变量
@@ -35,16 +36,7 @@ extern "C" void difftest_skip_dut(int nr_ref, int nr_dut) {//add difftest skip..
 
 
 
-// 调用该函数来确保DPI上下文已设置
-void set_dpi_context() {
-    svScope scope = svGetScopeFromName("TOP.ysyx_24090012_NPC.regfile");
-    if (scope == NULL) {
-        fprintf(stderr, "Error: Unable to set DPI scope\n");
-        exit(1);
-    }
-    svSetScope(scope);
- 
-}
+
 
 
 void load_difftest_library() {
@@ -65,16 +57,26 @@ void load_difftest_library() {
 }
 
 
-void get_dut_cpu_state(Vysyx_24090012_NPC *top, CPU_state *dut_cpu_state) {
-    // 获取 PC
-   set_dpi_context();
-   //printf("hua hua hua hua hua hua\n");
-    dut_cpu_state->pc = top->pc;
-   // printf("dut_cpu_state->pc=0x%08x from get_dut_cpu_state\n",dut_cpu_state->pc);
-   // printf("pi pi pi pi pi pi\n");
-    // 获取通用寄存器
-    //uint32_t regs[32];
-  // get_rf(regs);  // 调用 DPI-C 函数，获取寄存器文件内容
+void get_dut_cpu_state(VysyxSoCFull *top, CPU_state *dut_cpu_state) {
+    // 获取 PC  设置npc模块上下文
+  svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu");
+    if (cpu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope for CPU\n");
+        exit(1);
+    }
+    svSetScope(cpu_scope);
+    
+    // 获取PC值
+    dut_cpu_state->pc = get_pc_value();
+
+//设置普通reg上下文
+    svScope scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu.regfile");
+    if (scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope\n");
+        exit(1);
+    }
+    svSetScope(scope);
+
 for(int i=0;i<32;i++){
 int reg_value;
 reg_value = get_reg_value(i);
@@ -82,7 +84,7 @@ dut_cpu_state->gpr[i]=get_reg_value(i);
 //printf("register DUT %d value: 0x%08x from (get_dut_cpu_state)\n", i,dut_cpu_state->gpr[i]);
    }
         // 设置 new CSR 上下文
-   svScope csr_scope = svGetScopeFromName("TOP.ysyx_24090012_NPC.csr");
+   svScope csr_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu.csr");
 if (csr_scope == NULL) {
     fprintf(stderr, "Error: Unable to set DPI scope for CSR\n");
     exit(1);
@@ -115,7 +117,7 @@ svSetScope(csr_scope);
         //printf("赋值后的 dut_cpu_state->pc = 0x%08x\n", dut_cpu_state->pc);
     }
     //printf("shu shu shu shu\n");
-    set_dpi_context();//切换 回来 上下文 
+     
 }
 
 bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
@@ -168,7 +170,7 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
 
 
 // 实现 difftest_step 函数
-extern "C" void difftest_step(Vysyx_24090012_NPC *top,uint32_t pc, uint32_t npc) {
+extern "C" void difftest_step(VysyxSoCFull *top,uint32_t pc, uint32_t npc) {
     CPU_state ref_cpu_state;
 
     // 处理需要跳过的 DUT 指令比较

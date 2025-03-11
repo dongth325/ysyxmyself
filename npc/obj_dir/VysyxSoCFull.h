@@ -98,7 +98,11 @@ class alignas(VL_CACHE_LINE_BYTES) VysyxSoCFull VL_NOT_FINAL : public VerilatedM
 
     /// DPI Export functions
     static int get_csr_reg_value(int csr_reg_index);
+    static int get_if_allow_in();
+    static int get_inst_r();
+    static int get_pc_value();
     static int get_reg_value(int reg_index);
+    static int get_saved_addr();
 
     // Abstract methods from VerilatedModel
     const char* hierName() const override final;

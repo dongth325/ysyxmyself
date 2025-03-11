@@ -8,6 +8,7 @@
   output reg ebreak_flag,
   output reg [31:0] exit_code
 );*/
+
 module ysyx_24090012(
     input         clock,          // 改名：clk -> clock
     input         reset,          // 改名：rst -> reset
@@ -145,9 +146,11 @@ reg csr_wen1;
 reg [11:0] csr_addr2;
 reg [31:0] csr_wdata2;
 reg csr_wen2;
+/* verilator lint_off MULTIDRIVEN */
 reg [11:0] csr_addr;
-reg [31:0] csr_wdata;
 reg csr_wen;
+/* verilator lint_on MULTIDRIVEN */
+reg [31:0] csr_wdata;
 reg [31:0] mstatus_new;//用于mret指令对mstatus寄存器访问取值后的保存............
 
 
@@ -560,5 +563,19 @@ end
             pc_ready <= 1;
         end
     end
+
+
+export "DPI-C" function get_pc_value;
+
+// 实现获取PC值的函数
+function int get_pc_value();
+  get_pc_value = pc; // 返回当前PC值
+endfunction
+
+export "DPI-C" function get_if_allow_in;
+function int get_if_allow_in();
+  get_if_allow_in = {31'b0, if_allow_in}; // 返回if_allow_in信号
+endfunction
+
 endmodule
 

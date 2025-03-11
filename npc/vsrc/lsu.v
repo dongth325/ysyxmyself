@@ -169,6 +169,13 @@ module ysyx_24090012_LSU (
         endcase
     end
 
+
+
+export "DPI-C" function get_saved_addr;
+function int get_saved_addr();
+  get_saved_addr = saved_addr; // 假设lsu是LSU模块的实例名
+endfunction
+
 endmodule
 
 

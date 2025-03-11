@@ -18,11 +18,19 @@ extern "C" {
     // DPI EXPORTS
     // DPI export at vsrc/csr.v:136:14
     extern int get_csr_reg_value(int csr_reg_index);
+    // DPI export at vsrc/NPC.v:576:14
+    extern int get_if_allow_in();
+    // DPI export at vsrc/idu.v:348:14
+    extern int get_inst_r();
+    // DPI export at vsrc/NPC.v:571:14
+    extern int get_pc_value();
     // DPI export at vsrc/registerfile.v:61:14
     extern int get_reg_value(int reg_index);
+    // DPI export at vsrc/lsu.v:175:14
+    extern int get_saved_addr();
 
     // DPI IMPORTS
-    // DPI import at vsrc/NPC.v:78:32
+    // DPI import at vsrc/NPC.v:79:32
     extern void ebreak(int exit_code);
     // DPI import at ../ysyxSoC/perip/flash/flash.v:84:30
     extern void flash_read(int addr, int* data);

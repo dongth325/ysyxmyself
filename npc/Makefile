@@ -33,7 +33,9 @@ VERILATOR_FLAGS = --cc  $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
 	--timescale "1ns/1ns" \
 	--no-timing \
     -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA) -DDEBUG_PRINT_FULL  -g -O0" \
-    -LDFLAGS "-lreadline -lhistory" 
+    -LDFLAGS "-lreadline -lhistory" \
+	--public-flat-rw \
+	--debug-check
     
 	
 

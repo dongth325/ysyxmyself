@@ -5,7 +5,7 @@
 #include <fstream>
 #include <cstring>
 #include "verilated_vcd_c.h"
-//#include "difftest_loader.h"
+#include "difftest_loader.h"
 #include "isa.h"
 #include <stdint.h>
 #include <sys/time.h>
@@ -20,7 +20,15 @@ uint64_t execution_count = 0;//统计exec_once真实执行多少次 可以截止
 #define PROGRAM_START_ADDRESS 0x20000000//原来是8,修改成2
 size_t program_size = 0;
 #define MEM_BASE 0x80000000
+
+
 extern "C" int get_reg_value(int reg_index);
+extern "C" int get_pc_value();
+extern "C" int get_inst_r();
+extern "C" int get_if_allow_in();
+extern "C" int get_saved_addr();
+
+
 
 
 static VerilatedVcdC* tfp = nullptr;
@@ -113,7 +121,19 @@ int cmd_q(char *args) {
 }
 
 int cmd_info(char *args) {
+
+
     if (args && strcmp(args, "r") == 0) {
+
+    svScope scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu.regfile");
+    if (scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope\n");
+        exit(1);
+    }
+    svSetScope(scope);//首先切换回普通reg上下文
+
+
+
         for(int i=0;i<32;i++){
 int reg_value;
 reg_value = get_reg_value(i);
@@ -320,7 +340,16 @@ void exec_once(NpcState *s) {
 
              // 时钟上升沿（更新 PC 和寄存器）
   
-    uint32_t old_pc = s->top->asic->CPU->cpu->pc;
+        // 设置CPU上下文
+    svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu");
+    if (cpu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope for CPU\n");
+        exit(1);
+    }
+    svSetScope(cpu_scope);
+    
+    // 获取旧的PC值
+    uint32_t old_pc = get_pc_value();
     
     // 使用do-while循环等待指令执行完成
     do {
@@ -333,10 +362,10 @@ void exec_once(NpcState *s) {
         if (tfp) tfp->dump(main_time++);
         
         // 检查是否遇到ebreak指令
-        if (s->top->asic->CPU->cpu->idu->inst_r == 0x00100073) {
+      /*  if (s->top->asic->CPU->cpu->idu->inst_r == 0x00100073) {
             s->ebreak_encountered = true;
             break;
-        }
+        }*/
         
         // 时钟上升沿
         s->top->clock = 1;
@@ -347,16 +376,32 @@ void exec_once(NpcState *s) {
         if (tfp) tfp->dump(main_time++);
         
         // 更新当前PC
-        s->pc = s->top->asic->CPU->cpu->pc;
+        s->pc = get_pc_value();
         
-    } while (!s->top->asic->CPU->cpu->if_allow_in && !s->ebreak_encountered);
+    } while (!get_if_allow_in());
     
     // 更新指令计数
     s->inst_count++;
     
     // 获取当前指令和内存访问地址
-    uint32_t inst = s->top->asic->CPU->cpu->idu->inst_r;  // 从IDU模块获取inst_r
-    uint32_t mem_addr = s->top->asic->CPU->cpu->lsu->saved_addr;  // 假设LSU是CPU的直接子模块
+        svScope idu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu.idu");
+    if (idu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope for IDU\n");
+        exit(1);
+    }
+    svSetScope(idu_scope);
+    uint32_t inst = get_inst_r();   // 从IDU模块获取inst_r
+
+
+
+        // 设置LSU上下文以获取内存地址
+    svScope lsu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu.lsu");
+    if (lsu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope for LSU\n");
+        exit(1);
+    }
+    svSetScope(lsu_scope);
+    uint32_t mem_addr = get_saved_addr();  // 假设LSU是CPU的直接子模块
     
     // 检查是否需要跳过DiffTest
     bool is_load = (inst & 0x7F) == 0x03;
