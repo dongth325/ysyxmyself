@@ -127,8 +127,9 @@ static word_t mrom_read(paddr_t addr, int len) {//dddddd
 }
 // MROM写入函数 (只读，实际上不会写入)
 static void mrom_write(paddr_t addr, int len, word_t data) {//ddddddd
-  // MROM是只读的，写入操作应该被忽略
-  Log("Warning: Attempt to write to MROM at address " FMT_PADDR, addr);
+   uint8_t *host_addr = mrom_to_host(addr);
+  host_write(host_addr, len, data);
+  Log("MROM write: address " FMT_PADDR ", data " FMT_WORD ", len %d", addr, data, len);
 }
 // SRAM读取函数
 static word_t sram_read(paddr_t addr, int len) {//ddddddd
