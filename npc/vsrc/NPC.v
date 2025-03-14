@@ -1,13 +1,5 @@
-/*module ysyx_24090012(
-  input clk,
-  input rst,
-  input [31:0] mem_data,
-  input [31:0] input_pc,
-  input input_valid,
-  output reg [31:0] pc,
-  output reg ebreak_flag,
-  output reg [31:0] exit_code
-);*/
+
+
 module ysyx_24090012(
     input         clock,          // 改名：clk -> clock
     input         reset,          // 改名：rst -> reset
@@ -75,7 +67,7 @@ module ysyx_24090012(
     output        io_slave_rlast,
     output [3:0]  io_slave_rid
 );
-  import "DPI-C" function void ebreak(input int exit_code);
+  import "DPI-C" context function void ebreak(input int exit_code);
 
   wire [4:0] rs1, rs2, rd;
   wire [6:0] opcode;
@@ -101,12 +93,13 @@ module ysyx_24090012(
 
     wire idu_state;  // IDU状态信号
     wire [1:0] exu_state;  // EXU状态信号
+    wire [1:0] ifu_state;  // IFU状态信号
 
    wire csr_rd_valid;
    wire csr_rd_ready;
 
     // PC更新接口
-   wire if_allow_in = !reset && pc_ready && rd_ready && idu_state == 1'b0 && exu_state == 2'b00;
+   wire if_allow_in = !reset && pc_ready && rd_ready && idu_state == 1'b0 && exu_state == 2'b00 && ifu_state == 2'b00;
 
 
     wire [31:0] ifu_to_idu_pc;    // IFU传给IDU的PC
@@ -124,6 +117,8 @@ module ysyx_24090012(
     wire        mem_wen;
     wire        mem_ready;
     wire [31:0] mem_rdata;
+    wire [2:0]  mem_arsize;
+    wire [2:0]  mem_awsize;
 
 
  
@@ -144,9 +139,11 @@ reg csr_wen1;
 reg [11:0] csr_addr2;
 reg [31:0] csr_wdata2;
 reg csr_wen2;
+/* verilator lint_off MULTIDRIVEN */
 reg [11:0] csr_addr;
-reg [31:0] csr_wdata;
 reg csr_wen;
+/* verilator lint_on MULTIDRIVEN */
+reg [31:0] csr_wdata;
 reg [31:0] mstatus_new;//用于mret指令对mstatus寄存器访问取值后的保存............
 
 
@@ -298,7 +295,7 @@ ysyx_24090012_arbiter arbiter(
   ysyx_24090012_IFU ifu(
     .clock(clock),
     .reset(reset),
-
+    .state_out(ifu_state),
         // Control Interface
     .if_allow_in(if_allow_in),    // 暂时设为常开
     .if_next_pc(pc),
@@ -394,6 +391,8 @@ ysyx_24090012_IDU idu(
         .mem_wen(mem_wen),
         .mem_ready(mem_ready),
         .mem_rdata(mem_rdata),
+        .mem_arsize(mem_arsize),
+        .mem_awsize(mem_awsize),
 
                 // RegisterFile写回接口
         .rd_addr(rd_addr),
@@ -472,6 +471,8 @@ ysyx_24090012_IDU idu(
     .mem_wen(mem_wen),
     .mem_ready(mem_ready),
     .mem_rdata(mem_rdata),
+    .mem_arsize(mem_arsize),
+    .mem_awsize(mem_awsize),
 
     // AXI4 Interface
     .io_master_awready(lsu_awready),
@@ -537,27 +538,54 @@ else begin
 
 
 
-   else if (pc_valid && pc_ready) begin  // 普通指令
+  /* else if (pc_valid && pc_ready) begin  // 普通指令
                 pc <= next_pc;
-            end
+            end*/
 
     //$display("At time %t: NPC after update-pc PC = 0x%08x", $time, pc);*/
 end
   end
-
+// 添加reset状态变化监控
+always @(reset) begin
+    $display("RESET CHANGED TO %d from NPC \n", reset);
+end
 
       always @(posedge clock) begin
+     //   $display("5555pc = %08x",pc);
+      //  $display("6666next pc = %08x",next_pc);
+      //  $display("7777pc valid = %08x",pc_valid);
+      //  $display("8888pc ready = %08x",pc_ready);
+      //  $display("9999 reset = %08x",reset);
+        
         if (reset) begin
+           $display("reset = %d ", reset);
             pc <= 32'h2000_0000;
             pc_ready <= 1;
+
         end else if (pc_valid && pc_ready) begin
             // 握手成功，更新PC并拉低ready
+          //  $display("4444pc = %08x",next_pc);
             pc <= next_pc;
             pc_ready <= 0;  // 更新过程中拉低ready
+          //  $display("9999pc = %08x",pc);
         end else if (!pc_ready) begin
             // 更新已完成，重新拉高ready
             pc_ready <= 1;
         end
     end
+
+
+export "DPI-C"  function get_pc_value;
+
+// 实现获取PC值的函数
+function int get_pc_value();
+  get_pc_value = pc; // 返回当前PC值
+endfunction
+
+export "DPI-C"  function get_if_allow_in;
+function int get_if_allow_in();
+  get_if_allow_in = {31'b0, if_allow_in}; // 返回if_allow_in信号
+endfunction
+
 endmodule
 

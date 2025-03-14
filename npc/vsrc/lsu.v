@@ -10,6 +10,8 @@ module ysyx_24090012_LSU (
     input  wire        mem_wen,
     output reg         mem_ready,
     output reg  [31:0] mem_rdata,
+    input  wire [2:0]  mem_awsize,
+    input  wire [2:0]  mem_arsize,
 
     // AXI4 Master Interface
     // Write Address Channel
@@ -64,7 +66,28 @@ module ysyx_24090012_LSU (
     reg [31:0] saved_addr;
     reg [31:0] saved_wdata;
     reg [3:0]  saved_wmask;
+    reg [2:0]  saved_arsize;
+    reg [2:0]  saved_awsize;
     reg [3:0]  curr_id;    // 当前事务ID
+
+always @(posedge clock) begin
+    // 写响应检测
+    if (io_master_bresp != 2'b00) begin
+        $display("LSU error! bid expected: %h, received: %h, bresp: %b", 
+                curr_id, 
+                io_master_bid, 
+                io_master_bresp);
+    end
+    
+    // 读响应检测
+    if (io_master_rresp != 2'b00) begin
+        $display("LSU read ID wrong! curr_id: %h, rid: %h, rresp: %b",
+                curr_id,
+                io_master_rid,
+                io_master_rresp);
+    end
+end
+
 
     // 时序逻辑：状态更新和数据保存
     always @(posedge clock) begin
@@ -77,6 +100,8 @@ module ysyx_24090012_LSU (
                 saved_addr <= mem_addr;
                 saved_wdata <= mem_wdata;
                 saved_wmask <= mem_wmask;
+                saved_arsize <= mem_arsize;
+                saved_awsize <= mem_awsize;
                 curr_id <= curr_id + 4'h1;  // 递增事务ID
             end
             state <= next_state;
@@ -85,6 +110,7 @@ module ysyx_24090012_LSU (
 
     // 组合逻辑：状态转换和控制信号生成
     reg [2:0] next_state;
+    reg [31:0] processed_rdata;//用于对读出数据进行寄存，最后赋值给mem rdata
     always @(*) begin
         // 默认值
         next_state = state;
@@ -99,18 +125,20 @@ module ysyx_24090012_LSU (
         // 固定值
         io_master_awid    = curr_id;        // 使用当前事务ID
         io_master_awlen   = 8'd0;           // 单次传输
-        io_master_awsize  = 3'b010;         // 4字节
+        io_master_awsize  = saved_awsize;  
+       io_master_awsize  = 1;         
         io_master_awburst = 2'b01;          // INCR模式
         io_master_arid    = curr_id;        // 使用当前事务ID
         io_master_arlen   = 8'd0;           // 单次传输
-        io_master_arsize  = 3'b010;         // 4字节
+        io_master_arsize  = saved_arsize;  
+       //io_master_arsize  = 1;       
         io_master_arburst = 2'b01;          // INCR模式
         
         // 地址和数据连接
         io_master_awaddr = saved_addr;
         io_master_araddr = saved_addr;
         io_master_wdata  = saved_wdata;
-        io_master_wstrb  = saved_wmask;
+        //io_master_wstrb  = saved_wmask;
         io_master_wlast  = 1'b1;            // 单次传输永远为1
         
         // 状态转换和控制信号生成
@@ -159,7 +187,11 @@ module ysyx_24090012_LSU (
                     // 检查响应和ID
                     if (io_master_rid == curr_id && io_master_rresp == 2'b00) begin
                         mem_ready = 1'b1;
-                        mem_rdata = io_master_rdata;
+                        //mem_rdata = io_master_rdata;
+                        mem_rdata = processed_rdata; 
+                       
+           
+           
                     end
                     next_state = IDLE;
                 end
@@ -168,6 +200,137 @@ module ysyx_24090012_LSU (
             default: next_state = IDLE;
         endcase
     end
+
+
+
+
+
+always @(*) begin
+    // 默认值
+    processed_rdata = 32'b0;
+    
+    // 根据读操作类型处理数据
+    case (saved_arsize)
+        3'b000: begin // 字节访问 lb
+            case (saved_addr[1:0])
+                2'b00: processed_rdata = {{24{io_master_rdata[7]}}, io_master_rdata[7:0]};
+                2'b01: processed_rdata = {{24{io_master_rdata[15]}}, io_master_rdata[15:8]};
+                2'b10: processed_rdata = {{24{io_master_rdata[23]}}, io_master_rdata[23:16]};
+                2'b11: processed_rdata = {{24{io_master_rdata[31]}}, io_master_rdata[31:24]};
+            endcase
+        end
+        3'b001: begin // 半字访问 lh
+            case (saved_addr[1:0])
+                2'b00: processed_rdata = {{16{io_master_rdata[15]}}, io_master_rdata[15:0]};
+                2'b10: processed_rdata = {{16{io_master_rdata[31]}}, io_master_rdata[31:16]};
+                default: begin
+                    processed_rdata = 32'b0;
+                    $display("error!!!!! half word read is not aligned");
+                end
+            endcase
+        end
+        3'b010: begin // 字访问 lw
+            case (saved_addr[1:0])
+                2'b00: processed_rdata = io_master_rdata;
+                default: begin
+                    processed_rdata = 32'b0;
+                    $display("error!!!!! word read is not aligned");
+                end
+            endcase
+        end
+        default: begin
+            processed_rdata = 32'b0;
+            $display("wrong!!!!! unknown read size");
+        end
+    endcase
+end
+
+
+
+
+
+
+
+always @(*) begin
+    // 默认值
+
+  
+    io_master_wstrb = 4'b0000;
+ //io_master_wstrb = 1;
+
+    // 根据写操作的大小和地址计算 wstrb
+    case (saved_awsize)
+    3'b000: begin // 1 字节 sb
+        case (saved_addr[1:0])
+            2'b00: begin
+                io_master_wstrb = 4'b0001;
+                io_master_wdata = {24'b0, saved_wdata[7:0]}; // 数据在低8位
+            end
+            2'b01: begin
+                io_master_wstrb = 4'b0010;
+                io_master_wdata = {16'b0, saved_wdata[7:0], 8'b0}; // 数据在8-15位
+            end
+            2'b10: begin
+                io_master_wstrb = 4'b0100;
+                io_master_wdata = {8'b0, saved_wdata[7:0], 16'b0}; // 数据在16-23位
+            end
+            2'b11: begin
+                io_master_wstrb = 4'b1000;
+                io_master_wdata = {saved_wdata[7:0], 24'b0}; // 数据在高8位
+            end
+        endcase
+    end
+3'b001: begin // 半字访问  sh
+    case (saved_addr[1:0])
+        2'b00: begin
+            io_master_wstrb = 4'b0011;  // 写入低两字节
+            io_master_wdata = {16'b0, saved_wdata[15:0]}; // 数据保持低位
+        end
+        2'b10: begin
+            io_master_wstrb = 4'b1100;  // 写入高两字节
+            io_master_wdata = {saved_wdata[15:0], 16'b0}; // 数据左移16位
+        end
+        default: begin 
+            io_master_wstrb = 4'b0000;
+            $display("error!!!!! half word access is not aligned");
+        end
+    endcase
+end
+    3'b010: begin // 字访问  sw
+        case (saved_addr[1:0])
+            2'b00: io_master_wstrb = 4'b1111;
+            default: begin
+                io_master_wstrb = 4'b0000;
+                $display("error!!!!! word access is not aligned from lsu.v line:236");
+                $display("saved_addr is %h from lsu.v line:237", saved_addr);
+                // 应该触发非对齐
+            end
+        endcase
+    end
+        default: begin
+            io_master_wstrb = 4'b0000;
+            $display("wrong!!!!!!!saved awsizes is unknown number from lsu.v line:230");
+            $display("saved_awsize is %h from lsu.v line:231", saved_awsize);
+        end
+    endcase
+end   
+
+
+always @(io_master_wstrb) begin
+    $display("io_master_wstrb CHANGED TO %d from lsu \n", io_master_wstrb);
+end
+
+
+
+
+always @(reset) begin
+    $display("RESET CHANGED TO %d from lsu \n", reset);
+end
+
+export "DPI-C"  function get_saved_addr;
+function int get_saved_addr();
+  get_saved_addr = saved_addr; // 假设lsu是LSU模块的实例名
+endfunction
 
 endmodule
 

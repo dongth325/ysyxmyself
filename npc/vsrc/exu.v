@@ -15,6 +15,8 @@ module ysyx_24090012_EXU(
     output reg        mem_wen,
     input            mem_ready,
     input [31:0]     mem_rdata,
+    output reg [2:0] mem_arsize,//新增axi对size判断
+    output reg [2:0] mem_awsize,//新增axi对size判断  exu顶层信号
     
     // RegisterFile写回接口 (master)
     output reg [4:0]  rd_addr,
@@ -150,6 +152,8 @@ always @(*) begin
         mem_wdata = 0;
         mem_wmask = 0;
         mem_wen = 0;
+        mem_awsize = 0;
+        mem_arsize = 0;
         
       // RegFile写回接口默认值
         rd_addr = 0;
@@ -217,6 +221,7 @@ always @(*) begin
       6'b000010: begin
         // AUIPC
         result = pc_r + imm_r;
+       
         next_pc = pc_r + 4;
         rd_data = result;
         rd_valid = 1;
@@ -294,6 +299,7 @@ always @(*) begin
                     mem_valid = 1;
                     mem_wen = 0;
                     mem_wmask = 0;
+                    mem_arsize = 3'b010;
                     next_state = WAIT_READY;
 
 
@@ -309,6 +315,7 @@ always @(*) begin
                     mem_valid = 1;
                     mem_wen = 1;
                     mem_wmask = 4;
+                    mem_awsize = 3'b010;
                     next_state = WAIT_READY;
       end
 
@@ -452,6 +459,7 @@ always @(*) begin
                     mem_valid = 1;
                     mem_wen = 0;
                     mem_wmask = 0;
+                    mem_arsize = 3'b000;
                     next_state = WAIT_READY;
 
    // $display("1111111 rsdata = %h",pmem_read(rs1_data + imm));
@@ -528,6 +536,7 @@ always @(*) begin
                     mem_valid = 1;
                     mem_wen = 0;
                     mem_wmask = 0;
+                    mem_arsize = 3'b001;
                     next_state = WAIT_READY;
     end
     6'b100000: begin
@@ -539,6 +548,7 @@ always @(*) begin
                     mem_valid = 1;
                     mem_wen = 0;
                     mem_wmask = 0;
+                    mem_arsize = 3'b001;
                     next_state = WAIT_READY;
     end
     6'b100001: begin
@@ -570,6 +580,7 @@ always @(*) begin
                     mem_valid = 1;
                     mem_wen = 1;
                     mem_wmask = 1;
+                    mem_awsize = 3'b000;
                     next_state = WAIT_READY;
 
     end
@@ -581,6 +592,7 @@ always @(*) begin
                     mem_valid = 1;
                     mem_wen = 0;
                     mem_wmask = 0;
+                    mem_arsize = 3'b000;
                     next_state = WAIT_READY;
     end
     6'b100101: begin
@@ -689,6 +701,7 @@ end
                     mem_valid = 1;
                     mem_wen = 1;
                     mem_wmask = 2;
+                    mem_awsize = 3'b001;
                     next_state = WAIT_READY;
                 
 
@@ -822,7 +835,8 @@ WAIT_READY: begin
           6'b011000: begin  // LBU
                 mem_valid = 1;
                 if (mem_ready) begin
-                    result = {24'b0, mem_rdata[7:0]};
+                    result = {24'b0, mem_rdata[7:0]};//lbu无符号加载字节，需要手动 exu 进行处理，0补位（lb是高位补位，具体逻辑在lsu中）
+                    
                     rd_data = result;
                     rd_valid = 1;
                     next_pc = pc + 4;
@@ -852,7 +866,8 @@ WAIT_READY: begin
                 6'b100100: begin  // LB
             mem_valid = 1;
             if (mem_ready) begin
-                result = {{24{mem_rdata[7]}}, mem_rdata[7:0]};  // 符号扩展
+                //result = {{24{mem_rdata[7]}}, mem_rdata[7:0]};  // 符号扩展
+                result = mem_rdata;//在lsu中已扩展可直接赋值
                 rd_data = result;
                 rd_valid = 1;
                 next_pc = pc + 4;
@@ -867,7 +882,8 @@ WAIT_READY: begin
                  6'b011111: begin  // LH
             mem_valid = 1;
             if (mem_ready) begin
-                result = {{16{mem_rdata[15]}}, mem_rdata[15:0]};  // 符号扩展
+               // result = {{16{mem_rdata[15]}}, mem_rdata[15:0]};  // 符号扩展 
+                result = mem_rdata;//在lsu中已扩展可直接赋值
                 rd_data = result;
                 rd_valid = 1;
                 next_pc = pc + 4;
@@ -883,7 +899,8 @@ WAIT_READY: begin
                6'b100000: begin  // LHU
             mem_valid = 1;
             if (mem_ready) begin
-                result = {16'b0, mem_rdata[15:0]};  // 零扩展
+                result = {16'b0, mem_rdata[15:0]};  // 需手动在exu补0扩展
+               // result = mem_rdata;
                 rd_data = result;
                 rd_valid = 1;
                 next_pc = pc + 4;

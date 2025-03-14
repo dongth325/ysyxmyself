@@ -344,4 +344,9 @@ end
     //$display("alu_op = %b from (idu.v)",alu_op);
   end
     
+export "DPI-C"  function get_inst_r;
+function int get_inst_r();
+  get_inst_r = inst_r; // 假设idu是IDU模块的实例名
+endfunction
+
 endmodule

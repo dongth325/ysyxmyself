@@ -21,6 +21,8 @@ module ysyx_24090012_IFU (
     output wire [2:0]   io_master_arsize,
     output wire [1:0]   io_master_arburst,
     
+    output reg [1:0] state_out,
+
     input  wire         io_master_rvalid,
     input  wire [31:0]  io_master_rdata,
     input  wire [3:0]   io_master_rid,
@@ -64,7 +66,7 @@ module ysyx_24090012_IFU (
         io_master_arvalid = 1'b0;
         io_master_rready = 1'b0;
         idu_valid = 1'b0;
-
+        state_out = state;
         case (state)
             IDLE: begin
                 if (if_allow_in) begin

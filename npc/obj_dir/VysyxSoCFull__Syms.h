@@ -19,7 +19,11 @@
 
 // DPI TYPES for DPI Export callbacks (Internal use)
 using VysyxSoCFull__Vcb_get_csr_reg_value_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ csr_reg_index, IData/*31:0*/ &get_csr_reg_value__Vfuncrtn);
+using VysyxSoCFull__Vcb_get_if_allow_in_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_if_allow_in__Vfuncrtn);
+using VysyxSoCFull__Vcb_get_inst_r_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_inst_r__Vfuncrtn);
+using VysyxSoCFull__Vcb_get_pc_value_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_pc_value__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_reg_value_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ reg_index, IData/*31:0*/ &get_reg_value__Vfuncrtn);
+using VysyxSoCFull__Vcb_get_saved_addr_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_saved_addr__Vfuncrtn);
 
 // SYMS CLASS (contains all model state)
 class alignas(VL_CACHE_LINE_BYTES)VysyxSoCFull__Syms final : public VerilatedSyms {
@@ -41,7 +45,10 @@ class alignas(VL_CACHE_LINE_BYTES)VysyxSoCFull__Syms final : public VerilatedSym
     VerilatedScope __Vscope_ysyxSoCFull__asic__axi4xbar_1;
     VerilatedScope __Vscope_ysyxSoCFull__asic__axi4yank;
     VerilatedScope __Vscope_ysyxSoCFull__asic__axi4yank__unnamedblk1;
+    VerilatedScope __Vscope_ysyxSoCFull__asic__cpu__cpu;
     VerilatedScope __Vscope_ysyxSoCFull__asic__cpu__cpu__csr;
+    VerilatedScope __Vscope_ysyxSoCFull__asic__cpu__cpu__idu;
+    VerilatedScope __Vscope_ysyxSoCFull__asic__cpu__cpu__lsu;
     VerilatedScope __Vscope_ysyxSoCFull__asic__cpu__cpu__regfile;
     VerilatedScope __Vscope_ysyxSoCFull__asic__lmrom;
     VerilatedScope __Vscope_ysyxSoCFull__flash;
