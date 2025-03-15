@@ -1,4 +1,4 @@
-//#include "Vysyx_24090012_NPC.h"
+
 #include "VysyxSoCFull.h"  // Verilator 会自动生成这个头文件
 #include "verilated.h"
 #include <iostream>
@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include "svdpi.h"
+#include "verilated_dpi.h"//用于打印所有dpi 上下文环境
 #include <chrono>  // 添加获取时间的库 
 //dddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 #include <readline/readline.h>
@@ -49,7 +50,7 @@ struct NpcState {
     //Vysyx_24090012_NPC *top;
     VysyxSoCFull *top;
     uint64_t inst_count;
-    bool ebreak_encountered;
+    bool ebreak_encountered; //让exec once 循环退出
     uint32_t pc;
 };
 NpcState npc_state;
@@ -124,7 +125,7 @@ int cmd_info(char *args) {
 
     if (args && strcmp(args, "r") == 0) {
 
-    svScope scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu.regfile");
+    svScope scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.regfile");
     if (scope == NULL) {
         fprintf(stderr, "Error: Unable to set DPI scope\n");
         exit(1);
@@ -139,7 +140,14 @@ reg_value = get_reg_value(i);
 printf("reg[%d] = %08x\n",i,reg_value);
 //printf("register DUT %d value: 0x%08x from (get_dut_cpu_state)\n", i,dut_cpu_state->gpr[i]);
    }
-   uint32_t pc = npc_state.pc;
+   svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu");
+    if (cpu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope for CPU\n");
+        exit(1);
+    }
+    svSetScope(cpu_scope);
+
+   uint32_t pc = get_pc_value();
    printf(" PC = %08x\n",pc);
     } else if (args && strcmp(args, "m") == 0) {
         // 显示内存信息
@@ -305,8 +313,10 @@ extern "C"  uint32_t pmem_read(uint32_t addr) {
 extern "C" void ebreak(uint32_t exit_code) {
     if (exit_code == 0) {
         std::cout << "HIT GOOD TRAP" << std::endl;
+        npc_state.ebreak_encountered = true;
     } else {
         std::cout << "HIT BAD TRAP with exit_code= " << exit_code << std::endl;
+         exit(1);  // 立即退出
     }
     Verilated::gotFinish(true);  // 通知 Verilator 结束仿真
 }
@@ -333,14 +343,12 @@ void exec_once(NpcState *s) {
         std::cout << "Total instructions executed before error: " << execution_count << std::endl;  // 输出执行次数
         exit(1);
     }*/
-   
-        s->top->eval();
-         if (tfp) tfp->dump(main_time++);
+ //111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 
              // 时钟上升沿（更新 PC 和寄存器）
   
         // 设置CPU上下文
-    svScope cpu_scope = svGetScopeFromName("TOP.asic.cpu.cpu");
+    svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu");
     if (cpu_scope == NULL) {
         fprintf(stderr, "Error: Unable to set DPI scope for CPU\n");
         exit(1);
@@ -350,9 +358,19 @@ void exec_once(NpcState *s) {
     // 获取旧的PC值
     uint32_t old_pc = get_pc_value();
     
+  
+    
+
     // 使用do-while循环等待指令执行完成
     do {
+        if (s->ebreak_encountered) {
+            Verilated::gotFinish(true);  // 强制终止Verilator
+            return;  // 立即返回
+        }
         // 时钟下降沿
+        s->top->reset = 0;
+
+
         s->top->clock = 0;
         s->top->eval();
         if (tfp) tfp->dump(main_time++);
@@ -360,11 +378,8 @@ void exec_once(NpcState *s) {
         s->top->eval();
         if (tfp) tfp->dump(main_time++);
         
-        // 检查是否遇到ebreak指令
-      /*  if (s->top->asic->CPU->cpu->idu->inst_r == 0x00100073) {
-            s->ebreak_encountered = true;
-            break;
-        }*/
+   
+    
         
         // 时钟上升沿
         s->top->clock = 1;
@@ -374,16 +389,21 @@ void exec_once(NpcState *s) {
         s->top->eval();
         if (tfp) tfp->dump(main_time++);
         
+   
+    
+
         // 更新当前PC
         s->pc = get_pc_value();
-        
+        //printf("11111pc = %08x\n",s->pc);
+        //printf("11111 if allow in = %08x\n",get_if_allow_in());
     } while (!get_if_allow_in());
-    
+    //printf("222222pc = %08x\n",s->pc);
+   // printf("222222 if allow in = %08x\n",get_if_allow_in());
     // 更新指令计数
     s->inst_count++;
     
     // 获取当前指令和内存访问地址
-        svScope idu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu.idu");
+        svScope idu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.idu");
     if (idu_scope == NULL) {
         fprintf(stderr, "Error: Unable to set DPI scope for IDU\n");
         exit(1);
@@ -394,7 +414,7 @@ void exec_once(NpcState *s) {
 
 
         // 设置LSU上下文以获取内存地址
-    svScope lsu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu.lsu");
+    svScope lsu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.lsu");
     if (lsu_scope == NULL) {
         fprintf(stderr, "Error: Unable to set DPI scope for LSU\n");
         exit(1);
@@ -412,16 +432,30 @@ void exec_once(NpcState *s) {
     }
     
     // 执行DiffTest
-    difftest_step(s->top, old_pc, s->pc);
-
+   // difftest_step(s->top, old_pc, s->pc);
+//111111111111111111111111111111111111111111111111111111111111
 
 
 
 
     // 一个时钟周期
+  /* for(int i=0;i<30;i++){
+s->top->clock = 0;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
 
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
 
-    /*s->top->clock = 0;
+    s->top->clock = 1;
+    s->top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+
+         s->top->eval();
+    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
+   }
+
+    s->top->clock = 0;
     s->top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
 
@@ -572,7 +606,8 @@ void exec_once(NpcState *s) {
     s->top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
 
-*/
+         s->top->eval();
+         if (tfp) tfp->dump(main_time++);
     // 更新指令计数
     //s->inst_count++;
 
@@ -586,8 +621,7 @@ void exec_once(NpcState *s) {
     // 更新 PC
   //  s->pc = s->top->pc;
 
-    s->top->eval();
-         if (tfp) tfp->dump(main_time++);
+   
 
      //执行 DiffTest
    // difftest_exec(1);   被包含在difftest step函数里
@@ -665,74 +699,55 @@ int main(int argc, char **argv) {
     tfp->open("build/wave.vcd");  // 指定波形文件名
 
     // 初始化 DiffTest
-    load_difftest_library();
-    difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
+    //load_difftest_library();
+  //  difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
 
-    CPU_state cpu_state = {0};
-    cpu_state.pc = PROGRAM_START_ADDRESS;
-   difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
+   // CPU_state cpu_state = {0};
+   // cpu_state.pc = PROGRAM_START_ADDRESS;
+   //difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
 
     // 复位 
     top->reset = 1;
         top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
 
-    top->clock = 0;
-
-        top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
+printf("rrrrrrrreset111 = %d \n", top->reset);
     // 施加复位信号若干周期
-    for (int i = 0; i < 5; i++) {
-        top->clock = 1;
-            top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-        // if (tfp) tfp->dump(main_time++);
-       // trace->dump(Verilated::time());
-       // Verilated::timeInc(1);
-
+    for (int i = 0; i < 30; i++) {
         top->clock = 0;
             top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
-        // if (tfp) tfp->dump(main_time++);
-       //trace->dump(Verilated::time());
-       // Verilated::timeInc(1);
+        
+
+        top->clock = 1;
+            top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+      printf("rrrrrrrreset222 = %d \n", top->reset);
     }
 
     // 释放复位信号
-   top->reset = 0;
+      top->reset = 0;
         top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
 
-   
-    // 获取当前作用域
-    svScope current_scope = svGetScope();
-    printf("Current scope: %s\n", svGetNameFromScope(current_scope));
-    
-    // 尝试一些常见的作用域路径
-    const char* possible_paths[] = {
-        "TOP",
-        "TOP.asic",
-        "TOP.asic.cpu",
-        "TOP.asic.cpu.cpu",
-        "TOP.cpu",
-        "TOP.cpu.cpu",
-        "asic",
-        "asic.cpu",
-        "asic.cpu.cpu",
-        "cpu",
-        "cpu.cpu"
-    };
-    
-    printf("Checking possible scopes:\n");
-    for (size_t i = 0; i < sizeof(possible_paths) / sizeof(possible_paths[0]); i++) {
-        svScope scope = svGetScopeFromName(possible_paths[i]);
-        if (scope != NULL) {
-            printf("  Found scope: %s\n", possible_paths[i]);
-        } else {
-            printf("  Scope not found: %s\n", possible_paths[i]);
-        }
+     printf("rrrrrrrreset333 = %d \n", top->reset);
+
+
+     for (int i = 0; i < 10; i++) {
+        top->clock = 0;
+            top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+          printf("rrrrrrrreset444 = %d \n", top->reset);
+
+        top->clock = 1;
+            top->eval();
+     if (tfp) tfp->dump(main_time++);  // 记录波形
+        printf("rrrrrrrreset555 = %d \n", top->reset);
     }
+   
+        //printf("Available Verilator scopes:\n");
+//Verilated::scopesDump();
+
      sdb_mainloop();  //dddddddddddddddddddd
 
     // 执行指令

@@ -178,13 +178,31 @@ module ysyx_24090012_arbiter(
     assign lsu_bid          = io_master_bid;
 
     // 读通道连接 - LSU和IFU共享
-    assign io_master_arvalid = (lsu_arvalid && (current_state == IDLE || is_lsu_read)) || 
+  /*  assign io_master_arvalid = (lsu_arvalid && (current_state == IDLE || is_lsu_read)) || 
                               (ifu_arvalid && (current_state == IDLE || is_ifu_read));
     assign io_master_araddr  = is_lsu_read ? lsu_araddr : ifu_araddr;
     assign io_master_arid    = is_lsu_read ? lsu_arid : ifu_arid;
     assign io_master_arlen   = is_lsu_read ? lsu_arlen : ifu_arlen;
     assign io_master_arsize  = is_lsu_read ? lsu_arsize : ifu_arsize;
-    assign io_master_arburst = is_lsu_read ? lsu_arburst : ifu_arburst;
+    assign io_master_arburst = is_lsu_read ? lsu_arburst : ifu_arburst;*/
+
+
+
+wire use_lsu_addr = (current_state == IDLE && lsu_arvalid) || is_lsu_read;
+wire use_ifu_addr = (current_state == IDLE && ifu_arvalid) || is_ifu_read;
+
+// 读通道连接 - 使用统一的选择信号
+assign io_master_arvalid = (lsu_arvalid && (current_state == IDLE || is_lsu_read)) || 
+                          (ifu_arvalid && (current_state == IDLE || is_ifu_read));
+assign io_master_araddr  = use_lsu_addr ? lsu_araddr : ifu_araddr;
+assign io_master_arid    = use_lsu_addr ? lsu_arid : ifu_arid;
+assign io_master_arlen   = use_lsu_addr ? lsu_arlen : ifu_arlen;
+assign io_master_arsize  = use_lsu_addr ? lsu_arsize : ifu_arsize;
+assign io_master_arburst = use_lsu_addr ? lsu_arburst : ifu_arburst;
+
+
+
+
 
     assign lsu_arready      = io_master_arready && (current_state == IDLE || is_lsu_read);
     assign ifu_arready      = io_master_arready && (current_state == IDLE || is_ifu_read);

@@ -59,7 +59,7 @@ void load_difftest_library() {
 
 void get_dut_cpu_state(VysyxSoCFull *top, CPU_state *dut_cpu_state) {
     // 获取 PC  设置npc模块上下文
-  svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu");
+  svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu");
     if (cpu_scope == NULL) {
         fprintf(stderr, "Error: Unable to set DPI scope for CPU\n");
         exit(1);
@@ -70,7 +70,7 @@ void get_dut_cpu_state(VysyxSoCFull *top, CPU_state *dut_cpu_state) {
     dut_cpu_state->pc = get_pc_value();
 
 //设置普通reg上下文
-    svScope scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu.regfile");
+    svScope scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.regfile");
     if (scope == NULL) {
         fprintf(stderr, "Error: Unable to set DPI scope\n");
         exit(1);
@@ -84,7 +84,7 @@ dut_cpu_state->gpr[i]=get_reg_value(i);
 //printf("register DUT %d value: 0x%08x from (get_dut_cpu_state)\n", i,dut_cpu_state->gpr[i]);
    }
         // 设置 new CSR 上下文
-   svScope csr_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.CPU.cpu.csr");
+   svScope csr_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.csr");
 if (csr_scope == NULL) {
     fprintf(stderr, "Error: Unable to set DPI scope for CSR\n");
     exit(1);
@@ -128,13 +128,13 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
         std::cerr << "Register " << i << " mismatch: "
                   << "DUT = 0x" << std::hex << dut->gpr[i] 
                   << ", REF = 0x" << ref->gpr[i] << std::endl;
-       // return false;
+        return false;
     }
      if (dut->pc != ref->pc) {
         std::cerr << "PC mismatch: "
                   << "DUT = 0x" << std::hex << dut->pc
                   << ", REF = 0x" << ref->pc << std::dec << std::endl;
-        //return false;
+        return false;
     }
 }
    if (dut->csr.mcause != ref->csr.mcause) {
@@ -222,7 +222,7 @@ extern "C" void difftest_step(VysyxSoCFull *top,uint32_t pc, uint32_t npc) {
     }
 
     // 正常执行 DiffTest 步骤
-    //difftest_exec(1); // 让 REF 执行一条指令
+    difftest_exec(1); // 让 REF 执行一条指令
     difftest_regcpy(&ref_cpu_state, false); // 复制 REF 的寄存器状态
 
     // 获取 DUT 的 CPU 状态

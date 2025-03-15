@@ -19,4 +19,6 @@ main.o: ../csrc/main.cpp VysyxSoCFull.h \
  /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/isa.h \
  /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/src/isa/riscv32/include/isa-def.h \
  /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/memory/paddr.h \
- /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/isa.h
+ /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/isa.h \
+ /usr/local/share/verilator/include/verilated_dpi.h \
+ /usr/local/share/verilator/include/verilated_sym_props.h
