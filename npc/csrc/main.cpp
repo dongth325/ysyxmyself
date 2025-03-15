@@ -432,7 +432,7 @@ void exec_once(NpcState *s) {
     }
     
     // 执行DiffTest
-   // difftest_step(s->top, old_pc, s->pc);
+    difftest_step(s->top, old_pc, s->pc);
 //111111111111111111111111111111111111111111111111111111111111
 
 
@@ -699,12 +699,12 @@ int main(int argc, char **argv) {
     tfp->open("build/wave.vcd");  // 指定波形文件名
 
     // 初始化 DiffTest
-    //load_difftest_library();
-  //  difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
+    load_difftest_library();
+    difftest_memcpy(PROGRAM_START_ADDRESS, memory, program_size, true);
 
-   // CPU_state cpu_state = {0};
-   // cpu_state.pc = PROGRAM_START_ADDRESS;
-   //difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
+    CPU_state cpu_state = {0};
+    cpu_state.pc = PROGRAM_START_ADDRESS;
+   difftest_regcpy(&cpu_state, true);  // 初始化参考模型的 CPU 状态
 
     // 复位 
     top->reset = 1;
