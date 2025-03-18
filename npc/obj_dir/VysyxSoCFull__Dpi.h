@@ -26,7 +26,7 @@ extern "C" {
     extern int get_pc_value();
     // DPI export at vsrc/registerfile.v:61:14
     extern int get_reg_value(int reg_index);
-    // DPI export at vsrc/lsu.v:422:14
+    // DPI export at vsrc/lsu.v:503:14
     extern int get_saved_addr();
 
     // DPI IMPORTS

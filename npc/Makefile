@@ -34,6 +34,7 @@ VERILATOR_FLAGS = --cc  $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
 	--no-timing \
     -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA) -DDEBUG_PRINT_FULL  -g -O0" \
     -LDFLAGS "-lreadline -lhistory" \
+	-autoflush
 
     
 

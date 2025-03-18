@@ -57,7 +57,7 @@ int get_reg_value(int reg_index) {
 #ifndef VL_DPIDECL_get_saved_addr_
 #define VL_DPIDECL_get_saved_addr_
 int get_saved_addr() {
-    // DPI export at vsrc/lsu.v:422:14
+    // DPI export at vsrc/lsu.v:503:14
     return VysyxSoCFull::get_saved_addr();
 }
 #endif
