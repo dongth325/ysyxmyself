@@ -34,7 +34,39 @@ extern "C" int get_saved_addr();
 static VerilatedVcdC* tfp = nullptr;
 static vluint64_t main_time = 0;
 
-extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+extern "C" void flash_read(int32_t addr, int32_t *data) {     // 1. 定义flash存储空间（确保4字节对齐）
+ static uint32_t flash_memory[4 * 1024 * 1024];  // 16MB Flash空间
+    static bool initialized = false;
+    
+    // 初始化部分保持不变
+    if (!initialized) {
+        for (int i = 0; i < sizeof(flash_memory)/sizeof(uint32_t); i++) {
+         flash_memory[i] = (i*3 + 0) << 24 | 
+                 (i*4 + 1) << 16 | 
+                 (i*4 + 2) << 8  | 
+                 (i*4 + 3);
+        }
+        initialized = true;
+    }
+
+    // 只需要做对齐检查和边界检查
+    if (addr & 0x3) {
+        printf("Error: Unaligned flash access at address 0x%x\n", addr);
+        *data = 0;
+        return;
+    }
+
+    uint32_t flash_offset = addr >> 2;  // 直接右移2位得到索引
+    if (flash_offset >= sizeof(flash_memory)/sizeof(uint32_t)) {
+        printf("Error: Flash access out of range at address 0x%x\n", addr);
+        *data = 0;
+        return;
+    }
+    printf("flash read: flash_offset = %d, data = 0x%08x\n",flash_offset,flash_memory[flash_offset]);
+    *data = flash_memory[flash_offset];
+     }
+
+     
 extern "C" void mrom_read(int32_t addr, int32_t *data) {  
     
     // *data = *(int32_t *)addr; 
@@ -426,7 +458,8 @@ void exec_once(NpcState *s) {
     bool is_load = (inst & 0x7F) == 0x03;
     bool is_store = (inst & 0x7F) == 0x23;
     
-    if ((is_load || is_store) && mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) {
+    if ((is_load || is_store) && ((mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) ||  // UART地址范围
+         (mem_addr >= 0x30000000 && mem_addr <= 0x3fffffff) ||(mem_addr >= 0x10001000 && mem_addr <= 0x10001fff))) {
        // printf("Skipping DiffTest for UART access at 0x%08x\n", mem_addr);
         difftest_skip_ref();
     }

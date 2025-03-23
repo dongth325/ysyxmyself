@@ -84,6 +84,7 @@ module ysyx_24090012_IFU (
             FETCH_DATA: begin
                 io_master_rready = 1'b1;
                 if (io_master_rvalid && (io_master_rid == curr_id)) begin
+               
                    
                     idu_valid = 1'b1;
                     if (idu_ready) begin
