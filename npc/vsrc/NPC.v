@@ -102,6 +102,18 @@ module ysyx_24090012(
    wire if_allow_in = !reset && pc_ready && rd_ready && idu_state == 1'b0 && exu_state == 2'b00 && ifu_state == 2'b00;
 
 
+// 使用组合逻辑(wire)实现mem_unsigned
+wire mem_unsigned;//将idu解码信息进行判断，传给lsu用于无符号读取指令的逻辑处理
+
+// 使用case语句为所有加载指令类型分配mem_unsigned值
+assign mem_unsigned = (alu_op == 6'b011000) || // LBU (Load Byte Unsigned)
+                      (alu_op == 6'b100000);   // LHU (Load Halfword Unsigned)
+//将idu解码信息进行判断，传给lsu用于无符号读取指令的逻辑处理
+
+
+
+
+
     wire [31:0] ifu_to_idu_pc;    // IFU传给IDU的PC
     wire [31:0] idu_to_exu_pc;    // IDU传给EXU的PC
     reg  [31:0] pc;  
@@ -156,7 +168,8 @@ wire [31:0] mstatus;
 wire [31:0] mtvec;
 wire [31:0] mepc;
 wire [31:0] mcause;
-
+wire [31:0] mvendorid;
+wire [31:0] marchid;
 // LSU到arbiter的接口线
 wire        lsu_awvalid;
 wire        lsu_awready;
@@ -455,13 +468,17 @@ ysyx_24090012_IDU idu(
   .mstatus(mstatus),
   .mtvec(mtvec),
   .mepc(mepc),
-  .mcause(mcause)
+  .mcause(mcause),
+  .mvendorid(mvendorid),
+  .marchid(marchid)
 );
 
     // 实例化LSU
     ysyx_24090012_LSU lsu(
     .clock(clock),
     .reset(reset),
+     
+    .mem_unsigned(mem_unsigned),  // 无符号处理flag 
 
     // EXU Interface
     .mem_addr(mem_addr),
@@ -521,7 +538,7 @@ ysyx_24090012_IDU idu(
   always @(posedge clock) begin// 更新 PC
       
     if (reset) begin
-      pc <= 32'h2000_0000;
+      pc <= 32'h3000_0000;
      
     end 
 else begin 
@@ -559,7 +576,7 @@ end
         
         if (reset) begin
            $display("reset = %d ", reset);
-            pc <= 32'h2000_0000;
+            pc <= 32'h3000_0000;
             pc_ready <= 1;
 
         end else if (pc_valid && pc_ready) begin

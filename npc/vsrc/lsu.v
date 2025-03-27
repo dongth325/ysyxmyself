@@ -1,6 +1,9 @@
 module ysyx_24090012_LSU (
     input wire         clock,
     input wire         reset,
+    
+    input wire         mem_unsigned,
+
 
     // EXU Interface (slave)
     input  wire [31:0] mem_addr,
@@ -69,6 +72,7 @@ module ysyx_24090012_LSU (
     reg [2:0]  saved_arsize;
     reg [2:0]  saved_awsize;
     reg [3:0]  curr_id;    // 当前事务ID
+    reg saved_unsigned;
 
 always @(posedge clock) begin
     // 写响应检测
@@ -102,6 +106,7 @@ end
                 saved_wmask <= mem_wmask;
                 saved_arsize <= mem_arsize;
                 saved_awsize <= mem_awsize;
+                saved_unsigned <= mem_unsigned;
                 curr_id <= curr_id + 4'h1;  // 递增事务ID
             end
             state <= next_state;
@@ -126,7 +131,7 @@ end
         io_master_awid    = curr_id;        // 使用当前事务ID
         io_master_awlen   = 8'd0;           // 单次传输
         io_master_awsize  = saved_awsize;  
-       io_master_awsize  = 1;         
+            
         io_master_awburst = 2'b01;          // INCR模式
         io_master_arid    = curr_id;        // 使用当前事务ID
         io_master_arlen   = 8'd0;           // 单次传输
@@ -168,6 +173,7 @@ end
                 if (io_master_bvalid) begin
                     // 检查响应和ID
                     if (io_master_bid == curr_id && io_master_bresp == 2'b00) begin
+                        
                         mem_ready = 1'b1;
                     end
                     next_state = IDLE;
@@ -185,33 +191,144 @@ end
                 io_master_rready = 1'b1;
                 if (io_master_rvalid) begin
                     // 检查响应和ID
-                    if (io_master_rid == curr_id && io_master_rresp == 2'b00) begin
+                    //if (io_master_rid == curr_id && io_master_rresp == 2'b00) begin
+                     if (io_master_rresp == 2'b00) begin//在初始化串口发现id不匹配先不对比id
                         mem_ready = 1'b1;
-                        //mem_rdata = io_master_rdata;
+                        
                         mem_rdata = processed_rdata; 
-                       
-           
+                       //$display("mem_rdata is %h from lsu.v line:197", mem_rdata);
+                         
            
                     end
                     next_state = IDLE;
                 end
+                
             end
             
             default: next_state = IDLE;
         endcase
     end
 
+always @(state) begin
+//$display("state is %h from lsu line:213", state);
+end
+
+always @(processed_rdata) begin
+ //$display("processed_rdata is %h from lsu.v line:217", processed_rdata);
+end
+
+always @(mem_rdata) begin
+//$display("mem_rdata is %h from lsu.v line:212", mem_rdata);
+//$display("state is %h from lsu.v line:212", state);
+//$display("io_master_rresp is %h from lsu.v line:212", io_master_rresp);
+//$display("io_master_rvalid is %h from lsu.v line:212", io_master_rvalid);
+
+end
 
 
 
 
+reg is_mrom_region;
+reg is_uart_region;
 always @(*) begin
     // 默认值
     processed_rdata = 32'b0;
-    
+        // 判断地址区间 - MROM区域通常在0x2000_0000开始
+   
+ is_mrom_region = (saved_addr[31:24] == 8'h20);
+ is_uart_region = (saved_addr[31:24] == 8'h10);
+
+
     // 根据读操作类型处理数据
     case (saved_arsize)
-        3'b000: begin // 字节访问 lb
+        3'b000: begin // 字节访问 lb lbu
+        if(is_mrom_region) begin
+
+
+        processed_rdata = {{24{io_master_rdata[7]}}, io_master_rdata[7:0]};
+        //$display("processed_rdata is %h from lsu.v line:236", processed_rdata);
+
+        end
+        else begin
+            case (saved_addr[1:0])
+                2'b00: processed_rdata = {{24{io_master_rdata[7]}}, io_master_rdata[7:0]};
+                2'b01: processed_rdata = {{24{io_master_rdata[15]}}, io_master_rdata[15:8]};
+                2'b10: processed_rdata = {{24{io_master_rdata[23]}}, io_master_rdata[23:16]};
+                2'b11: processed_rdata = {{24{io_master_rdata[31]}}, io_master_rdata[31:24]};
+            endcase
+           // $display("processed_rdata is %h from lsu.v line:246", processed_rdata);
+           // $display("io_master_rid is %h from lsu.v line:246", io_master_rid);
+          //  $display("io_master_rresp is %h from lsu.v line:246", io_master_rresp);
+            //$display("curr_id is %h from lsu.v line:246", curr_id);
+        end
+
+        end
+        3'b001: begin // 半字访问 lh lhu
+        if(is_mrom_region) begin
+
+
+
+        processed_rdata = {{16{io_master_rdata[15]}}, io_master_rdata[15:0]};
+
+
+        end
+
+        else begin
+            case (saved_addr[1:0])
+                2'b00: processed_rdata = {{16{io_master_rdata[15]}}, io_master_rdata[15:0]};
+                2'b10: processed_rdata = {{16{io_master_rdata[31]}}, io_master_rdata[31:16]};
+                default: begin
+                    processed_rdata = 32'b0;
+                    $display("error!!!!! half word read is not aligned");
+                end
+            endcase
+        end
+        end
+        3'b010: begin // 字访问 lw
+        if(is_mrom_region) begin
+
+
+
+        processed_rdata = io_master_rdata;
+
+        end
+        else begin
+            case (saved_addr[1:0])
+                2'b00: processed_rdata = io_master_rdata;
+                default: begin
+                    processed_rdata = 32'b0;
+                    $display("error!!!!! word read is not aligned");
+                end
+            endcase
+        end
+        end
+        default: begin
+            processed_rdata = 32'b0;
+            $display("wrong!!!!! unknown read size");
+        end
+    endcase
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*always @(*) begin
+    // 默认值
+    processed_rdata = 32'b0;
+        // 判断地址区间 - MROM区域通常在0x2000_0000开始
+   
+    // 根据读操作类型处理数据
+    case (saved_arsize)
+        3'b000: begin // 字节访问 lb lbu
             case (saved_addr[1:0])
                 2'b00: processed_rdata = {{24{io_master_rdata[7]}}, io_master_rdata[7:0]};
                 2'b01: processed_rdata = {{24{io_master_rdata[15]}}, io_master_rdata[15:8]};
@@ -219,7 +336,7 @@ always @(*) begin
                 2'b11: processed_rdata = {{24{io_master_rdata[31]}}, io_master_rdata[31:24]};
             endcase
         end
-        3'b001: begin // 半字访问 lh
+        3'b001: begin // 半字访问 lh lhu
             case (saved_addr[1:0])
                 2'b00: processed_rdata = {{16{io_master_rdata[15]}}, io_master_rdata[15:0]};
                 2'b10: processed_rdata = {{16{io_master_rdata[31]}}, io_master_rdata[31:16]};
@@ -243,7 +360,7 @@ always @(*) begin
             $display("wrong!!!!! unknown read size");
         end
     endcase
-end
+end*/
 
 
 
@@ -254,14 +371,35 @@ end
 always @(*) begin
     // 默认值
 
-  
+  is_uart_region = (saved_addr[31:24] == 8'h10);
     io_master_wstrb = 4'b0000;
  //io_master_wstrb = 1;
 
     // 根据写操作的大小和地址计算 wstrb
     case (saved_awsize)
     3'b000: begin // 1 字节 sb
-        case (saved_addr[1:0])
+        if(is_uart_region) begin
+           case (saved_addr[1:0])//sram write
+            2'b00: begin
+                io_master_wstrb = 4'b0001;
+                io_master_wdata = {24'b0, saved_wdata[7:0]}; // 数据在低8位
+            end
+            2'b01: begin
+                io_master_wstrb = 4'b0010;
+                io_master_wdata = {16'b0, saved_wdata[7:0], 8'b0}; // 数据在8-15位
+            end
+            2'b10: begin
+                io_master_wstrb = 4'b0100;
+                io_master_wdata = {8'b0, saved_wdata[7:0], 16'b0}; // 数据在16-23位
+            end
+            2'b11: begin
+                io_master_wstrb = 4'b1000;
+                io_master_wdata = {saved_wdata[7:0], 24'b0}; // 数据在高8位
+            end
+        endcase
+        end
+        else begin
+        case (saved_addr[1:0])//sram write
             2'b00: begin
                 io_master_wstrb = 4'b0001;
                 io_master_wdata = {24'b0, saved_wdata[7:0]}; // 数据在低8位
@@ -280,9 +418,12 @@ always @(*) begin
             end
         endcase
     end
+    end
 3'b001: begin // 半字访问  sh
-    case (saved_addr[1:0])
+    if(is_uart_region) begin
+       case (saved_addr[1:0])
         2'b00: begin
+
             io_master_wstrb = 4'b0011;  // 写入低两字节
             io_master_wdata = {16'b0, saved_wdata[15:0]}; // 数据保持低位
         end
@@ -295,8 +436,38 @@ always @(*) begin
             $display("error!!!!! half word access is not aligned");
         end
     endcase
+    end
+    else begin
+    case (saved_addr[1:0])
+        2'b00: begin
+
+            io_master_wstrb = 4'b0011;  // 写入低两字节
+            io_master_wdata = {16'b0, saved_wdata[15:0]}; // 数据保持低位
+        end
+        2'b10: begin
+            io_master_wstrb = 4'b1100;  // 写入高两字节
+            io_master_wdata = {saved_wdata[15:0], 16'b0}; // 数据左移16位
+        end
+        default: begin 
+            io_master_wstrb = 4'b0000;
+            $display("error!!!!! half word access is not aligned");
+        end
+    endcase
+    end
 end
     3'b010: begin // 字访问  sw
+    if(is_uart_region) begin
+       case (saved_addr[1:0])
+            2'b00: io_master_wstrb = 4'b1111;
+            default: begin
+                io_master_wstrb = 4'b0000;
+                $display("error!!!!! word access is not aligned from lsu.v line:236");
+                $display("saved_addr is %h from lsu.v line:237", saved_addr);
+                // 应该触发非对齐
+            end
+        endcase
+    end
+    else begin
         case (saved_addr[1:0])
             2'b00: io_master_wstrb = 4'b1111;
             default: begin
@@ -307,6 +478,7 @@ end
             end
         endcase
     end
+    end
         default: begin
             io_master_wstrb = 4'b0000;
             $display("wrong!!!!!!!saved awsizes is unknown number from lsu.v line:230");
@@ -316,9 +488,9 @@ end
 end   
 
 
-always @(io_master_wstrb) begin
-    $display("io_master_wstrb CHANGED TO %d from lsu \n", io_master_wstrb);
-end
+//always @(io_master_wstrb) begin
+    //$display("io_master_wstrb CHANGED TO %d from lsu \n", io_master_wstrb);
+//end
 
 
 

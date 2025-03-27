@@ -2,6 +2,7 @@ ENTRY(_start)
 PHDRS { text PT_LOAD; data PT_LOAD; }
 
 MEMORY {
+  flash : ORIGIN = 0x30000000, LENGTH = 16M  /* Flash 16MB */
   mrom : ORIGIN = 0x20000000, LENGTH = 4K  /* mrom 4KB */
   sram : ORIGIN = 0x0f000000, LENGTH = 8K  /* SRAM 8KB */
 }
@@ -14,11 +15,11 @@ SECTIONS {
   
   
   /* 代码段放在MROM */
-  . = ORIGIN(mrom);
+  . = ORIGIN(flash);
   .text : {
     *(entry)
     *(.text*)
-  } >mrom : text
+  } >flash : text
   
   etext = .;
   _etext = .;
@@ -27,11 +28,14 @@ SECTIONS {
 
   /* 只读数据段放在MROM */
   .rodata : {
+   . = ALIGN(4);
     *(.rodata*)
     *(.srodata*)  /* 添加.srodata*段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破 */
     *(.sdata.rodata*)  /* 添加其他可能的只读数据段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破*/
-  } >mrom : text
+  } >flash : text
   
+  . = ALIGN(4);
+
   /* 记录数据段在MROM中的位置 */
   _data_lma = .;
   
@@ -39,21 +43,29 @@ SECTIONS {
   . = ORIGIN(sram);
 
   /* 数据段 - 需要从MROM复制到SRAM */
-  .data : AT(_data_lma) {
+  .data : AT(_data_lma) {  /* 关键修改：显式指定LMA */
+    . = ALIGN(8);
     _data_vma_start = .;
     *(.data)
     *(.data.*)
+    *(.sdata)      /* 添加小数据段 */
+    *(.sdata.*)    /* 添加小数据段 */
+    . = ALIGN(8);
     _data_vma_end = .;
   } >sram : data
   
   /* BSS段 - 只需在SRAM中分配空间并清零 */
-  .bss : {
+
+  .bss (NOLOAD) : {
+    . = ALIGN(4);
     _bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
+    . = ALIGN(4);
     _bss_end = .;
-  } >sram : data
+
+ } >sram
   
   /* 记录数据和BSS段结束后的位置 */
   _prog_end = .;

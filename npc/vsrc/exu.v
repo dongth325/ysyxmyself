@@ -836,11 +836,13 @@ WAIT_READY: begin
                 mem_valid = 1;
                 if (mem_ready) begin
                     result = {24'b0, mem_rdata[7:0]};//lbu无符号加载字节，需要手动 exu 进行处理，0补位（lb是高位补位，具体逻辑在lsu中）
-                    
+                   // $display("result is %h from exu.v line:212", result);
+                   // $display("mem_rdata is %h from exu.v line:212", mem_rdata);
                     rd_data = result;
                     rd_valid = 1;
                     next_pc = pc + 4;
                     pc_valid = 1;
+                  //  $display("rd_ready and pc_ready is %d and %d from exu.v line:212", rd_ready, pc_ready);
                     if (rd_ready && pc_ready) begin
                        // inst_ready = 1;
                         next_state = IDLE;

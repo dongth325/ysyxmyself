@@ -34,6 +34,7 @@ VERILATOR_FLAGS = --cc  $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
 	--no-timing \
     -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA) -DDEBUG_PRINT_FULL  -g -O0" \
     -LDFLAGS "-lreadline -lhistory" \
+	-autoflush
 
     
 
@@ -112,6 +113,7 @@ $(EXE):
 
 # 运行仿真并传递镜像
 run: $(EXE)
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(NPC_EXEC) $(IMG) $(ARGS)
 
 # GDB 调试目标
