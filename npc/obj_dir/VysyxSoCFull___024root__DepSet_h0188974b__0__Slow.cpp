@@ -83,7 +83,7 @@ VL_ATTR_COLD void VysyxSoCFull___024root___eval_initial__TOP(VysyxSoCFull___024r
     // Body
     vlSelfRef.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr_addr = 0U;
     vlSelfRef.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__mvendorid = 0x79737978U;
-    vlSelfRef.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__marchid = 0x16f90aeU;
+    vlSelfRef.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__marchid = 0x16f959eU;
     vlSelfRef.ysyxSoCFull__DOT___bitrev_miso = 1U;
     vlSelfRef.ysyxSoCFull__DOT__bitrev__DOT__bit_count = 0U;
     vlSelfRef.ysyxSoCFull__DOT__bitrev__DOT__data_received = 0U;

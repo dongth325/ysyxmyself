@@ -136,7 +136,7 @@ export "DPI-C" function get_csr_reg_value;
 
   initial begin
     mvendorid = 32'h79737978;  // "ysyx"的ASCII
-    marchid   = 32'h016F90AE;  // 24090014的十六进制表示（0x16F90AE扩展为32位）
+    marchid   = 32'h016F959E;  // 24090014的十六进制表示（0x16F90AE扩展为32位）
 end
 
 
