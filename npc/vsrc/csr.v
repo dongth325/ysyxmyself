@@ -24,7 +24,9 @@ module ysyx_24090012_CSR (
   output reg [31:0] mstatus,
   output reg [31:0] mtvec,
   output reg [31:0] mepc,
-  output reg [31:0] mcause
+  output reg [31:0] mcause,
+  output reg [31:0] mvendorid,
+  output reg [31:0] marchid
 );
 export "DPI-C" function get_csr_reg_value;
   // CSR地址定义
@@ -32,6 +34,8 @@ export "DPI-C" function get_csr_reg_value;
   localparam MTVEC   = 12'h305;
   localparam MEPC    = 12'h341;
   localparam MCAUSE  = 12'h342;
+  localparam MVENDORID = 12'hf11;
+  localparam MARCHID = 12'hf12;
 
 // 初始化标志
    //reg initialized;     //明天再来弄  使通过difftest
@@ -122,13 +126,18 @@ export "DPI-C" function get_csr_reg_value;
       MTVEC:   csr_rdata = mtvec;
       MEPC:    csr_rdata = mepc;
       MCAUSE:  csr_rdata = mcause;
+      MVENDORID: csr_rdata = mvendorid;
+      MARCHID:  csr_rdata = marchid;
       default: csr_rdata = 32'h0;
     endcase
   end
 
 
 
-
+  initial begin
+    mvendorid = 32'h79737978;  // "ysyx"的ASCII
+    marchid   = 32'h016F959E;  // 24090014的十六进制表示（0x16F90AE扩展为32位）
+end
 
 
 

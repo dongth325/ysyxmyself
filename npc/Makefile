@@ -113,6 +113,7 @@ $(EXE):
 
 # 运行仿真并传递镜像
 run: $(EXE)
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(NPC_EXEC) $(IMG) $(ARGS)
 
 # GDB 调试目标

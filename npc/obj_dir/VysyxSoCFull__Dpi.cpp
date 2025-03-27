@@ -17,7 +17,7 @@
 #ifndef VL_DPIDECL_get_csr_reg_value_
 #define VL_DPIDECL_get_csr_reg_value_
 int get_csr_reg_value(int csr_reg_index) {
-    // DPI export at vsrc/csr.v:136:14
+    // DPI export at vsrc/csr.v:145:14
     return VysyxSoCFull::get_csr_reg_value(csr_reg_index);
 }
 #endif
@@ -25,7 +25,7 @@ int get_csr_reg_value(int csr_reg_index) {
 #ifndef VL_DPIDECL_get_if_allow_in_
 #define VL_DPIDECL_get_if_allow_in_
 int get_if_allow_in() {
-    // DPI export at vsrc/NPC.v:600:14
+    // DPI export at vsrc/NPC.v:603:14
     return VysyxSoCFull::get_if_allow_in();
 }
 #endif
@@ -41,7 +41,7 @@ int get_inst_r() {
 #ifndef VL_DPIDECL_get_pc_value_
 #define VL_DPIDECL_get_pc_value_
 int get_pc_value() {
-    // DPI export at vsrc/NPC.v:595:14
+    // DPI export at vsrc/NPC.v:598:14
     return VysyxSoCFull::get_pc_value();
 }
 #endif

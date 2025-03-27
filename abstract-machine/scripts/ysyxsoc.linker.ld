@@ -2,6 +2,7 @@ ENTRY(_start)
 PHDRS { text PT_LOAD; data PT_LOAD; }
 
 MEMORY {
+  flash : ORIGIN = 0x30000000, LENGTH = 16M  /* Flash 16MB */
   mrom : ORIGIN = 0x20000000, LENGTH = 4K  /* mrom 4KB */
   sram : ORIGIN = 0x0f000000, LENGTH = 8K  /* SRAM 8KB */
 }
@@ -14,11 +15,11 @@ SECTIONS {
   
   
   /* 代码段放在MROM */
-  . = ORIGIN(mrom);
+  . = ORIGIN(flash);
   .text : {
     *(entry)
     *(.text*)
-  } >mrom : text
+  } >flash : text
   
   etext = .;
   _etext = .;
@@ -31,7 +32,7 @@ SECTIONS {
     *(.rodata*)
     *(.srodata*)  /* 添加.srodata*段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破 */
     *(.sdata.rodata*)  /* 添加其他可能的只读数据段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破*/
-  } >mrom : text
+  } >flash : text
   
   . = ALIGN(4);
 

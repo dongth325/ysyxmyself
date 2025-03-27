@@ -94,10 +94,47 @@ void halt(int code) {
   while (1);
 }
 
+static void put_dec(uint32_t num) {
+    char buf[10];
+    int i = 0;
+    do {
+        buf[i++] = '0' + num % 10;
+        num /= 10;
+    } while (num > 0);
+    
+    while (--i >= 0) {
+        putch(buf[i]);
+    }
+}
+
+
+
 void _trm_init() {
   uart_init();
     bootloader();
     //uart_init();
+      // 添加CSR读取
+  
+  uint32_t vendor_id, arch_id;
+  __asm__ __volatile__("csrr %0, 0xF11" : "=r"(vendor_id));  // mvendorid
+  __asm__ __volatile__("csrr %0, 0xF12" : "=r"(arch_id));    // marchid
+
+  // 从mvendorid解析"ysyx"
+  putch((vendor_id >> 24) & 0xFF); // y
+  putch((vendor_id >> 16) & 0xFF); // s
+  putch((vendor_id >> 8)  & 0xFF); // y
+  putch( vendor_id        & 0xFF); // x
+  
+  // 输出下划线
+  putch('_');
+  
+  // 从marchid解析学号（直接输出十进制值）
+  put_dec(arch_id);  // 这里假设arch_id寄存器存储的是24090014的十进制值
+  
+  // 换行
+  putch('\n');
+  
+
   int ret = main(mainargs);
   halt(ret);
 }

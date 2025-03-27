@@ -168,7 +168,8 @@ wire [31:0] mstatus;
 wire [31:0] mtvec;
 wire [31:0] mepc;
 wire [31:0] mcause;
-
+wire [31:0] mvendorid;
+wire [31:0] marchid;
 // LSU到arbiter的接口线
 wire        lsu_awvalid;
 wire        lsu_awready;
@@ -467,7 +468,9 @@ ysyx_24090012_IDU idu(
   .mstatus(mstatus),
   .mtvec(mtvec),
   .mepc(mepc),
-  .mcause(mcause)
+  .mcause(mcause),
+  .mvendorid(mvendorid),
+  .marchid(marchid)
 );
 
     // 实例化LSU
@@ -535,7 +538,7 @@ ysyx_24090012_IDU idu(
   always @(posedge clock) begin// 更新 PC
       
     if (reset) begin
-      pc <= 32'h2000_0000;
+      pc <= 32'h3000_0000;
      
     end 
 else begin 
@@ -573,7 +576,7 @@ end
         
         if (reset) begin
            $display("reset = %d ", reset);
-            pc <= 32'h2000_0000;
+            pc <= 32'h3000_0000;
             pc_ready <= 1;
 
         end else if (pc_valid && pc_ready) begin
