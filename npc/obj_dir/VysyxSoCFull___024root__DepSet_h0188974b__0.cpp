@@ -373,14 +373,44 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__4(VysyxSoCFull___0
                 __Vdly__ysyxSoCFull__DOT__psram__DOT__bit_counter 
                     = (7U & ((IData)(1U) + (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__bit_counter)));
             } else {
-                __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg 
-                    = ((0xfffff0U & (vlSelfRef.ysyxSoCFull__DOT__psram__DOT__addr_reg 
-                                     << 4U)) | (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__din));
+                if ((0U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__byte_counter))) {
+                    __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg 
+                        = ((0xfffff0U & __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg) 
+                           | (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__din));
+                } else if ((1U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__byte_counter))) {
+                    __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg 
+                        = ((0xffff0fU & __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg) 
+                           | ((IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__din) 
+                              << 4U));
+                } else if ((2U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__byte_counter))) {
+                    __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg 
+                        = ((0xfff0ffU & __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg) 
+                           | ((IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__din) 
+                              << 8U));
+                } else if ((3U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__byte_counter))) {
+                    __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg 
+                        = ((0xff0fffU & __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg) 
+                           | ((IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__din) 
+                              << 0xcU));
+                } else if ((4U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__byte_counter))) {
+                    __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg 
+                        = ((0xf0ffffU & __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg) 
+                           | ((IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__din) 
+                              << 0x10U));
+                } else if ((5U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__byte_counter))) {
+                    __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg 
+                        = ((0xfffffU & __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg) 
+                           | ((IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__din) 
+                              << 0x14U));
+                } else {
+                    __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg 
+                        = vlSelfRef.ysyxSoCFull__DOT__psram__DOT__addr_reg;
+                }
+                __Vdly__ysyxSoCFull__DOT__psram__DOT__byte_counter 
+                    = (7U & ((IData)(1U) + (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__byte_counter)));
                 VL_WRITEF_NX("addr_reg: %x from psram.v\n",0,
                              24,vlSelfRef.ysyxSoCFull__DOT__psram__DOT__addr_reg);
                 Verilated::runFlushCallbacks();
-                __Vdly__ysyxSoCFull__DOT__psram__DOT__byte_counter 
-                    = (7U & ((IData)(1U) + (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__byte_counter)));
                 if ((5U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__byte_counter))) {
                     __Vdly__ysyxSoCFull__DOT__psram__DOT__byte_counter = 0U;
                     __Vdly__ysyxSoCFull__DOT__psram__DOT__bit_counter = 0U;
