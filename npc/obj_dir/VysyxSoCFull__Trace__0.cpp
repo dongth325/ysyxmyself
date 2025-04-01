@@ -40,17 +40,17 @@ void VysyxSoCFull___024root__trace_chg_0_sub_0(VysyxSoCFull___024root* vlSelf, V
         bufp->chgBit(oldp+8,(vlSelfRef.ysyxSoCFull__DOT__asic__DOT__luart__DOT__muart__DOT__Uregs__DOT__fifo_write));
     }
     if (VL_UNLIKELY(vlSelfRef.__Vm_traceActivity[2U])) {
-        bufp->chgCData(oldp+9,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__cmd_reg),8);
-        bufp->chgIData(oldp+10,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__addr_reg),24);
-        bufp->chgCData(oldp+11,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__bit_counter),3);
-        bufp->chgCData(oldp+12,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__byte_counter),3);
-        bufp->chgCData(oldp+13,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__data_buffer),4);
+        bufp->chgCData(oldp+9,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__dout),4);
+        bufp->chgCData(oldp+10,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__doe),4);
+        bufp->chgCData(oldp+11,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_bit_counter),3);
+        bufp->chgIData(oldp+12,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_addr_reg),24);
     }
     if (VL_UNLIKELY(vlSelfRef.__Vm_traceActivity[3U])) {
-        bufp->chgCData(oldp+14,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__dout),4);
-        bufp->chgCData(oldp+15,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__doe),4);
-        bufp->chgCData(oldp+16,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_bit_counter),3);
-        bufp->chgIData(oldp+17,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_addr_reg),24);
+        bufp->chgCData(oldp+13,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__cmd_reg),8);
+        bufp->chgIData(oldp+14,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__addr_reg),24);
+        bufp->chgCData(oldp+15,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__bit_counter),3);
+        bufp->chgCData(oldp+16,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__byte_counter),3);
+        bufp->chgCData(oldp+17,(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__data_buffer),4);
     }
     if (VL_UNLIKELY(vlSelfRef.__Vm_traceActivity[4U])) {
         bufp->chgBit(oldp+18,(vlSelfRef.ysyxSoCFull__DOT___asic_spi_sck));
