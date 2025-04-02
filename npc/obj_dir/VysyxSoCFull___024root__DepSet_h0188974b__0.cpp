@@ -271,9 +271,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__3(VysyxSoCFull___0
     } else if ((4U & (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__state))) {
         if ((1U & (~ ((IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__state) 
                       >> 1U)))) {
-            if ((1U & (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__state))) {
-                __Vdly__ysyxSoCFull__DOT__psram__DOT__cmd_reg = 0U;
-            }
+            __Vdly__ysyxSoCFull__DOT__psram__DOT__cmd_reg = 0U;
             if ((1U & (~ (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__state)))) {
                 vlSelfRef.ysyxSoCFull__DOT__psram__DOT__doe = 0xfU;
             }
