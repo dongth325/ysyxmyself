@@ -14,7 +14,6 @@ VL_ATTR_COLD void VysyxSoCFull___024root___eval_static(VysyxSoCFull___024root* v
     auto &vlSelfRef = std::ref(*vlSelf).get();
     // Body
     VysyxSoCFull___024root___eval_static__TOP(vlSelf);
-    vlSelfRef.__Vm_traceActivity[0xdU] = 1U;
     vlSelfRef.__Vm_traceActivity[0xcU] = 1U;
     vlSelfRef.__Vm_traceActivity[0xbU] = 1U;
     vlSelfRef.__Vm_traceActivity[0xaU] = 1U;
@@ -55,7 +54,6 @@ VL_ATTR_COLD void VysyxSoCFull___024root___eval_initial(VysyxSoCFull___024root* 
     auto &vlSelfRef = std::ref(*vlSelf).get();
     // Body
     VysyxSoCFull___024root___eval_initial__TOP(vlSelf);
-    vlSelfRef.__Vm_traceActivity[0xdU] = 1U;
     vlSelfRef.__Vm_traceActivity[0xcU] = 1U;
     vlSelfRef.__Vm_traceActivity[0xbU] = 1U;
     vlSelfRef.__Vm_traceActivity[0xaU] = 1U;
@@ -167,7 +165,6 @@ VL_ATTR_COLD void VysyxSoCFull___024root___eval_stl(VysyxSoCFull___024root* vlSe
     // Body
     if ((1ULL & vlSelfRef.__VstlTriggered.word(0U))) {
         VysyxSoCFull___024root___stl_sequent__TOP__0(vlSelf);
-        vlSelfRef.__Vm_traceActivity[0xdU] = 1U;
         vlSelfRef.__Vm_traceActivity[0xcU] = 1U;
         vlSelfRef.__Vm_traceActivity[0xbU] = 1U;
         vlSelfRef.__Vm_traceActivity[0xaU] = 1U;
@@ -3832,9 +3829,6 @@ VL_ATTR_COLD void VysyxSoCFull___024root___dump_triggers__act(VysyxSoCFull___024
     if ((0x100ULL & vlSelfRef.__VactTriggered.word(0U))) {
         VL_DBG_MSGF("         'act' region trigger index 8 is active: @(posedge ysyxSoCFull._asic_psram_sck)\n");
     }
-    if ((0x200ULL & vlSelfRef.__VactTriggered.word(0U))) {
-        VL_DBG_MSGF("         'act' region trigger index 9 is active: @(negedge ysyxSoCFull._asic_psram_sck)\n");
-    }
 }
 #endif  // VL_DEBUG
 
@@ -3874,9 +3868,6 @@ VL_ATTR_COLD void VysyxSoCFull___024root___dump_triggers__nba(VysyxSoCFull___024
     }
     if ((0x100ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
         VL_DBG_MSGF("         'nba' region trigger index 8 is active: @(posedge ysyxSoCFull._asic_psram_sck)\n");
-    }
-    if ((0x200ULL & vlSelfRef.__VnbaTriggered.word(0U))) {
-        VL_DBG_MSGF("         'nba' region trigger index 9 is active: @(negedge ysyxSoCFull._asic_psram_sck)\n");
     }
 }
 #endif  // VL_DEBUG
@@ -4716,7 +4707,7 @@ VL_ATTR_COLD void VysyxSoCFull___024root___ctor_var_reset(VysyxSoCFull___024root
     vlSelf->__Vtrigprevexpr___TOP__ysyxSoCFull__DOT___asic_psram_ce_n__0 = VL_RAND_RESET_I(1);
     vlSelf->__Vtrigprevexpr___TOP__ysyxSoCFull__DOT___asic_psram_sck__0 = VL_RAND_RESET_I(1);
     vlSelf->__VactDidInit = 0;
-    for (int __Vi0 = 0; __Vi0 < 14; ++__Vi0) {
+    for (int __Vi0 = 0; __Vi0 < 13; ++__Vi0) {
         vlSelf->__Vm_traceActivity[__Vi0] = 0;
     }
 }
