@@ -410,9 +410,12 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__4(VysyxSoCFull___0
                 __Vdly__ysyxSoCFull__DOT__psram__DOT__addr_reg = 0U;
             }
         } else {
-            __Vdly__ysyxSoCFull__DOT__psram__DOT__cmd_reg = 0U;
-            __Vdly__ysyxSoCFull__DOT__psram__DOT__bit_counter = 0U;
+            __Vdly__ysyxSoCFull__DOT__psram__DOT__cmd_reg 
+                = ((0xfeU & ((IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__cmd_reg) 
+                             << 1U)) | (1U & (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__din)));
+            __Vdly__ysyxSoCFull__DOT__psram__DOT__bit_counter = 1U;
             __Vdly__ysyxSoCFull__DOT__psram__DOT__byte_counter = 0U;
+            __Vdly__ysyxSoCFull__DOT__psram__DOT__cmd_reg = 0U;
         }
     }
     if (__VdlySet__ysyxSoCFull__DOT__psram__DOT__mem__v0) {
