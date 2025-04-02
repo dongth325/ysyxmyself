@@ -267,34 +267,14 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__3(VysyxSoCFull___0
                 = vlSelfRef.ysyxSoCFull__DOT__psram__DOT__addr_reg;
             __Vdly__ysyxSoCFull__DOT__psram__DOT__read_bit_counter = 0U;
         } else {
-            if (VL_UNLIKELY((0U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_bit_counter)))) {
-                vlSelfRef.ysyxSoCFull__DOT__psram__DOT__dout 
-                    = (0xfU & vlSelfRef.ysyxSoCFull__DOT__psram__DOT__mem
-                       [vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_addr_reg]);
-                VL_WRITEF_NX("PSRAM Read Low Nibble: addr=0x%x, mem=0x%x, dout=0x%x, bit_counter=%1#\n",0,
-                             24,vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_addr_reg,
-                             8,vlSelfRef.ysyxSoCFull__DOT__psram__DOT__mem
-                             [vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_addr_reg],
-                             4,(0xfU & vlSelfRef.ysyxSoCFull__DOT__psram__DOT__mem
-                                [vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_addr_reg]),
-                             3,(IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_bit_counter));
-                Verilated::runFlushCallbacks();
-            } else if (VL_UNLIKELY((1U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_bit_counter)))) {
-                vlSelfRef.ysyxSoCFull__DOT__psram__DOT__dout 
-                    = (0xfU & (vlSelfRef.ysyxSoCFull__DOT__psram__DOT__mem
-                               [vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_addr_reg] 
-                               >> 4U));
-                VL_WRITEF_NX("PSRAM Read High Nibble: addr=0x%x, mem=0x%x, dout=0x%x, bit_counter=%1#\n",0,
-                             24,vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_addr_reg,
-                             8,vlSelfRef.ysyxSoCFull__DOT__psram__DOT__mem
-                             [vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_addr_reg],
-                             4,(0xfU & (vlSelfRef.ysyxSoCFull__DOT__psram__DOT__mem
-                                        [vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_addr_reg] 
-                                        >> 4U)),3,(IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_bit_counter));
-                Verilated::runFlushCallbacks();
-            } else {
-                vlSelfRef.ysyxSoCFull__DOT__psram__DOT__dout = 0U;
-            }
+            vlSelfRef.ysyxSoCFull__DOT__psram__DOT__dout 
+                = (0xfU & ((0U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_bit_counter))
+                            ? vlSelfRef.ysyxSoCFull__DOT__psram__DOT__mem
+                           [vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_addr_reg]
+                            : ((1U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_bit_counter))
+                                ? (vlSelfRef.ysyxSoCFull__DOT__psram__DOT__mem
+                                   [vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_addr_reg] 
+                                   >> 4U) : 0U)));
             __Vdly__ysyxSoCFull__DOT__psram__DOT__read_bit_counter 
                 = (7U & ((IData)(1U) + (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_bit_counter)));
             if ((1U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_bit_counter))) {
