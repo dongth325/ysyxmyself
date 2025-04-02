@@ -394,13 +394,11 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__4(VysyxSoCFull___0
                 }
             }
         } else if ((1U & (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__state))) {
-            if ((7U > (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__bit_counter))) {
-                __Vdly__ysyxSoCFull__DOT__psram__DOT__bit_counter 
-                    = (7U & ((IData)(1U) + (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__bit_counter)));
-                __Vdly__ysyxSoCFull__DOT__psram__DOT__cmd_reg 
-                    = ((0xfeU & ((IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__cmd_reg) 
-                                 << 1U)) | (1U & (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__din)));
-            }
+            __Vdly__ysyxSoCFull__DOT__psram__DOT__cmd_reg 
+                = ((0xfeU & ((IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__cmd_reg) 
+                             << 1U)) | (1U & (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__din)));
+            __Vdly__ysyxSoCFull__DOT__psram__DOT__bit_counter 
+                = (7U & ((IData)(1U) + (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__bit_counter)));
             if (VL_UNLIKELY((7U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__bit_counter)))) {
                 VL_WRITEF_NX("cmd_reg = %x from psram.v\n",0,
                              8,vlSelfRef.ysyxSoCFull__DOT__psram__DOT__cmd_reg);
