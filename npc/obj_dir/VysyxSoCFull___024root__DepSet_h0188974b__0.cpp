@@ -309,6 +309,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__3(VysyxSoCFull___0
                         = (0xffffffU & ((IData)(1U) 
                                         + vlSelfRef.ysyxSoCFull__DOT__psram__DOT__addr_reg));
                 } else {
+                    __Vdly__ysyxSoCFull__DOT__psram__DOT__bit_counter = 0U;
                     vlSelfRef.ysyxSoCFull__DOT__psram__DOT__dout = 0U;
                 }
             }
