@@ -307,6 +307,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__3(VysyxSoCFull___0
                 vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_byte_counter = 0U;
                 vlSelfRef.ysyxSoCFull__DOT__psram__DOT__dout = 0U;
                 __Vdly__ysyxSoCFull__DOT__psram__DOT__bit_counter = 0U;
+                vlSelfRef.ysyxSoCFull__DOT__psram__DOT__doe = 0U;
             }
             if ((1U & (~ ((IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__state) 
                           >> 1U)))) {
