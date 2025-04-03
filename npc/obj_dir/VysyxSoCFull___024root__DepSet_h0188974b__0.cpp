@@ -282,7 +282,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__3(VysyxSoCFull___0
                         = (0xffffffU & ((IData)(1U) 
                                         + vlSelfRef.ysyxSoCFull__DOT__psram__DOT__addr_reg));
                 }
-            } else if ((8U > (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_byte_counter))) {
+            } else if ((4U > (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__read_byte_counter))) {
                 vlSelfRef.ysyxSoCFull__DOT__psram__DOT__doe = 0xfU;
                 if ((0U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__bit_counter))) {
                     vlSelfRef.ysyxSoCFull__DOT__psram__DOT__dout 
