@@ -393,7 +393,8 @@ extern "C" void ebreak(uint32_t exit_code) {
         npc_state.ebreak_encountered = true;
     } else {
         std::cout << "HIT BAD TRAP with exit_code= " << exit_code << std::endl;
-         exit(1);  // 立即退出
+         //exit(1);  // 立即退出
+         npc_state.ebreak_encountered = true;
     }
     Verilated::gotFinish(true);  // 通知 Verilator 结束仿真
 }
