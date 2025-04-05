@@ -4462,6 +4462,8 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_comb__TOP__2(VysyxSoCFull___024r
     VL_DEBUG_IF(VL_DBG_MSGF("+    VysyxSoCFull___024root___nba_comb__TOP__2\n"); );
     auto &vlSelfRef = std::ref(*vlSelf).get();
     // Body
+    vlSelfRef.ysyxSoCFull__DOT__psram__DOT__next_state 
+        = vlSelfRef.ysyxSoCFull__DOT__psram__DOT__state;
     if (vlSelfRef.ysyxSoCFull__DOT___asic_psram_ce_n) {
         vlSelfRef.ysyxSoCFull__DOT__psram__DOT__next_state = 0U;
     } else if ((4U & (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__state))) {
@@ -4483,12 +4485,11 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_comb__TOP__2(VysyxSoCFull___024r
             vlSelfRef.ysyxSoCFull__DOT__psram__DOT__next_state 
                 = ((5U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__bit_counter))
                     ? 4U : 3U);
-        } else {
-            if ((6U != (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__state))) {
-                if ((0x35U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__cmd_reg))) {
-                    vlSelfRef.ysyxSoCFull__DOT__psram__DOT__next_state = 6U;
-                }
+        } else if ((6U != (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__state))) {
+            if ((0x35U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__cmd_reg))) {
+                vlSelfRef.ysyxSoCFull__DOT__psram__DOT__next_state = 6U;
             }
+        } else {
             vlSelfRef.ysyxSoCFull__DOT__psram__DOT__next_state 
                 = ((5U == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__byte_counter))
                     ? ((0xebU == (IData)(vlSelfRef.ysyxSoCFull__DOT__psram__DOT__cmd_reg))
