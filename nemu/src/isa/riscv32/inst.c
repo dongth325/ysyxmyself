@@ -12,6 +12,7 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 extern RingBuffer rb; //加上extern避免重复定义导致导致链接器错误
 
 static word_t *csr_reg(word_t imm) {
+  imm = imm & 0xFFF;
   switch (imm) {
     case 0x300 :  return &(cpu.csr.mstatus);
     case 0x305 :  return &(cpu.csr.mtvec);
