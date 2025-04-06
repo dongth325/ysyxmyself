@@ -524,7 +524,7 @@ void exec_once(NpcState *s) {
        // printf("Skipping DiffTest for UART access at 0x%08x\n", mem_addr);
         difftest_skip_ref();
     }
-        //(mem_addr >= 0x10001000 && mem_addr <= 0x10001fff))) {
+       
     
     // 执行DiffTest
     difftest_step(s->top, old_pc, s->pc);
