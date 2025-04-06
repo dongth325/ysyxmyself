@@ -17,6 +17,8 @@ static word_t *csr_reg(word_t imm) {
     case 0x305 :  return &(cpu.csr.mtvec);
     case 0x341 :  return &(cpu.csr.mepc);
     case 0x342 :  return &(cpu.csr.mcause);
+    case 0xf11: return &(cpu.csr.mvendorid);  // 学号寄存器
+    case 0xf12: return &(cpu.csr.marchid);    // 学号寄存器
     default : Log("csr error");
   }
   return NULL;

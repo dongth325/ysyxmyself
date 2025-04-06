@@ -39,4 +39,6 @@ void init_isa() {
 
   /* Initialize this virtual computer system. */
   restart();
+    cpu.csr.mvendorid = 0x79737978;  // "ysyx"的ASCII码
+  cpu.csr.marchid = 0x016F959E;    // 你的学号对应的值
 }
