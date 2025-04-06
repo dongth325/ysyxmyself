@@ -11,41 +11,23 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 extern RingBuffer rb; //加上extern避免重复定义导致导致链接器错误
 
-/*static word_t *csr_reg(word_t imm) {
+static word_t *csr_reg(word_t imm) {
+
+   static word_t mvendorid_val = 0x79737978;  // "ysyx"的ASCII
+  static word_t marchid_val = 0x016F959E;    // 学号对应的值
   imm = imm & 0xFFF;//访问学号寄存器传来的imm有问题，所以添加取后三位。
   switch (imm) {
     case 0x300 :  return &(cpu.csr.mstatus);
     case 0x305 :  return &(cpu.csr.mtvec);
     case 0x341 :  return &(cpu.csr.mepc);
     case 0x342 :  return &(cpu.csr.mcause);
-    case 0xf11: return &(cpu.csr.mvendorid);  // 学号寄存器
-    case 0xf12: return &(cpu.csr.marchid);    // 学号寄存器
-    default : Log("imm = %x\n", imm);
+    case 0xf11:   return &mvendorid_val; //直接访问学号值，而非访问寄存器，因为设置完寄存器无法在nemu中对齐设置初始值
+    case 0xf12:   return &marchid_val; 
+    default : Log("err  csr imm = %x\n", imm);
   }
   return NULL;
-}*/
-
-static word_t *csr_reg(word_t imm) {
-  static word_t mvendorid_val = 0x79737978;  // "ysyx"的ASCII
-  static word_t marchid_val = 0x016F959E;    // 学号对应的值
-  
-  imm = imm & 0xFFF;
-  word_t *result = NULL;
-  switch (imm) {
-    case 0x300 :  result = &(cpu.csr.mstatus); break;
-    case 0x305 :  result = &(cpu.csr.mtvec); break;
-    case 0x341 :  result = &(cpu.csr.mepc); break;
-    case 0x342 :  result = &(cpu.csr.mcause); break;
-    case 0xf11:   result = &mvendorid_val; break;  // 直接返回固定值的地址
-    case 0xf12:   result = &marchid_val; break;    // 直接返回固定值的地址
-    default : Log("Unknown CSR imm = %x\n", imm);
-  }
-  
-  if (result != NULL) {
-    Log("CSR access: imm = 0x%x, value = 0x%x\n", imm, *result);
-  }
-  return result;
 }
+
 
 #define CSR(i) *csr_reg(i)
 #define ECALL(dnpc) { bool success; dnpc = (isa_raise_intr(isa_reg_str2val("a7", &success), s->pc)); }
