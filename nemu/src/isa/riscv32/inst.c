@@ -12,15 +12,22 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 extern RingBuffer rb; //加上extern避免重复定义导致导致链接器错误
 
 static word_t *csr_reg(word_t imm) {
+
+   static word_t mvendorid_val = 0x79737978;  // "ysyx"的ASCII
+  static word_t marchid_val = 0x016F959E;    // 学号对应的值
+  imm = imm & 0xFFF;//访问学号寄存器传来的imm有问题，所以添加取后三位。
   switch (imm) {
     case 0x300 :  return &(cpu.csr.mstatus);
     case 0x305 :  return &(cpu.csr.mtvec);
     case 0x341 :  return &(cpu.csr.mepc);
     case 0x342 :  return &(cpu.csr.mcause);
-    default : Log("csr error");
+    case 0xf11:   return &mvendorid_val; //直接访问学号值，而非访问寄存器，因为设置完寄存器无法在nemu中对齐设置初始值
+    case 0xf12:   return &marchid_val; 
+    default : Log("err  csr imm = %x\n", imm);
   }
   return NULL;
 }
+
 
 #define CSR(i) *csr_reg(i)
 #define ECALL(dnpc) { bool success; dnpc = (isa_raise_intr(isa_reg_str2val("a7", &success), s->pc)); }

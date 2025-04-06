@@ -18,7 +18,7 @@
 #define MEM_SIZE (128 * 1024 * 1024)
 uint8_t *memory = nullptr;
 uint64_t execution_count = 0;//统计exec_once真实执行多少次 可以截止到报错
-#define PROGRAM_START_ADDRESS 0x20000000//原来是8,修改成2
+#define PROGRAM_START_ADDRESS 0x30000000//   flash
 size_t program_size = 0;
 #define MEM_BASE 0x80000000
 
@@ -520,13 +520,14 @@ void exec_once(NpcState *s) {
     bool is_store = (inst & 0x7F) == 0x23;
     
     if ((is_load || is_store) && ((mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) ||  // UART地址范围
-         (mem_addr >= 0x30000000 && mem_addr <= 0x3fffffff) ||(mem_addr >= 0x10001000 && mem_addr <= 0x10001fff))) {
+        (mem_addr >= 0x10001000 && mem_addr <= 0x10001fff))) {
        // printf("Skipping DiffTest for UART access at 0x%08x\n", mem_addr);
         difftest_skip_ref();
     }
+       
     
     // 执行DiffTest
-   // difftest_step(s->top, old_pc, s->pc);
+    difftest_step(s->top, old_pc, s->pc);
 //111111111111111111111111111111111111111111111111111111111111
 
 

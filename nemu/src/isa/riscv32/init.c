@@ -39,4 +39,5 @@ void init_isa() {
 
   /* Initialize this virtual computer system. */
   restart();
+   
 }
