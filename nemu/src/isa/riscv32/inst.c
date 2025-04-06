@@ -11,8 +11,8 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 extern RingBuffer rb; //加上extern避免重复定义导致导致链接器错误
 
-static word_t *csr_reg(word_t imm) {
-  imm = imm & 0xFFF;
+/*static word_t *csr_reg(word_t imm) {
+  imm = imm & 0xFFF;//访问学号寄存器传来的imm有问题，所以添加取后三位。
   switch (imm) {
     case 0x300 :  return &(cpu.csr.mstatus);
     case 0x305 :  return &(cpu.csr.mtvec);
@@ -23,6 +23,25 @@ static word_t *csr_reg(word_t imm) {
     default : Log("imm = %x\n", imm);
   }
   return NULL;
+}*/
+
+static word_t *csr_reg(word_t imm) {
+  imm = imm & 0xFFF;
+  word_t *result = NULL;
+  switch (imm) {
+    case 0x300 :  result = &(cpu.csr.mstatus); break;
+    case 0x305 :  result = &(cpu.csr.mtvec); break;
+    case 0x341 :  result = &(cpu.csr.mepc); break;
+    case 0x342 :  result = &(cpu.csr.mcause); break;
+    case 0xf11:   result = &(cpu.csr.mvendorid); break;
+    case 0xf12:   result = &(cpu.csr.marchid); break;
+    default : Log("Unknown CSR imm = %x\n", imm);
+  }
+  
+  if (result != NULL) {
+    Log("CSR access: imm = 0x%x, value = 0x%x\n", imm, *result);
+  }
+  return result;
 }
 
 #define CSR(i) *csr_reg(i)
