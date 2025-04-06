@@ -18,7 +18,7 @@
 #define MEM_SIZE (128 * 1024 * 1024)
 uint8_t *memory = nullptr;
 uint64_t execution_count = 0;//统计exec_once真实执行多少次 可以截止到报错
-#define PROGRAM_START_ADDRESS 0x20000000//原来是8,修改成2
+#define PROGRAM_START_ADDRESS 0x30000000//   flash
 size_t program_size = 0;
 #define MEM_BASE 0x80000000
 
