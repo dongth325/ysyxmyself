@@ -393,7 +393,8 @@ extern "C" void ebreak(uint32_t exit_code) {
         npc_state.ebreak_encountered = true;
     } else {
         std::cout << "HIT BAD TRAP with exit_code= " << exit_code << std::endl;
-         exit(1);  // 立即退出
+         //exit(1);  // 立即退出
+         npc_state.ebreak_encountered = true;
     }
     Verilated::gotFinish(true);  // 通知 Verilator 结束仿真
 }
@@ -436,7 +437,7 @@ void exec_once(NpcState *s) {
     uint32_t old_pc = get_pc_value();
     
   
-    
+     static int cycle_count = 0;  // 静态计数器，确保在函数调用
 
     // 使用do-while循环等待指令执行完成
     do {
@@ -444,6 +445,10 @@ void exec_once(NpcState *s) {
             Verilated::gotFinish(true);  // 强制终止Verilator
             return;  // 立即返回
         }
+
+
+        
+
         // 时钟下降沿
         s->top->reset = 0;
 
@@ -466,7 +471,18 @@ void exec_once(NpcState *s) {
         s->top->eval();
         if (tfp) tfp->dump(main_time++);
         
-   
+       
+               cycle_count++;  // 增加周期计数
+        if (cycle_count >= 15000) {
+            std::cout << "\nError: No new instruction received for 15000 cycles, simulation terminated" << std::endl;
+            npc_state.ebreak_encountered = true;
+            return;
+        }
+
+
+        if (get_if_allow_in()) {
+            cycle_count = 0;  // 收到新指令时重置计数器
+        }
     
 
         // 更新当前PC
