@@ -23,11 +23,11 @@ SECTIONS {
   . = ORIGIN(sram);
 
   .text :AT(_text_lma) {
-      _text_vma_start = .;
+      _text_vma_start = ABSOLUTE(ORIGIN(sram));
     *(entry)
     *(.text*)
       . = ALIGN(4);
-    _text_vma_end = .;
+     _text_vma_end = ABSOLUTE(ORIGIN(sram) + SIZEOF(.text));
   } >flash : text
   
   etext = .;
