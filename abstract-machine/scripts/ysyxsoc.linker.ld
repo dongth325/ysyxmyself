@@ -14,36 +14,46 @@ SECTIONS {
   . = _pmem_start + _entry_offset; /*在ysyxsoc.mk中定义了pmem start地址和rom一样，在此直接用rom起始地址，在ysyxsoc.mk中定义，修改rom起始地址需要先修改*/
   
   
-  /* 代码段放在MROM */
+
   . = ORIGIN(flash);
 
-  .text : {
+
+  _text_lma = ORIGIN(flash);
+
+  . = ORIGIN(sram);
+
+  .text :AT(_text_lma) {
+      _text_vma_start = .;
     *(entry)
     *(.text*)
-  } >flash : text
+      . = ALIGN(4);
+    _text_vma_end = .;
+  } >sram : text
   
   etext = .;
   _etext = .;
   
-
+ _rodata_lma = _text_lma + SIZEOF(.text);
 
   /* 只读数据段放在MROM */
-  .rodata : {
+  .rodata : AT(_rodata_lma) {
    . = ALIGN(4);
+    _rodata_vma_start = .;
     *(.rodata*)
     *(.srodata*)  /* 添加.srodata*段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破 */
     *(.sdata.rodata*)  /* 添加其他可能的只读数据段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破*/
-  } >flash : text
+     . = ALIGN(4);
+    _rodata_vma_end = .;
+  } >sram : text
   
   . = ALIGN(4);
 
-  /* 记录数据段在MROM中的位置 */
-  _data_lma = .;
-  
-  /* 切换到SRAM */
-  . = ORIGIN(sram);
 
-  /* 数据段 - 需要从MROM复制到SRAM */
+  _data_lma = _rodata_lma + SIZEOF(.rodata);
+  
+
+
+
   
   .data : AT(_data_lma) {  /* 关键修改：显式指定LMA */
     . = ALIGN(8);

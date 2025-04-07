@@ -37,11 +37,21 @@ extern char _bss_start;         // BSS段起始位置
 
 
 
-/*void bootloader() {
+void bootloader() {
+
+  uint32_t *src = (uint32_t*)&_data_lma;// 按字复制保证对齐
+  uint32_t *dst = (uint32_t*)&_data_vma_start;
+  size_t words = (&_data_vma_end - &_data_vma_start) / 4;
+  
+  for (size_t i=0; i<words; i++) {
+    dst[i] = src[i]; // 32位对齐访问
+  }
+
+
   // 复制.text段
-  uint32_t *src = (uint32_t*)&_text_lma;
-  uint32_t *dst = (uint32_t*)&_text_vma_start;
-  size_t words = (&_text_vma_end - &_text_vma_start) / 4;
+ src = (uint32_t*)&_text_lma;
+ dst = (uint32_t*)&_text_vma_start;
+  words = (&_text_vma_end - &_text_vma_start) / 4;
   
   for (size_t i = 0; i < words; i++) {
     dst[i] = src[i];  // 32位对齐访问
@@ -56,14 +66,7 @@ extern char _bss_start;         // BSS段起始位置
     dst[i] = src[i];  // 32位对齐访问
   }
 
-  // 复制.data段
-  src = (uint32_t*)&_data_lma;
-  dst = (uint32_t*)&_data_vma_start;
-  words = (&_data_vma_end - &_data_vma_start) / 4;
-  
-  for (size_t i = 0; i < words; i++) {
-    dst[i] = src[i];  // 32位对齐访问
-  }
+
 
     asm volatile (
     "lui t0, %%hi(_text_vma_start)\n\t"
@@ -72,9 +75,9 @@ extern char _bss_start;         // BSS段起始位置
     : : : "t0"
   );
 }
-*/
 
-void bootloader() {
+
+/*void bootloader() {
   uint32_t *src = (uint32_t*)&_data_lma;// 按字复制保证对齐
   uint32_t *dst = (uint32_t*)&_data_vma_start;
   size_t words = (&_data_vma_end - &_data_vma_start) / 4;
@@ -84,7 +87,7 @@ void bootloader() {
   }
 
 
-}
+}*/
 
 //extern char _pmem_start;
 //#define PMEM_SIZE (16 * 1024 * 1024)  // ysyxSoC的SRAM大小，16MB
