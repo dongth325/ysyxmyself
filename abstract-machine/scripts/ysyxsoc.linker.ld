@@ -38,12 +38,12 @@ SECTIONS {
   /* 只读数据段放在MROM */
   .rodata : AT(_rodata_lma) {
    . = ALIGN(4);
-    _rodata_vma_start = .;
+    _rodata_vma_start = ABSOLUTE(_text_vma_end + 4); /*防止重叠，虽然一个end和start即使地址一样也不是重叠*/
     *(.rodata*)
     *(.srodata*)  /* 添加.srodata*段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破 */
     *(.sdata.rodata*)  /* 添加其他可能的只读数据段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破*/
      . = ALIGN(4);
-    _rodata_vma_end = .;
+     _rodata_vma_end = ABSOLUTE(_rodata_vma_start + SIZEOF(.rodata));
   } >sram : rodata
   
   . = ALIGN(4);
@@ -57,25 +57,25 @@ SECTIONS {
   
   .data : AT(_data_lma) {  /* 关键修改：显式指定LMA */
     . = ALIGN(8);
-    _data_vma_start = .;
+      _data_vma_start = ABSOLUTE(_rodata_vma_end + 4);
     *(.data)
     *(.data.*)
     *(.sdata)      /* 添加小数据段 */
     *(.sdata.*)    /* 添加小数据段 */
     . = ALIGN(8);
-    _data_vma_end = .;
+     _data_vma_end = ABSOLUTE(_data_vma_start + SIZEOF(.data));
   } >sram : data
   
   /* BSS段 - 只需在SRAM中分配空间并清零 */
 
   .bss (NOLOAD) : {
     . = ALIGN(4);
-    _bss_start = .;
+   _bss_start = ABSOLUTE(_data_vma_end + 4);
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     . = ALIGN(4);
-    _bss_end = .;
+   _bss_end = ABSOLUTE(_bss_start + SIZEOF(.bss));
 
  } >sram
   
