@@ -545,7 +545,8 @@ else begin
         
 
      if (inst == 32'h00100073) begin  // ebreak 指令
-    
+        $display("pc = 0x%08x from NPC", pc);
+        $display("inst = 0x%08x from NPC",inst);
       ebreak(regfile.rf[10]);       // 调用 DPI-C 函数
     end 
 
