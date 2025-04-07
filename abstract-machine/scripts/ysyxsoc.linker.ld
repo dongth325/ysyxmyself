@@ -18,7 +18,7 @@ SECTIONS {
   . = ORIGIN(flash);
 
 
-  _text_lma = ORIGIN(flash);
+  _text_lma = ORIGIN(flash) + 4;
 
   . = ORIGIN(sram);
 
@@ -33,7 +33,7 @@ SECTIONS {
   etext = .;
   _etext = .;
   
- _rodata_lma = _text_lma + SIZEOF(.text);
+ _rodata_lma = _text_lma + SIZEOF(.text) + 4;
 
   /* 只读数据段放在MROM */
   .rodata : AT(_rodata_lma) {
@@ -49,7 +49,7 @@ SECTIONS {
   . = ALIGN(4);
 
 
-  _data_lma = _rodata_lma + SIZEOF(.rodata);
+  _data_lma = _rodata_lma + SIZEOF(.rodata) + 4;
   
 
 
