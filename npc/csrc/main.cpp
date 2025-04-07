@@ -474,9 +474,9 @@ void exec_once(NpcState *s) {
        
                cycle_count++;  // 增加周期计数
         if (cycle_count >= 15000) {
-           // std::cout << "\nError: No new instruction received for 15000 cycles, simulation terminated" << std::endl;
-           // npc_state.ebreak_encountered = true;
-           // return;
+            std::cout << "\nError: No new instruction received for 15000 cycles, simulation terminated" << std::endl;
+         npc_state.ebreak_encountered = true;
+            return;
         }
 
 
