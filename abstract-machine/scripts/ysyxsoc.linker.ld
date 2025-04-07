@@ -1,5 +1,5 @@
 ENTRY(_start)
-PHDRS { text PT_LOAD; data PT_LOAD; }
+PHDRS { text PT_LOAD; data PT_LOAD;rodata PT_LOAD; }
 
 MEMORY {
   flash : ORIGIN = 0x30000000, LENGTH = 16M  /* Flash 16MB */
@@ -28,7 +28,7 @@ SECTIONS {
     *(.text*)
       . = ALIGN(4);
     _text_vma_end = .;
-  } >sram : text
+  } >flash : text
   
   etext = .;
   _etext = .;
@@ -44,7 +44,7 @@ SECTIONS {
     *(.sdata.rodata*)  /* 添加其他可能的只读数据段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破*/
      . = ALIGN(4);
     _rodata_vma_end = .;
-  } >sram : text
+  } >sram : rodata
   
   . = ALIGN(4);
 
