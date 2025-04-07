@@ -30,6 +30,10 @@ extern char _rodata_lma;        // 只读数据段在flash中的位置
 extern char _rodata_vma_start;  // 只读数据段在SRAM中的起始位置
 extern char _rodata_vma_end;    // 只读数据段在SRAM中的结束位置
 
+extern char _execute_main_lma;   // execute_main段在flash中的位置
+extern char _execute_main_vma_start;  // execute_main段在SRAM中的起始位置
+extern char _execute_main_vma_end;  // execute_main段在SRAM中的结束位置
+
 extern char _bss_start;         // BSS段起始位置
 
 //extern char _bss_end;           // BSS段结束位置
@@ -49,9 +53,9 @@ void bootloader() {
 
 
   // 复制.text段
- src = (uint32_t*)&_text_lma;
- dst = (uint32_t*)&_text_vma_start;
-  words = (&_text_vma_end - &_text_vma_start) / 4;
+ src = (uint32_t*)&_execute_main_lma;
+ dst = (uint32_t*)&_execute_main_vma_start;
+ words = (&_execute_main_vma_end - &_execute_main_vma_start) / 4;
   
   for (size_t i = 0; i < words; i++) {
     dst[i] = src[i];  // 32位对齐访问
@@ -68,9 +72,10 @@ void bootloader() {
 
 
 
-    asm volatile (
-    "lui t0, %%hi(_text_vma_start)\n\t"
-    "addi t0, t0, %%lo(_text_vma_start)\n\t"
+  // 直接跳转到SRAM中的execute_main
+  asm volatile (
+    "lui t0, %%hi(_execute_main_vma_start)\n\t"
+    "addi t0, t0, %%lo(_execute_main_vma_start)\n\t"
     "jalr zero, t0, 0"
     : : : "t0"
   );
@@ -154,6 +159,10 @@ static void put_dec(uint32_t num) {
     }
 }
 
+void execute_main() {
+  int ret = main(mainargs);
+  halt(ret);
+}
 
 
 void _trm_init() {
@@ -182,6 +191,6 @@ void _trm_init() {
   putch('\n');
   
   bootloader();
-  int ret = main(mainargs);
-  halt(ret);
+
+   execute_main();
 }
