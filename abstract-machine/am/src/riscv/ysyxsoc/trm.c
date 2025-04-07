@@ -21,16 +21,60 @@ int main(const char *args);
 extern char _data_lma;          // 数据段在MROM中的位置
 extern char _data_vma_start;    // 数据段在SRAM中的起始位置
 extern char _data_vma_end;      // 数据段在SRAM中的结束位置
+
+extern char _text_lma;          // 代码段在flash中的位置
+extern char _text_vma_start;    // 代码段在SRAM中的起始位置
+extern char _text_vma_end;      // 代码段在SRAM中的结束位置
+
+extern char _rodata_lma;        // 只读数据段在flash中的位置
+extern char _rodata_vma_start;  // 只读数据段在SRAM中的起始位置
+extern char _rodata_vma_end;    // 只读数据段在SRAM中的结束位置
+
 extern char _bss_start;         // BSS段起始位置
+
 //extern char _bss_end;           // BSS段结束位置
 
 
 
 
-
-
-
 void bootloader() {
+  // 复制.text段
+  uint32_t *src = (uint32_t*)&_text_lma;
+  uint32_t *dst = (uint32_t*)&_text_vma_start;
+  size_t words = (&_text_vma_end - &_text_vma_start) / 4;
+  
+  for (size_t i = 0; i < words; i++) {
+    dst[i] = src[i];  // 32位对齐访问
+  }
+
+  // 复制.rodata段
+  src = (uint32_t*)&_rodata_lma;
+  dst = (uint32_t*)&_rodata_vma_start;
+  words = (&_rodata_vma_end - &_rodata_vma_start) / 4;
+  
+  for (size_t i = 0; i < words; i++) {
+    dst[i] = src[i];  // 32位对齐访问
+  }
+
+  // 复制.data段
+  src = (uint32_t*)&_data_lma;
+  dst = (uint32_t*)&_data_vma_start;
+  words = (&_data_vma_end - &_data_vma_start) / 4;
+  
+  for (size_t i = 0; i < words; i++) {
+    dst[i] = src[i];  // 32位对齐访问
+  }
+
+    asm volatile (
+    "lui t0, %%hi(_text_vma_start)\n\t"
+    "addi t0, t0, %%lo(_text_vma_start)\n\t"
+    "jalr zero, t0, 0"
+    : : : "t0"
+  );
+}
+
+
+/*void bootloader() {
   uint32_t *src = (uint32_t*)&_data_lma;// 按字复制保证对齐
   uint32_t *dst = (uint32_t*)&_data_vma_start;
   size_t words = (&_data_vma_end - &_data_vma_start) / 4;
@@ -40,7 +84,7 @@ void bootloader() {
   }
 
 
-}
+}*/
 
 //extern char _pmem_start;
 //#define PMEM_SIZE (16 * 1024 * 1024)  // ysyxSoC的SRAM大小，16MB
@@ -111,7 +155,7 @@ static void put_dec(uint32_t num) {
 
 void _trm_init() {
   uart_init();
-    bootloader();
+  //  bootloader();
     //uart_init();
       // 添加CSR读取
   
@@ -134,7 +178,7 @@ void _trm_init() {
   // 换行
   putch('\n');
   
-
+  bootloader();
   int ret = main(mainargs);
   halt(ret);
 }
