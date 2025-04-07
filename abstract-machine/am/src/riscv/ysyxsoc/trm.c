@@ -37,7 +37,7 @@ extern char _bss_start;         // BSS段起始位置
 
 
 
-void bootloader() {
+/*void bootloader() {
   // 复制.text段
   uint32_t *src = (uint32_t*)&_text_lma;
   uint32_t *dst = (uint32_t*)&_text_vma_start;
@@ -72,9 +72,9 @@ void bootloader() {
     : : : "t0"
   );
 }
+*/
 
-
-/*void bootloader() {
+void bootloader() {
   uint32_t *src = (uint32_t*)&_data_lma;// 按字复制保证对齐
   uint32_t *dst = (uint32_t*)&_data_vma_start;
   size_t words = (&_data_vma_end - &_data_vma_start) / 4;
@@ -84,7 +84,7 @@ void bootloader() {
   }
 
 
-}*/
+}
 
 //extern char _pmem_start;
 //#define PMEM_SIZE (16 * 1024 * 1024)  // ysyxSoC的SRAM大小，16MB
