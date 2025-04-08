@@ -26,6 +26,7 @@ extern char _text_lma;          // 代码段在flash中的位置
 extern char _text_vma_start;    // 代码段在SRAM中的起始位置
 extern char _text_vma_end;      // 代码段在SRAM中的结束位置
 extern char _execute_main_offset;
+extern char _execute_main_sram_addr;
 
 extern char _rodata_lma;        // 只读数据段在flash中的位置
 extern char _rodata_vma_start;  // 只读数据段在SRAM中的起始位置
@@ -68,13 +69,12 @@ void bootloader() {
     dst[i] = src[i];  // 32位对齐访问
   }
 
-   // 计算execute_main在SRAM中的地址
-    uint32_t execute_sram_addr = (uint32_t)&_text_vma_start + (uint32_t)&_execute_main_offset;
+   
 
     asm volatile (
         "mv t0, %0\n\t"
         "jalr zero, t0, 0"
-        : : "r"(execute_sram_addr) : "t0"
+        : : "r"(_execute_main_sram_addr) : "t0"
     );
 }
 

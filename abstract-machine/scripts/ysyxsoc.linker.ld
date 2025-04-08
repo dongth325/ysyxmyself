@@ -28,6 +28,7 @@ SECTIONS {
     *(.text*)
 
    PROVIDE(_execute_main_offset = execute_main - _text_lma);
+       PROVIDE(_execute_main_sram_addr = _text_vma_start + _execute_main_offset);
 
       . = ALIGN(4);
      _text_vma_end = ABSOLUTE(ORIGIN(sram) + SIZEOF(.text));
