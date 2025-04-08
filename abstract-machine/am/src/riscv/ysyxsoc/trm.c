@@ -25,14 +25,13 @@ extern char _data_vma_end;      // 数据段在SRAM中的结束位置
 extern char _text_lma;          // 代码段在flash中的位置
 extern char _text_vma_start;    // 代码段在SRAM中的起始位置
 extern char _text_vma_end;      // 代码段在SRAM中的结束位置
+extern char _execute_main_offset;
 
 extern char _rodata_lma;        // 只读数据段在flash中的位置
 extern char _rodata_vma_start;  // 只读数据段在SRAM中的起始位置
 extern char _rodata_vma_end;    // 只读数据段在SRAM中的结束位置
 
-extern char _execute_main_lma;   // execute_main段在flash中的位置
-extern char _execute_main_vma_start;  // execute_main段在SRAM中的起始位置
-extern char _execute_main_vma_end;  // execute_main段在SRAM中的结束位置
+
 
 extern char _bss_start;         // BSS段起始位置
 
@@ -51,15 +50,14 @@ void bootloader() {
     dst[i] = src[i]; // 32位对齐访问
   }
 
-
-  // 复制.text段
- src = (uint32_t*)&_execute_main_lma;
- dst = (uint32_t*)&_execute_main_vma_start;
- words = (&_execute_main_vma_end - &_execute_main_vma_start) / 4;
+   src = (uint32_t*)&_text_lma;
+  dst = (uint32_t*)&_text_vma_start;
+  words = (&_text_vma_end - &_text_vma_start) / 4;
   
   for (size_t i = 0; i < words; i++) {
     dst[i] = src[i];  // 32位对齐访问
   }
+ 
 
   // 复制.rodata段
   src = (uint32_t*)&_rodata_lma;
@@ -70,15 +68,14 @@ void bootloader() {
     dst[i] = src[i];  // 32位对齐访问
   }
 
+   // 计算execute_main在SRAM中的地址
+    uint32_t execute_sram_addr = (uint32_t)&_text_vma_start + (uint32_t)&_execute_main_offset;
 
-
-  // 直接跳转到SRAM中的execute_main
-  asm volatile (
-    "lui t0, %%hi(_execute_main_vma_start)\n\t"
-    "addi t0, t0, %%lo(_execute_main_vma_start)\n\t"
-    "jalr zero, t0, 0"
-    : : : "t0"
-  );
+    asm volatile (
+        "mv t0, %0\n\t"
+        "jalr zero, t0, 0"
+        : : "r"(execute_sram_addr) : "t0"
+    );
 }
 
 
@@ -158,10 +155,13 @@ static void put_dec(uint32_t num) {
         putch(buf[i]);
     }
 }
-
+void execute_main(void) __attribute__((used));
 void execute_main() {
-  int ret = main(mainargs);
+   
+ volatile int ret = main(mainargs);
   halt(ret);
+    // 切回text段
+   
 }
 
 
@@ -193,4 +193,7 @@ void _trm_init() {
   bootloader();
 
    execute_main();
+
+
+ 
 }

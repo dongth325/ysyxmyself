@@ -26,31 +26,39 @@ SECTIONS {
       _text_vma_start = ABSOLUTE(ORIGIN(sram));
     *(entry)
     *(.text*)
+
+   PROVIDE(_execute_main_offset = execute_main - _text_lma);
+
       . = ALIGN(4);
      _text_vma_end = ABSOLUTE(ORIGIN(sram) + SIZEOF(.text));
   } >flash : text
   
 
-  _execute_main_lma = _text_lma + SIZEOF(.text) + 4;
+
+  
+
  
 
-  .text.execute_main : AT(_execute_main_lma) {
-     _execute_main_vma_start = ABSOLUTE(_text_vma_end + 4);
-    *(.text.execute_main)
-    . = ALIGN(4);
-    _execute_main_vma_end = ABSOLUTE(_execute_main_vma_start + SIZEOF(.text.execute_main));
-  } >flash : text
-  
+
+
+
+
+
+
+
+
 
   etext = .;
   _etext = .;
   
- _rodata_lma = _execute_main_lma  + SIZEOF(.text.execute_main) + 4;
+
+
+ _rodata_lma = _text_lma + SIZEOF(.text) + 4;
 
   /* 只读数据段放在MROM */
   .rodata : AT(_rodata_lma) {
    . = ALIGN(4);
-    _rodata_vma_start = ABSOLUTE(_execute_main_vma_end + 4); /*防止重叠，虽然一个end和start即使地址一样也不是重叠*/
+    _rodata_vma_start = ABSOLUTE(_text_vma_end + 4); /*防止重叠，虽然一个end和start即使地址一样也不是重叠*/
     *(.rodata*)
     *(.srodata*)  /* 添加.srodata*段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破 */
     *(.sdata.rodata*)  /* 添加其他可能的只读数据段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破*/
