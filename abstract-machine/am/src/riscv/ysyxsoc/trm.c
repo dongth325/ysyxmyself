@@ -166,7 +166,7 @@ void execute_main() {
 
 
 void _trm_init() {
-  uart_init();
+ // uart_init();
   //  bootloader();
     //uart_init();
       // 添加CSR读取
