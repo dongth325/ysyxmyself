@@ -72,10 +72,9 @@ void bootloader() {
    
 
 asm volatile (
-    "lui t0, %%hi(_execute_main_sram_addr)\n\t"
-    "lw t0, %%lo(_execute_main_sram_addr)(t0)\n\t"
+    "mv t0, %0\n\t"
     "jalr zero, t0, 0"
-    : : : "t0"
+    : : "r"(_execute_main_sram_addr) : "t0"
 );
 }
 
