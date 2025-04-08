@@ -129,7 +129,7 @@ void uart_init() {
 
 
 void putch(char ch) {
-    outb(UART_BASE + UART_TX, ch);
+    
     while ((inb(UART_BASE + UART_REG_LSR) & UART_LSR_THRE) == 0) {
         // 等待THRE位置1
     }
