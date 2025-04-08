@@ -90,7 +90,7 @@ SECTIONS {
   /* BSS段 - 只需在SRAM中分配空间并清零 */
 
   .bss (NOLOAD) : {
-    . = ALIGN(4);
+    . = ABSOLUTE(_data_vma_end + 4);  /*这一部分用于加载printf的sprintf buf数组，因为链接文件设置的很迷，bss段虽然定义>sram，但是我们的sram是主动在bootloader拷贝进去的，所以只能用计数器来确定在链接文件中最开始规定的立即数符号的地址*/
    _bss_start = ABSOLUTE(_data_vma_end + 4);
     *(.bss*)
     *(.sbss*)
