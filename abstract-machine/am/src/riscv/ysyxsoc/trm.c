@@ -72,9 +72,9 @@ void bootloader() {
    
 
 asm volatile (
-    "mv t0, %0\n\t"
+    "la t0, _execute_main_sram_addr\n\t"  // 直接加载符号地址
     "jalr zero, t0, 0"
-    : : "r"(_execute_main_sram_addr) : "t0"
+    : : : "t0"
 );
 }
 
