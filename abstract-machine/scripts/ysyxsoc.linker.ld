@@ -1,5 +1,5 @@
 ENTRY(_start)
-PHDRS { text PT_LOAD; data PT_LOAD;rodata PT_LOAD; }
+PHDRS {  fsbl PT_LOAD; text PT_LOAD; data PT_LOAD;rodata PT_LOAD; }
 
 MEMORY {
   flash : ORIGIN = 0x30000000, LENGTH = 16M  /* Flash 16MB */
@@ -18,7 +18,20 @@ SECTIONS {
   . = ORIGIN(flash);
 
 
-  _bootloader_lma = ORIGIN(flash) + 4;
+  _fsbl_lma = ORIGIN(flash);
+
+  .fsbl : AT(_fsbl_lma) {
+    . = ALIGN(4);
+    _fsbl_vma_start = .;
+    *(.fsbl*)
+    . = ALIGN(4);
+    _fsbl_vma_end = .;
+  } >flash : fsbl
+
+
+
+
+  _bootloader_lma = _fsbl_lma + SIZEOF(.fsbl) + 4;
   
   
   .bootloader : AT(_bootloader_lma) {
@@ -106,7 +119,7 @@ SECTIONS {
   /* BSS段 - 只需在SRAM中分配空间并清零 */
 
   .bss (NOLOAD) : {
-    . = ALIGN(4);
+     . = ALIGN(4);
     . = ABSOLUTE(_data_vma_end + 4);  /*这一部分用于加载printf的sprintf buf数组，因为链接文件设置的很迷，bss段虽然定义>sram，但是我们的sram是主动在bootloader拷贝进去的，所以只能用计数器来确定在链接文件中最开始规定的立即数符号的地址*/
    _bss_start = ABSOLUTE(_data_vma_end + 4);
     *(.bss*)

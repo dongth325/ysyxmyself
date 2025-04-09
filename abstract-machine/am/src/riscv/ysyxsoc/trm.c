@@ -28,6 +28,10 @@ extern char _text_vma_end;      // 代码段在SRAM中的结束位置
 extern char _execute_main_offset;
 extern char _execute_main_sram_addr;
 
+extern char _bootloader_lma;
+extern char _bootloader_vma_start;
+extern char _bootloader_vma_end;
+
 extern char _rodata_lma;        // 只读数据段在flash中的位置
 extern char _rodata_vma_start;  // 只读数据段在SRAM中的起始位置
 extern char _rodata_vma_end;    // 只读数据段在SRAM中的结束位置
@@ -39,10 +43,27 @@ extern char _bss_start;         // BSS段起始位置
 //extern char _bss_end;           // BSS段结束位置
 
 
+void __attribute__((section(".fsbl"))) fsbl(void) {
+    // 1. 复制bootloader从flash到sram
+    uint32_t *src = (uint32_t*)&_bootloader_lma;
+    uint32_t *dst = (uint32_t*)&_bootloader_vma_start;
+    size_t words = (&_bootloader_vma_end - &_bootloader_vma_start) / 4;
+    
+    for (size_t i = 0; i < words; i++) {
+        dst[i] = src[i];  // 32位对齐访问
+    }
+
+    // 2. 直接跳转到bootloader，不返回
+    asm volatile (
+        "la t0, _bootloader_vma_start\n\t"
+        "jalr zero, t0, 0"
+        : : : "t0"
+    );
 
 
-//void __attribute__((section(".bootloader"))) bootloader() {
-void  bootloader() {
+}
+
+void __attribute__((section(".bootloader"), used)) bootloader(void) {
 
   uint32_t *src = (uint32_t*)&_data_lma;// 按字复制保证对齐
   uint32_t *dst = (uint32_t*)&_data_vma_start;
@@ -213,7 +234,10 @@ void _trm_init() {
   
   // 换行
   putch('\n');*/
-  
+  fsbl();
+
+  //while(1);//不会到这里
+
   bootloader();
 
    execute_main();
