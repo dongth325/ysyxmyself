@@ -25,8 +25,8 @@ extern char _data_vma_end;      // 数据段在SRAM中的结束位置
 extern char _text_lma;          // 代码段在flash中的位置
 extern char _text_vma_start;    // 代码段在SRAM中的起始位置
 extern char _text_vma_end;      // 代码段在SRAM中的结束位置
-extern char _execute_main_offset;
-extern char _execute_main_sram_addr;
+
+extern char _execute_main;
 
 extern char _bootloader_lma;
 extern char _bootloader_vma_start;
@@ -94,7 +94,7 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
    
 
 asm volatile (
-    "la t0, _execute_main_sram_addr\n\t"  // 直接加载符号地址
+    "la t0, _execute_main\n\t"  // 直接加载符号地址
     "jalr zero, t0, 0"
     : : : "t0"
 );
