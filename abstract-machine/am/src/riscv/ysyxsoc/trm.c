@@ -41,7 +41,8 @@ extern char _bss_start;         // BSS段起始位置
 
 
 
-void bootloader() {
+//void __attribute__((section(".bootloader"))) bootloader() {
+void  bootloader() {
 
   uint32_t *src = (uint32_t*)&_data_lma;// 按字复制保证对齐
   uint32_t *dst = (uint32_t*)&_data_vma_start;
