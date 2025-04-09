@@ -173,6 +173,7 @@ end
                 if (io_master_bvalid) begin
                     // 检查响应和ID
                     if (io_master_bid == curr_id && io_master_bresp == 2'b00) begin
+                    
                         
                         mem_ready = 1'b1;
                     end

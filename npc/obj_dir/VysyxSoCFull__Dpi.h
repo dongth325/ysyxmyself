@@ -18,15 +18,15 @@ extern "C" {
     // DPI EXPORTS
     // DPI export at vsrc/csr.v:145:14
     extern int get_csr_reg_value(int csr_reg_index);
-    // DPI export at vsrc/NPC.v:603:14
+    // DPI export at vsrc/NPC.v:604:14
     extern int get_if_allow_in();
     // DPI export at vsrc/idu.v:348:14
     extern int get_inst_r();
-    // DPI export at vsrc/NPC.v:598:14
+    // DPI export at vsrc/NPC.v:599:14
     extern int get_pc_value();
     // DPI export at vsrc/registerfile.v:61:14
     extern int get_reg_value(int reg_index);
-    // DPI export at vsrc/lsu.v:503:14
+    // DPI export at vsrc/lsu.v:504:14
     extern int get_saved_addr();
 
     // DPI IMPORTS
