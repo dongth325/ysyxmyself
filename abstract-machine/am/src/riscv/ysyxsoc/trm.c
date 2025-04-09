@@ -91,12 +91,19 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
     dst[i] = src[i];  // 32位对齐访问
   }
 
-   
 
-asm volatile (
+
+/*asm volatile (
     "la t0, _execute_main\n\t"  // 直接加载符号地址
     "jalr zero, t0, 0"
     : : : "t0"
+);*/
+
+asm volatile (
+    "la sp, _stack_pointer\n\t"  // 直接加载栈指针
+    "la t0, _execute_main\n\t"    // 加载目标地址
+    "jalr zero, t0, 0"            // 跳转
+    : : : "t0"                    // 只声明 t0 被修改
 );
 }
 
@@ -211,6 +218,7 @@ void execute_main() {
 
 
 void _trm_init() {
+  
   /*uart_init();
   //  bootloader();
     //uart_init();
@@ -236,7 +244,7 @@ void _trm_init() {
   putch('\n');*/
   fsbl();
 
-  //while(1);//不会到这里
+  
 
   bootloader();
 
