@@ -172,7 +172,7 @@ void halt(int code) {
   while (1);
 }
 
-/*static void put_dec(uint32_t num) {
+static void put_dec(uint32_t num) {
     char buf[10];
     int i = 0;
     do {
@@ -183,7 +183,7 @@ void halt(int code) {
     while (--i >= 0) {
         putch(buf[i]);
     }
-}*/
+}
 void execute_main(void) __attribute__((used));
 void execute_main() {
     uart_init();
@@ -191,7 +191,7 @@ void execute_main() {
     //uart_init();
       // 添加CSR读取
   
- /* uint32_t vendor_id, arch_id;
+  uint32_t vendor_id, arch_id;
   __asm__ __volatile__("csrr %0, 0xF11" : "=r"(vendor_id));  // mvendorid
   __asm__ __volatile__("csrr %0, 0xF12" : "=r"(arch_id));    // marchid
 
@@ -208,7 +208,7 @@ void execute_main() {
   put_dec(arch_id);  // 这里假设arch_id寄存器存储的是24090014的十进制值
   
   // 换行
-  putch('\n');*/
+  putch('\n');
    
  volatile int ret = main(mainargs);
   halt(ret);
