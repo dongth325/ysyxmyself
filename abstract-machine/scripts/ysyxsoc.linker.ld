@@ -150,5 +150,5 @@ SECTIONS {
   
   /* 添加检查，确保程序不会溢出 */
   ASSERT(_prog_end <= _heap_start, "Error: 程序数据段太大，超出了对齐边界！")
-  ASSERT(_heap_start < _stack_top, "Error: 没有足够空间分配堆区！")
+  ASSERT(_heap_start >= _stack_top, "Error: 没有足够空间分配堆区！")
 }
