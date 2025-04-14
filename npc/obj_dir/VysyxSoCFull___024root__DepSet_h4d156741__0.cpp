@@ -162,6 +162,8 @@ void VysyxSoCFull___024root___eval_triggers__act(VysyxSoCFull___024root* vlSelf)
                                           & (~ (IData)(vlSelfRef.__Vtrigprevexpr___TOP__ysyxSoCFull__DOT___asic_psram_sck__0)))));
     vlSelfRef.__VactTriggered.set(8U, ((IData)(vlSelfRef.ysyxSoCFull__DOT___asic_psram_sck) 
                                        & (~ (IData)(vlSelfRef.__Vtrigprevexpr___TOP__ysyxSoCFull__DOT___asic_psram_sck__0))));
+    vlSelfRef.__VactTriggered.set(9U, ((~ (IData)(vlSelfRef.clock)) 
+                                       & (IData)(vlSelfRef.__Vtrigprevexpr___TOP__clock__0)));
     vlSelfRef.__Vtrigprevexpr___TOP__clock__0 = vlSelfRef.clock;
     vlSelfRef.__Vtrigprevexpr___TOP__ysyxSoCFull__DOT__asic__DOT____Vcellinp__cpu__reset__0 
         = vlSelfRef.ysyxSoCFull__DOT__asic__DOT____Vcellinp__cpu__reset;
