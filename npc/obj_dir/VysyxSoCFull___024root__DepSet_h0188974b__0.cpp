@@ -1963,14 +1963,6 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__8(VysyxSoCFull___0
             vlSelfRef.ysyxSoCFull__DOT__sdram__DOT__cas_counter 
                 = (7U & ((IData)(vlSelfRef.ysyxSoCFull__DOT__sdram__DOT__cas_counter) 
                          - (IData)(1U)));
-            if ((0U == (IData)(vlSelfRef.ysyxSoCFull__DOT__sdram__DOT__cas_counter))) {
-                vlSelfRef.ysyxSoCFull__DOT__sdram__DOT__dq_output_enable = 1U;
-                vlSelfRef.ysyxSoCFull__DOT__sdram__DOT__dq_output 
-                    = vlSelfRef.ysyxSoCFull__DOT__sdram__DOT__row_buffer
-                    [vlSelfRef.ysyxSoCFull__DOT__sdram__DOT__active_bank]
-                    [vlSelfRef.ysyxSoCFull__DOT__sdram__DOT__col_addr];
-                vlSelfRef.ysyxSoCFull__DOT__sdram__DOT__burst_counter = 1U;
-            }
         }
     }
     vlSelfRef.ysyxSoCFull__DOT__sdram__DOT__burst_max 
