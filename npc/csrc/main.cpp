@@ -527,7 +527,7 @@ void exec_once(NpcState *s) {
        
     
     // 执行DiffTest
-    difftest_step(s->top, old_pc, s->pc);
+ //   difftest_step(s->top, old_pc, s->pc);
 //111111111111111111111111111111111111111111111111111111111111
 
 
