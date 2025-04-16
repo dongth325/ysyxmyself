@@ -34,7 +34,7 @@ extern "C" {
     extern void ebreak(int exit_code);
     // DPI import at ../ysyxSoC/perip/flash/flash.v:84:30
     extern void flash_read(int addr, int* data);
-    // DPI import at ../ysyxSoC/build/ysyxSoCFull.v:4656:30
+    // DPI import at ../ysyxSoC/build/ysyxSoCFull.v:4659:30
     extern void mrom_read(int raddr, int* rdata);
     // DPI import at vsrc/exu.v:67:30
     extern int pmem_read(int addr);
