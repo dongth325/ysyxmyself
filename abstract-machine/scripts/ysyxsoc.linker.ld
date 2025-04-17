@@ -6,6 +6,7 @@ MEMORY {
   mrom : ORIGIN = 0x20000000, LENGTH = 4K  /* mrom 4KB */
   sram : ORIGIN = 0x0f000000, LENGTH = 8K  /* SRAM 8KB */
   sdram : ORIGIN = 0xa0000000, LENGTH = 64M  /* SDRAM 64MB (0xa0000000~0xa3ffffff) */
+  psram : ORIGIN = 0x80000000, LENGTH = 4M 
 }
 
 
@@ -41,7 +42,7 @@ SECTIONS {
     *(.bootloader*)
     . = ALIGN(4);
     _bootloader_vma_end = .;
-  } >sdram : text
+  } >psram : text
 
 
 
@@ -62,7 +63,7 @@ SECTIONS {
 
       . = ALIGN(4);
      _text_vma_end = ABSOLUTE(_text_vma_start + SIZEOF(.text));
-  } >sdram : text
+  } >psram : text
   
 
 
@@ -95,7 +96,7 @@ SECTIONS {
     *(.sdata.rodata*)  /* 添加其他可能的只读数据段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破*/
      . = ALIGN(4);
      _rodata_vma_end = ABSOLUTE(_rodata_vma_start + SIZEOF(.rodata));
-  } >sdram : rodata
+  } >psram : rodata
   
   . = ALIGN(4);
 
@@ -115,7 +116,7 @@ SECTIONS {
     *(.sdata.*)    /* 添加小数据段 */
     . = ALIGN(4);
      _data_vma_end = ABSOLUTE(_data_vma_start + SIZEOF(.data));
-  } >sdram : data
+  } >psram : data
   
   /* BSS段 - 只需在SRAM中分配空间并清零 */
 
@@ -129,7 +130,7 @@ SECTIONS {
     . = ALIGN(4);
    _bss_end = ABSOLUTE(_bss_start + SIZEOF(.bss));
 
- } >sdram
+ } >psram
   
   /* 记录数据和BSS段结束后的位置 */
   _prog_end = .;
