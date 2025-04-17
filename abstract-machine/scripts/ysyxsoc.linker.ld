@@ -4,7 +4,7 @@ PHDRS {  fsbl PT_LOAD; text PT_LOAD; data PT_LOAD;rodata PT_LOAD; }
 MEMORY {
   flash : ORIGIN = 0x30000000, LENGTH = 16M  /* Flash 16MB */
   mrom : ORIGIN = 0x20000000, LENGTH = 4K  /* mrom 4KB */
-  sram : ORIGIN = 0x0f000000, LENGTH = 8K  /* SRAM 8KB */
+  sdram : ORIGIN = 0xa0000000, LENGTH = 64M
 }
 
 
@@ -40,7 +40,7 @@ SECTIONS {
     *(.bootloader*)
     . = ALIGN(4);
     _bootloader_vma_end = .;
-  } >sram : text
+  } >sdram : text
 
 
 
@@ -61,7 +61,7 @@ SECTIONS {
 
       . = ALIGN(4);
      _text_vma_end = ABSOLUTE(_text_vma_start + SIZEOF(.text));
-  } >sram : text
+  } >sdram : text
   
 
 
@@ -94,7 +94,7 @@ SECTIONS {
     *(.sdata.rodata*)  /* 添加其他可能的只读数据段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破*/
      . = ALIGN(4);
      _rodata_vma_end = ABSOLUTE(_rodata_vma_start + SIZEOF(.rodata));
-  } >sram : rodata
+  } >sdram : rodata
   
   . = ALIGN(4);
 
@@ -114,7 +114,7 @@ SECTIONS {
     *(.sdata.*)    /* 添加小数据段 */
     . = ALIGN(4);
      _data_vma_end = ABSOLUTE(_data_vma_start + SIZEOF(.data));
-  } >sram : data
+  } >sdram : data
   
   /* BSS段 - 只需在SRAM中分配空间并清零 */
 
@@ -128,7 +128,7 @@ SECTIONS {
     . = ALIGN(4);
    _bss_end = ABSOLUTE(_bss_start + SIZEOF(.bss));
 
- } >sram
+ } >sdram
   
   /* 记录数据和BSS段结束后的位置 */
   _prog_end = .;
@@ -138,11 +138,11 @@ SECTIONS {
   _heap_start = ALIGN(0x1000);
   
   /* 栈区大小可调整 - 这里设为2KB */
-  . = ORIGIN(sram) + LENGTH(sram) - 2K;  /* 留出2KB给栈 */
+  . = ORIGIN(sdram) + LENGTH(sdram) - 2K;  /* 留出2KB给栈 */
   _stack_top = .;
   
   /* SRAM结束地址 */
-  . = ORIGIN(sram) + LENGTH(sram);
+  . = ORIGIN(sdram) + LENGTH(sdram);
   _stack_pointer = ALIGN(4) - 4;  /* 四字节对齐并留出一个字 */
   
   /* 堆区结束地址设置为栈区起始地址 */
@@ -150,5 +150,5 @@ SECTIONS {
   
   /* 添加检查，确保程序不会溢出 */
   ASSERT(_prog_end <= _heap_start, "Error: 程序数据段太大，超出了对齐边界！")
-  ASSERT(_heap_start >= _stack_top, "Error: 没有足够空间分配堆区！")
+  ASSERT(_heap_start <= _stack_top, "Error: 没有足够空间分配堆区！")
 }

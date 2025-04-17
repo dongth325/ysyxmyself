@@ -1,5 +1,5 @@
 # 定义 Verilog 文件和生成的可执行文件
-VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v vsrc/csr.v vsrc/arbiter.v vsrc/lsu.v
+VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v vsrc/csr.v vsrc/arbiter.v vsrc/lsu.v vsrc/clint.v
 CSRC = csrc/main.cpp csrc/difftest_loader.cpp
 
 # 添加ysyxSoC/perip下的所有.v文件
