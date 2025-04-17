@@ -138,7 +138,7 @@ SECTIONS {
   _heap_start = ALIGN(0x1000);
   
   /* 栈区大小可调整 - 这里设为2KB */
-  . = ORIGIN(sram) + LENGTH(sram) - 1K;  /* 留出2KB给栈 */
+  . = ORIGIN(sram) + LENGTH(sram) - 2K;  /* 留出2KB给栈 */
   _stack_top = .;
   
   /* SRAM结束地址 */
