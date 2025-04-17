@@ -138,7 +138,7 @@ SECTIONS {
   _heap_start = ALIGN(0x1000);
   
   /* 栈区大小可调整 - 这里设为2KB */
-  . = ORIGIN(sram) + LENGTH(sram) - 2K;  /* 留出2KB给栈 */
+  . = ORIGIN(sram) + LENGTH(sram) - 1K;  /* 留出2KB给栈 */
   _stack_top = .;
   
   /* SRAM结束地址 */
@@ -150,5 +150,5 @@ SECTIONS {
   
   /* 添加检查，确保程序不会溢出 */
   ASSERT(_prog_end <= _heap_start, "Error: 程序数据段太大，超出了对齐边界！")
-  ASSERT(_heap_start >= _stack_top, "Error: 没有足够空间分配堆区！")
+  ASSERT(_heap_start <= _stack_top, "Error: 没有足够空间分配堆区！")
 }
