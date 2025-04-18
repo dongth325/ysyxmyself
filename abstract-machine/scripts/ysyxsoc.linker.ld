@@ -1,5 +1,5 @@
 ENTRY(_start)
-PHDRS {  fsbl PT_LOAD; text PT_LOAD; data PT_LOAD;rodata PT_LOAD; }
+PHDRS {  fsbl PT_LOAD; text PT_LOAD; data PT_LOAD;rodata PT_LOAD; bss PT_LOAD; }
 
 MEMORY {
   flash : ORIGIN = 0x30000000, LENGTH = 16M  /* Flash 16MB */
@@ -96,7 +96,7 @@ SECTIONS {
     *(.sdata.rodata*)  /* 添加其他可能的只读数据段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破*/
      . = ALIGN(4);
      _rodata_vma_end = ABSOLUTE(_rodata_vma_start + SIZEOF(.rodata));
-  } >sdram : rodata
+  } >sdram : data
   
   . = ALIGN(4);
 
@@ -108,8 +108,10 @@ SECTIONS {
   .data : AT(_data_lma) {  /* 关键修改：显式指定LMA */
     . = ALIGN(4);
       _data_vma_start = . ;
-   *(.data .data.* .data.extra .data.extra.*)
-    *(.sdata .sdata.*)
+    *(.data)
+    *(.data.*)
+    *(.sdata)      /* 添加小数据段 */
+    *(.sdata.*)    /* 添加小数据段 */
     . = ALIGN(4);
      _data_vma_end = ABSOLUTE(_data_vma_start + SIZEOF(.data));
   } >sdram : data
@@ -118,10 +120,11 @@ SECTIONS {
 
   .bss (NOLOAD) : {
      . = ALIGN(4);
- 
+    . = ABSOLUTE(_data_vma_end + 4);  /*这一部分用于加载printf的sprintf buf数组，因为链接文件设置的很迷，bss段虽然定义>sram，但是我们的sram是主动在bootloader拷贝进去的，所以只能用计数器来确定在链接文件中最开始规定的立即数符号的地址*/
    _bss_start = ABSOLUTE(_data_vma_end + 4);
-   *(.bss .bss.* .bss.extra .bss.extra.*)
-    *(.sbss .sbss.*)
+   
+    *(.bss*)
+    *(.sbss*)
     *(.scommon)
     . = ALIGN(4);
    _bss_end = ABSOLUTE(_bss_start + SIZEOF(.bss));
