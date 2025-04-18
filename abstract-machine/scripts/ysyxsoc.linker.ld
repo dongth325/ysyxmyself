@@ -138,6 +138,9 @@ SECTIONS {
  
   /* 堆区起始地址 */
   _heap_start = ALIGN(0x1000);
+
+    . = ORIGIN(psram) + LENGTH(psram) - 64K;  /* 保留64KB空间 */
+  _heap_end = .;
   
   /* 栈区大小可调整 - 这里设为2KB */
   . = ORIGIN(sram) + LENGTH(sram) - 2K;  /* 留出2KB给栈 */
@@ -147,8 +150,7 @@ SECTIONS {
   . = ORIGIN(sram) + LENGTH(sram);
   _stack_pointer = ALIGN(4) - 4;  /* 四字节对齐并留出一个字 */
   
-  /* 堆区结束地址设置为栈区起始地址 */
-  _heap_end = _stack_top;
+  
   
 
 }
