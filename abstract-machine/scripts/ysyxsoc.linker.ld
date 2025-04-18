@@ -101,19 +101,15 @@ SECTIONS {
   . = ALIGN(4);
 
 
+
+
+
   _data_lma = _rodata_lma + SIZEOF(.rodata);
-  
-
-
-
-  
   .data : AT(_data_lma) {  /* 关键修改：显式指定LMA */
     . = ALIGN(4);
       _data_vma_start = . ;
     *(.data)
-    *(.data.*)
-    *(.sdata)      /* 添加小数据段 */
-    *(.sdata.*)    /* 添加小数据段 */
+    
     . = ALIGN(4);
      _data_vma_end = ABSOLUTE(_data_vma_start + SIZEOF(.data));
   } >sdram : data
@@ -122,7 +118,7 @@ SECTIONS {
 
   .bss (NOLOAD) : {
      . = ALIGN(4);
-    . = ABSOLUTE(_data_vma_end + 4);  /*这一部分用于加载printf的sprintf buf数组，因为链接文件设置的很迷，bss段虽然定义>sram，但是我们的sram是主动在bootloader拷贝进去的，所以只能用计数器来确定在链接文件中最开始规定的立即数符号的地址*/
+   
    _bss_start = ABSOLUTE(_data_vma_end + 4);
     *(.bss*)
     *(.sbss*)
