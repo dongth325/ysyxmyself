@@ -108,8 +108,8 @@ SECTIONS {
   .data : AT(_data_lma) {  /* 关键修改：显式指定LMA */
     . = ALIGN(4);
       _data_vma_start = . ;
-    *(.data)
-    
+   *(.data .data.* .data.extra .data.extra.*)
+    *(.sdata .sdata.*)
     . = ALIGN(4);
      _data_vma_end = ABSOLUTE(_data_vma_start + SIZEOF(.data));
   } >sdram : data
@@ -118,10 +118,10 @@ SECTIONS {
 
   .bss (NOLOAD) : {
      . = ALIGN(4);
-   
+ 
    _bss_start = ABSOLUTE(_data_vma_end + 4);
-    *(.bss*)
-    *(.sbss*)
+   *(.bss .bss.* .bss.extra .bss.extra.*)
+    *(.sbss .sbss.*)
     *(.scommon)
     . = ALIGN(4);
    _bss_end = ABSOLUTE(_bss_start + SIZEOF(.bss));
