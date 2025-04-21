@@ -292,16 +292,17 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
-  word_t data;
+  word_t data;      //psram和pmem 重叠，所以运行psram mem test的时候无法进行处理 在运行nemu的时候要把pmem放到psram判断上面，diff的时候则相反，下面的write也一样
    if (likely(in_mrom(addr))) { return mrom_read(addr, len); }//ddddddddddddd
-  if (likely(in_sram(addr))) { return sram_read(addr, len); }//dddddddddddd
-  if (likely(in_flash(addr))) { return flash_read(addr, len); }
-    if (likely(in_psram(addr))) { return psram_read(addr, len); } 
-  if (likely(in_pmem(addr))) {
+ else if (likely(in_sram(addr))) { return sram_read(addr, len); }//dddddddddddd
+ else if (likely(in_flash(addr))) { return flash_read(addr, len); }
+ else if (likely(in_pmem(addr))) {
     //printf("dt dt dt dt dt from (word_t paddr_read)\n");
     data = pmem_read(addr, len);
     //printf("th th th th th th from(word_t paddr_read)\n");
-  } else {
+  } 
+   else if (likely(in_psram(addr))) { return psram_read(addr, len); } 
+  else {
    // printf("aaaaaaaaaa from (word_t paddr_read)\n");
     IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
    // printf("bbbbbbbbbbbbbbb from (word_t paddr_read)\n");
@@ -317,12 +318,13 @@ word_t paddr_read(paddr_t addr, int len) {
 
 void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_mrom(addr))) { mrom_write(addr, len, data); return; }//ddddddddddddd
-  if (likely(in_sram(addr))) { sram_write(addr, len, data); return; }//dddddddddddd
-   if (likely(in_psram(addr))) { psram_write(addr, len, data); return; }
-  if (likely(in_flash(addr))) { flash_write(addr, len, data); return; }
-  if (likely(in_pmem(addr))) {
+ else if (likely(in_sram(addr))) { sram_write(addr, len, data); return; }//dddddddddddd
+  else if (likely(in_pmem(addr))) {
     pmem_write(addr, len, data);
-  } else {
+  }
+ else  if (likely(in_psram(addr))) { psram_write(addr, len, data); return; }
+ else if (likely(in_flash(addr))) { flash_write(addr, len, data); return; }
+ else {
     IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
     out_of_bound(addr);
     return;
