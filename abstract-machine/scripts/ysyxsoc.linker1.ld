@@ -231,7 +231,7 @@ _bss_lma = _bss_extra_lma + SIZEOF(.bss.extra);
   
   /* SRAM结束地址 */
   . = ORIGIN(sram) + LENGTH(sram);
-  _stack_pointer = ALIGN(4) - 4;  /* 四字节对齐并留出一个字 */
+  _stack_pointer = ALIGN(4);  /* 四字节对齐并留出一个字 */
   
   
   
