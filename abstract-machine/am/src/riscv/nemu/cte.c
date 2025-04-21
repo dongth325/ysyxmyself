@@ -13,6 +13,7 @@ Context* __am_irq_handle(Context *c) {
      
        case 11:
       ev.event=EVENT_YIELD;  //printf("ev.event2=%d\n",ev.event); 
+      c->mepc += 4;
       break;
       default: ev.event = EVENT_ERROR; //printf("ev.event3=%d\n",ev.event);  printf("c->gpr[17] (a7) = %ld\n", c->gpr[17]);
       break;
