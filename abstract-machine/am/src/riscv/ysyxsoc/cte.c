@@ -13,7 +13,8 @@ Context* __attribute__((aligned(4))) __attribute__((noinline)) __am_irq_handle(C
       ev.event=EVENT_YIELD;  //printf("ev.event2=%d\n",ev.event); 
       c->mepc += 4;
       break;
-      default: ev.event = EVENT_ERROR; break;
+      default: ev.event = EVENT_ERROR;
+       break;
     }
 
     c = user_handler(ev, c);

@@ -226,7 +226,7 @@ _bss_lma = _bss_extra_lma + SIZEOF(.bss.extra);
   _heap_end = .;
   
   /* 栈区大小可调整 - 这里设为2KB */
-  . = ORIGIN(sram) + LENGTH(sram) - 2K;  /* 留出2KB给栈 */
+  . = ORIGIN(sram) + LENGTH(sram) - 4K;  /* 留出4KB给栈 */
   _stack_top = .;
   
   /* SRAM结束地址 */
