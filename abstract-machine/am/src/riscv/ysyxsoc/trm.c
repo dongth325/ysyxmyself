@@ -1,3 +1,21 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include <am.h>
 #include <klib-macros.h>
 
@@ -35,6 +53,10 @@ extern char _bootloader_vma_end;
 extern char _rodata_lma;        // 只读数据段在flash中的位置
 extern char _rodata_vma_start;  // 只读数据段在SRAM中的起始位置
 extern char _rodata_vma_end;    // 只读数据段在SRAM中的结束位置
+
+  extern char _data_extra_lma[];    // .data.extra 段的 LMA (通过 LOADADDR 获取)
+  extern char _data_extra_vma_start[];      // .data.extra 段在 RAM 中的起始位置
+  extern char _data_extra_vma_end[];   // .data.extra 段在 RAM 中的结束位置
 
 
 
@@ -93,11 +115,36 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
 
 
 
-/*asm volatile (
-    "la t0, _execute_main\n\t"  // 直接加载符号地址
-    "jalr zero, t0, 0"
-    : : : "t0"
-);*/
+//extra data
+src = (uint32_t*)_data_extra_lma;
+dst = (uint32_t*)_data_extra_vma_start;   //在ysyxsoclinker2中data extra lma前面是一道杠，其余extra的是两道
+words = (_data_extra_vma_end - _data_extra_vma_start) / 4;
+
+// 检查是否需要复制
+/*if (src == dst) {
+  // 源地址和目标地址相同，不需要复制
+  putch('S'); putch('k'); putch('i'); putch('p'); putch(':');
+  putch('S'); putch('a'); putch('m'); putch('e');
+  putch('\n');
+} else if (words > 0 && words < 1000000) {  // 添加合理性检查
+  for (size_t i = 0; i < words; i++) {
+    dst[i] = src[i];  // 32位对齐访问
+  }
+} else {
+  // 处理异常情况
+  putch('E'); putch('r'); putch('r'); putch(':');
+  if (words == 0) {
+    putch('Z'); putch('e'); putch('r'); putch('o');
+  } else {
+    putch('O'); putch('v'); putch('e'); putch('r');
+  }
+  putch('\n');
+}*/
+
+
+
+
+
 
 asm volatile (
     "la sp, _stack_pointer\n\t"  // 直接加载栈指针
@@ -253,3 +300,12 @@ void _trm_init() {
 
  
 }
+
+
+
+
+
+
+
+
+
