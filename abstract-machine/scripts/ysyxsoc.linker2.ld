@@ -1,12 +1,10 @@
 ENTRY(_start)
-PHDRS {  fsbl PT_LOAD; text PT_LOAD; data PT_LOAD;rodata PT_LOAD; bss PT_LOAD; }
+PHDRS {  fsbl PT_LOAD; text PT_LOAD; data PT_LOAD;rodata PT_LOAD; }
 
 MEMORY {
   flash : ORIGIN = 0x30000000, LENGTH = 16M  /* Flash 16MB */
   mrom : ORIGIN = 0x20000000, LENGTH = 4K  /* mrom 4KB */
   sram : ORIGIN = 0x0f000000, LENGTH = 8K  /* SRAM 8KB */
-  sdram : ORIGIN = 0xa0000000, LENGTH = 64M  /* SDRAM 64MB (0xa0000000~0xa3ffffff) */
-  psram : ORIGIN = 0x80000000, LENGTH = 4M 
 }
 
 
@@ -42,7 +40,7 @@ SECTIONS {
     *(.bootloader*)
     . = ALIGN(4);
     _bootloader_vma_end = .;
-  } >psram : text
+  } >sram : text
 
 
 
@@ -63,7 +61,7 @@ SECTIONS {
 
       . = ALIGN(4);
      _text_vma_end = ABSOLUTE(_text_vma_start + SIZEOF(.text));
-  } >psram : text
+  } >sram : text
   
 
 
@@ -96,15 +94,17 @@ SECTIONS {
     *(.sdata.rodata*)  /* 添加其他可能的只读数据段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破*/
      . = ALIGN(4);
      _rodata_vma_end = ABSOLUTE(_rodata_vma_start + SIZEOF(.rodata));
-  } >psram : data
+  } >sram : rodata
   
   . = ALIGN(4);
 
 
-
-
-
   _data_lma = _rodata_lma + SIZEOF(.rodata);
+  
+
+
+
+  
   .data : AT(_data_lma) {  /* 关键修改：显式指定LMA */
     . = ALIGN(4);
       _data_vma_start = . ;
@@ -114,22 +114,21 @@ SECTIONS {
     *(.sdata.*)    /* 添加小数据段 */
     . = ALIGN(4);
      _data_vma_end = ABSOLUTE(_data_vma_start + SIZEOF(.data));
-  } >psram : data
+  } >sram : data
   
   /* BSS段 - 只需在SRAM中分配空间并清零 */
 
-  .bss (NOLOAD) : {
+  .bss : {
      . = ALIGN(4);
     . = ABSOLUTE(_data_vma_end + 4);  /*这一部分用于加载printf的sprintf buf数组，因为链接文件设置的很迷，bss段虽然定义>sram，但是我们的sram是主动在bootloader拷贝进去的，所以只能用计数器来确定在链接文件中最开始规定的立即数符号的地址*/
    _bss_start = ABSOLUTE(_data_vma_end + 4);
-   
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     . = ALIGN(4);
    _bss_end = ABSOLUTE(_bss_start + SIZEOF(.bss));
 
- } >psram
+ } >sram
   
   /* 记录数据和BSS段结束后的位置 */
   _prog_end = .;
@@ -137,9 +136,6 @@ SECTIONS {
  
   /* 堆区起始地址 */
   _heap_start = ALIGN(0x1000);
-
-    . = ORIGIN(psram) + LENGTH(psram) - 64K;  /* 保留64KB空间 */
-  _heap_end = .;
   
   /* 栈区大小可调整 - 这里设为2KB */
   . = ORIGIN(sram) + LENGTH(sram) - 2K;  /* 留出2KB给栈 */
@@ -149,7 +145,10 @@ SECTIONS {
   . = ORIGIN(sram) + LENGTH(sram);
   _stack_pointer = ALIGN(4) - 4;  /* 四字节对齐并留出一个字 */
   
+  /* 堆区结束地址设置为栈区起始地址 */
+  _heap_end = _stack_top;
   
-  
-
-}
+  /* 添加检查，确保程序不会溢出 */
+  ASSERT(_prog_end <= _heap_start, "Error: 程序数据段太大，超出了对齐边界！")
+  ASSERT(_heap_start >= _stack_top, "Error: 没有足够空间分配堆区！")
+}   
