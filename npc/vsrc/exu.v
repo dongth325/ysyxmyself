@@ -663,7 +663,7 @@ end
    // mstatus_new = mstatus_r;  // 先复制当前值
     
     // 1. 将MPIE（位3）的值复制到MIE（位7）
-    if ((mstatus_new & 32'h80) != 0) begin  // 如果MPIE为1
+  /*  if ((mstatus_new & 32'h80) != 0) begin  // 如果MPIE为1
         mstatus_new = mstatus_new | 32'h8;  // 设置MIE位
     end else begin
         mstatus_new = mstatus_new & ~32'h8; // 清除MIE位
@@ -677,7 +677,7 @@ end
 
      csr_addr3 = 12'h300;
   csr_wdata3 = mstatus_new;
-  csr_wen3 = 1;
+  csr_wen3 = 1;*/
   
 
 
