@@ -58,7 +58,7 @@ extern char _rodata_vma_end;    // 只读数据段在SRAM中的结束位置
   extern char _data_extra_vma_start[];      // .data.extra 段在 RAM 中的起始位置
   extern char _data_extra_vma_end[];   // .data.extra 段在 RAM 中的结束位置
 
-
+ 
 
 extern char _bss_start;         // BSS段起始位置
 
@@ -115,10 +115,11 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
 
 
 
-//extra data
+
 src = (uint32_t*)_data_extra_lma;
 dst = (uint32_t*)_data_extra_vma_start;   //在ysyxsoclinker2中data extra lma前面是一道杠，其余extra的是两道
 words = (_data_extra_vma_end - _data_extra_vma_start) / 4;
+
 
 // 检查是否需要复制
 if (src == dst) {

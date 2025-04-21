@@ -437,7 +437,7 @@ void exec_once(NpcState *s) {
     uint32_t old_pc = get_pc_value();
     
     bool record_wave = (old_pc >= 0x800000f8);
-    
+
      static int cycle_count = 0;  // 静态计数器，确保在函数调用
 
     // 使用do-while循环等待指令执行完成
@@ -477,8 +477,8 @@ void exec_once(NpcState *s) {
         
        
                cycle_count++;  // 增加周期计数
-        if (cycle_count >= 15000) {
-            std::cout << "\nError: No new instruction received for 15000 cycles, simulation terminated" << std::endl;
+        if (cycle_count >= 200000) {
+            std::cout << "\nError: No new instruction received for 200000 cycles, simulation terminated" << std::endl;
          npc_state.ebreak_encountered = true;
             return;
         }
