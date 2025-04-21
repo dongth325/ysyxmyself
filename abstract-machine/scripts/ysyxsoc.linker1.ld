@@ -135,7 +135,7 @@ _data_lma = _rodata_lma + SIZEOF(.rodata);
     . = ALIGN(4);
     _data_extra_vma_start = .;    /*手动添加data extra开始地址*/
 
-
+. = ALIGN(8);
     /* section information for finsh shell */
     __fsymtab_start = .;
     KEEP(*(FSymTab))
