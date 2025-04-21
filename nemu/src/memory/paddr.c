@@ -122,10 +122,10 @@ paddr_t sram_to_guest(uint8_t *haddr) {
 // 通用的物理地址到主机地址转换函数
 uint8_t* guest_to_host(paddr_t paddr) { //dddddddddd
   if (in_pmem(paddr)) return pmem + paddr - CONFIG_MBASE;
-  if (in_mrom(paddr)) return mrom_to_host(paddr);
-  if (in_sram(paddr)) return sram_to_host(paddr);
-  if (in_flash(paddr)) return flash_to_host(paddr);
-   if (in_psram(paddr)) return psram_to_host(paddr); 
+ else if (in_mrom(paddr)) return mrom_to_host(paddr);
+ else if (in_sram(paddr)) return sram_to_host(paddr);
+ else if (in_flash(paddr)) return flash_to_host(paddr);
+  else if (in_psram(paddr)) return psram_to_host(paddr); 
   return NULL;
 }
 
@@ -133,13 +133,13 @@ uint8_t* guest_to_host(paddr_t paddr) { //dddddddddd
 paddr_t host_to_guest(uint8_t *haddr) { //dddddddddd
   if (haddr >= pmem && haddr < pmem + CONFIG_MSIZE) 
    { return haddr - pmem + CONFIG_MBASE;}
-  if (haddr >= mrom && haddr < mrom + MROM_SIZE)
+ else if (haddr >= mrom && haddr < mrom + MROM_SIZE)
    { return mrom_to_guest(haddr);}
-  if (haddr >= sram && haddr < sram + SRAM_SIZE)
+ else if (haddr >= sram && haddr < sram + SRAM_SIZE)
    { return sram_to_guest(haddr);}
-    if (haddr >= flash && haddr < flash + FLASH_SIZE)  // 添加flash支持
+  else  if (haddr >= flash && haddr < flash + FLASH_SIZE)  // 添加flash支持
    { return flash_to_guest(haddr);}
-      if (haddr >= psram && haddr < psram + PSRAM_SIZE)  // 添加 PSRAM 支持
+   else   if (haddr >= psram && haddr < psram + PSRAM_SIZE)  // 添加 PSRAM 支持
     {return psram_to_guest(haddr);}
   return 0;
 }
