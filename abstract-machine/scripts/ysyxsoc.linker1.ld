@@ -175,6 +175,8 @@ _data_lma = _rodata_lma + SIZEOF(.rodata);
   _bss_extra_lma = _data_extra_lma + SIZEOF(.data.extra);
 
   .bss.extra : AT(_bss_extra_lma){
+     . = ALIGN(4);
+     _bss_extra_vma_start = .;
     . = ALIGN(8);
     __am_apps_bss_start = .;
     *(__am_apps.bss*)
@@ -182,6 +184,7 @@ _data_lma = _rodata_lma + SIZEOF(.rodata);
     *(__am_apps.scommon*)
     __am_apps_bss_end = .;
     . = ALIGN(8);
+    _bss_extra_vma_end = ABSOLUTE(_bss_extra_vma_start + SIZEOF(.bss.extra));
   } >psram : bss
 
 
@@ -197,13 +200,13 @@ _bss_lma = _bss_extra_lma + SIZEOF(.bss.extra);
   .bss  : AT(_bss_lma) {
      . = ALIGN(4);
    
-   _bss_start = .;
+   _bss_vma_start = .;
    
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     . = ALIGN(4);
-   _bss_end = .;
+   _bss_vma_end = .;
 
  } >psram
   

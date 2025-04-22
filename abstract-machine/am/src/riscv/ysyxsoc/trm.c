@@ -58,6 +58,14 @@ extern char _rodata_vma_end;    // 只读数据段在SRAM中的结束位置
   extern char _data_extra_vma_start[];      // .data.extra 段在 RAM 中的起始位置
   extern char _data_extra_vma_end[];   // .data.extra 段在 RAM 中的结束位置
 
+  extern char _bss_extra_lma[];    // .bss.extra 段的 LMA (通过 LOADADDR 获取)
+  extern char _bss_extra_vma_start[];      // .bss.extra 段在 RAM 中的起始位置
+  extern char _bss_extra_vma_end[];   // .bss.extra 段在 RAM 中的结束位置
+
+  extern char _bss_lma[];    // .bss 段的 LMA (通过 LOADADDR 获取)
+  extern char _bss_vma_start[];      // .bss 段在 RAM 中的起始位置
+  extern char _bss_vma_end[];   // .bss 段在 RAM 中的结束位置
+
  
 
 extern char _bss_start;         // BSS段起始位置
@@ -141,6 +149,24 @@ if (src == dst) {
   }
   putch('\n');
 }
+
+
+src = (uint32_t*)_bss_extra_lma;
+dst = (uint32_t*)_bss_extra_vma_start;
+words = (_bss_extra_vma_end - _bss_extra_vma_start) / 4;
+for (size_t i = 0; i < words; i++) {
+  dst[i] = 0;  // 32位对齐访问
+}
+
+
+src = (uint32_t*)_bss_lma;
+dst = (uint32_t*)_bss_vma_start;
+words = (_bss_vma_end - _bss_vma_start) / 4;
+for (size_t i = 0; i < words; i++) {
+  dst[i] = 0;  // 32位对齐访问
+}
+
+
 
 
 
