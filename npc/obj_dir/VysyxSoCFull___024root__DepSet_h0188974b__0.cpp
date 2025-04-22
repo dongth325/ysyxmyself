@@ -4901,9 +4901,10 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_comb__TOP__2(VysyxSoCFull___024r
             vlSelfRef.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__processed_rdata 
                 = vlSelfRef.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst;
         } else {
-            VL_WRITEF_NX("error!!!!! word read is not aligned\n",0);
-            Verilated::runFlushCallbacks();
             vlSelfRef.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__processed_rdata = 0U;
+            VL_WRITEF_NX("error!!!!! word read is not aligned\nsaved_addr is %x from lsu.v line:303\n",0,
+                         32,vlSelfRef.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__saved_addr);
+            Verilated::runFlushCallbacks();
         }
     } else {
         VL_WRITEF_NX("wrong!!!!! unknown read size\n",0);

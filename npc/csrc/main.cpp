@@ -480,6 +480,24 @@ void exec_once(NpcState *s) {
         if (cycle_count >= 200000) {
             std::cout << "\nError: No new instruction received for 200000 cycles, simulation terminated" << std::endl;
          npc_state.ebreak_encountered = true;
+
+           svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu");
+    if (cpu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope for CPU\n");
+        exit(1);
+    }
+    svSetScope(cpu_scope);
+    
+    // 获取旧的PC值
+    uint32_t old_pc = get_pc_value();
+
+    printf("111111111111111pc is %08x from exec_once.cpp line:485\n",old_pc);
+
+
+
+
+
+
             return;
         }
 
