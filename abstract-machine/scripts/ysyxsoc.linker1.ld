@@ -177,7 +177,7 @@ _data_lma = _rodata_lma + SIZEOF(.rodata);
   .bss.extra : AT(_bss_extra_lma){
      . = ALIGN(4);
      _bss_extra_vma_start = .;
-    . = ALIGN(8);
+    
     __am_apps_bss_start = .;
     *(__am_apps.bss*)
     *(__am_apps.sbss*)
