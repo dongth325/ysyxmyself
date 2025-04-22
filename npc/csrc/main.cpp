@@ -436,7 +436,7 @@ void exec_once(NpcState *s) {
     // 获取旧的PC值
     uint32_t old_pc = get_pc_value();
     
-    bool record_wave = (old_pc >= 0x800000f8);
+    bool record_wave = (old_pc >= 0x80000400);
 
      static int cycle_count = 0;  // 静态计数器，确保在函数调用
 
