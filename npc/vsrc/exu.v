@@ -647,7 +647,7 @@ end
       // 写入 mcause
       
       csr_addr1 = 12'h342;              // MCAUSE 地址
-      csr_wdata1 = 32'd17;        // ECALL 的原因码（根据需求调整）
+      csr_wdata1 = 32'd11;        // ECALL 的原因码（根据需求调整）
       csr_wen1 = 1;                      // 使能写入
 
 csr_rd_valid = 1;
@@ -663,7 +663,7 @@ end
    // mstatus_new = mstatus_r;  // 先复制当前值
     
     // 1. 将MPIE（位3）的值复制到MIE（位7）
-    if ((mstatus_new & 32'h80) != 0) begin  // 如果MPIE为1
+  /*  if ((mstatus_new & 32'h80) != 0) begin  // 如果MPIE为1
         mstatus_new = mstatus_new | 32'h8;  // 设置MIE位
     end else begin
         mstatus_new = mstatus_new & ~32'h8; // 清除MIE位
@@ -677,7 +677,7 @@ end
 
      csr_addr3 = 12'h300;
   csr_wdata3 = mstatus_new;
-  csr_wen3 = 1;
+  csr_wen3 = 1;*/
   
 
 

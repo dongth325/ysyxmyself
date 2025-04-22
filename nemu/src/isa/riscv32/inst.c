@@ -30,7 +30,7 @@ static word_t *csr_reg(word_t imm) {
 
 
 #define CSR(i) *csr_reg(i)
-#define ECALL(dnpc) { bool success; dnpc = (isa_raise_intr(isa_reg_str2val("a7", &success), s->pc)); }
+#define ECALL(dnpc) { bool success; dnpc = (isa_raise_intr(isa_reg_str2val("a1", &success), s->pc)); }
 
 
 #define R(i) gpr(i)

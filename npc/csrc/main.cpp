@@ -317,7 +317,7 @@ void load_memory(const char *program_path, size_t &program_size) {
 
     if (program_size > MEM_SIZE) {
         std::cerr << "Program size (" << program_size << " bytes) exceeds memory size (" << MEM_SIZE << " bytes)." << std::endl;
-        exit(1);
+exit(1);
     }
 
     infile.read(reinterpret_cast<char *>(memory), program_size);
@@ -436,7 +436,8 @@ void exec_once(NpcState *s) {
     // 获取旧的PC值
     uint32_t old_pc = get_pc_value();
     
-  
+    bool record_wave = (old_pc >= 0x80000400);
+
      static int cycle_count = 0;  // 静态计数器，确保在函数调用
 
     // 使用do-while循环等待指令执行完成
@@ -455,27 +456,48 @@ void exec_once(NpcState *s) {
 
         s->top->clock = 0;
         s->top->eval();
-        if (tfp) tfp->dump(main_time++);
+       // if (tfp) tfp->dump(main_time++);
+         if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
-        if (tfp) tfp->dump(main_time++);
-        
+       // if (tfp) tfp->dump(main_time++);
+          if (record_wave && tfp) tfp->dump(main_time++);
    
     
         
         // 时钟上升沿
         s->top->clock = 1;
         s->top->eval();
-        if (tfp) tfp->dump(main_time++);
+       // if (tfp) tfp->dump(main_time++);
+         if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
-        if (tfp) tfp->dump(main_time++);
+       // if (tfp) tfp->dump(main_time++);
+         if (record_wave && tfp) tfp->dump(main_time++);
         
        
                cycle_count++;  // 增加周期计数
-        if (cycle_count >= 15000) {
-            std::cout << "\nError: No new instruction received for 15000 cycles, simulation terminated" << std::endl;
+        if (cycle_count >= 200000) {
+            std::cout << "\nError: No new instruction received for 200000 cycles, simulation terminated" << std::endl;
          npc_state.ebreak_encountered = true;
+
+           svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu");
+    if (cpu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope for CPU\n");
+        exit(1);
+    }
+    svSetScope(cpu_scope);
+    
+    // 获取旧的PC值
+    uint32_t old_pc = get_pc_value();
+
+    printf("111111111111111pc is %08x from exec_once.cpp line:485\n",old_pc);
+
+
+
+
+
+
             return;
         }
 
@@ -527,216 +549,11 @@ void exec_once(NpcState *s) {
        
     
     // 执行DiffTest
- //   difftest_step(s->top, old_pc, s->pc);
+    difftest_step(s->top, old_pc, s->pc);
 //111111111111111111111111111111111111111111111111111111111111
 
 
 
-
-    // 一个时钟周期
-  /* for(int i=0;i<30;i++){
-s->top->clock = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clock = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-   }
-
-    s->top->clock = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clock = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-       s->top->clock = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clock = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-
-
-
-
-
-
-
-
-            s->top->clock = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clock = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-
-
-            s->top->clock = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clock = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-
-            s->top->clock = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clock = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-
-
-
-            s->top->clock = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clock = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-                s->top->clock = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clock = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-                   s->top->clock = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clock = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-
-
-
-            s->top->clock = 0;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-    if (tfp) tfp->dump(main_time++);  // 记录组合逻辑变化
-
-    s->top->clock = 1;
-    s->top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
-
-         s->top->eval();
-         if (tfp) tfp->dump(main_time++);
-    // 更新指令计数
-    //s->inst_count++;
-
-    // 检查 ebreak 信号
- /*   if (s->top->ebreak_flag) {
-        s->ebreak_encountered = true;
-          std::cout << "Encountered ebreak. Exiting simulation." << std::endl;
-        return;
-    }
-*/
-    // 更新 PC
-  //  s->pc = s->top->pc;
-
-   
-
-     //执行 DiffTest
-   // difftest_exec(1);   被包含在difftest step函数里
-
-
-    //difftest_step(s->top, pc, s->pc);
-
-    //获取 DUT 和 REF 的 CPU 状态                    
-  /*  CPU_state dut_cpu_state;                            //以下被纳入到difftest_step里!!!!!!
-    get_dut_cpu_state(s->top, &dut_cpu_state);
-
-   CPU_state ref_cpu_state;
-   difftest_regcpy(&ref_cpu_state, false);
-
-   // 比较 CPU 状态
-if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
-        std::cerr << "Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
-         std::cout << "old instruction: 0x" << std::hex << inst << std::dec << std::endl;
-       // exit(1);
-    }*/
 }
 
 // 执行多条指令的函数（类似于 NEMU 的 execute）

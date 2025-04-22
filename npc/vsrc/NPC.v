@@ -218,6 +218,72 @@ wire [31:0] ifu_rdata;
 wire        ifu_rlast;
 wire [3:0]  ifu_rid;
 
+
+
+// CLINT地址范围定义
+localparam CLINT_BASE = 32'h0200_0000;
+localparam CLINT_SIZE = 32'h0001_0000;  // 64KB空间
+
+// 从arbiter获取的原始arvalid信号
+wire arbiter_arvalid;
+wire [31:0] arbiter_araddr;
+wire [3:0]  arbiter_arid;
+wire [7:0]  arbiter_arlen;
+wire [2:0]  arbiter_arsize;
+wire [1:0]  arbiter_arburst;
+wire        arbiter_rready;
+
+// 判断地址是否在CLINT范围内
+wire is_clint_addr = (io_master_araddr >= CLINT_BASE) && (io_master_araddr < CLINT_BASE + CLINT_SIZE);
+
+// 判断是否访问CLINT - 只处理读请求
+wire is_clint_read = arbiter_arvalid && is_clint_addr;
+
+// CLINT AXI4-Lite接口信号
+wire        clint_arvalid;
+wire        clint_arready;
+wire [31:0] clint_araddr;
+wire        clint_rvalid;
+wire        clint_rready;
+wire [31:0] clint_rdata;
+wire [1:0]  clint_rresp;
+
+// 连接CLINT接口
+assign clint_arvalid = arbiter_arvalid && is_clint_addr;
+assign clint_araddr = io_master_araddr;
+assign clint_rready = io_master_rready;
+
+// 连接到外部设备的信号
+assign io_master_arvalid = arbiter_arvalid && !is_clint_addr;//如果不是clint地址，就不发送到外部，不确定这一个信号能否全部阻塞
+assign io_master_araddr = arbiter_araddr;
+assign io_master_arid = arbiter_arid;
+assign io_master_arlen = arbiter_arlen;
+assign io_master_arsize = arbiter_arsize;
+assign io_master_arburst = arbiter_arburst;
+assign io_master_rready = arbiter_rready;
+
+// 返回给arbiter的信号
+wire        arbiter_arready = is_clint_addr ? clint_arready : io_master_arready;
+wire        arbiter_rvalid = is_clint_addr ? clint_rvalid : io_master_rvalid;
+wire [1:0]  arbiter_rresp = is_clint_addr ? clint_rresp : io_master_rresp;
+wire [31:0] arbiter_rdata = is_clint_addr ? clint_rdata : io_master_rdata;
+wire        arbiter_rlast = is_clint_addr ? 1'b1 : io_master_rlast;  //对于clint直接返回1
+wire [3:0]  arbiter_rid = is_clint_addr ? arbiter_arid : io_master_rid;  // 对于CLINT，使用请求ID作为响应ID
+//id原路返回，不确定实现流水线后是否正确
+
+ysyx_24090012_CLINT clint_inst (
+    .clk           (clock),
+    .rst           (reset),
+    .s_axi_arvalid (clint_arvalid),
+    .s_axi_arready (clint_arready),
+    .s_axi_araddr  (clint_araddr),
+    .s_axi_rvalid  (clint_rvalid),
+    .s_axi_rready  (clint_rready),
+    .s_axi_rdata   (clint_rdata),
+    .s_axi_rresp   (clint_rresp)
+);
+
+
 // 实例化arbiter
 ysyx_24090012_arbiter arbiter(
     .clk(clock),
@@ -286,7 +352,7 @@ ysyx_24090012_arbiter arbiter(
     .io_master_bvalid(io_master_bvalid),
     .io_master_bresp(io_master_bresp),
     .io_master_bid(io_master_bid),
-    .io_master_arvalid(io_master_arvalid),
+    /*.io_master_arvalid(io_master_arvalid),
     .io_master_arready(io_master_arready),
     .io_master_araddr(io_master_araddr),
     .io_master_arid(io_master_arid),
@@ -298,7 +364,20 @@ ysyx_24090012_arbiter arbiter(
     .io_master_rresp(io_master_rresp),
     .io_master_rdata(io_master_rdata),
     .io_master_rlast(io_master_rlast),
-    .io_master_rid(io_master_rid)
+    .io_master_rid(io_master_rid)*/
+    .io_master_arvalid(arbiter_arvalid),
+    .io_master_arready(arbiter_arready),
+    .io_master_araddr(arbiter_araddr),
+    .io_master_arid(arbiter_arid),
+    .io_master_arlen(arbiter_arlen),
+    .io_master_arsize(arbiter_arsize),
+    .io_master_arburst(arbiter_arburst),
+    .io_master_rready(arbiter_rready),
+    .io_master_rvalid(arbiter_rvalid),
+    .io_master_rresp(arbiter_rresp),
+    .io_master_rdata(arbiter_rdata),
+    .io_master_rlast(arbiter_rlast),
+    .io_master_rid(arbiter_rid)
 );
 
 

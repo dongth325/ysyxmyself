@@ -1,3 +1,5 @@
+/*用于ysyxsoc运行rtt，里面有原本rtt的extra.ld内容，同时rtt中的extra文件应该为空，也就是使用extra2.ld*/
+
 ENTRY(_start)
 PHDRS {  fsbl PT_LOAD; text PT_LOAD; data PT_LOAD;rodata PT_LOAD; bss PT_LOAD; }
 
@@ -101,10 +103,11 @@ SECTIONS {
   . = ALIGN(4);
 
 
+/* 在ysyxsoc.linker.ld中 */
+PROVIDE(_rodata_end_lma = _rodata_lma + SIZEOF(.rodata));
 
+_data_lma = _rodata_lma + SIZEOF(.rodata);
 
-
-  _data_lma = _rodata_lma + SIZEOF(.rodata);
   .data : AT(_data_lma) {  /* 关键修改：显式指定LMA */
     . = ALIGN(4);
       _data_vma_start = . ;
@@ -116,21 +119,105 @@ SECTIONS {
      _data_vma_end = ABSOLUTE(_data_vma_start + SIZEOF(.data));
   } >psram : data
   
-  /* BSS段 - 只需在SRAM中分配空间并清零 */
 
-  .bss (NOLOAD) : {
+
+
+
+
+
+
+
+/* 添加 .data.extra 段，放在 .data 段后面 */
+  _data_extra_lma = _data_lma + SIZEOF(.data);
+ 
+  .data.extra : AT(_data_extra_lma) {
+        /*由8字节改成四字对齐，因为必须要保证大段的vma和定义的_data_extra_vma_start完全相同，同时lma和定义的lma也必须完全相同，注意是大段*/
+    . = ALIGN(4);
+    _data_extra_vma_start = .;    /*手动添加data extra开始地址*/
+
+. = ALIGN(8);
+    /* section information for finsh shell */
+    __fsymtab_start = .;
+    KEEP(*(FSymTab))
+    __fsymtab_end = .;
+    . = ALIGN(8);
+    __vsymtab_start = .;
+    KEEP(*(VSymTab))
+    __vsymtab_end = .;
+    . = ALIGN(8);
+
+    /* section information for initial. */
+    . = ALIGN(8);
+    __rt_init_start = .;
+    KEEP(*(SORT(.rti_fn*)))
+    __rt_init_end = .;
+    . = ALIGN(8);
+
+    __rt_utest_tc_tab_start = .;
+    KEEP(*(UtestTcTab))
+    __rt_utest_tc_tab_end = .;
+
+    . = ALIGN(8);
+    __am_apps_data_start = .;
+    *(__am_apps.data*)
+    *(__am_apps.sdata*)
+    __am_apps_data_end = .;
+    . = ALIGN(8);
+
+    _data_extra_vma_end = ABSOLUTE(_data_extra_vma_start + SIZEOF(.data.extra));   /*手动添加data extra结束地址*/
+  } >psram : data
+
+
+
+
+
+
+  _bss_extra_lma = _data_extra_lma + SIZEOF(.data.extra);
+
+  .bss.extra : AT(_bss_extra_lma){
      . = ALIGN(4);
-    . = ABSOLUTE(_data_vma_end + 4);  /*这一部分用于加载printf的sprintf buf数组，因为链接文件设置的很迷，bss段虽然定义>sram，但是我们的sram是主动在bootloader拷贝进去的，所以只能用计数器来确定在链接文件中最开始规定的立即数符号的地址*/
-   _bss_start = ABSOLUTE(_data_vma_end + 4);
+     _bss_extra_vma_start = .;
+    . = ALIGN(8);
+    __am_apps_bss_start = .;
+    *(__am_apps.bss*)
+    *(__am_apps.sbss*)
+    *(__am_apps.scommon*)
+    __am_apps_bss_end = .;
+    . = ALIGN(8);
+    _bss_extra_vma_end = ABSOLUTE(_bss_extra_vma_start + SIZEOF(.bss.extra));
+  } >psram : bss
+
+
+
+
+
+
+
+_bss_lma = _bss_extra_lma + SIZEOF(.bss.extra);
+
+  /* BSS段  */
+
+  .bss  : AT(_bss_lma) {
+     . = ALIGN(4);
+   
+   _bss_vma_start = .;
    
     *(.bss*)
     *(.sbss*)
     *(.scommon)
     . = ALIGN(4);
-   _bss_end = ABSOLUTE(_bss_start + SIZEOF(.bss));
+   _bss_vma_end = .;
 
  } >psram
   
+
+
+
+
+
+
+
+
   /* 记录数据和BSS段结束后的位置 */
   _prog_end = .;
 
@@ -142,12 +229,12 @@ SECTIONS {
   _heap_end = .;
   
   /* 栈区大小可调整 - 这里设为2KB */
-  . = ORIGIN(sram) + LENGTH(sram) - 2K;  /* 留出2KB给栈 */
+  . = ORIGIN(sram) + LENGTH(sram) - 4K;  /* 留出4KB给栈 */
   _stack_top = .;
   
   /* SRAM结束地址 */
   . = ORIGIN(sram) + LENGTH(sram);
-  _stack_pointer = ALIGN(4) - 4;  /* 四字节对齐并留出一个字 */
+  _stack_pointer = ALIGN(4);  /* 四字节对齐并留出一个字 */
   
   
   

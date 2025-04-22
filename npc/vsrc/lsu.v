@@ -299,6 +299,7 @@ always @(*) begin
                 default: begin
                     processed_rdata = 32'b0;
                     $display("error!!!!! word read is not aligned");
+                    $display("saved_addr is %h from lsu.v line:303", saved_addr);
                 end
             endcase
         end
