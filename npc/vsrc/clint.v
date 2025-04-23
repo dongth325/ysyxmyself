@@ -112,10 +112,10 @@ module ysyx_24090012_CLINT (
                         sw_time = pmem_read(32'h20000008);
                         
                         // 比较时间值
-                        if (hw_time != sw_time) begin
+                    /*    if (hw_time != sw_time) begin
                             $display("[CLINT TIME MISMATCH] Low 32-bit: HW=0x%h, SW=0x%h, Diff=%0d", 
                                      hw_time, sw_time, $signed(hw_time - sw_time));
-                        end
+                        end*/
                         
                         // 返回硬件计算的时间值
                         s_axi_rdata <= hw_time;
@@ -128,10 +128,10 @@ module ysyx_24090012_CLINT (
                       sw_time = pmem_read(32'h2000000C);
                         
                         // 比较时间值
-                        if (hw_time != sw_time) begin
+                     /*   if (hw_time != sw_time) begin
                             $display("[CLINT TIME MISMATCH] High 32-bit: HW=0x%h, SW=0x%h, Diff=%0d", 
                                      hw_time, sw_time, $signed(hw_time - sw_time));
-                        end
+                        end*/
                         
                         // 返回硬件计算的时间值
                         s_axi_rdata <= hw_time;
