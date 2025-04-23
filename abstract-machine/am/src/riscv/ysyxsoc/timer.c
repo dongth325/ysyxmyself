@@ -15,8 +15,9 @@ void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
   // uint32_t high=inl(NPC_RTC_ADDR+4);
   //uint32_t low=inl(NPC_RTC_ADDR);
   //uptime->us = (uint64_t)low+(((uint64_t)high)<<32) ;
+    uint32_t high = inl(CLINT_BASE + CLINT_MTIME_HIGH_OFFSET);
     uint32_t low = inl(CLINT_BASE + CLINT_MTIME_LOW_OFFSET);
-  uint32_t high = inl(CLINT_BASE + CLINT_MTIME_HIGH_OFFSET);
+
   //uptime->us = (uint64_t)low + (((uint64_t)high) << 32);
     uint64_t cycles = (uint64_t)low + (((uint64_t)high) << 32);
   
