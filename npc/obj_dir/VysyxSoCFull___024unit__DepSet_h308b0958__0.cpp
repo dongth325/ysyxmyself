@@ -6,6 +6,18 @@
 #include "VysyxSoCFull__Syms.h"
 #include "VysyxSoCFull___024unit.h"
 
+extern "C" int pmem_read(int addr);
+
+VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_pmem_read_TOP____024unit(IData/*31:0*/ addr, IData/*31:0*/ &pmem_read__Vfuncrtn) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+        VysyxSoCFull___024unit____Vdpiimwrap_pmem_read_TOP____024unit\n"); );
+    // Body
+    int addr__Vcvt;
+    for (size_t addr__Vidx = 0; addr__Vidx < 1; ++addr__Vidx) addr__Vcvt = addr;
+    int pmem_read__Vfuncrtn__Vcvt;
+    pmem_read__Vfuncrtn__Vcvt = pmem_read(addr__Vcvt);
+    pmem_read__Vfuncrtn = pmem_read__Vfuncrtn__Vcvt;
+}
+
 extern "C" void flash_read(int addr, int* data);
 
 VL_INLINE_OPT void VysyxSoCFull___024unit____Vdpiimwrap_flash_read_TOP____024unit(IData/*31:0*/ addr, IData/*31:0*/ &data) {

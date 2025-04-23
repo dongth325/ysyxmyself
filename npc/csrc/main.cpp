@@ -363,12 +363,12 @@ extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
 
 
 extern "C"  uint32_t pmem_read(uint32_t addr) {
-      if (addr == 0xa0000048) { 
+      if (addr == 0x20000008) { 
        //difftest_skip_ref();eeeeeeeeeee
         return get_current_time_low();  // 返回时间的低32位
         //return 0;
     }
-    else if (addr == 0xa000004c) { 
+    else if (addr == 0x2000000c) { 
          // difftest_skip_ref();eeeeeeeeeeeeeee
         return get_current_time_high(); // 返回时间的高32位
         //return 0;
