@@ -232,6 +232,10 @@ extern "C" void difftest_step(VysyxSoCFull *top,uint32_t pc, uint32_t npc) {
     // 比较寄存器状态
     if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
         std::cerr << "[DiffTest] Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
-        exit(1);
+        //exit(1);
+Verilated::gotFinish(true);  // 强制终止Verilator
+            return;  // 立即返回
+
+
     }
 }

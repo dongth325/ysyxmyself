@@ -150,8 +150,8 @@ if (src == dst) {
   putch('\n');
 }
 
-
-src = (uint32_t*)_bss_extra_lma;
+//清灵没必要，没有写入本来就是0
+/*src = (uint32_t*)_bss_extra_lma;
 dst = (uint32_t*)_bss_extra_vma_start;
 words = (_bss_extra_vma_end - _bss_extra_vma_start) / 4;
 for (size_t i = 0; i < words; i++) {
@@ -164,7 +164,7 @@ dst = (uint32_t*)_bss_vma_start;
 words = (_bss_vma_end - _bss_vma_start) / 4;
 for (size_t i = 0; i < words; i++) {
   dst[i] = 0;  // 32位对齐访问
-}
+}*/
 
 
 
