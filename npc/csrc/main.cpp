@@ -541,8 +541,9 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
     bool is_load = (inst & 0x7F) == 0x03;
     bool is_store = (inst & 0x7F) == 0x23;
     
-    if ((is_load || is_store) && ((mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) ||  // UART地址范围
-        (mem_addr >= 0x10001000 && mem_addr <= 0x10001fff))) {
+    if ((is_load || is_store) && (((mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) ||  // UART地址范围，下面的spi
+        (mem_addr >= 0x10001000 && mem_addr <= 0x10001fff))||  // UART扩展地址范围
+        (mem_addr >= 0x02000000 && mem_addr <= 0x0200000f) )    ) {// CLINT时钟地址范围
        // printf("Skipping DiffTest for UART access at 0x%08x\n", mem_addr);
         difftest_skip_ref();
     }
