@@ -45,16 +45,22 @@ module ysyx_24090012_IFU (
     reg [31:0] ifu_count;  // IFU取指计数器
 
     // 时序逻辑：仅更新状态和锁存数据
+always @(posedge clock) begin
+    
+
+    if(state == FETCH_DATA && next_state == IDLE) begin
+        ifu_count <= ifu_count + 32'h1;//ifu指令计数器++
+    end
+end
+
+
+
     always @(posedge clock) begin
         if (reset) begin
             state <= IDLE;
             curr_id <= 4'h0;
             saved_pc <= 32'h0;
             ifu_count <= 32'h0;
-        end
-        
-        if(state == FETCH_DATA && next_state == IDLE) begin
-            ifu_count <= ifu_count + 32'h1;//ifu指令计数器++
         end
         
         else begin
@@ -66,6 +72,9 @@ module ysyx_24090012_IFU (
                 // $display("inst = %h", io_master_rdata);
             end
         end
+
+        
+        
     end
 
     // 组合逻辑：状态转换和所有输出信号生成

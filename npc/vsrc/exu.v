@@ -93,16 +93,21 @@ module ysyx_24090012_EXU(
 
  assign state_out = state; 
 
+
+always @(posedge clk) begin
+   // 当指令执行完成时，增加计数器
+  if (state == WAIT_READY && next_state == IDLE) begin
+    exu_count <= exu_count + 1;
+end
+end
+
     // 状态转换
     always @(posedge clk) begin
         if (rst) begin
             state <= IDLE;
             exu_count <= 0;
         end else begin
-           // 当指令执行完成时，增加计数器
-          if (state == WAIT_READY && next_state == IDLE) begin
-            exu_count <= exu_count + 1;
-        end
+          
             state <= next_state;
         end
     end

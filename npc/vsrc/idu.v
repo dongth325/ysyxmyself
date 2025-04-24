@@ -64,7 +64,53 @@ output reg is_mret//csr csr csr
     assign idu_to_exu_pc = ifu_to_idu_pc;
     assign state_out = state;//向top模块输出当前state
 
-    // 流水线寄存器更新
+   
+
+
+always @(posedge clock) begin
+   // 当指令被EXU接收执行时，根据opcode更新指令类型计数器
+  if (state == BUSY && next_state == IDLE) begin
+    case (opcode)
+        7'b0010011, 7'b0110111, 7'b0110011, 7'b0010111: begin
+            // 计算类指令: I-type, LUI, R-type, AUIPC
+            compute_inst_count <= compute_inst_count + 1;
+        end
+        
+        7'b0000011: begin
+            // 加载指令: LW, LB, LH, LBU, LHU
+            load_inst_count <= load_inst_count + 1;
+        end
+        
+        7'b0100011: begin
+            // 存储指令: SW, SB, SH
+            store_inst_count <= store_inst_count + 1;
+        end
+        
+        7'b1100011: begin
+            // 分支指令: BEQ, BNE, BLT, BGE, BLTU, BGEU
+            branch_inst_count <= branch_inst_count + 1;
+        end
+        
+        7'b1101111, 7'b1100111: begin
+            // 跳转指令: JAL, JALR
+            jump_inst_count <= jump_inst_count + 1;
+        end
+        
+        7'b1110011: begin
+            // CSR指令: CSRRW, CSRRS, ECALL, MRET
+            csr_inst_count <= csr_inst_count + 1;
+        end
+        
+        default: begin
+            // 其他指令
+            other_inst_count <= other_inst_count + 1;
+        end
+    endcase
+end
+end
+
+
+
     always @(posedge clock) begin
         if (reset) begin
             inst_r <= 32'b0;
@@ -83,53 +129,20 @@ output reg is_mret//csr csr csr
 
 
         end 
-         // 当指令被EXU接收执行时，根据opcode更新指令类型计数器
-        if (state == BUSY && next_state == IDLE) begin
-          case (opcode)
-              7'b0010011, 7'b0110111, 7'b0110011, 7'b0010111: begin
-                  // 计算类指令: I-type, LUI, R-type, AUIPC
-                  compute_inst_count <= compute_inst_count + 1;
-              end
-              
-              7'b0000011: begin
-                  // 加载指令: LW, LB, LH, LBU, LHU
-                  load_inst_count <= load_inst_count + 1;
-              end
-              
-              7'b0100011: begin
-                  // 存储指令: SW, SB, SH
-                  store_inst_count <= store_inst_count + 1;
-              end
-              
-              7'b1100011: begin
-                  // 分支指令: BEQ, BNE, BLT, BGE, BLTU, BGEU
-                  branch_inst_count <= branch_inst_count + 1;
-              end
-              
-              7'b1101111, 7'b1100111: begin
-                  // 跳转指令: JAL, JALR
-                  jump_inst_count <= jump_inst_count + 1;
-              end
-              
-              7'b1110011: begin
-                  // CSR指令: CSRRW, CSRRS, ECALL, MRET
-                  csr_inst_count <= csr_inst_count + 1;
-              end
-              
-              default: begin
-                  // 其他指令
-                  other_inst_count <= other_inst_count + 1;
-              end
-          endcase
-      end
-        
-        
-        
+
         else if (ifu_valid && ifu_ready) begin
-            inst_r <= inst;
-            pc_r <= ifu_to_idu_pc;
-            idu_count <= idu_count + 1;  // idu count计数器
-        end
+          inst_r <= inst;
+          pc_r <= ifu_to_idu_pc;
+          idu_count <= idu_count + 1;  // idu count计数器
+      end
+
+
+
+        
+        
+        
+        
+
     end
 
 
