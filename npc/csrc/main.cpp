@@ -228,24 +228,76 @@ void print_performance_stats() {
     printf("CPI (每指令周期数): %.4f\n", (total_instructions > 0) ? ((double)total_cycles / total_instructions) : 0.0);
     printf("================\n");
 
-// 获取各模块计数器值
-    int ifu_count = get_ifu_count();
-    int idu_count = get_idu_count();
-    int exu_count = get_exu_count();
-    int lsu_count = get_lsu_count();
+
+    // 获取各模块计数器值
+    int ifu_count = 0;
+    int idu_count = 0;
+    int exu_count = 0;
+    int lsu_count = 0;
     
     // 获取IDU指令类型计数
-    int compute_count = get_compute_inst_count();
-    int load_count = get_load_inst_count();
-    int store_count = get_store_inst_count();
-    int branch_count = get_branch_inst_count();
-    int jump_count = get_jump_inst_count();
-    int csr_count = get_csr_inst_count();
-    int other_count = get_other_inst_count();
+    int compute_count = 0;
+    int load_count = 0;
+    int store_count = 0;
+    int branch_count = 0;
+    int jump_count = 0;
+    int csr_count = 0;
+    int other_count = 0;
     
     // 获取LSU读写计数
-    int read_count = get_read_count();
-    int write_count = get_write_count();
+    int read_count = 0;
+    int write_count = 0;
+
+
+
+
+    // 切换到IFU作用域并获取计数
+    svScope ifu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.ifu");
+    if (ifu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set IFU DPI scope\n");
+        exit(1);
+    }
+    svSetScope(ifu_scope);
+    ifu_count = get_ifu_count();
+    
+    // 切换到IDU作用域并获取计数
+    svScope idu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.idu");
+    if (idu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set IDU DPI scope\n");
+        exit(1);
+    }
+    svSetScope(idu_scope);
+    idu_count = get_idu_count();
+    compute_count = get_compute_inst_count();
+    load_count = get_load_inst_count();
+    store_count = get_store_inst_count();
+    branch_count = get_branch_inst_count();
+    jump_count = get_jump_inst_count();
+    csr_count = get_csr_inst_count();
+    other_count = get_other_inst_count();
+    
+    // 切换到EXU作用域并获取计数
+    svScope exu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.exu");
+    if (exu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set EXU DPI scope\n");
+        exit(1);
+    }
+    svSetScope(exu_scope);
+    exu_count = get_exu_count();
+    
+    // 切换到LSU作用域并获取计数
+    svScope lsu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.lsu");
+    if (lsu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set LSU DPI scope\n");
+        exit(1);
+    }
+    svSetScope(lsu_scope);
+    lsu_count = get_lsu_count();
+    read_count = get_read_count();
+    write_count = get_write_count();
+    
+
+
     
     // 打印流水线各阶段统计
     printf("\n----- 流水线各阶段统计 -----\n");
