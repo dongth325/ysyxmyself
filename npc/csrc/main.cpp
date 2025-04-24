@@ -141,6 +141,14 @@ struct Command {
 
 
 
+uint64_t total_cycles = 0;
+uint64_t total_instructions = 0;
+
+
+
+
+
+
 // 函数声明
 void execute(NpcState *s, uint64_t n);
 extern "C"  uint32_t pmem_read(uint32_t addr);
@@ -186,9 +194,33 @@ int cmd_si(char *args) {
     return 0;
 }
 
+
+
+// 打印性能统计信息的函数
+void print_performance_stats() {
+    printf("\n=== 性能统计 ===\n");
+    printf("总周期数: %lu\n", total_cycles);
+    printf("总指令数: %lu\n", total_instructions);
+    
+    double ipc = (total_cycles > 0) ? ((double)total_instructions / total_cycles) : 0.0;
+    printf("IPC (每周期指令数): %.4f\n", ipc);
+    printf("CPI (每指令周期数): %.4f\n", (total_instructions > 0) ? ((double)total_cycles / total_instructions) : 0.0);
+    printf("================\n");
+}
+
+
+
 int cmd_q(char *args) {
     std::cout << "Exiting simulation." << std::endl;
     is_running = false; // 停止 sdb_mainloop
+
+
+
+ print_performance_stats();
+
+
+
+
 
      if (tfp) {
         tfp->close();
@@ -475,8 +507,10 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
        // if (tfp) tfp->dump(main_time++);
          if (record_wave && tfp) tfp->dump(main_time++);
         
-       
-               cycle_count++;  // 增加周期计数
+         total_cycles++;  // 全局周期计数
+
+
+               cycle_count++;  // 增加每条指令周期计数
         if (cycle_count >= 200000) {
             std::cout << "\nError: No new instruction received for 200000 cycles, simulation terminated" << std::endl;
          npc_state.ebreak_encountered = true;
@@ -507,16 +541,18 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
         }
     
 
-        // 更新当前PC
-        s->pc = get_pc_value();
-        //printf("11111pc = %08x\n",s->pc);
-        //printf("11111 if allow in = %08x\n",get_if_allow_in());
-    } while (!get_if_allow_in());
-    //printf("222222pc = %08x\n",s->pc);
-   // printf("222222 if allow in = %08x\n",get_if_allow_in());
-    // 更新指令计数
-    s->inst_count++;
     
+        s->pc = get_pc_value();
+      
+    } while (!get_if_allow_in());
+   
+    // 更新指令计数
+    s->inst_count++;//用不上
+
+
+     total_instructions++;  // 全局指令计数
+
+
     // 获取当前指令和内存访问地址
         svScope idu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.idu");
     if (idu_scope == NULL) {
