@@ -74,6 +74,10 @@ module ysyx_24090012_LSU (
     reg [3:0]  curr_id;    // 当前事务ID
     reg saved_unsigned;
 
+    reg [31:0] lsu_count;          // LSU总操作计数器
+    reg [31:0] read_count;         // 读操作计数器
+    reg [31:0] write_count;        // 写操作计数器
+
 always @(posedge clock) begin
     // 写响应检测
     if (io_master_bresp != 2'b00) begin
@@ -98,6 +102,11 @@ end
         if (reset) begin
             state <= IDLE;
             curr_id <= 4'h0;
+
+            lsu_count <= 32'h0;
+            read_count <= 32'h0;
+            write_count <= 32'h0;
+
         end else begin
             // 在IDLE状态且有新请求时保存数据
             if (state == IDLE && mem_valid) begin
@@ -109,6 +118,21 @@ end
                 saved_unsigned <= mem_unsigned;
                 curr_id <= curr_id + 4'h1;  // 递增事务ID
             end
+
+   // 更新计数器 - 当读操作完成时
+            if (state == READ_DATA && next_state == IDLE) begin
+                read_count <= read_count + 1;
+                lsu_count <= lsu_count + 1;
+            end
+            
+            // 更新计数器 - 当写操作完成时
+            if (state == WRITE_RESP && next_state == IDLE) begin
+                write_count <= write_count + 1;
+                lsu_count <= lsu_count + 1;
+            end
+
+
+
             state <= next_state;
         end
     end
@@ -176,6 +200,9 @@ end
                     
                         
                         mem_ready = 1'b1;
+
+                     
+
                     end
                     next_state = IDLE;
                 end
@@ -198,7 +225,8 @@ end
                         
                         mem_rdata = processed_rdata; 
                        //$display("mem_rdata is %h from lsu.v line:197", mem_rdata);
-                         
+                          // 读操作成功完成，更新计数器
+
            
                     end
                     next_state = IDLE;
@@ -505,6 +533,33 @@ export "DPI-C"  function get_saved_addr;
 function int get_saved_addr();
   get_saved_addr = saved_addr; // 假设lsu是LSU模块的实例名
 endfunction
+
+
+
+
+    // 导出DPI-C函数，供C++仿真环境访问
+export "DPI-C" function get_lsu_count;
+export "DPI-C" function get_read_count;
+export "DPI-C" function get_write_count;
+
+// DPI-C函数实现
+function int get_lsu_count();
+    return lsu_count;
+endfunction
+
+function int get_read_count();
+    return read_count;
+endfunction
+
+function int get_write_count();
+    return write_count;
+endfunction
+
+
+
+
+
+
 
 endmodule
 

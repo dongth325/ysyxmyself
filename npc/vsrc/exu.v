@@ -88,6 +88,8 @@ module ysyx_24090012_EXU(
     reg [31:0] mcause_r;
     reg [31:0] csr_rdata_r;
     
+    reg [31:0] exu_count;    // EXU执行指令计数器
+
 
  assign state_out = state; 
 
@@ -95,7 +97,12 @@ module ysyx_24090012_EXU(
     always @(posedge clk) begin
         if (rst) begin
             state <= IDLE;
+            exu_count <= 0;
         end else begin
+           // 当指令执行完成时，增加计数器
+          if (state == WAIT_READY && next_state == IDLE) begin
+            exu_count <= exu_count + 1;
+        end
             state <= next_state;
         end
     end
@@ -928,6 +935,21 @@ WAIT_READY: begin
   end
   endcase
 end
+
+
+
+    // 导出DPI-C函数，供C++仿真环境访问
+export "DPI-C" function get_exu_count;
+    
+// DPI-C函数实现
+function int get_exu_count();
+    return exu_count;
+endfunction
+
+
+
+
+
 
        
 endmodule
