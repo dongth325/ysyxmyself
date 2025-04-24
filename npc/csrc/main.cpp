@@ -141,6 +141,14 @@ struct Command {
 
 
 
+uint64_t total_cycles = 0;
+uint64_t total_instructions = 0;
+
+
+
+
+
+
 // 函数声明
 void execute(NpcState *s, uint64_t n);
 extern "C"  uint32_t pmem_read(uint32_t addr);
@@ -186,9 +194,200 @@ int cmd_si(char *args) {
     return 0;
 }
 
+extern "C" {   //所有性能计数器dpi-c
+    // IFU相关
+    extern int get_ifu_count();
+    
+    // IDU相关
+    extern int get_idu_count();
+    extern int get_compute_inst_count();
+    extern int get_load_inst_count();
+    extern int get_store_inst_count();
+    extern int get_branch_inst_count();
+    extern int get_jump_inst_count();
+    extern int get_csr_inst_count();
+    extern int get_other_inst_count();
+    
+    // EXU相关
+    extern int get_exu_count();
+    
+    // LSU相关
+    extern int get_lsu_count();
+    extern int get_read_count();
+    extern int get_write_count();
+}
+
+// 打印性能统计信息的函数
+void print_performance_stats() {
+    printf("\n=== 性能统计 ===\n");
+    printf("总周期数: %lu\n", total_cycles);
+    printf("总指令数: %lu\n", total_instructions);
+    
+    double ipc = (total_cycles > 0) ? ((double)total_instructions / total_cycles) : 0.0;
+    printf("IPC (每周期指令数): %.4f\n", ipc);
+    printf("CPI (每指令周期数): %.4f\n", (total_instructions > 0) ? ((double)total_cycles / total_instructions) : 0.0);
+    printf("================\n");
+
+
+    // 获取各模块计数器值
+    int ifu_count = 0;
+    int idu_count = 0;
+    int exu_count = 0;
+    int lsu_count = 0;
+    
+    // 获取IDU指令类型计数
+    int compute_count = 0;
+    int load_count = 0;
+    int store_count = 0;
+    int branch_count = 0;
+    int jump_count = 0;
+    int csr_count = 0;
+    int other_count = 0;
+    
+    // 获取LSU读写计数
+    int read_count = 0;
+    int write_count = 0;
+
+
+
+
+    // 切换到IFU作用域并获取计数
+    svScope ifu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.ifu");
+    if (ifu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set IFU DPI scope\n");
+        exit(1);
+    }
+    svSetScope(ifu_scope);
+    ifu_count = get_ifu_count();
+    
+    // 切换到IDU作用域并获取计数
+    svScope idu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.idu");
+    if (idu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set IDU DPI scope\n");
+        exit(1);
+    }
+    svSetScope(idu_scope);
+    idu_count = get_idu_count();
+    compute_count = get_compute_inst_count();
+    load_count = get_load_inst_count();
+    store_count = get_store_inst_count();
+    branch_count = get_branch_inst_count();
+    jump_count = get_jump_inst_count();
+    csr_count = get_csr_inst_count();
+    other_count = get_other_inst_count();
+    
+    // 切换到EXU作用域并获取计数
+    svScope exu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.exu");
+    if (exu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set EXU DPI scope\n");
+        exit(1);
+    }
+    svSetScope(exu_scope);
+    exu_count = get_exu_count();
+    
+    // 切换到LSU作用域并获取计数
+    svScope lsu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.lsu");
+    if (lsu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set LSU DPI scope\n");
+        exit(1);
+    }
+    svSetScope(lsu_scope);
+    lsu_count = get_lsu_count();
+    read_count = get_read_count();
+    write_count = get_write_count();
+    
+
+
+    
+    // 打印流水线各阶段统计
+    printf("\n----- 流水线各阶段统计 -----\n");
+    printf("IFU取指次数: %d\n", ifu_count);
+    printf("IDU解码次数: %d\n", idu_count);
+    printf("EXU执行次数: %d\n", exu_count);
+    printf("LSU访存次数: %d\n", lsu_count);
+
+    // 打印指令类型分布
+    printf("\n----- 指令类型分布 -----\n");
+    if (idu_count > 0) {
+        printf("计算类指令: %d (%.2f%%)\n", compute_count, 100.0 * compute_count / idu_count);
+        printf("加载指令: %d (%.2f%%)\n", load_count, 100.0 * load_count / idu_count);
+        printf("存储指令: %d (%.2f%%)\n", store_count, 100.0 * store_count / idu_count);
+        printf("分支指令: %d (%.2f%%)\n", branch_count, 100.0 * branch_count / idu_count);
+        printf("跳转指令: %d (%.2f%%)\n", jump_count, 100.0 * jump_count / idu_count);
+        printf("CSR指令: %d (%.2f%%)\n", csr_count, 100.0 * csr_count / idu_count);
+        printf("其他指令: %d (%.2f%%)\n", other_count, 100.0 * other_count / idu_count);
+        
+        // 指令类型一致性检查
+        int type_sum = compute_count + load_count + store_count + 
+                      branch_count + jump_count + csr_count + other_count;
+        if (type_sum != idu_count) {
+            printf("警告: 指令类型总和(%d)与IDU总数(%d)不一致!\n", type_sum, idu_count);
+        }
+    } else {
+        printf("未检测到指令执行\n");
+    }
+
+
+
+    // 打印内存访问统计
+    printf("\n----- 内存访问统计 -----\n");
+    if (lsu_count > 0) {
+        printf("总内存访问次数: %d\n", lsu_count);
+        printf("读操作: %d (%.2f%%)\n", read_count, 100.0 * read_count / lsu_count);
+        printf("写操作: %d (%.2f%%)\n", write_count, 100.0 * write_count / lsu_count);
+        
+        // 计算每指令的内存访问次数
+        double mem_per_inst = (double)lsu_count / total_instructions;
+        printf("每指令内存访问次数: %.4f\n", mem_per_inst);
+        
+        // LSU读写一致性检查
+        int rw_sum = read_count + write_count;
+        if (rw_sum != lsu_count) {
+            printf("警告: 读写操作总和(%d)与总操作数(%d)不一致!\n", rw_sum, lsu_count);
+        }
+        
+        // 检查加载/存储指令与LSU读写操作的一致性
+        if (load_count != read_count || store_count != write_count) {
+            printf("警告: 加载指令数(%d)与LSU读操作数(%d)不一致!\n", load_count, read_count);
+            printf("警告: 存储指令数(%d)与LSU写操作数(%d)不一致!\n", store_count, write_count);
+        }
+    } else {
+        printf("未检测到内存访问操作\n");
+    }
+
+ // 打印分支/跳转统计
+    printf("\n----- 分支/跳转统计 -----\n");
+    int control_flow_insts = branch_count + jump_count;
+    if (idu_count > 0) {
+        printf("控制流指令总数: %d (%.2f%%)\n", control_flow_insts, 
+               100.0 * control_flow_insts / idu_count);
+        printf("分支指令: %d (%.2f%%)\n", branch_count, 
+               100.0 * branch_count / control_flow_insts);
+        printf("跳转指令: %d (%.2f%%)\n", jump_count, 
+               100.0 * jump_count / control_flow_insts);
+    } else {
+        printf("未检测到控制流指令\n");
+    }
+    
+    printf("\n====================================\n");
+
+
+
+}
+
+
+
 int cmd_q(char *args) {
     std::cout << "Exiting simulation." << std::endl;
     is_running = false; // 停止 sdb_mainloop
+
+
+
+ print_performance_stats();
+
+
+
+
 
      if (tfp) {
         tfp->close();
@@ -363,12 +562,12 @@ extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
 
 
 extern "C"  uint32_t pmem_read(uint32_t addr) {
-      if (addr == 0xa0000048) { 
+      if (addr == 0x20000008) { 
        //difftest_skip_ref();eeeeeeeeeee
         return get_current_time_low();  // 返回时间的低32位
         //return 0;
     }
-    else if (addr == 0xa000004c) { 
+    else if (addr == 0x2000000c) { 
          // difftest_skip_ref();eeeeeeeeeeeeeee
         return get_current_time_high(); // 返回时间的高32位
         //return 0;
@@ -436,8 +635,8 @@ void exec_once(NpcState *s) {
     // 获取旧的PC值
     uint32_t old_pc = get_pc_value();
     
-    bool record_wave = (old_pc >= 0x80000400);
-
+    //bool record_wave = (old_pc >= 0x80000400);
+bool record_wave = 1;//运行difftest以外程序默认全部记录波形
      static int cycle_count = 0;  // 静态计数器，确保在函数调用
 
     // 使用do-while循环等待指令执行完成
@@ -475,8 +674,10 @@ void exec_once(NpcState *s) {
        // if (tfp) tfp->dump(main_time++);
          if (record_wave && tfp) tfp->dump(main_time++);
         
-       
-               cycle_count++;  // 增加周期计数
+         total_cycles++;  // 全局周期计数
+
+
+               cycle_count++;  // 增加每条指令周期计数
         if (cycle_count >= 200000) {
             std::cout << "\nError: No new instruction received for 200000 cycles, simulation terminated" << std::endl;
          npc_state.ebreak_encountered = true;
@@ -507,16 +708,18 @@ void exec_once(NpcState *s) {
         }
     
 
-        // 更新当前PC
-        s->pc = get_pc_value();
-        //printf("11111pc = %08x\n",s->pc);
-        //printf("11111 if allow in = %08x\n",get_if_allow_in());
-    } while (!get_if_allow_in());
-    //printf("222222pc = %08x\n",s->pc);
-   // printf("222222 if allow in = %08x\n",get_if_allow_in());
-    // 更新指令计数
-    s->inst_count++;
     
+        s->pc = get_pc_value();
+      
+    } while (!get_if_allow_in());
+   
+    // 更新指令计数
+    s->inst_count++;//用不上
+
+
+     total_instructions++;  // 全局指令计数
+
+
     // 获取当前指令和内存访问地址
         svScope idu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.idu");
     if (idu_scope == NULL) {
@@ -541,8 +744,9 @@ void exec_once(NpcState *s) {
     bool is_load = (inst & 0x7F) == 0x03;
     bool is_store = (inst & 0x7F) == 0x23;
     
-    if ((is_load || is_store) && ((mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) ||  // UART地址范围
-        (mem_addr >= 0x10001000 && mem_addr <= 0x10001fff))) {
+    if ((is_load || is_store) && (((mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) ||  // UART地址范围，下面的spi
+        (mem_addr >= 0x10001000 && mem_addr <= 0x10001fff))||  // UART扩展地址范围
+        (mem_addr >= 0x02000000 && mem_addr <= 0x0200000f) )    ) {// CLINT时钟地址范围
        // printf("Skipping DiffTest for UART access at 0x%08x\n", mem_addr);
         difftest_skip_ref();
     }

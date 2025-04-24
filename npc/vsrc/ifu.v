@@ -42,13 +42,28 @@ module ysyx_24090012_IFU (
     reg [31:0] saved_pc;    // 锁存的PC
     reg [3:0]  curr_id;     // 当前事务ID
 
+    reg [31:0] ifu_count;  // IFU取指计数器
+
     // 时序逻辑：仅更新状态和锁存数据
+always @(posedge clock) begin
+    
+
+    if(state == FETCH_DATA && next_state == IDLE) begin
+        ifu_count <= ifu_count + 32'h1;//ifu指令计数器++
+    end
+end
+
+
+
     always @(posedge clock) begin
         if (reset) begin
             state <= IDLE;
             curr_id <= 4'h0;
             saved_pc <= 32'h0;
-        end else begin
+            ifu_count <= 32'h0;
+        end
+        
+        else begin
             state <= next_state;
             
             if (next_state == FETCH_ADDR) begin
@@ -57,6 +72,9 @@ module ysyx_24090012_IFU (
                 // $display("inst = %h", io_master_rdata);
             end
         end
+
+        
+        
     end
 
     // 组合逻辑：状态转换和所有输出信号生成
@@ -84,6 +102,7 @@ module ysyx_24090012_IFU (
             FETCH_DATA: begin
                 io_master_rready = 1'b1;
                 if (io_master_rvalid && (io_master_rid == curr_id)) begin
+
                
                    
                     idu_valid = 1'b1;
@@ -107,5 +126,15 @@ module ysyx_24090012_IFU (
     assign io_master_arburst = 2'b01;       // INCR模式
     assign idu_pc    = saved_pc;
     assign idu_inst  = io_master_rdata;
+
+
+
+
+    export "DPI-C" function get_ifu_count;
+
+    // DPI-C函数实现
+    function int get_ifu_count();
+        return ifu_count;
+    endfunction
 
 endmodule

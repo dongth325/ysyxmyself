@@ -128,41 +128,41 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
         std::cerr << "Register " << i << " mismatch: "
                   << "DUT = 0x" << std::hex << dut->gpr[i] 
                   << ", REF = 0x" << ref->gpr[i] << std::endl;
-        //return false;
+        return false;
     }
      if (dut->pc != ref->pc) {
         std::cerr << "PC mismatch: "
                   << "DUT = 0x" << std::hex << dut->pc
                   << ", REF = 0x" << ref->pc << std::dec << std::endl;
-        //return false;
+        return false;
     }
 }
    if (dut->csr.mcause != ref->csr.mcause) {
         std::cerr << "mcause mismatch: "
                   << "DUT = 0x" << std::hex << dut->csr.mcause
                   << ", REF = 0x" << ref->csr.mcause << std::dec << std::endl;
-       // return false;
+        return false;
    }
 
     if (dut->csr.mtvec != ref->csr.mtvec) {
         std::cerr << "mtvec mismatch: "
                   << "DUT = 0x" << std::hex << dut->csr.mtvec
                   << ", REF = 0x" << ref->csr.mtvec << std::dec << std::endl;
-       // return false;
+        return false;
     }
 
     if (dut->csr.mepc != ref->csr.mepc) {
         std::cerr << "mepc mismatch: "
                   << "DUT = 0x" << std::hex << dut->csr.mepc
                   << ", REF = 0x" << ref->csr.mepc << std::dec << std::endl;
-        //return false;
+        return false;
     }
 
     if (dut->csr.mstatus != ref->csr.mstatus) {
         std::cerr << "mstatus mismatch: "
                   << "DUT = 0x" << std::hex << dut->csr.mstatus
                   << ", REF = 0x" << ref->csr.mstatus << std::dec << std::endl;
-        //return false;
+        return false;
     }
     return true;
 }
@@ -232,6 +232,10 @@ extern "C" void difftest_step(VysyxSoCFull *top,uint32_t pc, uint32_t npc) {
     // 比较寄存器状态
     if (!isa_difftest_checkregs(&dut_cpu_state, &ref_cpu_state)) {
         std::cerr << "[DiffTest] Difftest failed at PC = 0x" << std::hex << dut_cpu_state.pc << std::dec << std::endl;
-        exit(1);
+        //exit(1);
+Verilated::gotFinish(true);  // 强制终止Verilator
+            return;  // 立即返回
+
+
     }
 }

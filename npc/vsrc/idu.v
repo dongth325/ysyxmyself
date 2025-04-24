@@ -45,19 +45,104 @@ output reg is_mret//csr csr csr
         // IDU流水线寄存器
     reg [31:0] inst_r;        // 指令寄存器
     reg [31:0] pc_r;         // PC寄存器
+
+
+
+    // 性能计数器
+    reg [31:0] idu_count;           // IDU处理指令总计数器
+    reg [31:0] compute_inst_count;  // 计算类指令计数器
+    reg [31:0] load_inst_count;     // 加载指令计数器
+    reg [31:0] store_inst_count;    // 存储指令计数器
+    reg [31:0] branch_inst_count;   // 分支指令计数器
+    reg [31:0] jump_inst_count;     // 跳转指令计数器
+    reg [31:0] csr_inst_count;      // CSR指令计数器
+    reg [31:0] other_inst_count;    // 其他指令计数器
+
+
+
   
     assign idu_to_exu_pc = ifu_to_idu_pc;
     assign state_out = state;//向top模块输出当前state
 
-    // 流水线寄存器更新
+   
+
+
+always @(posedge clock) begin
+   // 当指令被EXU接收执行时，根据opcode更新指令类型计数器
+  if (state == BUSY && next_state == IDLE) begin
+    case (opcode)
+        7'b0010011, 7'b0110111, 7'b0110011, 7'b0010111: begin
+            // 计算类指令: I-type, LUI, R-type, AUIPC
+            compute_inst_count <= compute_inst_count + 1;
+        end
+        
+        7'b0000011: begin
+            // 加载指令: LW, LB, LH, LBU, LHU
+            load_inst_count <= load_inst_count + 1;
+        end
+        
+        7'b0100011: begin
+            // 存储指令: SW, SB, SH
+            store_inst_count <= store_inst_count + 1;
+        end
+        
+        7'b1100011: begin
+            // 分支指令: BEQ, BNE, BLT, BGE, BLTU, BGEU
+            branch_inst_count <= branch_inst_count + 1;
+        end
+        
+        7'b1101111, 7'b1100111: begin
+            // 跳转指令: JAL, JALR
+            jump_inst_count <= jump_inst_count + 1;
+        end
+        
+        7'b1110011: begin
+            // CSR指令: CSRRW, CSRRS, ECALL, MRET
+            csr_inst_count <= csr_inst_count + 1;
+        end
+        
+        default: begin
+            // 其他指令
+            other_inst_count <= other_inst_count + 1;
+        end
+    endcase
+end
+end
+
+
+
     always @(posedge clock) begin
         if (reset) begin
             inst_r <= 32'b0;
             pc_r <= 32'b0;
-        end else if (ifu_valid && ifu_ready) begin
-            inst_r <= inst;
-            pc_r <= ifu_to_idu_pc;
-        end
+
+
+            idu_count <= 32'h0;
+            compute_inst_count <= 32'h0;
+            load_inst_count <= 32'h0;
+            store_inst_count <= 32'h0;
+            branch_inst_count <= 32'h0;
+            jump_inst_count <= 32'h0;
+            csr_inst_count <= 32'h0;
+            other_inst_count <= 32'h0;
+
+
+
+        end 
+
+        else if (ifu_valid && ifu_ready) begin
+          inst_r <= inst;
+          pc_r <= ifu_to_idu_pc;
+          idu_count <= idu_count + 1;  // idu count计数器
+      end
+
+
+
+        
+        
+        
+        
+
     end
 
 
@@ -334,6 +419,10 @@ end
      exu_valid = 1'b1;
                 if (exu_ready) begin
                     next_state = IDLE;
+                    
+                   
+
+
                 end
       end
             
@@ -344,9 +433,60 @@ end
     //$display("alu_op = %b from (idu.v)",alu_op);
   end
     
-export "DPI-C"  function get_inst_r;
+export "DPI-C"  function get_inst_r;  //获取当前指令
 function int get_inst_r();
   get_inst_r = inst_r; // 假设idu是IDU模块的实例名
 endfunction
+
+
+
+
+    
+// 导出DPI-C函数，供C++仿真环境访问
+export "DPI-C" function get_idu_count;
+export "DPI-C" function get_compute_inst_count;
+export "DPI-C" function get_load_inst_count;
+export "DPI-C" function get_store_inst_count;
+export "DPI-C" function get_branch_inst_count;
+export "DPI-C" function get_jump_inst_count;
+export "DPI-C" function get_csr_inst_count;
+export "DPI-C" function get_other_inst_count;
+
+// DPI-C函数实现
+function int get_idu_count();
+    return idu_count;
+endfunction
+
+function int get_compute_inst_count();
+    return compute_inst_count;
+endfunction
+
+function int get_load_inst_count();
+    return load_inst_count;
+endfunction
+
+function int get_store_inst_count();
+    return store_inst_count;
+endfunction
+
+function int get_branch_inst_count();
+    return branch_inst_count;
+endfunction
+
+function int get_jump_inst_count();
+    return jump_inst_count;
+endfunction
+
+function int get_csr_inst_count();
+    return csr_inst_count;
+endfunction
+
+function int get_other_inst_count();
+    return other_inst_count;
+endfunction
+
+
+
+
 
 endmodule
