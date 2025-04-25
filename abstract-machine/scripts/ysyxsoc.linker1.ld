@@ -223,6 +223,8 @@ _bss_lma = _bss_extra_lma + SIZEOF(.bss.extra);
 
  
   /* 堆区起始地址，大小设置为4m，不能太大，太大了rtt会一直写入太影响时间，最好是4m因为psram是4m，能运行rtt，sdram用4m肯定没事 */
+  /*但是切换psram的时候记得修改大小，具体就是 . = ORIGIN(sdram) + LENGTH(sdram) - 64K;_heap_end = .;*/
+  
   _heap_start = ALIGN(0x1000);
    _heap_end = _heap_start + 4M; 
  
