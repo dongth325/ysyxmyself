@@ -383,7 +383,7 @@ int cmd_q(char *args) {
 
 
 
- //print_performance_stats();
+ print_performance_stats();
 
 
 
