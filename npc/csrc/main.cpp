@@ -753,7 +753,7 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
        
     
     // 执行DiffTest
-   // difftest_step(s->top, old_pc, s->pc);
+    difftest_step(s->top, old_pc, s->pc);
 //111111111111111111111111111111111111111111111111111111111111
 
 

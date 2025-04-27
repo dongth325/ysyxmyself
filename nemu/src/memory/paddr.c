@@ -29,6 +29,8 @@
 #define FLASH_SIZE (256 * 1024 * 1024)  // 256MB
 #define PSRAM_BASE 0x80000000
 #define PSRAM_SIZE (512 * 1024 * 1024)  // 512MB
+#define SDRAM_BASE 0xa0000000
+#define SDRAM_SIZE (64 * 1024 * 1024)  // 64MB
 
 
 
@@ -40,12 +42,14 @@ static uint8_t *mrom = NULL;  // MROM内存区域  可能用不上
 static uint8_t *sram = NULL;  // SRAM内存区域  可能用不上
 static uint8_t *flash = NULL;
 static uint8_t *psram = NULL;  // 添加 PSRAM
+static uint8_t *sdram = NULL;  // 添加 SDRAM
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 static uint8_t mrom[MROM_SIZE] PG_ALIGN = {};  // MROM内存区域//dddddddd
 static uint8_t sram[SRAM_SIZE] PG_ALIGN = {};  // SRAM内存区域dddddddd
 static uint8_t flash[FLASH_SIZE] PG_ALIGN = {};
 static uint8_t psram[PSRAM_SIZE] PG_ALIGN = {};
+static uint8_t sdram[SDRAM_SIZE] PG_ALIGN = {}; 
 #endif
 
 // 检查地址是否在MROM范围内
@@ -64,6 +68,10 @@ static inline bool in_flash(paddr_t addr) {
 
 static inline bool in_psram(paddr_t addr) {
   return (addr >= PSRAM_BASE) && (addr < PSRAM_BASE + PSRAM_SIZE);
+}
+
+static inline bool in_sdram(paddr_t addr) {
+  return (addr >= SDRAM_BASE) && (addr < SDRAM_BASE + SDRAM_SIZE);
 }
 
 #ifdef CONFIG_MTRACE
@@ -118,10 +126,18 @@ paddr_t sram_to_guest(uint8_t *haddr) {
   return haddr - psram + PSRAM_BASE;
 }
 
+uint8_t* sdram_to_host(paddr_t paddr) {
+  return sdram + (paddr - SDRAM_BASE);
+}
 
+// SDRAM地址转换函数 - 主机地址到物理地址
+paddr_t sdram_to_guest(uint8_t *haddr) {
+  return haddr - sdram + SDRAM_BASE;
+}
 // 通用的物理地址到主机地址转换函数
 uint8_t* guest_to_host(paddr_t paddr) { //dddddddddd
   if (in_pmem(paddr)) return pmem + paddr - CONFIG_MBASE;
+   else if (in_sdram(paddr)) return sdram_to_host(paddr);
  else if (in_mrom(paddr)) return mrom_to_host(paddr);
  else if (in_sram(paddr)) return sram_to_host(paddr);
  else if (in_flash(paddr)) return flash_to_host(paddr);
@@ -133,6 +149,8 @@ uint8_t* guest_to_host(paddr_t paddr) { //dddddddddd
 paddr_t host_to_guest(uint8_t *haddr) { //dddddddddd
   if (haddr >= pmem && haddr < pmem + CONFIG_MSIZE) 
    { return haddr - pmem + CONFIG_MBASE;}
+    else if (haddr >= sdram && haddr < sdram + SDRAM_SIZE)  // 添加 SDRAM 支持
+   { return sdram_to_guest(haddr);}
  else if (haddr >= mrom && haddr < mrom + MROM_SIZE)
    { return mrom_to_guest(haddr);}
  else if (haddr >= sram && haddr < sram + SRAM_SIZE)
@@ -206,6 +224,17 @@ static void psram_write(paddr_t addr, int len, word_t data) {
   host_write(host_addr, len, data);
 }
 
+static word_t sdram_read(paddr_t addr, int len) {
+  uint8_t *host_addr = sdram_to_host(addr);
+  word_t ret = host_read(host_addr, len);
+  return ret;
+}
+
+static void sdram_write(paddr_t addr, int len, word_t data) {
+  uint8_t *host_addr = sdram_to_host(addr);
+  host_write(host_addr, len, data);
+}
+
   static void out_of_bound(paddr_t addr) {
   /*panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
       addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);*/
@@ -228,7 +257,7 @@ static void psram_write(paddr_t addr, int len, word_t data) {
         FLASH_BASE, FLASH_BASE + FLASH_SIZE - 1,
         cpu.pc);*/
 
-          panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] "
+         /* panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] "
         "mrom [" FMT_PADDR ", " FMT_PADDR "] "
         "sram [" FMT_PADDR ", " FMT_PADDR "] "
         "flash [" FMT_PADDR ", " FMT_PADDR "] "
@@ -238,6 +267,19 @@ static void psram_write(paddr_t addr, int len, word_t data) {
         SRAM_BASE, SRAM_BASE + SRAM_SIZE - 1,
         FLASH_BASE, FLASH_BASE + FLASH_SIZE - 1,
         PSRAM_BASE, PSRAM_BASE + PSRAM_SIZE - 1,
+        cpu.pc);*/
+          panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] "
+        "mrom [" FMT_PADDR ", " FMT_PADDR "] "
+        "sram [" FMT_PADDR ", " FMT_PADDR "] "
+        "flash [" FMT_PADDR ", " FMT_PADDR "] "
+        "psram [" FMT_PADDR ", " FMT_PADDR "] "
+        "sdram [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
+        addr, PMEM_LEFT, PMEM_RIGHT, 
+        MROM_BASE, MROM_BASE + MROM_SIZE - 1,
+        SRAM_BASE, SRAM_BASE + SRAM_SIZE - 1,
+        FLASH_BASE, FLASH_BASE + FLASH_SIZE - 1,
+        PSRAM_BASE, PSRAM_BASE + PSRAM_SIZE - 1,
+        SDRAM_BASE, SDRAM_BASE + SDRAM_SIZE - 1,
         cpu.pc);
 }     
 
@@ -253,6 +295,8 @@ void init_mem() {
   assert(flash);
     psram = malloc(PSRAM_SIZE);  // 添加 PSRAM 分配
   assert(psram);
+    sdram = malloc(SDRAM_SIZE);  // 添加 SDRAM 分配
+  assert(sdram);
 #endif
 #ifdef CONFIG_MEM_RANDOM
   uint32_t *p = (uint32_t *)pmem;
@@ -283,17 +327,24 @@ void init_mem() {
   for (i = 0; i < (int) (PSRAM_SIZE / sizeof(p[0])); i ++) {
     p[i] = rand();
   }
+
+    p = (uint32_t *)sdram;
+  for (i = 0; i < (int) (SDRAM_SIZE / sizeof(p[0])); i ++) {
+    p[i] = rand();
+  }
 #endif
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
   Log("MROM area [0x%x, 0x%x]", MROM_BASE, MROM_BASE + MROM_SIZE - 1);
   Log("SRAM area [0x%x, 0x%x]", SRAM_BASE, SRAM_BASE + SRAM_SIZE - 1);
   Log("Flash area [0x%x, 0x%x]", FLASH_BASE, FLASH_BASE + FLASH_SIZE - 1);
     Log("PSRAM area [0x%x, 0x%x]", PSRAM_BASE, PSRAM_BASE + PSRAM_SIZE - 1);
+     Log("SDRAM area [0x%x, 0x%x]", SDRAM_BASE, SDRAM_BASE + SDRAM_SIZE - 1);
 }
 
 word_t paddr_read(paddr_t addr, int len) {
   word_t data;      //psram和pmem 重叠，所以运行psram mem test的时候无法进行处理 在运行nemu的时候要把pmem放到psram判断上面，diff的时候则相反，下面的write也一样
    if (likely(in_mrom(addr))) { return mrom_read(addr, len); }//ddddddddddddd
+    else if (likely(in_sdram(addr))) { return sdram_read(addr, len); }
  else if (likely(in_sram(addr))) { return sram_read(addr, len); }//dddddddddddd
  else if (likely(in_flash(addr))) { return flash_read(addr, len); }
  else if (likely(in_pmem(addr))) {
@@ -318,6 +369,7 @@ word_t paddr_read(paddr_t addr, int len) {
 
 void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_mrom(addr))) { mrom_write(addr, len, data); return; }//ddddddddddddd
+  else if (likely(in_sdram(addr))) { sdram_write(addr, len, data); return; }
  else if (likely(in_sram(addr))) { sram_write(addr, len, data); return; }//dddddddddddd
   else if (likely(in_pmem(addr))) {
     pmem_write(addr, len, data);
