@@ -660,7 +660,7 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
         
         s->top->eval();
         //if (tfp) tfp->dump(main_time++);
-      //    if (record_wave && tfp) tfp->dump(main_time++);
+          if (record_wave && tfp) tfp->dump(main_time++);
    
     
         
