@@ -759,6 +759,7 @@ class alignas(VL_CACHE_LINE_BYTES) VysyxSoCFull___024root final : public Verilat
         CData/*1:0*/ __VdlyDim0__ysyxSoCFull__DOT__asic__DOT__lpsram__DOT__mpsram__DOT__u0__DOT__MR__DOT__data__v1;
         CData/*0:0*/ __VdlySet__ysyxSoCFull__DOT__asic__DOT__lpsram__DOT__mpsram__DOT__u0__DOT__MR__DOT__data__v1;
         CData/*0:0*/ __VdlySet__ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_paddr__v0;
+        CData/*0:0*/ __VdlySet__ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_paddr__v2;
         CData/*0:0*/ __VstlFirstIteration;
         CData/*0:0*/ __VicoFirstIteration;
         CData/*0:0*/ __Vtrigprevexpr___TOP__clock__0;
@@ -808,9 +809,9 @@ class alignas(VL_CACHE_LINE_BYTES) VysyxSoCFull___024root final : public Verilat
         IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__mem_wdata;
         IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__mem_rdata;
         IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__rd_data;
-        IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr_wdata1;
     };
     struct {
+        IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr_wdata1;
         IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr_wdata2;
         IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__csr_wdata;
         IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__mstatus_new;
@@ -874,9 +875,9 @@ class alignas(VL_CACHE_LINE_BYTES) VysyxSoCFull___024root final : public Verilat
         IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__lsdram_apb__DOT__msdram__DOT__u_sdram_ctrl__DOT__sample_data_q;
         IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__lsdram_apb__DOT__msdram__DOT__u_sdram_ctrl__DOT__idx;
         VlWide<3>/*79:0*/ ysyxSoCFull__DOT__asic__DOT__lsdram_apb__DOT__msdram__DOT__u_sdram_ctrl__DOT__dbg_state;
-        IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__unnamedblk1__DOT__i;
     };
     struct {
+        IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__unnamedblk1__DOT__i;
         IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__unnamedblk2__DOT__i;
         IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__unnamedblk3__DOT__i;
         IData/*31:0*/ ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__unnamedblk4__DOT__i;
@@ -916,7 +917,8 @@ class alignas(VL_CACHE_LINE_BYTES) VysyxSoCFull___024root final : public Verilat
         IData/*16:0*/ __Vdly__ysyxSoCFull__DOT__asic__DOT__lsdram_apb__DOT__msdram__DOT__u_sdram_ctrl__DOT__refresh_timer_q;
         IData/*23:0*/ __Vdly__ysyxSoCFull__DOT__flash__DOT__addr;
         IData/*31:0*/ __Vdly__ysyxSoCFull__DOT__flash__DOT__data;
-        IData/*31:0*/ __VdlyVal__ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_paddr__v0;
+        IData/*31:0*/ __VdlyVal__ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_paddr__v2;
+        IData/*31:0*/ __VdlyVal__ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_paddr__v3;
         IData/*31:0*/ __VactIterCount;
         QData/*63:0*/ ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__clint_inst__DOT__mtime;
         QData/*63:0*/ ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__clint_inst__DOT__divided_time;
@@ -931,18 +933,18 @@ class alignas(VL_CACHE_LINE_BYTES) VysyxSoCFull___024root final : public Verilat
         VlUnpacked<CData/*7:0*/, 4> ysyxSoCFull__DOT__asic__DOT__lpsram__DOT__mpsram__DOT__u0__DOT__MR__DOT__data;
         VlUnpacked<IData/*31:0*/, 2048> ysyxSoCFull__DOT__asic__DOT__axi4ram__DOT__mem_ext__DOT__Memory;
         VlUnpacked<SData/*13:0*/, 4> ysyxSoCFull__DOT__asic__DOT__lsdram_apb__DOT__msdram__DOT__u_sdram_ctrl__DOT__active_row_q;
-        VlUnpacked<IData/*31:0*/, 1> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_paddr;
-        VlUnpacked<CData/*0:0*/, 1> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_psel;
-        VlUnpacked<CData/*0:0*/, 1> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_penable;
-        VlUnpacked<CData/*2:0*/, 1> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_pprot;
-        VlUnpacked<CData/*0:0*/, 1> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_pwrite;
-        VlUnpacked<IData/*31:0*/, 1> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_pwdata;
-        VlUnpacked<CData/*3:0*/, 1> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_pstrb;
-        VlUnpacked<CData/*0:0*/, 1> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_pready;
-        VlUnpacked<IData/*31:0*/, 1> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_prdata;
-        VlUnpacked<CData/*0:0*/, 1> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_pslverr;
+        VlUnpacked<IData/*31:0*/, 2> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_paddr;
+        VlUnpacked<CData/*0:0*/, 2> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_psel;
+        VlUnpacked<CData/*0:0*/, 2> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_penable;
+        VlUnpacked<CData/*2:0*/, 2> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_pprot;
+        VlUnpacked<CData/*0:0*/, 2> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_pwrite;
+        VlUnpacked<IData/*31:0*/, 2> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_pwdata;
+        VlUnpacked<CData/*3:0*/, 2> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_pstrb;
+        VlUnpacked<CData/*0:0*/, 2> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_pready;
     };
     struct {
+        VlUnpacked<IData/*31:0*/, 2> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_prdata;
+        VlUnpacked<CData/*0:0*/, 2> ysyxSoCFull__DOT__asic__DOT__apbdelay_delayer__DOT__delay_pslverr;
         VlUnpacked<CData/*7:0*/, 16777216> ysyxSoCFull__DOT__psram__DOT__mem;
         VlUnpacked<VlUnpacked<VlUnpacked<SData/*15:0*/, 256>, 8192>, 4> ysyxSoCFull__DOT__sdram__DOT__pair0__DOT__chip0__DOT__mem_array;
         VlUnpacked<SData/*12:0*/, 4> ysyxSoCFull__DOT__sdram__DOT__pair0__DOT__chip0__DOT__active_row;
