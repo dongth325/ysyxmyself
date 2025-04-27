@@ -38,21 +38,21 @@ extern "C" {
     extern int get_jump_inst_count();
     // DPI export at vsrc/idu.v:464:14
     extern int get_load_inst_count();
-    // DPI export at vsrc/lsu.v:546:14
+    // DPI export at vsrc/lsu.v:548:14
     extern int get_lsu_count();
     // DPI export at vsrc/idu.v:484:14
     extern int get_other_inst_count();
     // DPI export at vsrc/NPC.v:678:14
     extern int get_pc_value();
-    // DPI export at vsrc/lsu.v:550:14
+    // DPI export at vsrc/lsu.v:552:14
     extern int get_read_count();
-    // DPI export at vsrc/registerfile.v:61:14
+    // DPI export at vsrc/registerfile.v:62:14
     extern int get_reg_value(int reg_index);
-    // DPI export at vsrc/lsu.v:533:14
+    // DPI export at vsrc/lsu.v:535:14
     extern int get_saved_addr();
     // DPI export at vsrc/idu.v:468:14
     extern int get_store_inst_count();
-    // DPI export at vsrc/lsu.v:554:14
+    // DPI export at vsrc/lsu.v:556:14
     extern int get_write_count();
 
     // DPI IMPORTS
@@ -62,10 +62,6 @@ extern "C" {
     extern void flash_read(int addr, int* data);
     // DPI import at ../ysyxSoC/build/ysyxSoCFull.v:4659:30
     extern void mrom_read(int raddr, int* rdata);
-    // DPI import at vsrc/clint.v:153:29
-    extern int pmem_read(int addr);
-    // DPI import at vsrc/exu.v:66:31
-    extern void pmem_write(int addr, int data, int mask);
 
 #ifdef __cplusplus
 }

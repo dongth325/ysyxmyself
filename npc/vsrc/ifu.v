@@ -135,6 +135,6 @@ end
     // DPI-C函数实现
     function int get_ifu_count();
         return ifu_count;
-    endfunction
+    endfunction   //综合需要注释
 
 endmodule

@@ -84,7 +84,7 @@ always @(posedge clock) begin
         $display("LSU error! bid expected: %h, received: %h, bresp: %b", 
                 curr_id, 
                 io_master_bid, 
-                io_master_bresp);
+                io_master_bresp);     //综合需要注释
     end
     
     // 读响应检测
@@ -92,7 +92,7 @@ always @(posedge clock) begin
         $display("LSU read ID wrong! curr_id: %h, rid: %h, rresp: %b",
                 curr_id,
                 io_master_rid,
-                io_master_rresp);
+                io_master_rresp);   //综合需要注释
     end
 end
 
@@ -166,7 +166,9 @@ end
         // 地址和数据连接
         io_master_awaddr = saved_addr;
         io_master_araddr = saved_addr;
-        io_master_wdata  = saved_wdata;
+       // io_master_wdata  = saved_wdata;    //综合需要注释 （下面的wstrb不是）
+
+
         //io_master_wstrb  = saved_wmask;
         io_master_wlast  = 1'b1;            // 单次传输永远为1
         
@@ -238,21 +240,21 @@ end
         endcase
     end
 
-always @(state) begin
+//always @(state) begin
 //$display("state is %h from lsu line:213", state);
-end
+//end
 
-always @(processed_rdata) begin
+//always @(processed_rdata) begin
  //$display("processed_rdata is %h from lsu.v line:217", processed_rdata);
-end
+//end
 
-always @(mem_rdata) begin
+//always @(mem_rdata) begin
 //$display("mem_rdata is %h from lsu.v line:212", mem_rdata);
 //$display("state is %h from lsu.v line:212", state);
 //$display("io_master_rresp is %h from lsu.v line:212", io_master_rresp);
 //$display("io_master_rvalid is %h from lsu.v line:212", io_master_rvalid);
 
-end
+//end
 
 
 
@@ -308,7 +310,7 @@ always @(*) begin
                 2'b10: processed_rdata = {{16{io_master_rdata[31]}}, io_master_rdata[31:16]};
                 default: begin
                     processed_rdata = 32'b0;
-                    $display("error!!!!! half word read is not aligned");
+                    $display("error!!!!! half word read is not aligned");        //综合需要注释
                 end
             endcase
         end
@@ -327,14 +329,14 @@ always @(*) begin
                 default: begin
                     processed_rdata = 32'b0;
                     $display("error!!!!! word read is not aligned");
-                    $display("saved_addr is %h from lsu.v line:303", saved_addr);
+                    $display("saved_addr is %h from lsu.v line:303", saved_addr);    //综合需要注释
                 end
             endcase
         end
         end
         default: begin
             processed_rdata = 32'b0;
-            $display("wrong!!!!! unknown read size");
+            $display("wrong!!!!! unknown read size");    //综合需要注释
         end
     endcase
 end
@@ -400,7 +402,7 @@ end*/
 
 always @(*) begin
     // 默认值
-
+    io_master_wdata  = saved_wdata;//综合锁存器需要 yosys
   is_uart_region = (saved_addr[31:24] == 8'h10);
     io_master_wstrb = 4'b0000;
  //io_master_wstrb = 1;
@@ -463,7 +465,7 @@ always @(*) begin
         end
         default: begin 
             io_master_wstrb = 4'b0000;
-            $display("error!!!!! half word access is not aligned");
+            $display("error!!!!! half word access is not aligned");   //综合需要注释
         end
     endcase
     end
@@ -480,7 +482,7 @@ always @(*) begin
         end
         default: begin 
             io_master_wstrb = 4'b0000;
-            $display("error!!!!! half word access is not aligned");
+            $display("error!!!!! half word access is not aligned");   //综合需要注释
         end
     endcase
     end
@@ -492,7 +494,7 @@ end
             default: begin
                 io_master_wstrb = 4'b0000;
                 $display("error!!!!! word access is not aligned from lsu.v line:236");
-                $display("saved_addr is %h from lsu.v line:237", saved_addr);
+                $display("saved_addr is %h from lsu.v line:237", saved_addr);    //综合需要注释
                 // 应该触发非对齐
             end
         endcase
@@ -503,7 +505,7 @@ end
             default: begin
                 io_master_wstrb = 4'b0000;
                 $display("error!!!!! word access is not aligned from lsu.v line:236");
-                $display("saved_addr is %h from lsu.v line:237", saved_addr);
+                $display("saved_addr is %h from lsu.v line:237", saved_addr);     //综合需要注释
                 // 应该触发非对齐
             end
         endcase
@@ -511,8 +513,8 @@ end
     end
         default: begin
             io_master_wstrb = 4'b0000;
-            $display("wrong!!!!!!!saved awsizes is unknown number from lsu.v line:230");
-            $display("saved_awsize is %h from lsu.v line:231", saved_awsize);
+           $display("wrong!!!!!!!saved awsizes is unknown number from lsu.v line:230");
+            $display("saved_awsize is %h from lsu.v line:231", saved_awsize);   //综合需要注释
         end
     endcase
 end   
@@ -526,7 +528,7 @@ end
 
 
 always @(reset) begin
-    $display("RESET CHANGED TO %d from lsu \n", reset);
+    $display("RESET CHANGED TO %d from lsu \n", reset);    //综合需要注释
 end
 
 export "DPI-C"  function get_saved_addr;

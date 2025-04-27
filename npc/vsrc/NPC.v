@@ -1,7 +1,7 @@
 
 
 module ysyx_24090012(
-    input         clock,          // 改名：clk -> clock
+    input         clock,          // 综合需要改成clk
     input         reset,          // 改名：rst -> reset
     input         io_interrupt,   // 外部中断信号，永0
 
@@ -626,7 +626,7 @@ else begin
      if (inst == 32'h00100073 && ifu_rvalid) begin  // ebreak 指令
         $display("pc = 0x%08x from NPC", pc);
         $display("inst = 0x%08x from NPC",inst);
-      ebreak(regfile.rf[10]);       // 调用 DPI-C 函数
+      ebreak(regfile.rf[10]);       // 调用 DPI-C 函数     综合需要注释
     end 
 
 
@@ -645,7 +645,7 @@ end
 // 添加reset状态变化监控
 always @(reset) begin
     $display("RESET CHANGED TO %d from NPC \n", reset);
-end
+end    //综合需要注释
 
       always @(posedge clock) begin
      //   $display("5555pc = %08x",pc);
@@ -655,7 +655,7 @@ end
       //  $display("9999 reset = %08x",reset);
         
         if (reset) begin
-           $display("reset = %d ", reset);
+          // $display("reset = %d ", reset);    //综合需要注释
             pc <= 32'h3000_0000;
             pc_ready <= 1;
 
