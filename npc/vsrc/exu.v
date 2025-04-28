@@ -63,8 +63,8 @@ module ysyx_24090012_EXU(
 
   output reg [31:0] next_pc
 );
- import "DPI-C" function void pmem_write(input int addr, input int data, input int mask);
- import "DPI-C" function int pmem_read(input int addr);
+ //import "DPI-C" function void pmem_write(input int addr, input int data, input int mask);
+ //import "DPI-C" function int pmem_read(input int addr);
 
 
     // 状态定义
@@ -720,7 +720,7 @@ end
 end
 
     default: begin
-        $display("111default:didnt match any inst from (exu.v)");
+        $display("111default:didnt match any inst from (exu.v)");    //综合需要注释
         // NOP 或未实现的操作
         // 已经在开始时赋值了 result 和 next_pc 的默认值
 

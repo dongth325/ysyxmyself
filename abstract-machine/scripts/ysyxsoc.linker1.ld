@@ -44,7 +44,7 @@ SECTIONS {
     *(.bootloader*)
     . = ALIGN(4);
     _bootloader_vma_end = .;
-  } >psram : text
+  } >sdram : text
 
 
 
@@ -65,7 +65,7 @@ SECTIONS {
 
       . = ALIGN(4);
      _text_vma_end = ABSOLUTE(_text_vma_start + SIZEOF(.text));
-  } >psram : text
+  } >sdram : text
   
 
 
@@ -98,7 +98,7 @@ SECTIONS {
     *(.sdata.rodata*)  /* 添加其他可能的只读数据段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破*/
      . = ALIGN(4);
      _rodata_vma_end = ABSOLUTE(_rodata_vma_start + SIZEOF(.rodata));
-  } >psram : data
+  } >sdram : data
   
   . = ALIGN(4);
 
@@ -117,7 +117,7 @@ _data_lma = _rodata_lma + SIZEOF(.rodata);
     *(.sdata.*)    /* 添加小数据段 */
     . = ALIGN(4);
      _data_vma_end = ABSOLUTE(_data_vma_start + SIZEOF(.data));
-  } >psram : data
+  } >sdram : data
   
 
 
@@ -165,7 +165,7 @@ _data_lma = _rodata_lma + SIZEOF(.rodata);
     . = ALIGN(8);
 
     _data_extra_vma_end = ABSOLUTE(_data_extra_vma_start + SIZEOF(.data.extra));   /*手动添加data extra结束地址*/
-  } >psram : data
+  } >sdram : data
 
 
 
@@ -185,7 +185,7 @@ _data_lma = _rodata_lma + SIZEOF(.rodata);
     __am_apps_bss_end = .;
     . = ALIGN(8);
     _bss_extra_vma_end = ABSOLUTE(_bss_extra_vma_start + SIZEOF(.bss.extra));
-  } >psram : bss
+  } >sdram : bss
 
 
 
@@ -208,7 +208,7 @@ _bss_lma = _bss_extra_lma + SIZEOF(.bss.extra);
     . = ALIGN(4);
    _bss_vma_end = .;
 
- } >psram
+ } >sdram
   
 
 
@@ -222,11 +222,12 @@ _bss_lma = _bss_extra_lma + SIZEOF(.bss.extra);
   _prog_end = .;
 
  
-  /* 堆区起始地址 */
+  /* 堆区起始地址，大小设置为4m，不能太大，太大了rtt会一直写入太影响时间，最好是4m因为psram是4m，能运行rtt，sdram用4m肯定没事 */
+  /*但是切换psram的时候记得修改大小，具体就是 . = ORIGIN(sdram) + LENGTH(sdram) - 64K;_heap_end = .;*/
+  
   _heap_start = ALIGN(0x1000);
-
-    . = ORIGIN(psram) + LENGTH(psram) - 64K;  /* 保留64KB空间 */
-  _heap_end = .;
+   _heap_end = _heap_start + 4M; 
+ 
   
   /* 栈区大小可调整 - 这里设为2KB */
   . = ORIGIN(sram) + LENGTH(sram) - 4K;  /* 留出4KB给栈 */

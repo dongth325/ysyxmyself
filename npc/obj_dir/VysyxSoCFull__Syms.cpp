@@ -40,7 +40,7 @@ VysyxSoCFull__Syms::VysyxSoCFull__Syms(VerilatedContext* contextp, const char* n
     , TOP____024unit{this, Verilated::catName(namep, "$unit")}
 {
         // Check resources
-        Verilated::stackCheck(875);
+        Verilated::stackCheck(825);
     // Configure time unit / time precision
     _vm_contextp__->timeunit(-9);
     _vm_contextp__->timeprecision(-12);
@@ -50,21 +50,21 @@ VysyxSoCFull__Syms::VysyxSoCFull__Syms(VerilatedContext* contextp, const char* n
     TOP.__Vconfigure(true);
     TOP____024unit.__Vconfigure(true);
     // Setup scopes
-    __Vscope_ysyxSoCFull__asic__axi42apb.configure(this, name(), "ysyxSoCFull.asic.axi42apb", "axi42apb", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__asic__axi4frag.configure(this, name(), "ysyxSoCFull.asic.axi4frag", "axi4frag", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__asic__axi4xbar_1.configure(this, name(), "ysyxSoCFull.asic.axi4xbar_1", "axi4xbar_1", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__asic__axi4yank.configure(this, name(), "ysyxSoCFull.asic.axi4yank", "axi4yank", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__asic__axi4yank__unnamedblk1.configure(this, name(), "ysyxSoCFull.asic.axi4yank.unnamedblk1", "unnamedblk1", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__asic__cpu__cpu.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu", "cpu", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__asic__cpu__cpu__csr.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu.csr", "csr", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__asic__cpu__cpu__exu.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu.exu", "exu", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__asic__cpu__cpu__idu.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu.idu", "idu", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__asic__cpu__cpu__ifu.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu.ifu", "ifu", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__asic__cpu__cpu__lsu.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu.lsu", "lsu", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__asic__cpu__cpu__regfile.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu.regfile", "regfile", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__asic__lmrom.configure(this, name(), "ysyxSoCFull.asic.lmrom", "lmrom", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__flash.configure(this, name(), "ysyxSoCFull.flash", "flash", -9, VerilatedScope::SCOPE_OTHER);
-    __Vscope_ysyxSoCFull__flash__flash_cmd_i.configure(this, name(), "ysyxSoCFull.flash.flash_cmd_i", "flash_cmd_i", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__asic__axi42apb.configure(this, name(), "ysyxSoCFull.asic.axi42apb", "axi42apb", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__asic__axi4frag.configure(this, name(), "ysyxSoCFull.asic.axi4frag", "axi4frag", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__asic__axi4xbar_1.configure(this, name(), "ysyxSoCFull.asic.axi4xbar_1", "axi4xbar_1", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__asic__axi4yank.configure(this, name(), "ysyxSoCFull.asic.axi4yank", "axi4yank", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__asic__axi4yank__unnamedblk1.configure(this, name(), "ysyxSoCFull.asic.axi4yank.unnamedblk1", "unnamedblk1", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__asic__cpu__cpu.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu", "cpu", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__asic__cpu__cpu__csr.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu.csr", "csr", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__asic__cpu__cpu__exu.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu.exu", "exu", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__asic__cpu__cpu__idu.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu.idu", "idu", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__asic__cpu__cpu__ifu.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu.ifu", "ifu", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__asic__cpu__cpu__lsu.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu.lsu", "lsu", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__asic__cpu__cpu__regfile.configure(this, name(), "ysyxSoCFull.asic.cpu.cpu.regfile", "regfile", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__asic__lmrom.configure(this, name(), "ysyxSoCFull.asic.lmrom", "lmrom", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__flash.configure(this, name(), "ysyxSoCFull.flash", "flash", "<null>", -9, VerilatedScope::SCOPE_OTHER);
+    __Vscope_ysyxSoCFull__flash__flash_cmd_i.configure(this, name(), "ysyxSoCFull.flash.flash_cmd_i", "flash_cmd_i", "<null>", -9, VerilatedScope::SCOPE_OTHER);
     // Setup export functions
     for (int __Vfinal = 0; __Vfinal < 2; ++__Vfinal) {
         __Vscope_ysyxSoCFull__asic__cpu__cpu.exportInsert(__Vfinal, "get_if_allow_in", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__get_if_allow_in_TOP));

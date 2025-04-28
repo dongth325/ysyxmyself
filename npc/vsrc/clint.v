@@ -109,7 +109,7 @@ module ysyx_24090012_CLINT (
                         // 计算硬件时间值
                         hw_time = divided_time[31:0];
                         // 获取软件时间值 (注意地址映射)
-                        sw_time = pmem_read(32'h20000008);
+                       // sw_time = pmem_read(32'h20000008);
                         
                         // 比较时间值
                     /*    if (hw_time != sw_time) begin
@@ -125,7 +125,7 @@ module ysyx_24090012_CLINT (
                         // 计算硬件时间值
                        hw_time = divided_time[63:32];
                         // 获取软件时间值 (注意地址映射)
-                      sw_time = pmem_read(32'h2000000C);
+                     // sw_time = pmem_read(32'h2000000C);
                         
                         // 比较时间值
                      /*   if (hw_time != sw_time) begin
@@ -150,4 +150,4 @@ module ysyx_24090012_CLINT (
 endmodule
 
 
-import "DPI-C" function int pmem_read(input int addr);
+//import "DPI-C" function int pmem_read(input int addr);

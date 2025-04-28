@@ -298,7 +298,7 @@ void print_performance_stats() {
     
 
 
-    
+
     // 打印流水线各阶段统计
     printf("\n----- 流水线各阶段统计 -----\n");
     printf("IFU取指次数: %d\n", ifu_count);
@@ -656,23 +656,23 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
         s->top->clock = 0;
         s->top->eval();
        // if (tfp) tfp->dump(main_time++);
-         if (record_wave && tfp) tfp->dump(main_time++);
+       //  if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
-       // if (tfp) tfp->dump(main_time++);
-          if (record_wave && tfp) tfp->dump(main_time++);
+        //if (tfp) tfp->dump(main_time++);
+      //    if (record_wave && tfp) tfp->dump(main_time++);
    
     
         
         // 时钟上升沿
         s->top->clock = 1;
         s->top->eval();
-       // if (tfp) tfp->dump(main_time++);
-         if (record_wave && tfp) tfp->dump(main_time++);
+      //  if (tfp) tfp->dump(main_time++);
+      //   if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
        // if (tfp) tfp->dump(main_time++);
-         if (record_wave && tfp) tfp->dump(main_time++);
+        // if (record_wave && tfp) tfp->dump(main_time++);
         
          total_cycles++;  // 全局周期计数
 

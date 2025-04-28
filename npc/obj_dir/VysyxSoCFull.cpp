@@ -90,7 +90,7 @@ void VysyxSoCFull::eval_step() {
 bool VysyxSoCFull::eventsPending() { return false; }
 
 uint64_t VysyxSoCFull::nextTimeSlot() {
-    VL_FATAL_MT(__FILE__, __LINE__, "", "%Error: No delays in the design");
+    VL_FATAL_MT(__FILE__, __LINE__, "", "No delays in the design");
     return 0;
 }
 
@@ -140,10 +140,10 @@ VL_ATTR_COLD static void trace_init(void* voidSelf, VerilatedVcd* tracep, uint32
             "Turning on wave traces requires Verilated::traceEverOn(true) call before time 0.");
     }
     vlSymsp->__Vm_baseCode = code;
-    if (strlen(vlSymsp->name())) tracep->pushPrefix(std::string{vlSymsp->name()}, VerilatedTracePrefixType::SCOPE_MODULE);
+    tracep->pushPrefix(std::string{vlSymsp->name()}, VerilatedTracePrefixType::SCOPE_MODULE);
     VysyxSoCFull___024root__trace_decl_types(tracep);
     VysyxSoCFull___024root__trace_init_top(vlSelf, tracep);
-    if (strlen(vlSymsp->name())) tracep->popPrefix();
+    tracep->popPrefix();
 }
 
 VL_ATTR_COLD void VysyxSoCFull___024root__trace_register(VysyxSoCFull___024root* vlSelf, VerilatedVcd* tracep);
@@ -153,7 +153,7 @@ VL_ATTR_COLD void VysyxSoCFull::traceBaseModel(VerilatedTraceBaseC* tfp, int lev
     VerilatedVcdC* const stfp = dynamic_cast<VerilatedVcdC*>(tfp);
     if (VL_UNLIKELY(!stfp)) {
         vl_fatal(__FILE__, __LINE__, __FILE__,"'VysyxSoCFull::trace()' called on non-VerilatedVcdC object;"
-            " use --trace-fst with VerilatedFst object, and --trace with VerilatedVcd object");
+            " use --trace-fst with VerilatedFst object, and --trace-vcd with VerilatedVcd object");
     }
     stfp->spTrace()->addModel(this);
     stfp->spTrace()->addInitCb(&trace_init, &(vlSymsp->TOP));

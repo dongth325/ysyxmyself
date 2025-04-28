@@ -164,6 +164,10 @@ end
         ifu_ready = 1'b0;
         exu_valid = 1'b0;
 
+        alu_op = 6'b111111;  //默认为没有实现的操作
+        imm = 32'b0;         //默认0     综合需要去除检测出来的锁存器 yosys
+
+
 
     opcode = inst_r[6:0];
     func3  = inst_r[14:12];
@@ -419,10 +423,6 @@ end
      exu_valid = 1'b1;
                 if (exu_ready) begin
                     next_state = IDLE;
-                    
-                   
-
-
                 end
       end
             
