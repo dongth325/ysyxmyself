@@ -73,7 +73,7 @@ int get_if_allow_in() {
 #ifndef VL_DPIDECL_get_ifu_count_
 #define VL_DPIDECL_get_ifu_count_
 int get_ifu_count() {
-    // DPI export at vsrc/ifu.v:136:18
+    // DPI export at vsrc/ifu.v:205:18
     return VysyxSoCFull::get_ifu_count();
 }
 #endif

@@ -30,7 +30,7 @@ extern "C" {
     extern int get_idu_count();
     // DPI export at vsrc/NPC.v:683:14
     extern int get_if_allow_in();
-    // DPI export at vsrc/ifu.v:136:18
+    // DPI export at vsrc/ifu.v:205:18
     extern int get_ifu_count();
     // DPI export at vsrc/idu.v:437:14
     extern int get_inst_r();
