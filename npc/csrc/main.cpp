@@ -197,6 +197,8 @@ int cmd_si(char *args) {
 extern "C" {   //所有性能计数器dpi-c
     // IFU相关
     extern int get_ifu_count();
+    extern int get_hit_count();
+    extern int get_miss_count();
     
     // IDU相关
     extern int get_idu_count();
@@ -231,6 +233,8 @@ void print_performance_stats() {
 
     // 获取各模块计数器值
     int ifu_count = 0;
+    int hit_count = 0;
+    int miss_count = 0;
     int idu_count = 0;
     int exu_count = 0;
     int lsu_count = 0;
@@ -259,6 +263,10 @@ void print_performance_stats() {
     }
     svSetScope(ifu_scope);
     ifu_count = get_ifu_count();
+    hit_count = get_hit_count();
+    miss_count = get_miss_count();
+    double hit_rate = (hit_count + miss_count > 0) ? 
+                 (100.0 * hit_count / (hit_count + miss_count)) : 0.0;
     
     // 切换到IDU作用域并获取计数
     svScope idu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.idu");
@@ -368,6 +376,17 @@ void print_performance_stats() {
     } else {
         printf("未检测到控制流指令\n");
     }
+
+
+
+
+
+ 
+                 
+printf("\n----- ICache统计 -----\n");
+printf("缓存命中次数: %d\n", hit_count);
+printf("缓存未命中次数: %d\n", miss_count);
+printf("缓存命中率: %.2f%%\n", hit_rate);
     
     printf("\n====================================\n");
 

@@ -57,6 +57,8 @@ localparam FETCH_DATA  = 2'b11;  // 第4-5步：接收数据并响应
     reg [3:0]  curr_id;     // 当前事务ID
 
     reg [31:0] ifu_count;  // IFU取指计数器
+    reg [31:0] hit_count;   // 缓存命中计数
+    reg [31:0] miss_count;  // 缓存未命中计数
 
     reg [TAG_BITS-1:0] cache_tags [0:CACHE_LINES-1];  // 标签数组
     reg cache_valid [0:CACHE_LINES-1];                // 有效位数组
@@ -93,6 +95,8 @@ end
             curr_id <= 4'h0;
             saved_pc <= 32'h0;
             ifu_count <= 32'h0;
+            hit_count <= 32'h0;
+            miss_count <= 32'h0;
 
 
             for (integer i = 0; i < CACHE_LINES; i = i + 1) begin
@@ -116,6 +120,17 @@ end
             if (state == CHECK_CACHE && next_state == FETCH_ADDR) begin
                 curr_id <= curr_id + 4'h1;
             end
+
+            // 计数器更新
+            if (state == CHECK_CACHE) begin
+                if (cache_hit) begin
+                    hit_count <= hit_count + 32'h1;
+                end else begin
+                    miss_count <= miss_count + 32'h1;
+                end
+            end
+            
+
 
               // 在FETCH_DATA状态更新缓存
             if (state == FETCH_DATA && io_master_rvalid && io_master_rready) begin
@@ -201,9 +216,20 @@ end
 
     export "DPI-C" function get_ifu_count;
 
+    export "DPI-C" function get_hit_count;
+    export "DPI-C" function get_miss_count;
+
     // DPI-C函数实现
     function int get_ifu_count();
         return ifu_count;
     endfunction   //综合需要注释
+
+    function int get_hit_count();
+    return hit_count;
+    endfunction
+
+    function int get_miss_count();
+    return miss_count;
+    endfunction
 
 endmodule
