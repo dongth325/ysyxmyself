@@ -386,7 +386,7 @@ int cmd_q(char *args) {
  print_performance_stats();
 
 
-
+   close_pc_trace();//npc执行后关闭用于cachesim的pc序列统计
 
 
      if (tfp) {
@@ -863,6 +863,13 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
    
         //printf("Available Verilator scopes:\n");
 //Verilated::scopesDump();
+
+
+  init_pc_trace("pc_trace.txt");//初始化用于cachesim的pc序列统计
+
+
+
+
 
      sdb_mainloop();  //dddddddddddddddddddd
 

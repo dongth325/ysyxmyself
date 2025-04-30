@@ -1,12 +1,46 @@
 
 #include "difftest_loader.h"
 #include <iostream>
+#include <fstream> 
 #include "isa.h" // 包含 CPU_state 的定义
 #include "VysyxSoCFull.h" 
 #include "svdpi.h"
 difftest_memcpy_t difftest_memcpy = nullptr;
 difftest_regcpy_t difftest_regcpy = nullptr;
 difftest_exec_t difftest_exec = nullptr;
+
+
+
+
+// PC跟踪记录的文件流
+static std::ofstream pc_trace_file;    //追踪pc用于cachesim
+static bool pc_trace_enabled = false;
+
+// 初始化PC跟踪
+extern "C" void init_pc_trace(const char* filename) {
+    pc_trace_file.open(filename);
+    if (!pc_trace_file.is_open()) {
+        std::cerr << "Failed to open PC trace file: " << filename << std::endl;
+        return;
+    }
+    pc_trace_enabled = true;
+    std::cout << "PC trace logging enabled to: " << filename << std::endl;
+}
+
+// 关闭PC跟踪
+extern "C" void close_pc_trace() {
+    if (pc_trace_enabled && pc_trace_file.is_open()) {
+        pc_trace_file.close();
+        pc_trace_enabled = false;
+        std::cout << "PC trace logging completed" << std::endl;
+    }
+}
+
+
+
+
+
+
 
 extern "C" int get_reg_value(int reg_index);
 extern "C" int get_csr_reg_value(int csr_reg_index);
@@ -171,6 +205,17 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
 
 // 实现 difftest_step 函数
 extern "C" void difftest_step(VysyxSoCFull *top,uint32_t pc, uint32_t npc) {
+
+
+
+  // 记录当前PC到跟踪文件用于cachesim
+    if (pc_trace_enabled && pc_trace_file.is_open()) {
+        pc_trace_file << std::hex << "0x" << pc << std::endl;
+    }
+    
+
+
+
     CPU_state ref_cpu_state;
 
     // 处理需要跳过的 DUT 指令比较
