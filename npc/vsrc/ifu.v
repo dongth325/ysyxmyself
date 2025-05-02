@@ -101,7 +101,7 @@ end
             
             FETCH_DATA: begin
                 io_master_rready = 1'b1;
-                if (io_master_rvalid && (io_master_rid == curr_id)) begin
+                if (io_master_rvalid && (io_master_rid == curr_id) && io_master_rdata != 0) begin
 
                
                    

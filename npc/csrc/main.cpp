@@ -391,8 +391,8 @@ printf("缓存命中率: %.2f%%\n", hit_rate);
 
 
 
-}
-*/
+}*/
+
 
 int cmd_q(char *args) {
     std::cout << "Exiting simulation." << std::endl;
