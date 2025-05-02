@@ -67,7 +67,7 @@ module ysyx_24090012_LSU (
 
 
 
-
+reg aw_done, w_done;
 
     // 寄存器定义
     reg [2:0] state;
