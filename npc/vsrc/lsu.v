@@ -64,6 +64,12 @@ module ysyx_24090012_LSU (
     localparam READ_ADDR   = 3'd4;
     localparam READ_DATA   = 3'd5;
 
+
+
+// 使用寄存器跟踪完成状态
+    reg aw_done, w_done;
+
+
     // 寄存器定义
     reg [2:0] state;
     reg [31:0] saved_addr;
@@ -141,6 +147,11 @@ end
     reg [2:0] next_state;
     reg [31:0] processed_rdata;//用于对读出数据进行寄存，最后赋值给mem rdata
     always @(*) begin
+
+
+
+        aw_done = 0;
+        w_done = 0;
         // 默认值
         next_state = state;
         io_master_awvalid = 0;
@@ -180,7 +191,7 @@ end
                 end
             end
             
-            WRITE_ADDR: begin
+           /* WRITE_ADDR: begin
                 io_master_awvalid = 1'b1;
                 if (io_master_awready) begin
                     next_state = WRITE_DATA;
@@ -192,8 +203,30 @@ end
                 if (io_master_wready) begin
                     next_state = WRITE_RESP;
                 end
-            end
+            end*/
             
+
+            WRITE_ADDR: begin  // 合并原WRITE_ADDR和WRITE_DATA状态
+                // 同时激活地址和数据通道
+                io_master_awvalid = 1'b1;
+                io_master_wvalid  = 1'b1;
+                
+                
+                
+                if (io_master_awready) aw_done = 1'b1;
+                if (io_master_wready)  w_done  = 1'b1;
+                
+                // 两个通道都完成后进入响应阶段
+                if (aw_done && w_done) begin
+                    next_state = WRITE_RESP;
+                    aw_done = 1'b0;  // 重置状态
+                    w_done  = 1'b0;
+                end
+            end
+
+
+
+
                  WRITE_RESP: begin
                 io_master_bready = 1'b1;
                 if (io_master_bvalid) begin
