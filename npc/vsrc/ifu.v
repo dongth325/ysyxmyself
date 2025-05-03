@@ -181,7 +181,7 @@ end
     always @(*) begin
         // 默认值
         next_state = state;
-        io_master_araddr = saved_pc;
+        io_master_araddr =   {saved_pc[31:4], 4'b0000};
         io_master_arvalid = 1'b0;
         io_master_rready = 1'b0;
         idu_valid = 1'b0;
