@@ -258,7 +258,7 @@ end
     end
 
     // 其他输出信号直接赋值
-    assign io_master_araddr  = saved_pc;
+    //assign io_master_araddr  = saved_pc;
     assign io_master_arid    = curr_id;
   //  assign io_master_arlen   = 8'b0;        // 单次传输
     assign io_master_arlen   = 8'd3;        // 4次传输(长度=传输次数-1)
