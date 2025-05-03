@@ -229,12 +229,13 @@ end
 
                     if (io_master_rlast) begin
                         // 根据word_offset选择正确的指令
-                        case (word_offset)
+                       /* case (word_offset)
                             2'b00: idu_inst = temp_cache_data[31:0];
                             2'b01: idu_inst = temp_cache_data[63:32];
                             2'b10: idu_inst = temp_cache_data[95:64];
                             2'b11: idu_inst = io_master_rdata; // 最后一个word
-                        endcase
+                        endcase*/
+                        idu_inst = temp_cache_data[31:0];
                         idu_valid = 1'b1;
                         if (idu_ready) begin
                             next_state = IDLE;
