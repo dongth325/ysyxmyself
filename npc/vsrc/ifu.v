@@ -269,6 +269,9 @@ end
 
 
 
+    
+
+
     export "DPI-C" function get_ifu_count;
 
     export "DPI-C" function get_hit_count;
