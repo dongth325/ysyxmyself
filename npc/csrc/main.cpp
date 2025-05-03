@@ -194,7 +194,7 @@ int cmd_si(char *args) {
     return 0;
 }
 
-/*extern "C" {   //所有性能计数器dpi-c
+extern "C" {   //所有性能计数器dpi-c
     // IFU相关
     extern int get_ifu_count();
     extern int get_hit_count();
@@ -391,7 +391,7 @@ printf("缓存命中率: %.2f%%\n", hit_rate);
 
 
 
-}*/
+}
 
 
 int cmd_q(char *args) {
@@ -400,7 +400,7 @@ int cmd_q(char *args) {
 
 
 
- //print_performance_stats();
+ print_performance_stats();
 
 
    close_pc_trace();//npc执行后关闭用于cachesim的pc序列统计
@@ -672,7 +672,7 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
 
         s->top->clock = 0;
         s->top->eval();
-        if (tfp) tfp->dump(main_time++);
+       // if (tfp) tfp->dump(main_time++);
        //  if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
@@ -684,7 +684,7 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
         // 时钟上升沿
         s->top->clock = 1;
         s->top->eval();
-        if (tfp) tfp->dump(main_time++);
+     //   if (tfp) tfp->dump(main_time++);
       //   if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
