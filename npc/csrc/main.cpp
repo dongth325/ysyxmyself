@@ -197,8 +197,8 @@ int cmd_si(char *args) {
 extern "C" {   //所有性能计数器dpi-c
     // IFU相关
     extern int get_ifu_count();
-   // extern int get_hit_count();
-    //extern int get_miss_count();
+    extern int get_hit_count();
+    extern int get_miss_count();
     // IDU相关
     extern int get_idu_count();
     extern int get_compute_inst_count();
@@ -262,8 +262,8 @@ void print_performance_stats() {
     }
     svSetScope(ifu_scope);
     ifu_count = get_ifu_count();
-  //  hit_count = get_hit_count();
-  //  miss_count = get_miss_count();
+    hit_count = get_hit_count();
+    miss_count = get_miss_count();
     double hit_rate = (hit_count + miss_count > 0) ? 
                  (100.0 * hit_count / (hit_count + miss_count)) : 0.0;
     
