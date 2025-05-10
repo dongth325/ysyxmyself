@@ -623,8 +623,8 @@ ysyx_24090012_IDU idu(
 else begin 
         
 
-     if (inst == 32'h00100073 ) begin  // ebreak 指令   用于添加了cache的ifu
-  //if (inst == 32'h00100073 && ifu_to_idu_valid == 1) begin  // ebreak 指令  用于没有cache的ifu，如果不加这个判断会在bootloader取到ebreak就会停止仿真
+    // if (inst == 32'h00100073 ) begin  // ebreak 指令   用于添加了cache的ifu
+  if (inst == 32'h00100073 && ifu_to_idu_valid == 1) begin  // ebreak 指令  用于没有cache的ifu，如果不加这个判断会在bootloader取到ebreak就会停止仿真
         $display("pc = 0x%08x from NPC", pc);
         $display("inst = 0x%08x from NPC",inst);
       ebreak(regfile.rf[10]);       // 调用 DPI-C 函数     综合需要注释
