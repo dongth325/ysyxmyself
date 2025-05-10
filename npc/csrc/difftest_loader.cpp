@@ -353,6 +353,7 @@ extern "C" void difftest_step(VysyxSoCFull *top,uint32_t pc, uint32_t npc) {
         // 重置跳过标志
         is_skip_ref = false;
        // std::cout << "[DiffTest] Skipped register comparison for current instruction." << std::endl;
+       current_trace_index++;//在pc执行流difftest时，需要在skip更新current_trace_index
         return;
     }
 
