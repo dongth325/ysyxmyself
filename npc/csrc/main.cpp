@@ -882,7 +882,7 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
 //Verilated::scopesDump();
 
 
-  init_pc_trace("pc_trace.txt");//初始化用于cachesim的pc序列统计
+ // init_pc_trace("pc_trace.txt");//初始化用于cachesim的pc序列统计
 
 
 
