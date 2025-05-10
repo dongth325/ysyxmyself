@@ -100,7 +100,7 @@ bool check_pc_trace(uint32_t current_pc) {
         std::cerr << "PC trace mismatch at index " << current_trace_index 
                   << ": expected=0x" << std::hex << reference_pc_trace[current_trace_index]
                   << ", actual=0x" << current_pc << std::dec << std::endl;
-        //return false;
+       
          // 打印前后5个参考PC值以提供上下文
     std::cerr << "Reference PC trace context:" << std::endl;
     
@@ -116,6 +116,7 @@ bool check_pc_trace(uint32_t current_pc) {
         }
         std::cerr << std::endl;
     }
+     return false;
     }
     
     // PC匹配，增加索引
