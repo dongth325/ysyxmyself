@@ -111,7 +111,7 @@ void get_dut_cpu_state(VysyxSoCFull *top, CPU_state *dut_cpu_state) {
     }
     svSetScope(scope);
 
-for(int i=0;i<32;i++){
+for(int i=0;i<16;i++){
 int reg_value;
 reg_value = get_reg_value(i);
 dut_cpu_state->gpr[i]=get_reg_value(i);
