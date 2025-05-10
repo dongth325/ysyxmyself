@@ -54,6 +54,38 @@ int VysyxSoCFull::get_ifu_count() {
     return get_ifu_count__Vfuncrtn;
 }
 
+int VysyxSoCFull::get_hit_count() {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    VysyxSoCFull___024root::get_hit_count\n"); );
+    // Init
+    IData/*31:0*/ get_hit_count__Vfuncrtn__Vcvt;
+    get_hit_count__Vfuncrtn__Vcvt = 0;
+    // Body
+    static int __Vfuncnum = -1;
+    if (VL_UNLIKELY(__Vfuncnum == -1)) __Vfuncnum = Verilated::exportFuncNum("get_hit_count");
+    const VerilatedScope* __Vscopep = Verilated::dpiScope();
+    VysyxSoCFull__Vcb_get_hit_count_t __Vcb = (VysyxSoCFull__Vcb_get_hit_count_t)(VerilatedScope::exportFind(__Vscopep, __Vfuncnum));
+    (*__Vcb)((VysyxSoCFull__Syms*)(__Vscopep->symsp()), get_hit_count__Vfuncrtn__Vcvt);
+    int get_hit_count__Vfuncrtn;
+    for (size_t get_hit_count__Vfuncrtn__Vidx = 0; get_hit_count__Vfuncrtn__Vidx < 1; ++get_hit_count__Vfuncrtn__Vidx) get_hit_count__Vfuncrtn = get_hit_count__Vfuncrtn__Vcvt;
+    return get_hit_count__Vfuncrtn;
+}
+
+int VysyxSoCFull::get_miss_count() {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    VysyxSoCFull___024root::get_miss_count\n"); );
+    // Init
+    IData/*31:0*/ get_miss_count__Vfuncrtn__Vcvt;
+    get_miss_count__Vfuncrtn__Vcvt = 0;
+    // Body
+    static int __Vfuncnum = -1;
+    if (VL_UNLIKELY(__Vfuncnum == -1)) __Vfuncnum = Verilated::exportFuncNum("get_miss_count");
+    const VerilatedScope* __Vscopep = Verilated::dpiScope();
+    VysyxSoCFull__Vcb_get_miss_count_t __Vcb = (VysyxSoCFull__Vcb_get_miss_count_t)(VerilatedScope::exportFind(__Vscopep, __Vfuncnum));
+    (*__Vcb)((VysyxSoCFull__Syms*)(__Vscopep->symsp()), get_miss_count__Vfuncrtn__Vcvt);
+    int get_miss_count__Vfuncrtn;
+    for (size_t get_miss_count__Vfuncrtn__Vidx = 0; get_miss_count__Vfuncrtn__Vidx < 1; ++get_miss_count__Vfuncrtn__Vidx) get_miss_count__Vfuncrtn = get_miss_count__Vfuncrtn__Vcvt;
+    return get_miss_count__Vfuncrtn;
+}
+
 int VysyxSoCFull::get_inst_r() {
     VL_DEBUG_IF(VL_DBG_MSGF("+    VysyxSoCFull___024root::get_inst_r\n"); );
     // Init

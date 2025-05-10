@@ -16,31 +16,35 @@ extern "C" {
 
 
     // DPI EXPORTS
-    // DPI export at vsrc/idu.v:472:14
+    // DPI export at vsrc/idu.v:479:14
     extern int get_branch_inst_count();
-    // DPI export at vsrc/idu.v:460:14
+    // DPI export at vsrc/idu.v:467:14
     extern int get_compute_inst_count();
-    // DPI export at vsrc/idu.v:480:14
+    // DPI export at vsrc/idu.v:487:14
     extern int get_csr_inst_count();
     // DPI export at vsrc/csr.v:145:14
     extern int get_csr_reg_value(int csr_reg_index);
     // DPI export at vsrc/exu.v:950:14
     extern int get_exu_count();
-    // DPI export at vsrc/idu.v:456:14
+    // DPI export at vsrc/ifu.v:227:18
+    extern int get_hit_count();
+    // DPI export at vsrc/idu.v:463:14
     extern int get_idu_count();
     // DPI export at vsrc/NPC.v:684:14
     extern int get_if_allow_in();
-    // DPI export at vsrc/ifu.v:136:18
+    // DPI export at vsrc/ifu.v:223:18
     extern int get_ifu_count();
-    // DPI export at vsrc/idu.v:437:14
+    // DPI export at vsrc/idu.v:444:14
     extern int get_inst_r();
-    // DPI export at vsrc/idu.v:476:14
+    // DPI export at vsrc/idu.v:483:14
     extern int get_jump_inst_count();
-    // DPI export at vsrc/idu.v:464:14
+    // DPI export at vsrc/idu.v:471:14
     extern int get_load_inst_count();
     // DPI export at vsrc/lsu.v:562:14
     extern int get_lsu_count();
-    // DPI export at vsrc/idu.v:484:14
+    // DPI export at vsrc/ifu.v:231:18
+    extern int get_miss_count();
+    // DPI export at vsrc/idu.v:491:14
     extern int get_other_inst_count();
     // DPI export at vsrc/NPC.v:679:14
     extern int get_pc_value();
@@ -50,7 +54,7 @@ extern "C" {
     extern int get_reg_value(int reg_index);
     // DPI export at vsrc/lsu.v:549:14
     extern int get_saved_addr();
-    // DPI export at vsrc/idu.v:468:14
+    // DPI export at vsrc/idu.v:475:14
     extern int get_store_inst_count();
     // DPI export at vsrc/lsu.v:570:14
     extern int get_write_count();

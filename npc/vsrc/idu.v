@@ -44,6 +44,7 @@ output reg is_mret//csr csr csr
     reg state, next_state;
         // IDU流水线寄存器
     reg [31:0] inst_r;        // 指令寄存器
+    reg [31:0] inst_r_r;
     reg [31:0] pc_r;         // PC寄存器
 
 
@@ -115,7 +116,7 @@ end
         if (reset) begin
             inst_r <= 32'b0;
             pc_r <= 32'b0;
-
+            inst_r_r <= 32'b0;
 
             idu_count <= 32'h0;
             compute_inst_count <= 32'h0;
@@ -133,7 +134,13 @@ end
         else if (ifu_valid && ifu_ready) begin
           inst_r <= inst;
           pc_r <= ifu_to_idu_pc;
+          inst_r_r <= inst_r;
           idu_count <= idu_count + 1;  // idu count计数器
+
+          if(inst_r_r == inst_r) begin
+            $display("inst chongfu from (idu.v)");
+            
+          end
       end
 
 
