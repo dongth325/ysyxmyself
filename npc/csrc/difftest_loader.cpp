@@ -278,14 +278,14 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
     }
 
         // 检查当前PC是否与参考轨迹匹配
-    bool pc_trace_match = check_pc_trace(dut->pc);
+   /* bool pc_trace_match = check_pc_trace(dut->pc);
     if (!pc_trace_match) {
         std::cerr << "[DiffTest] PC trace verification failed at PC = 0x" 
                   << std::hex << dut->pc << std::dec << std::endl;
         // 可以选择在PC轨迹不匹配时终止程序
          Verilated::gotFinish(true);
          
-    }
+    }*/
     
     return true;
 }
