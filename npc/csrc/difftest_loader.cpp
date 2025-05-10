@@ -120,6 +120,7 @@ bool check_pc_trace(uint32_t current_pc) {
     
     // PC匹配，增加索引
     current_trace_index++;
+    printf("current_trace_index = %d\n",current_trace_index);
     return true;
 }
 
