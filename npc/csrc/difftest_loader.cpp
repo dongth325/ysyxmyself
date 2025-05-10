@@ -116,7 +116,7 @@ bool check_pc_trace(uint32_t current_pc) {
         }
         std::cerr << std::endl;
     }
-     //return false;
+     return false;
     }
     
     // PC匹配，增加索引
