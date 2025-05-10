@@ -10,6 +10,18 @@ difftest_regcpy_t difftest_regcpy = nullptr;
 difftest_exec_t difftest_exec = nullptr;
 
 
+// 存储参考PC轨迹
+static std::vector<uint32_t> reference_pc_trace;
+// 当前PC轨迹索引
+static size_t current_trace_index = 0;
+// 是否已加载参考PC轨迹
+static bool reference_trace_loaded = false;
+
+
+
+
+
+
 
 
 // PC跟踪记录的文件流
@@ -68,7 +80,33 @@ extern "C" void difftest_skip_dut(int nr_ref, int nr_dut) {//add difftest skip..
 
 
 
-
+// 检查当前PC是否与参考轨迹匹配
+bool check_pc_trace(uint32_t current_pc) {
+    if (!reference_trace_loaded || reference_pc_trace.empty()) {
+        // 如果没有加载参考轨迹，这是一个错误情况
+        std::cerr << "Error: Reference PC trace not loaded or empty!" << std::endl;
+        return false;
+    }
+    
+    // 检查是否超出参考轨迹范围
+    if (current_trace_index >= reference_pc_trace.size()) {
+        std::cerr << "PC trace index out of range: current=" << current_trace_index 
+                  << ", reference size=" << reference_pc_trace.size() << std::endl;
+        return false;
+    }
+    
+    // 比较当前PC与参考PC
+    if (current_pc != reference_pc_trace[current_trace_index]) {
+        std::cerr << "PC trace mismatch at index " << current_trace_index 
+                  << ": expected=0x" << std::hex << reference_pc_trace[current_trace_index]
+                  << ", actual=0x" << current_pc << std::dec << std::endl;
+        return false;
+    }
+    
+    // PC匹配，增加索引
+    current_trace_index++;
+    return true;
+}
 
 
 
@@ -87,6 +125,29 @@ void load_difftest_library() {
     if (!difftest_memcpy || !difftest_regcpy || !difftest_exec) {
         std::cerr << "Failed to load DiffTest functions: " << dlerror() << std::endl;
         exit(1);
+    }
+
+
+
+       // 加载PC轨迹文件
+    const char* filename = "/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/npc/pc_trace.txt";
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Warning: Cannot open reference PC trace file: " << filename << std::endl;
+    } else {
+        std::string line;
+        while (std::getline(file, line)) {
+            // 跳过空行
+            if (line.empty()) continue;
+            
+            // 提取PC值 (格式: 0xXXXXXXXX)
+            uint32_t pc = std::stoul(line, nullptr, 16);
+            reference_pc_trace.push_back(pc);
+        }
+        
+        std::cout << "Loaded " << reference_pc_trace.size() << " PC values from reference trace" << std::endl;
+        reference_trace_loaded = true;
+        file.close();
     }
 }
 
@@ -198,6 +259,17 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
                   << ", REF = 0x" << ref->csr.mstatus << std::dec << std::endl;
         return false;
     }
+
+        // 检查当前PC是否与参考轨迹匹配
+   /* bool pc_trace_match = check_pc_trace(dut->pc);
+    if (!pc_trace_match) {
+        std::cerr << "[DiffTest] PC trace verification failed at PC = 0x" 
+                  << std::hex << dut->pc << std::dec << std::endl;
+        // 可以选择在PC轨迹不匹配时终止程序
+         Verilated::gotFinish(true);
+         return;
+    }*/
+    
     return true;
 }
 
@@ -212,6 +284,8 @@ extern "C" void difftest_step(VysyxSoCFull *top,uint32_t pc, uint32_t npc) {
     if (pc_trace_enabled && pc_trace_file.is_open()) {
         pc_trace_file << std::hex << "0x" << pc << std::endl;
     }
+
+   
     
 
 
