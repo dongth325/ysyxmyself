@@ -18,11 +18,11 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
 
   // 导出函数供C语言访问
   export "DPI-C" function get_reg_value;    //综合需要注释
-  reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];  //综合需要实现16个而不是32个
-//reg [DATA_WIDTH-1:0] rf [15:0];
+  //reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];  //综合需要实现16个而不是32个
+reg [DATA_WIDTH-1:0] rf [15:0];
   // 读出数据
-  assign rdata1 = (raddr1 == 5'b0) ? 32'b0 : rf[raddr1];
-  assign rdata2 = (raddr2 == 5'b0) ? 32'b0 : rf[raddr2];
+  assign rdata1 = (raddr1[3:0] == 4'b0) ? 32'b0 : rf[raddr1[3:0]];
+  assign rdata2 = (raddr2[3:0] == 4'b0) ? 32'b0 : rf[raddr2[3:0]];
       
 
   // 写数据
@@ -39,8 +39,8 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
         end else if (rd_valid && rd_ready) begin
             // 握手成功，写入数据并拉低ready
             
-            if (waddr != 0) begin
-                rf[waddr] <= wdata;
+            if (waddr[3:0] != 0) begin
+                rf[waddr[3:0]] <= wdata;
             end
             rd_ready <= 0;  // 写入过程中拉低ready
         end else if (!rd_ready) begin
