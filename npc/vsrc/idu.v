@@ -139,7 +139,9 @@ end
 
           if(inst_r_r == inst_r) begin
             $display("inst chongfu from (idu.v)");
-            
+            $display("inst_r = %h",inst_r);
+            $display("inst_r_r = %h",inst_r_r);
+
           end
       end
 
