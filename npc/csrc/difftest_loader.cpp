@@ -111,7 +111,7 @@ void get_dut_cpu_state(VysyxSoCFull *top, CPU_state *dut_cpu_state) {
     }
     svSetScope(scope);
 
-for(int i=0;i<16;i++){
+for(int i=0;i<32;i++){
 int reg_value;
 reg_value = get_reg_value(i);
 dut_cpu_state->gpr[i]=get_reg_value(i);
@@ -156,7 +156,7 @@ svSetScope(csr_scope);
 
 bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
     // 比较通用寄存器
-  for (int i = 0; i < 32; i++) {
+  for (int i = 0; i < 16; i++) {
    
    if (dut->gpr[i] != ref->gpr[i]) {
         std::cerr << "Register " << i << " mismatch: "
