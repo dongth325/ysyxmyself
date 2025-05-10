@@ -65,7 +65,7 @@ int get_idu_count() {
 #ifndef VL_DPIDECL_get_if_allow_in_
 #define VL_DPIDECL_get_if_allow_in_
 int get_if_allow_in() {
-    // DPI export at vsrc/NPC.v:683:14
+    // DPI export at vsrc/NPC.v:684:14
     return VysyxSoCFull::get_if_allow_in();
 }
 #endif
@@ -121,7 +121,7 @@ int get_other_inst_count() {
 #ifndef VL_DPIDECL_get_pc_value_
 #define VL_DPIDECL_get_pc_value_
 int get_pc_value() {
-    // DPI export at vsrc/NPC.v:678:14
+    // DPI export at vsrc/NPC.v:679:14
     return VysyxSoCFull::get_pc_value();
 }
 #endif
