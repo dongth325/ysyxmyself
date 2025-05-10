@@ -105,9 +105,9 @@ bool check_pc_trace(uint32_t current_pc) {
     std::cerr << "Reference PC trace context:" << std::endl;
     
     // 计算起始和结束索引，确保不越界
-    size_t start_idx = (current_trace_index > 5) ? current_trace_index - 5 : 0;
-    size_t end_idx = (current_trace_index + 5 < reference_pc_trace.size()) ? 
-                     current_trace_index + 5 : reference_pc_trace.size() - 1;
+    size_t start_idx = (current_trace_index > 10) ? current_trace_index - 10 : 0;
+    size_t end_idx = (current_trace_index + 10 < reference_pc_trace.size()) ? 
+                     current_trace_index + 10 : reference_pc_trace.size() - 1;
     
     for (size_t i = start_idx; i <= end_idx; i++) {
         std::cerr << "  [" << i << "] 0x" << std::hex << reference_pc_trace[i];
@@ -116,7 +116,7 @@ bool check_pc_trace(uint32_t current_pc) {
         }
         std::cerr << std::endl;
     }
-     return false;
+     //return false;
     }
     
     // PC匹配，增加索引
