@@ -2,16 +2,21 @@
 #include "difftest_loader.h"
 #include <iostream>
 #include <fstream> 
+ 
 #include "isa.h" // 包含 CPU_state 的定义
 #include "VysyxSoCFull.h" 
 #include "svdpi.h"
 difftest_memcpy_t difftest_memcpy = nullptr;
 difftest_regcpy_t difftest_regcpy = nullptr;
 difftest_exec_t difftest_exec = nullptr;
-
+// 在文件顶部添加以下声明
+extern "C" int get_inst_r();
 
 // 存储参考PC轨迹
 static std::vector<uint32_t> reference_pc_trace;
+
+// 存储参考指令轨迹
+static std::vector<uint32_t> reference_inst_trace;
 // 当前PC轨迹索引
 static size_t current_trace_index = 0;
 // 是否已加载参考PC轨迹
@@ -95,28 +100,63 @@ bool check_pc_trace(uint32_t current_pc) {
         return false;
     }
     
-    // 比较当前PC与参考PC
-    if (current_pc != reference_pc_trace[current_trace_index]) {
-        std::cerr << "PC trace mismatch at index " << current_trace_index 
-                  << ": expected=0x" << std::hex << reference_pc_trace[current_trace_index]
-                  << ", actual=0x" << current_pc << std::dec << std::endl;
-       
-         // 打印前后5个参考PC值以提供上下文
-    std::cerr << "Reference PC trace context:" << std::endl;
-    
-    // 计算起始和结束索引，确保不越界
-    size_t start_idx = (current_trace_index > 10) ? current_trace_index - 10 : 0;
-    size_t end_idx = (current_trace_index + 10 < reference_pc_trace.size()) ? 
-                     current_trace_index + 10 : reference_pc_trace.size() - 1;
-    
-    for (size_t i = start_idx; i <= end_idx; i++) {
-        std::cerr << "  [" << i << "] 0x" << std::hex << reference_pc_trace[i];
-        if (i == current_trace_index) {
-            std::cerr << " <-- MISMATCH";
-        }
-        std::cerr << std::endl;
+  // 获取当前指令
+    svScope idu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.idu");
+    if (idu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope for IDU\n");
+        return false;
     }
-     return false;
+    svSetScope(idu_scope);
+    uint32_t current_inst = get_inst_r();   // 从IDU模块获取inst_r
+    
+
+
+
+
+   // 比较当前PC与参考PC
+    if (current_pc != reference_pc_trace[current_trace_index] || 
+        (reference_inst_trace.size() > current_trace_index && 
+         reference_inst_trace[current_trace_index] != 0 && 
+         current_inst != reference_inst_trace[current_trace_index])) {
+        
+        // 打印PC不匹配信息
+        if (current_pc != reference_pc_trace[current_trace_index]) {
+            std::cerr << "PC trace mismatch at index " << current_trace_index 
+                      << ": expected=0x" << std::hex << reference_pc_trace[current_trace_index]
+                      << ", actual=0x" << current_pc << std::dec << std::endl;
+        }
+        
+        // 打印指令不匹配信息
+        if (reference_inst_trace.size() > current_trace_index && 
+            reference_inst_trace[current_trace_index] != 0 && 
+            current_inst != reference_inst_trace[current_trace_index]) {
+            std::cerr << "Instruction mismatch at index " << current_trace_index 
+                      << ": expected=0x" << std::hex << reference_inst_trace[current_trace_index]
+                      << ", actual=0x" << current_inst << std::dec << std::endl;
+        }
+       
+        // 打印前后10个参考PC和指令值以提供上下文
+        std::cerr << "Reference trace context:" << std::endl;
+        
+        // 计算起始和结束索引，确保不越界
+        size_t start_idx = (current_trace_index > 10) ? current_trace_index - 10 : 0;
+        size_t end_idx = (current_trace_index + 10 < reference_pc_trace.size()) ? 
+                         current_trace_index + 10 : reference_pc_trace.size() - 1;
+        
+        for (size_t i = start_idx; i <= end_idx; i++) {
+            std::cerr << "  [" << i << "] PC=0x" << std::hex << reference_pc_trace[i];
+            
+            // 如果有指令信息，也打印出来
+            if (reference_inst_trace.size() > i && reference_inst_trace[i] != 0) {
+                std::cerr << ", Inst=0x" << reference_inst_trace[i];
+            }
+            
+            if (i == current_trace_index) {
+                std::cerr << " <-- MISMATCH";
+            }
+            std::cerr << std::dec << std::endl;
+        }
+        return false;
     }
     
     // PC匹配，增加索引
@@ -147,7 +187,7 @@ void load_difftest_library() {
 
 
        // 加载PC轨迹文件
-    const char* filename = "/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/npc/pc_trace.txt";
+   /* const char* filename = "/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/npc/pc_trace.txt";
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Warning: Cannot open reference PC trace file: " << filename << std::endl;
@@ -165,9 +205,45 @@ void load_difftest_library() {
         std::cout << "Loaded " << reference_pc_trace.size() << " PC values from reference trace" << std::endl;
         reference_trace_loaded = true;
         file.close();
+    }*/
+
+    // 加载PC和指令轨迹文件
+    const char* filename = "/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/npc/pc_trace.txt";
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Warning: Cannot open reference PC trace file: " << filename << std::endl;
+    } else {
+        std::string line;
+        while (std::getline(file, line)) {
+            // 跳过空行
+            if (line.empty()) continue;
+            
+            // 手动解析行，格式: 0xXXXXXXXX 0xYYYYYYYY (PC 指令)
+            size_t space_pos = line.find(' ');
+            if (space_pos != std::string::npos) {
+                // 有空格，说明有PC和指令
+                std::string pc_str = line.substr(0, space_pos);
+                std::string inst_str = line.substr(space_pos + 1);
+                
+                // 提取PC值和指令值
+                uint32_t pc = std::stoul(pc_str, nullptr, 16);
+                uint32_t inst = std::stoul(inst_str, nullptr, 16);
+                
+                reference_pc_trace.push_back(pc);
+                reference_inst_trace.push_back(inst);
+            } else {
+                // 如果只有PC值，没有指令值
+                uint32_t pc = std::stoul(line, nullptr, 16);
+                reference_pc_trace.push_back(pc);
+                reference_inst_trace.push_back(0); // 使用0作为占位符
+            }
+        }
+        
+        std::cout << "Loaded " << reference_pc_trace.size() << " PC/instruction pairs from reference trace" << std::endl;
+        reference_trace_loaded = true;
+        file.close();
     }
 }
-
 
 void get_dut_cpu_state(VysyxSoCFull *top, CPU_state *dut_cpu_state) {
     // 获取 PC  设置npc模块上下文
@@ -278,7 +354,7 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
     }
 
         // 检查当前PC是否与参考轨迹匹配
-   /* bool pc_trace_match = check_pc_trace(dut->pc);
+  /*  bool pc_trace_match = check_pc_trace(dut->pc);
     if (!pc_trace_match) {
         std::cerr << "[DiffTest] PC trace verification failed at PC = 0x" 
                   << std::hex << dut->pc << std::dec << std::endl;
@@ -302,7 +378,19 @@ extern "C" void difftest_step(VysyxSoCFull *top,uint32_t pc, uint32_t npc) {
         pc_trace_file << std::hex << "0x" << pc << std::endl;
     }*/
 
-   
+   // 获取当前指令
+    svScope idu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.idu");
+    if (idu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope for IDU\n");
+        exit(1);
+    }
+    svSetScope(idu_scope);
+    uint32_t inst = get_inst_r();   // 从IDU模块获取inst_r
+    
+    // 记录当前PC和指令到跟踪文件用于cachesim
+    if (pc_trace_enabled && pc_trace_file.is_open()) {
+        pc_trace_file << std::hex << "0x" << pc << " 0x" << inst << std::endl;
+    }
     
 
 
