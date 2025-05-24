@@ -134,7 +134,9 @@ wire mem_unsigned;//将idu解码信息进行判断，传给lsu用于无符号读
 
         // LSU接口
     wire [31:0] mem_addr;
+     // verilator lint_off UNOPTFLAT
     wire        mem_valid;
+    // verilator lint_on UNOPTFLAT
     wire [31:0] mem_wdata;
     wire [3:0]  mem_wmask;
     wire        mem_wen;

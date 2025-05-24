@@ -30,7 +30,7 @@ extern "C" {
     extern int get_hit_count();
     // DPI export at vsrc/idu.v:455:14
     extern int get_idu_count();
-    // DPI export at vsrc/NPC.v:697:14
+    // DPI export at vsrc/NPC.v:699:14
     extern int get_if_allow_in();
     // DPI export at vsrc/ifu.v:281:18
     extern int get_ifu_count();
@@ -46,7 +46,7 @@ extern "C" {
     extern int get_miss_count();
     // DPI export at vsrc/idu.v:483:14
     extern int get_other_inst_count();
-    // DPI export at vsrc/NPC.v:692:14
+    // DPI export at vsrc/NPC.v:694:14
     extern int get_pc_value();
     // DPI export at vsrc/lsu.v:625:14
     extern int get_read_count();
