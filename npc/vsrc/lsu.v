@@ -1,7 +1,7 @@
 module ysyx_24090012_LSU (
     input wire         clock,
     input wire         reset,
-    
+    output reg [2:0] state_out,
   
     input   mem_unsigned,
 
@@ -179,7 +179,7 @@ end
 
     always @(*) begin
 
-
+      state_out = state;
 
         // 默认值
         next_state = state;

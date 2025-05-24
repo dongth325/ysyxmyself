@@ -107,12 +107,13 @@ module ysyx_24090012(
     wire idu_state;  // IDU状态信号
     wire [1:0] exu_state;  // EXU状态信号
     wire [1:0] ifu_state;  // IFU状态信号
+    wire [2:0] lsu_state;
 
    wire csr_rd_valid;
    wire csr_rd_ready;
 
     // PC更新接口
-   wire if_allow_in = !reset && wbu_ready && idu_state == 1'b0 && exu_state == 2'b00 && ifu_state == 2'b00;
+   wire if_allow_in = !reset && wbu_ready && idu_state == 1'b0 && exu_state == 2'b00 && ifu_state == 2'b00  && lsu_state == 3'b00;
 
 
 // 使用组合逻辑(wire)实现mem_unsigned
@@ -602,7 +603,7 @@ ysyx_24090012_IDU idu(
     .reset(reset),
      .next_pc(next_pc),
     .mem_unsigned(mem_unsigned),  // 无符号处理flag 
-
+    .state_out(lsu_state),
     // EXU Interface
     .mem_addr(mem_addr),
     .mem_valid(mem_valid),
