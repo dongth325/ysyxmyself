@@ -100,6 +100,7 @@ module ysyx_24090012_LSU (
     reg [31:0] saved_result;//流水线流水线流水线    
     reg        saved_is_use_lsu;
     reg [31:0] saved_next_pc;
+    reg        saved_wen;
 
     reg [31:0] lsu_count;          // LSU总操作计数器
     reg [31:0] read_count;         // 读操作计数器
@@ -149,6 +150,7 @@ end
                 saved_result <= mem_result;   // 流水线流水线流水线
                 saved_is_use_lsu <= is_use_lsu;
                 saved_next_pc <= next_pc;
+                saved_wen <= mem_wen;
             end
 
    // 更新计数器 - 当读操作完成时
@@ -238,7 +240,7 @@ end
                     next_state = WBU_WAIT;
                 end else begin                   //如果使用lsu就正常执行
                     // 内存操作，进入相应状态
-                    next_state = mem_wen ? WRITE_ADDR : READ_ADDR;
+                    next_state = saved_wen ? WRITE_ADDR : READ_ADDR;
                 end
             end
 
