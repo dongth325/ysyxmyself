@@ -102,6 +102,7 @@ class alignas(VL_CACHE_LINE_BYTES) VysyxSoCFull VL_NOT_FINAL : public VerilatedM
     static int get_csr_inst_count();
     static int get_csr_reg_value(int csr_reg_index);
     static int get_exu_count();
+    static int get_hit_count();
     static int get_idu_count();
     static int get_if_allow_in();
     static int get_ifu_count();
@@ -109,6 +110,7 @@ class alignas(VL_CACHE_LINE_BYTES) VysyxSoCFull VL_NOT_FINAL : public VerilatedM
     static int get_jump_inst_count();
     static int get_load_inst_count();
     static int get_lsu_count();
+    static int get_miss_count();
     static int get_other_inst_count();
     static int get_pc_value();
     static int get_read_count();
