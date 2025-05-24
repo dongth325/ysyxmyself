@@ -25,8 +25,6 @@ module ysyx_24090012_IDU(
   output reg [4:0] rs1,
   output reg [4:0] rs2,
   output reg [4:0] rd,
-
-  output reg rd_wen,//流水线流水线流水线
   
   output reg [5:0] alu_op,
   output reg [31:0] imm,
@@ -46,7 +44,7 @@ output reg is_mret//csr csr csr
     reg state, next_state;
         // IDU流水线寄存器
     reg [31:0] inst_r;        // 指令寄存器
-   
+    reg [31:0] inst_r_r;
     reg [31:0] pc_r;         // PC寄存器
 
 
@@ -72,8 +70,7 @@ output reg is_mret//csr csr csr
 
 always @(posedge clock) begin
    // 当指令被EXU接收执行时，根据opcode更新指令类型计数器
-    if (state == BUSY && next_state == IDLE) begin
-
+  if (state == BUSY && next_state == IDLE) begin
     case (opcode)
         7'b0010011, 7'b0110111, 7'b0110011, 7'b0010111: begin
             // 计算类指令: I-type, LUI, R-type, AUIPC
@@ -115,15 +112,12 @@ end
 
 
 
-
-
-
-
     always @(posedge clock) begin
         if (reset) begin
             inst_r <= 32'b0;
             pc_r <= 32'b0;
-           
+            inst_r_r <= 32'b0;
+
             idu_count <= 32'h0;
             compute_inst_count <= 32'h0;
             load_inst_count <= 32'h0;
@@ -133,19 +127,32 @@ end
             csr_inst_count <= 32'h0;
             other_inst_count <= 32'h0;
 
+
+
         end 
 
         else if (ifu_valid && ifu_ready) begin
           inst_r <= inst;
           pc_r <= ifu_to_idu_pc;
+          inst_r_r <= inst_r;
           idu_count <= idu_count + 1;  // idu count计数器
+
+          if(inst_r_r == inst_r) begin
+            $display("inst chongfu from (idu.v)");
+            $display("inst_r = %h",inst_r);
+            $display("inst_r_r = %h",inst_r_r);
+
           end
+      end
+
+
+
+        
+        
+        
+        
+
     end
-
-
-
-
-
 
 
    // 状态转换
@@ -173,6 +180,7 @@ end
 
     opcode = inst_r[6:0];
     func3  = inst_r[14:12];
+    
     func7  = inst_r[31:25];
     rs1    = inst_r[19:15];
     rs2    = inst_r[24:20];
@@ -180,14 +188,16 @@ end
       is_ecall = 0;
       is_mret = 0;
       csr_wen = 0;
-    
-      rd_wen = (opcode == 7'b0010011 || opcode == 7'b0110111 || opcode == 7'b0010111 || opcode == 7'b1110011||
-      opcode == 7'b1101111 || opcode == 7'b1100111 || opcode == 7'b0110011 || 
-       opcode == 7'b0000011);//流水线流水线流水线
-     
-     case (state)
+    //$display("rs1 = %d from (idu.v)",rs1);
+    //$display("rs2 = %d from (idu.v)",rs2);
+    //$display("pc = %h from (idu.v)",pc);
+    //$display("inst = %h from (idu.v)",inst);
+    //$display("func3 = %b from (idu.v)",func3);
+   // $display("func7 = %b from (idu.v)",func7);
+    //$display("opcode = %b from (idu.v)",opcode);
+   // $display("At time %t: idu touch PC = 0x%08x", $time, pc);
 
-
+   case (state)
             IDLE: begin
                 ifu_ready = 1'b1;
                 if (ifu_valid) begin
@@ -196,7 +206,12 @@ end
             end
  
             BUSY: begin
-             
+               /* exu_valid = 1'b1;
+                if (exu_ready) begin
+                    next_state = IDLE;
+                end*/
+
+
     // 根据指令类型，提取立即数和 ALU 操作码
     case (opcode)
 
@@ -255,7 +270,6 @@ end
 
 
          7'b0010011: begin  // I-type (ADDI, SEQZ)
-    
         imm = {{20{inst_r[31]}}, inst_r[31:20]};
         if (func3 == 3'b000) begin
         
@@ -294,7 +308,6 @@ end
         end
       end
       7'b0110111: begin  // LUI
-  
         imm = {inst_r[31:12], 12'b0};
         alu_op = 6'b000001;  // LUI
       end
@@ -337,7 +350,6 @@ end
       end
       7'b0010111: begin  // AUIPC
         imm = {inst_r[31:12], 12'b0};
-     
         alu_op = 6'b000010;  // AUIPC
       end
       7'b1101111: begin  // JAL
@@ -402,7 +414,10 @@ end
         end
     endcase
       end
-    
+     /* 7'b1110011: begin  // SYSTEM (EBREAK)
+        imm = 32'b0;
+        alu_op = 6'b001011;  // EBREAK
+      end*/
 
       // 其他指令类型
       default: begin
@@ -414,22 +429,17 @@ end
 
       
     endcase
-
-
      exu_valid = 1'b1;
                 if (exu_ready) begin
                     next_state = IDLE;
                 end
-
       end
             
             default: begin
                 next_state = IDLE;
             end
-
-
         endcase
-   
+    //$display("alu_op = %b from (idu.v)",alu_op);
   end
     
 export "DPI-C"  function get_inst_r;  //获取当前指令
