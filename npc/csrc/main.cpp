@@ -403,7 +403,7 @@ int cmd_q(char *args) {
  print_performance_stats();
 
 
-   close_pc_trace();//npc执行后关闭用于cachesim的pc序列统计
+  // close_pc_trace();//npc执行后关闭用于cachesim的pc序列统计
 
 
      if (tfp) {
@@ -878,11 +878,10 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
         printf("rrrrrrrreset555 = %d \n", top->reset);
     }
    
-        //printf("Available Verilator scopes:\n");
-//Verilated::scopesDump();
+     
 
 
-  init_pc_trace("pc_trace.txt");//初始化用于cachesim的pc序列统计
+ // init_pc_trace("pc_trace.txt");//初始化用于cachesim的pc序列统计
 
 
 
@@ -901,7 +900,6 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
     delete[] memory;
    
 
-    //trace->close();
 
     return 0;
 }
