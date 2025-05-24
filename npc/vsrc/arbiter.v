@@ -35,27 +35,7 @@ module ysyx_24090012_arbiter(
 
     // IFU Master Interface
  // IFU Master Interface (完整的AXI接口)
-    // 写地址通道（不使用）
-   /* output wire        ifu_awready,
-    input  wire        ifu_awvalid,
-    input  wire [31:0] ifu_awaddr,
-    input  wire [3:0]  ifu_awid,
-    input  wire [7:0]  ifu_awlen,
-    input  wire [2:0]  ifu_awsize,
-    input  wire [1:0]  ifu_awburst,
-    
-    // 写数据通道（不使用）
-    output wire        ifu_wready,
-    input  wire        ifu_wvalid,
-    input  wire [31:0] ifu_wdata,
-    input  wire [3:0]  ifu_wstrb,
-    input  wire        ifu_wlast,
-    
-    // 写响应通道（不使用）
-    input  wire        ifu_bready,
-    output wire        ifu_bvalid,
-    output wire [1:0]  ifu_bresp,
-    output wire [3:0]  ifu_bid,*/
+  
     
     // 读地址通道 使用
     input  wire        ifu_arvalid,
@@ -177,14 +157,7 @@ module ysyx_24090012_arbiter(
     assign lsu_bresp        = io_master_bresp;
     assign lsu_bid          = io_master_bid;
 
-    // 读通道连接 - LSU和IFU共享
-  /*  assign io_master_arvalid = (lsu_arvalid && (current_state == IDLE || is_lsu_read)) || 
-                              (ifu_arvalid && (current_state == IDLE || is_ifu_read));
-    assign io_master_araddr  = is_lsu_read ? lsu_araddr : ifu_araddr;
-    assign io_master_arid    = is_lsu_read ? lsu_arid : ifu_arid;
-    assign io_master_arlen   = is_lsu_read ? lsu_arlen : ifu_arlen;
-    assign io_master_arsize  = is_lsu_read ? lsu_arsize : ifu_arsize;
-    assign io_master_arburst = is_lsu_read ? lsu_arburst : ifu_arburst;*/
+   
 
 
 
