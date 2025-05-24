@@ -1000,7 +1000,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___act_comb__TOP__0(VysyxSoCFull___024r
             }
         }
     } else {
-        VL_WRITEF_NX("111default:didnt match any inst from (exu.v)\n",0);
+        VL_WRITEF_NX("1114default:didnt match any inst from (exu.v)\n",0);
         Verilated::runFlushCallbacks();
     }
     vlSelfRef.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__arbiter_rready 
@@ -8169,7 +8169,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_comb__TOP__6(VysyxSoCFull___024r
             }
         }
     } else {
-        VL_WRITEF_NX("111default:didnt match any inst from (exu.v)\n",0);
+        VL_WRITEF_NX("1114default:didnt match any inst from (exu.v)\n",0);
         Verilated::runFlushCallbacks();
     }
     vlSelfRef.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__arbiter_rready 

@@ -976,7 +976,7 @@ end
 
     default: begin
       
-      $display("111default:didnt match any inst from (exu.v)");    //综合需要注释
+      $display("1114default:didnt match any inst from (exu.v)");    //综合需要注释
     end
 
 
