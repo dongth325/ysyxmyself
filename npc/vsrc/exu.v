@@ -38,40 +38,34 @@ module ysyx_24090012_EXU(
 
     // PC更新接口 (master)
    
-
+    output [31:0] out_pc,
     
-    output reg        csr_rd_valid,
-    input            csr_rd_ready,
 
 
     input [31:0] mtvec,
     input [31:0] mepc,
-    input [31:0] mstatus,
-    input [31:0] mcause,
+
 
   input [31:0] rs1_data,
   input [31:0] rs2_data,
   input [31:0] imm,
   input [5:0] alu_op,
   
+  output reg  is_ecall,
+  output reg is_mret,
  
- 
-  
+    input [11:0] csr_addr,
+    input  csr_wen,
+
 
     input [31:0] csr_rdata,//csr csr csr csr
 
-    output reg [11:0] csr_addr,
-    output reg [31:0] csr_wdata,//csr csr csr csr
-    output reg csr_wen,//csr csr csr csr
-    output reg [11:0] csr_addr1,
-    output reg [31:0] csr_wdata1,
-    output reg csr_wen1,
-    output reg [11:0] csr_addr2,
-    output reg [31:0] csr_wdata2,
-    output reg csr_wen2,
-    output reg [11:0] csr_addr3,
-    output reg [31:0] csr_wdata3,
-    output reg csr_wen3
+    output  [11:0] out_csr_addr,
+
+    output  reg [31:0] csr_wdata,//csr csr csr csr
+
+    output  out_csr_wen//csr csr csr csr
+   
 
  
 );
@@ -85,7 +79,6 @@ module ysyx_24090012_EXU(
     localparam EXEC = 2'b11;
 
 
-     reg [31:0] mstatus_new;
     reg [1:0] state, next_state;
        // 输入数据寄存器
     reg [31:0] pc_r;
@@ -99,11 +92,15 @@ module ysyx_24090012_EXU(
     // CSR输入数据寄存器
     reg [31:0] mtvec_r;
     reg [31:0] mepc_r;
-    reg [31:0] mstatus_r;
-    reg [31:0] mcause_r;
+
     reg [31:0] csr_rdata_r;
+    reg [11:0] csr_addr_r;
+    reg csr_wen_r;
     
     reg [31:0] exu_count;    // EXU执行指令计数器
+
+
+  
 
 
  assign state_out = state; 
@@ -141,8 +138,8 @@ end
             // CSR输入数据寄存器复位
             mtvec_r <= 32'b0;
             mepc_r <= 32'b0;
-            mstatus_r <= 32'b0;
-            mcause_r <= 32'b0;
+            csr_addr_r <= 12'b0;
+            csr_wen_r <= 1'b0;
             csr_rdata_r <= 32'b0;
             
         end else if (state == IDLE && idu_valid) begin
@@ -157,8 +154,9 @@ end
             // CSR输入数据寄存器更新
             mtvec_r <= mtvec;
             mepc_r <= mepc;
-            mstatus_r <= mstatus;
-            mcause_r <= mcause;
+            csr_addr_r <= csr_addr;
+            csr_wen_r <= csr_wen;
+      
             csr_rdata_r <= csr_rdata;
         end
     end
@@ -198,13 +196,15 @@ end
  
 always @(*) begin
 
-
+  csr_wdata = 32'b0;
     // 初始化默认值，防止锁存器推断
   next_state = state;
-  mstatus_new = mstatus_r;//可能会出错，比如因为更新再触发刷新一次always
+
   idu_ready = (state == IDLE);
 
   mem_unsigned = 1'b0;
+
+  out_pc = pc_r;
 
   rd_addr_out = rd_addr_r;//流水线流水线流水线
   rd_wen_out = rd_wen_r;//流水线流水线流水线
@@ -222,29 +222,21 @@ always @(*) begin
         rd_data = 0;
        
         
-              csr_addr = 12'h0;
+       
         csr_wdata = 32'h0;
-        csr_wen = 1'b0;
-        
-        csr_addr1 = 12'h0;
-        csr_wdata1 = 32'h0;
-        csr_wen1 = 1'b0;
-        
-        csr_addr2 = 12'h0;
-        csr_wdata2 = 32'h0;
-        csr_wen2 = 1'b0;
-        
-        csr_addr3 = 12'h0;
-        csr_wdata3 = 32'h0;
-        csr_wen3 = 1'b0;  
-      csr_rd_valid = 0;//dddddddddddd
+       
+        out_csr_addr = csr_addr_r;
+        out_csr_wen = csr_wen_r;
+   
 
+
+       is_ecall = 1'b0;
+       is_mret = 1'b0;
 
       
     result = 32'b0;
     next_pc = pc;  // 默认是顺序执行的下一条指令
-    csr_wdata = 32'b0;
-    csr_wen = 1'b0;
+
   
   case (state)
     IDLE: begin
@@ -262,9 +254,7 @@ always @(*) begin
         next_pc = pc_r + 4;
 
         rd_data = result;
-     //   rd_valid = 1;流水线流水线流水线
-      //  pc_valid = 1;流水线流水线流水线
-      //   next_state = WAIT_READY;  // 进入等待状态流水线流水线流水线
+   
 
          
          mem_valid = 1'b1;
@@ -867,77 +857,63 @@ always @(*) begin
 
    end
 
- /*  6'b110000: begin  // CSRRW
+   6'b110000: begin  // CSRRW
   result = csr_rdata_r;
   rd_data = result;
-  csr_wdata = rs1_data_r;
-  csr_wen = 1;
-  next_pc = pc_r + 4;
-  
 
-  csr_rd_valid = 1;
-   next_state = WAIT_READY;  // 进入等待状态
+  csr_wdata = rs1_data_r;
+ 
+  next_pc = pc_r + 4;
+
+  mem_valid = 1'b1;
+  if(mem_ready) begin
+    next_state = IDLE;
+  end//流水线流水线流水线
+
+ 
 end
 6'b110001: begin  // CSRRS
   result = csr_rdata_r;
   rd_data = result;
   csr_wdata = csr_rdata_r | rs1_data_r;
-  csr_wen = 1;
+  
  
   next_pc = pc_r + 4;
+  mem_valid = 1'b1;
+   if(mem_ready) begin
+     next_state = IDLE;
+   end//流水线流水线流水线
 
-  csr_rd_valid = 1;
-   next_state = WAIT_READY;  // 进入等待状态
 end
 6'b110010: begin  // ECALL
-       csr_addr2 = 12'h341;            // MEPC 地址
-      csr_wdata2 = pc_r;                 // 当前 PC
-      csr_wen2 = 1;                    // 使能写入
+                           
 
-      // 写入 mcause
-      
-      csr_addr1 = 12'h342;              // MCAUSE 地址
-      csr_wdata1 = 32'd11;        // ECALL 的原因码（根据需求调整）
-      csr_wen1 = 1;                      // 使能写入
-
-csr_rd_valid = 1;
+is_ecall = 1'b1;
   next_pc = mtvec_r;
-  pc_valid = 1;
-  next_state = WAIT_READY;
-  // 在CSR模块中设置mcause和mepc
+
+  mem_valid = 1'b1;
+
+  if(mem_ready) begin
+    next_state = IDLE;
+  end//流水线流水线流水线
+
+ 
 end
 6'b110011: begin  // MRET
- 
- // 修改mstatus
-   // reg [31:0] mstatus_new;
-   // mstatus_new = mstatus_r;  // 先复制当前值
-    
-    // 1. 将MPIE（位3）的值复制到MIE（位7）
-    if ((mstatus_new & 32'h80) != 0) begin  // 如果MPIE为1
-        mstatus_new = mstatus_new | 32'h8;  // 设置MIE位
-    end else begin
-        mstatus_new = mstatus_new & ~32'h8; // 清除MIE位
-    end
-    
-    // 2. 设置MPIE为1
-    mstatus_new = mstatus_new | 32'h80;
-    
-    // 3. 清除MPP字段（bits 12:11）
-    mstatus_new = mstatus_new & 32'hFFFFE7FF;
-
-     csr_addr3 = 12'h300;
-  csr_wdata3 = mstatus_new;
-  csr_wen3 = 1;
-  
 
 
+  is_mret = 1'b1;
 
-
-  csr_rd_valid = 1;
-  pc_valid = 1;
   next_pc = mepc_r;
-  next_state = WAIT_READY;
-end*/
+
+  mem_valid = 1'b1;
+
+  if(mem_ready) begin
+    next_state = IDLE;
+  end//流水线流水线流水线
+
+  
+end
 6'b110100: begin
     // SH (Store Halfword)
 

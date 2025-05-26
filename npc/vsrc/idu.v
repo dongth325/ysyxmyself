@@ -9,7 +9,6 @@ module ysyx_24090012_IDU(
   input  ifu_valid,
 
 
-
   //exu interface
   output reg exu_valid,
   input  exu_ready,
@@ -17,7 +16,7 @@ module ysyx_24090012_IDU(
 
    output  state_out,  // 添加state输出端口
 
-
+  
 
   output reg [6:0] opcode,
   output reg [2:0] func3,
@@ -31,10 +30,9 @@ module ysyx_24090012_IDU(
   output reg [5:0] alu_op,
   output reg [31:0] imm,
 
-output reg [11:0] csr_addr,//csr csr csr
-output reg csr_wen,//csr csr csr
-output reg is_ecall,//csr csr csr
-output reg is_mret//csr csr csr
+  output reg [11:0] csr_addr,
+  output reg  csr_wen
+
 
 );
  
@@ -169,7 +167,8 @@ end
         alu_op = 6'b111111;  //默认为没有实现的操作
         imm = 32'b0;         //默认0     综合需要去除检测出来的锁存器 yosys
 
-
+       csr_addr = inst_r[31:20];
+       csr_wen = 1;
 
     opcode = inst_r[6:0];
     func3  = inst_r[14:12];
@@ -177,9 +176,7 @@ end
     rs1    = inst_r[19:15];
     rs2    = inst_r[24:20];
     rd     = inst_r[11:7];
-      is_ecall = 0;
-      is_mret = 0;
-      csr_wen = 0;
+    
     
       rd_wen = (opcode == 7'b0010011 || opcode == 7'b0110111 || opcode == 7'b0010111 || opcode == 7'b1110011||
       opcode == 7'b1101111 || opcode == 7'b1100111 || opcode == 7'b0110011 || 
@@ -203,9 +200,7 @@ end
   7'b1110011: begin  // 系统指令
   // 默认值设置
   imm = 32'b0;
-  csr_wen = 0;
-  is_ecall = 0;
-  is_mret = 0;
+ 
   
   if (func3 == 3'b000) begin  // ECALL/MRET/EBREAK
     if (inst_r[31:20] == 12'b000000000001) begin
@@ -213,12 +208,12 @@ end
     end
     else if (inst_r[31:20] == 12'b0) begin
       alu_op = 6'b110010;  // ECALL
-      is_ecall = 1;
+      csr_wen = 1;
         rs1 = 5'd17;  // a7寄存器的地址
     end
     else if (inst_r[31:20] == 12'b001100000010) begin
       alu_op = 6'b110011;  // MRET
-      is_mret = 1;
+     
     end
   end
   else begin  // CSR instructions
@@ -227,14 +222,13 @@ end
         alu_op = 6'b110000;
         csr_addr = inst_r[31:20];
         csr_wen = 1;
-       // $display("csr_addr1 = %08x from (idu.v)",csr_addr);
+       
       end
       3'b010: begin  // CSRRS
         alu_op = 6'b110001;
         csr_addr = inst_r[31:20];
         csr_wen = 1;
-       // $display("csr_addr2 = %08x from (idu.v)",csr_addr);
-       // $display("rd = %d from (idu.v) from (idu.v)",rd);
+     
       end
       default: alu_op = 6'b001111;  // 未实现的操作
     endcase

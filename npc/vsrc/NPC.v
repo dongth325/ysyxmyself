@@ -89,9 +89,20 @@ module ysyx_24090012(
   wire wbu_ready;
   wire [31:0] wbu_next_pc;
 
+  wire [11:0] wbu_csr_addr;
+  wire [31:0] wbu_csr_wdata;
+  wire wbu_csr_wen;
+
+  wire wbu_csr_valid;
+  wire wbu_csr_ready;
 
 
+  wire out_is_ecall;
+  wire out_is_mret;
 
+
+  wire [31:0] exu_out_pc;
+  wire [31:0] lsu_out_pc;
 
 
    wire ifu_to_idu_valid;   // IFU向IDU发出的有效信号
@@ -109,8 +120,7 @@ module ysyx_24090012(
     wire [1:0] ifu_state;  // IFU状态信号
     wire [2:0] lsu_state;
 
-   wire csr_rd_valid;
-   wire csr_rd_ready;
+   
 
     // PC更新接口
    wire if_allow_in = !reset && wbu_ready && idu_state == 1'b0 && exu_state == 2'b00 && ifu_state == 2'b00  && lsu_state == 3'b00;
@@ -122,7 +132,7 @@ wire mem_unsigned;//将idu解码信息进行判断，传给lsu用于无符号读
 
 
 
-
+   
 
 
 
@@ -155,28 +165,18 @@ wire mem_unsigned;//将idu解码信息进行判断，传给lsu用于无符号读
 
     wire        rd_wen;
 
-    // CSR相关信号
-reg [11:0] csr_addr3;
-reg [31:0] csr_wdata3;
-reg csr_wen3;
-reg [11:0] csr_addr1;
-reg [31:0] csr_wdata1;
-reg csr_wen1;
-reg [11:0] csr_addr2;
-reg [31:0] csr_wdata2;
-reg csr_wen2;
-/* verilator lint_off MULTIDRIVEN */
-reg [11:0] csr_addr;
-reg csr_wen;
-/* verilator lint_on MULTIDRIVEN */
-reg [31:0] csr_wdata;
-reg [31:0] mstatus_new;//用于mret指令对mstatus寄存器访问取值后的保存............
 
 
+wire [11:0] out_csr_addr;
+wire out_csr_wen;
+
+wire [11:0] csr_addr;
+wire [31:0] csr_wdata;
+wire csr_wen;
 
 
-
-wire is_ecall, is_mret;
+wire is_ecall;
+wire is_mret;
 wire [31:0] csr_rdata;
 wire [31:0] mstatus;
 wire [31:0] mtvec;
@@ -455,6 +455,9 @@ ysyx_24090012_IDU idu(
     .exu_ready(exu_to_idu_ready),    // input: EXU是否准备好接收新指令
     .exu_valid(idu_to_exu_valid),    // output: 向EXU提供的指令是否有效
     
+    .csr_addr(csr_addr),
+    .csr_wen(csr_wen),
+
     // Instruction Information
     .inst(inst),              // input: 指令
     
@@ -468,12 +471,8 @@ ysyx_24090012_IDU idu(
     .func3(func3),           // output
     .func7(func7),           // output
     .alu_op(alu_op),         // output
-    .rd_wen(rd_wen),         // output
-    // CSR Related
-    .csr_addr(csr_addr),     // output
-    .csr_wen(csr_wen),       // output
-    .is_ecall(is_ecall),     // output
-    .is_mret(is_mret)        // output
+    .rd_wen(rd_wen)      // output
+  
 );
   ysyx_24090012_RegisterFile regfile(
     .next_pc(wbu_next_pc),
@@ -507,6 +506,7 @@ ysyx_24090012_IDU idu(
   .rs2_data(rs2_data),  // 添加 rs2_data 连接
   .imm(imm),
 
+  .out_pc(exu_out_pc),
   .alu_op(alu_op),
    .state_out(exu_state),
 
@@ -538,35 +538,25 @@ ysyx_24090012_IDU idu(
         // PC更新接口
        
 
-    .mstatus(mstatus),
+  
     .mtvec(mtvec),
-    .mcause(mcause),
+   
     .mepc(mepc),
 
-
+    .csr_addr(csr_addr),
+    .csr_wen(csr_wen),
 
   .result(result),
   .next_pc(next_pc),
    .csr_rdata(csr_rdata),
 
     .csr_wdata(csr_wdata),
-    .csr_wen(csr_wen),
-      .csr_addr(csr_addr),
+   
+    .out_csr_addr(out_csr_addr),
+    .out_csr_wen(out_csr_wen),
      
-        .csr_addr1(csr_addr1),
-        .csr_wdata1(csr_wdata1),
-        .csr_wen1(csr_wen1),
-
-        .csr_addr2(csr_addr2),
-        .csr_wdata2(csr_wdata2),
-        .csr_wen2(csr_wen2),
-
-        .csr_addr3(csr_addr3),
-        .csr_wdata3(csr_wdata3),
-        .csr_wen3(csr_wen3),
-
-        .csr_rd_valid(csr_rd_valid),
-        .csr_rd_ready(csr_rd_ready)
+      .is_ecall(is_ecall),
+      .is_mret(is_mret)
        
 );
 
@@ -574,22 +564,17 @@ ysyx_24090012_IDU idu(
 
 
    ysyx_24090012_CSR csr(
-         .csr_rd_valid(csr_rd_valid),    // 添加这行
-        .csr_rd_ready(csr_rd_ready),    // 添加这行
+  .is_ecall(out_is_ecall),
+  .wbu_csr_valid(wbu_csr_valid),
+  .wbu_csr_ready(wbu_csr_ready),
+  .pc(lsu_out_pc),
   .clk(clock),
   .rst(reset),
   .csr_addr(csr_addr),
+  .wbu_csr_addr(wbu_csr_addr),
   .csr_wdata(csr_wdata),
-  .csr_wen(csr_wen),
-   .csr_addr1(csr_addr1),
-  .csr_wdata1(csr_wdata1),
-  .csr_wen1(csr_wen1),
-   .csr_addr2(csr_addr2),
-  .csr_wdata2(csr_wdata2),
-  .csr_wen2(csr_wen2),
-  .csr_addr3(csr_addr3),
-  .csr_wdata3(csr_wdata3),
-  .csr_wen3(csr_wen3),
+  .csr_wen(wbu_csr_wen),
+
   .csr_rdata(csr_rdata),
   .mstatus(mstatus),
   .mtvec(mtvec),
@@ -614,10 +599,16 @@ ysyx_24090012_IDU idu(
     .mem_wen(mem_wen),
     .mem_ready(mem_ready),
 
+    .lsu_in_pc(exu_out_pc),
+    .lsu_out_pc(lsu_out_pc),
+
     .mem_arsize(mem_arsize),
     .mem_awsize(mem_awsize),
 
-
+    .is_ecall(is_ecall),
+    .is_mret(is_mret),
+    .out_is_ecall(out_is_ecall),
+    .out_is_mret(out_is_mret),
    
     .mem_rd(rd_addr_out),
     .mem_rd_wen(rd_wen_out),
@@ -631,6 +622,18 @@ ysyx_24090012_IDU idu(
     .wbu_valid(wbu_valid),
     .wbu_ready(wbu_ready),
     .wbu_next_pc(wbu_next_pc),
+
+
+    .csr_addr(out_csr_addr),
+    .csr_wdata(csr_wdata),
+    .csr_wen(out_csr_wen),
+
+    .wbu_csr_addr(wbu_csr_addr),
+    .wbu_csr_wdata(wbu_csr_wdata),
+    .wbu_csr_wen(wbu_csr_wen),
+
+    .wbu_csr_valid(wbu_csr_valid),
+    .wbu_csr_ready(wbu_csr_ready),
 
     // AXI4 Interface
     .io_master_awready(lsu_awready),

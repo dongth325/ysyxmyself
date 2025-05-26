@@ -5,6 +5,14 @@ module ysyx_24090012_LSU (
   
     input   mem_unsigned,
 
+    input [31:0] lsu_in_pc,
+    output reg [31:0] lsu_out_pc,
+
+    input is_ecall,
+    input is_mret,
+    output out_is_ecall,
+    output out_is_mret,
+
     // EXU Interface (slave)
     input  wire [31:0] mem_addr,
     input  wire        mem_valid,
@@ -28,6 +36,16 @@ module ysyx_24090012_LSU (
     output        wbu_rd_wen,  // 流水线流水线流水线
     output [31:0] wbu_data,    // 流水线流水线流水线
 
+    input [11:0] csr_addr,
+    input [31:0] csr_wdata,
+    input csr_wen,
+
+    output [11:0] wbu_csr_addr,
+    output [31:0] wbu_csr_wdata,
+    output wbu_csr_wen,
+ 
+    output reg    wbu_csr_valid,
+    output        wbu_csr_ready,
 
     output reg    wbu_valid,   // 流水线流水线流水线
     input         wbu_ready,   // 流水线流水线流水线
@@ -84,7 +102,7 @@ module ysyx_24090012_LSU (
    
 
 
-
+    
 
     // 寄存器定义
     reg [2:0] state;
@@ -100,7 +118,15 @@ module ysyx_24090012_LSU (
     reg [31:0] saved_result;//流水线流水线流水线    
     reg        saved_is_use_lsu;
     reg [31:0] saved_next_pc;
+
+    reg  [31:0] saved_pc;
+
     reg        saved_wen;
+    reg saved_is_ecall;
+    reg saved_is_mret;
+    reg [11:0] saved_csr_addr;
+    reg [31:0] saved_csr_wdata;
+    reg saved_csr_wen;
 
     reg [31:0] lsu_count;          // LSU总操作计数器
     reg [31:0] read_count;         // 读操作计数器
@@ -151,6 +177,12 @@ end
                 saved_is_use_lsu <= is_use_lsu;
                 saved_next_pc <= next_pc;
                 saved_wen <= mem_wen;
+                saved_is_ecall <= is_ecall;
+                saved_is_mret <= is_mret;
+                saved_csr_addr <= csr_addr;
+                saved_csr_wen <= csr_wen;
+                saved_csr_wdata <= csr_wdata;
+                saved_pc <= lsu_in_pc;
             end
 
    // 更新计数器 - 当读操作完成时
@@ -220,6 +252,15 @@ end
        wbu_data = saved_result;//流水线流水线流水线
        wbu_next_pc = saved_next_pc;
        wbu_valid = 1'b0;
+       wbu_csr_valid = 1'b0;
+
+       wbu_csr_addr = saved_csr_addr;
+       wbu_csr_wdata = saved_csr_wdata;
+       wbu_csr_wen = saved_csr_wen;
+
+       lsu_out_pc = saved_pc;
+       out_is_ecall = saved_is_ecall;
+       out_is_mret = saved_is_mret;
       
         
         // 状态转换和控制信号生成
@@ -246,8 +287,8 @@ end
 
             WBU_WAIT: begin //流水线流水线流水线    
                 wbu_valid = 1'b1; 
-                        
-                if (wbu_ready) begin
+                wbu_csr_valid = 1'b1;
+                if (wbu_ready  && wbu_csr_ready) begin
                     // WBU已就绪，完成操作
                     next_state = IDLE;
                 end else begin
