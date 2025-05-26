@@ -168,7 +168,7 @@ end
         imm = 32'b0;         //默认0     综合需要去除检测出来的锁存器 yosys
 
        csr_addr = inst_r[31:20];
-       csr_wen = 1;
+       csr_wen = 0;
 
     opcode = inst_r[6:0];
     func3  = inst_r[14:12];
