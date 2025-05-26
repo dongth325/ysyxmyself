@@ -98,7 +98,7 @@ export "DPI-C" function get_csr_reg_value; //综合需要注释
         // 处理特殊指令
         if (saved_is_ecall) begin
           mepc <= saved_pc;        // 保存当前PC到mepc
-          mcause <= 32'h00000011;  // 环境调用异常码
+          mcause <= 32'h0000000b;  // 环境调用异常码
         end
        
       end
