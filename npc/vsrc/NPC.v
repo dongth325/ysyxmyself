@@ -572,7 +572,7 @@ ysyx_24090012_IDU idu(
   .rst(reset),
   .csr_addr(csr_addr),
   .wbu_csr_addr(wbu_csr_addr),
-  .csr_wdata(csr_wdata),
+  .csr_wdata(wbu_csr_wdata),
   .csr_wen(wbu_csr_wen),
 
   .csr_rdata(csr_rdata),
