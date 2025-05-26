@@ -620,25 +620,7 @@ extern "C" void ebreak(uint32_t exit_code) {
 
 // 执行单条指令的函数（类似于 NEMU 的 exec_once）
 void exec_once(NpcState *s) {
-    /* 从内存中获取指令
-    uint32_t inst;
-    execution_count++;//实际循环了多少次exec_once 也就是真实执行次数 可截止到报错（可在下方添加以便追寻报错）
-    uint32_t pc = s->pc;//h后面会再复用
-    if (pc >= MEM_BASE && pc < MEM_BASE + MEM_SIZE) {
-        //inst = pmem_read(pc);
-         //std::cout << "Fetched instruction: 0x" << std::hex << inst << std::dec << std::endl;
-        //s->top->mem_data = inst;
-         s->top->input_pc = pc;
-         
-         s->top->input_valid = 1;
-         
-    } else {
-        std::cerr << "Error: PC out of bounds: 0x" << std::hex << pc << std::dec << std::endl;
-        std::cout << "Total instructions executed before error: " << execution_count << std::endl;  // 输出执行次数
-        exit(1);
-    }*/
- //111111111111111111111111111111111111111111111111111111111111111111111111111111111111
-
+  
              // 时钟上升沿（更新 PC 和寄存器）
   
         // 设置CPU上下文
@@ -672,7 +654,7 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
 
         s->top->clock = 0;
         s->top->eval();
-        if (tfp) tfp->dump(main_time++);
+      //  if (tfp) tfp->dump(main_time++);
        //  if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
@@ -684,7 +666,7 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
         // 时钟上升沿
         s->top->clock = 1;
         s->top->eval();
-        if (tfp) tfp->dump(main_time++);
+      //  if (tfp) tfp->dump(main_time++);
       //   if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
