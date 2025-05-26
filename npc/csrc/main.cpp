@@ -634,8 +634,8 @@ void exec_once(NpcState *s) {
     // 获取旧的PC值
     uint32_t old_pc = get_pc_value();
     
-    //bool record_wave = (old_pc >= 0x80000400);
-bool record_wave = 1;//运行difftest以外程序默认全部记录波形
+    bool record_wave = (old_pc >= 0xa0000400);
+//bool record_wave = 1;//运行difftest以外程序默认全部记录波形
      static int cycle_count = 0;  // 静态计数器，确保在函数调用
 
     // 使用do-while循环等待指令执行完成
@@ -655,7 +655,7 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
         s->top->clock = 0;
         s->top->eval();
       //  if (tfp) tfp->dump(main_time++);
-       //  if (record_wave && tfp) tfp->dump(main_time++);
+         if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
         //if (tfp) tfp->dump(main_time++);
@@ -667,7 +667,7 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
         s->top->clock = 1;
         s->top->eval();
       //  if (tfp) tfp->dump(main_time++);
-      //   if (record_wave && tfp) tfp->dump(main_time++);
+         if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
        // if (tfp) tfp->dump(main_time++);
