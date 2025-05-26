@@ -118,6 +118,7 @@ module ysyx_24090012_LSU (
     reg [31:0] saved_result;//流水线流水线流水线    
     reg        saved_is_use_lsu;
     reg [31:0] saved_next_pc;
+    reg saved_mem_unsigned;
 
     reg  [31:0] saved_pc;
 
@@ -183,6 +184,7 @@ end
                 saved_csr_wen <= csr_wen;
                 saved_csr_wdata <= csr_wdata;
                 saved_pc <= lsu_in_pc;
+                saved_mem_unsigned <= mem_unsigned;
             end
 
    // 更新计数器 - 当读操作完成时
@@ -412,7 +414,7 @@ always @(*) begin
         //$display("processed_rdata is %h from lsu.v line:236", processed_rdata);
 
         end
-        else  if (!mem_unsigned) begin
+        else  if (!saved_mem_unsigned) begin
             case (saved_addr[1:0])
                 2'b00: processed_rdata = {{24{io_master_rdata[7]}}, io_master_rdata[7:0]};
                 2'b01: processed_rdata = {{24{io_master_rdata[15]}}, io_master_rdata[15:8]};
@@ -422,7 +424,7 @@ always @(*) begin
           
         end
 
-        else if (mem_unsigned) begin
+        else if (saved_mem_unsigned) begin
             case (saved_addr[1:0])
                 2'b00: processed_rdata = {{24{1'b0}}, io_master_rdata[7:0]};
                 2'b01: processed_rdata = {{24{1'b0}}, io_master_rdata[15:8]};
@@ -442,7 +444,7 @@ always @(*) begin
 
         end
 
-        else  if (!mem_unsigned) begin
+        else  if (!saved_mem_unsigned) begin
             case (saved_addr[1:0])
                 2'b00: processed_rdata = {{16{io_master_rdata[15]}}, io_master_rdata[15:0]};
                 2'b10: processed_rdata = {{16{io_master_rdata[31]}}, io_master_rdata[31:16]};
@@ -453,7 +455,7 @@ always @(*) begin
             endcase
         end
 
-        else if (mem_unsigned) begin
+        else if (saved_mem_unsigned) begin
             case (saved_addr[1:0])
                 2'b00: processed_rdata = {{16{1'b0}}, io_master_rdata[15:0]};
                 2'b10: processed_rdata = {{16{1'b0}}, io_master_rdata[31:16]};
