@@ -377,7 +377,7 @@ always @(*) begin
                     mem_wen = 0;
                     mem_wmask = 0;
                     mem_arsize = 3'b010;
-                    next_pc = pc + 4;
+                    next_pc = pc_r + 4;
 
                 mem_valid = 1;
                 if(mem_ready) begin
@@ -400,7 +400,7 @@ always @(*) begin
             
 
 
-                    next_pc = pc + 4;
+                    next_pc = pc_r + 4;
                     mem_valid = 1;
                 if(mem_ready) begin
                  
@@ -619,7 +619,7 @@ always @(*) begin
                     mem_arsize = 3'b000;
                     //next_state = WAIT_READY;
   mem_unsigned = 1'b1; 
-  next_pc = pc + 4;
+  next_pc = pc_r + 4;
                     mem_valid = 1;
                 if(mem_ready) begin
                   
@@ -740,7 +740,7 @@ always @(*) begin
 
                     mem_valid = 1;
                     if(mem_ready) begin
-                      next_pc = pc + 4;
+                      next_pc = pc_r + 4;
                       next_state = IDLE;
                     end
 
@@ -758,7 +758,7 @@ always @(*) begin
                     mem_unsigned = 1'b1; 
                     mem_valid = 1;
                     if(mem_ready) begin
-                      next_pc = pc + 4;
+                      next_pc = pc_r + 4;
                       next_state = IDLE;
                     end
 
@@ -800,11 +800,11 @@ always @(*) begin
                     mem_wmask = 1;
                     mem_awsize = 3'b000;
                  
-
+                    next_pc = pc_r + 4;
 
                     mem_valid = 1;
                 if(mem_ready) begin
-                  next_pc = pc + 4;
+                  
                   next_state = IDLE;
                 end
 
@@ -818,10 +818,10 @@ always @(*) begin
                     mem_wmask = 0;
                     mem_arsize = 3'b000;
                   
-
+                    next_pc = pc_r + 4;
                     mem_valid = 1;
                     if(mem_ready) begin
-                      next_pc = pc + 4;
+                      
                       next_state = IDLE;
                     end
 
@@ -931,7 +931,7 @@ end
                     mem_awsize = 3'b001;
                 
 
-                    next_pc = pc + 4;
+                    next_pc = pc_r + 4;
                     mem_valid = 1;
                     if(mem_ready) begin
                       
