@@ -24,7 +24,7 @@ module ysyx_24090012_IFU (
     output wire [2:0]   io_master_arsize,
     output wire [1:0]   io_master_arburst,
     
-    output reg [1:0] state_out,
+    output reg [2:0] state_out,
 
     input  wire         io_master_rvalid,
     input  wire [31:0]  io_master_rdata,
@@ -44,11 +44,11 @@ localparam OFFSET_BITS = 4;                 // 突发传输icache
 localparam TAG_BITS = 32 - INDEX_BITS - OFFSET_BITS; // 标签位数
 
 // 状态定义 - 简化的三状态机
-localparam IDLE        = 2'b00;  // 空闲状态
-localparam CHECK_CACHE = 2'b01;  // 第1步：检查缓存是否命中
-localparam FETCH_ADDR  = 2'b10;  // 第2-3步：发起总线请求取数据
-localparam FETCH_DATA  = 2'b11;  // 第4-5步：接收数据并响应
-
+localparam IDLE        = 3'b000;  // 空闲状态
+localparam CHECK_CACHE = 3'b001;  // 第1步：检查缓存是否命中
+localparam FETCH_ADDR  = 3'b010;  // 第2-3步：发起总线请求取数据
+localparam FETCH_DATA  = 3'b011;  // 第4-5步：接收数据并响应
+localparam WAIT_IDU    = 3'b100;
 
 
 
@@ -56,8 +56,8 @@ localparam FETCH_DATA  = 2'b11;  // 第4-5步：接收数据并响应
 
 
     // 寄存器定义
-    reg [1:0] state;
-    reg [1:0] next_state;
+    reg [2:0] state;
+    reg [2:0] next_state;
     reg [31:0] saved_pc;    // 锁存的PC
     reg [3:0]  curr_id;     // 当前事务ID
 
@@ -165,6 +165,7 @@ end
                 cache_data[req_index] <= io_master_rdata;
             end*/
 
+
             if (state == FETCH_DATA && io_master_rvalid && io_master_rready) begin
                 case (burst_count)
                     2'b00: begin
@@ -263,13 +264,28 @@ end
                         idu_valid = 1'b1;
                         if (idu_ready) begin
                             next_state = IDLE;
+                        end else begin
+                            next_state = WAIT_IDU;  // IDU未准备好，进入等待状态
                         end
                     end
-                   /* idu_inst = io_master_rdata;
-                    idu_valid = 1'b1;
-                    if (idu_ready) begin
-                        next_state = IDLE;
-                    end*/
+                    end
+            end
+
+            WAIT_IDU: begin
+                // 在此状态中，我们已经有了指令数据，只是在等IDU准备好
+                idu_valid = 1'b1;
+                
+                // 根据缓存的数据提供指令
+                case (word_offset)
+                    2'b00: idu_inst = temp_cache_data[31:0];
+                    2'b01: idu_inst = temp_cache_data[63:32];
+                    2'b10: idu_inst = temp_cache_data[95:64];
+                    2'b11: idu_inst = temp_cache_data[127:96]; // 使用已缓存的最后一个word
+                endcase
+                
+                // 只有当IDU准备好时才回到IDLE
+                if (idu_ready) begin
+                    next_state = IDLE;
                 end
             end
             

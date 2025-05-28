@@ -122,7 +122,7 @@ wire instr_completed;
 
     wire idu_state;  // IDU状态信号
     wire [1:0] exu_state;  // EXU状态信号
-    wire [1:0] ifu_state;  // IFU状态信号
+    wire [2:0] ifu_state;  // IFU状态信号
     wire [2:0] lsu_state;
 
     wire [31:0] sim_lsu_addr;
