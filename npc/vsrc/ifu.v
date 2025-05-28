@@ -104,7 +104,7 @@ end
         if (reset) begin
             state <= IDLE;
             curr_id <= 4'h0;
-            saved_pc <= 32'h2FFFFFC; // 初始PC值 是30000000 - 4.为了下面默认saved pc = saved pc +4初始值
+            saved_pc <= 32'h2FFFFFFC; // 初始PC值 是30000000 - 4.为了下面默认saved pc = saved pc +4初始值
             ifu_count <= 32'h0;
             hit_count <= 32'h0;
             miss_count <= 32'h0;
