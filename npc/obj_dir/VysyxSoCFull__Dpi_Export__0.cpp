@@ -249,6 +249,22 @@ int VysyxSoCFull::get_reg_value(int reg_index) {
     return get_reg_value__Vfuncrtn;
 }
 
+int VysyxSoCFull::get_instr_completed() {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    VysyxSoCFull___024root::get_instr_completed\n"); );
+    // Init
+    IData/*31:0*/ get_instr_completed__Vfuncrtn__Vcvt;
+    get_instr_completed__Vfuncrtn__Vcvt = 0;
+    // Body
+    static int __Vfuncnum = -1;
+    if (VL_UNLIKELY(__Vfuncnum == -1)) __Vfuncnum = Verilated::exportFuncNum("get_instr_completed");
+    const VerilatedScope* __Vscopep = Verilated::dpiScope();
+    VysyxSoCFull__Vcb_get_instr_completed_t __Vcb = (VysyxSoCFull__Vcb_get_instr_completed_t)(VerilatedScope::exportFind(__Vscopep, __Vfuncnum));
+    (*__Vcb)((VysyxSoCFull__Syms*)(__Vscopep->symsp()), get_instr_completed__Vfuncrtn__Vcvt);
+    int get_instr_completed__Vfuncrtn;
+    for (size_t get_instr_completed__Vfuncrtn__Vidx = 0; get_instr_completed__Vfuncrtn__Vidx < 1; ++get_instr_completed__Vfuncrtn__Vidx) get_instr_completed__Vfuncrtn = get_instr_completed__Vfuncrtn__Vcvt;
+    return get_instr_completed__Vfuncrtn;
+}
+
 int VysyxSoCFull::get_exu_count() {
     VL_DEBUG_IF(VL_DBG_MSGF("+    VysyxSoCFull___024root::get_exu_count\n"); );
     // Init

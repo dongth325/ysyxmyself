@@ -13,9 +13,12 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
   output [DATA_WIDTH-1:0] rdata1,
   output [DATA_WIDTH-1:0] rdata2,
   input [63:0] num,
+  output reg instr_completed,  // 新增：指令完成标志
   output reg [63:0] wbu_back_to_idu_num  
 );
  
+
+export "DPI-C" function get_instr_completed; 
   // 导出函数供C语言访问
   export "DPI-C" function get_reg_value;    //综合需要注释
   //reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];  //综合需要实现16个而不是32个
@@ -46,10 +49,13 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
       saved_wen <= 0;
       pc <= 32'h3000_0000;
       num_r <= 64'h0;
+      instr_completed <= 1'b0;  
     end else begin
       // 状态更新
       state <= next_state;
       
+      instr_completed <= 1'b0;
+
       // 数据处理
       if (state == IDLE) begin
         if (rd_valid && rd_ready) begin
@@ -69,6 +75,9 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
         end
 
         wbu_back_to_idu_num <= num_r;
+
+            // 在WRITE状态完成时设置指令完成标志
+        instr_completed <= 1'b1;
        
       end
     end
@@ -129,6 +138,11 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
   //综合需要注释
   function int get_reg_value(input int reg_index);
     get_reg_value = rf[reg_index]; // 根据索引返回寄存器的值
+  endfunction
+
+    // 新增DPI-C函数实现
+  function int get_instr_completed();
+    get_instr_completed = {31'b0, instr_completed}; // 返回指令完成状态
   endfunction
  
 endmodule

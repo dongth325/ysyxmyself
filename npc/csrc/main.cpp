@@ -28,7 +28,7 @@ extern "C" int get_pc_value();
 extern "C" int get_inst_r();
 extern "C" int get_if_allow_in();
 extern "C" int get_saved_addr();
-
+extern "C" int get_instr_completed();
 
 
 static VerilatedVcdC* tfp = nullptr;
@@ -645,7 +645,7 @@ void exec_once(NpcState *s) {
             return;  // 立即返回
         }
 
-
+     
         
 
         // 时钟下降沿
@@ -677,6 +677,7 @@ void exec_once(NpcState *s) {
 
 
                cycle_count++;  // 增加每条指令周期计数
+               
         if (cycle_count >= 200000) {
             std::cout << "\nError: No new instruction received for 200000 cycles, simulation terminated" << std::endl;
          npc_state.ebreak_encountered = true;
@@ -688,29 +689,48 @@ void exec_once(NpcState *s) {
     }
     svSetScope(cpu_scope);
     
-    // 获取旧的PC值
+    
     uint32_t old_pc = get_pc_value();
 
     printf("111111111111111pc is %08x from exec_once.cpp line:485\n",old_pc);
-
-
-
-
-
-
             return;
         }
 
 
-        if (get_if_allow_in()) {
+ 
+    /*    if (get_if_allow_in()) {
+            cycle_count = 0;  // 收到新指令时重置计数器
+        }*/
+
+          // 设置RegisterFile上下文以检查指令完成状态
+       
+
+
+      svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu");
+    if (cpu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope for CPU\n");
+        exit(1);
+    }
+    svSetScope(cpu_scope);
+      
+       s->pc = get_pc_value();
+
+
+        svScope regfile_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.regfile");
+        if (regfile_scope == NULL) {
+            fprintf(stderr, "Error: Unable to set DPI scope for RegisterFile\n");
+            exit(1);
+        }
+        svSetScope(regfile_scope);
+    
+ if (get_instr_completed()) {
             cycle_count = 0;  // 收到新指令时重置计数器
         }
     
-
-    
-        s->pc = get_pc_value();
       
-    } while (!get_if_allow_in());
+   // } while (!get_if_allow_in());
+
+    } while (!get_instr_completed());  // 使用之前获取的指令完成状态
    
     // 更新指令计数
     s->inst_count++;//用不上

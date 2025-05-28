@@ -103,6 +103,8 @@ module ysyx_24090012(
   wire out_is_mret;
 
 
+wire instr_completed;
+
   wire [31:0] exu_out_pc;
   wire [31:0] lsu_out_pc;
 
@@ -126,8 +128,8 @@ module ysyx_24090012(
    
 
     // PC更新接口
-   wire if_allow_in = !reset && wbu_ready && idu_state == 1'b0 && exu_state == 2'b00 && ifu_state == 2'b00  && lsu_state == 3'b00;
-
+  // wire if_allow_in = !reset && wbu_ready && idu_state == 1'b0 && exu_state == 2'b00 && ifu_state == 2'b00  && lsu_state == 3'b00;
+    wire if_allow_in = 1;  //流水线可以一直取指令
 
 // 使用组合逻辑(wire)实现mem_unsigned
 wire mem_unsigned;//将idu解码信息进行判断，传给lsu用于无符号读取指令的逻辑处理
@@ -509,7 +511,8 @@ ysyx_24090012_IDU idu(
     .rdata1(rs1_data),
     .rdata2(rs2_data),
     .num(lsu_to_wbu_num),
-    .wbu_back_to_idu_num(wbu_back_to_idu_num)
+    .wbu_back_to_idu_num(wbu_back_to_idu_num),
+    .instr_completed(instr_completed)
     
     );
 
