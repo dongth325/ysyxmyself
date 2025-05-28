@@ -767,7 +767,7 @@ if (regfile_scope == NULL) {
 }
 svSetScope(regfile_scope);
 uint32_t mem_addr = get_saved_sim_lsu_addr();
-printf("saved_lsu_addr =  0x%08x\n", mem_addr);
+//printf("saved_lsu_addr =  0x%08x\n", mem_addr);
 
     // 检查是否需要跳过DiffTest
     //bool is_load = (inst & 0x7F) == 0x03;//流水线检测的时候inst不是当前diff的inst，所以不检测inst了。太麻烦了
@@ -777,7 +777,7 @@ printf("saved_lsu_addr =  0x%08x\n", mem_addr);
    if ((((mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) ||
         (mem_addr >= 0x10001000 && mem_addr <= 0x10001fff))||  // UART扩展地址范围
         (mem_addr >= 0x02000000 && mem_addr <= 0x0200000f) )    ) {// CLINT时钟地址范围
-        printf("Skipping DiffTest for UART access at 0x%08x\n", mem_addr);
+        //printf("Skipping DiffTest for UART access at 0x%08x\n", mem_addr);
         difftest_skip_ref();
     }
        
