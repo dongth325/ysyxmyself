@@ -97,7 +97,7 @@ int get_inst_r() {
 #ifndef VL_DPIDECL_get_instr_completed_
 #define VL_DPIDECL_get_instr_completed_
 int get_instr_completed() {
-    // DPI export at vsrc/registerfile.v:144:16
+    // DPI export at vsrc/registerfile.v:145:16
     return VysyxSoCFull::get_instr_completed();
 }
 #endif
@@ -161,7 +161,7 @@ int get_read_count() {
 #ifndef VL_DPIDECL_get_reg_value_
 #define VL_DPIDECL_get_reg_value_
 int get_reg_value(int reg_index) {
-    // DPI export at vsrc/registerfile.v:139:16
+    // DPI export at vsrc/registerfile.v:140:16
     return VysyxSoCFull::get_reg_value(reg_index);
 }
 #endif

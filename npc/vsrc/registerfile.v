@@ -54,7 +54,7 @@ export "DPI-C" function get_instr_completed;
       // 状态更新
       state <= next_state;
       
-      instr_completed <= 1'b0;
+   
 
       // 数据处理
       if (state == IDLE) begin
@@ -66,6 +66,7 @@ export "DPI-C" function get_instr_completed;
           saved_pc <= next_pc;
           num_r <= num;
         end
+        instr_completed <= 1'b0;
       end else if (state == WRITE) begin
 
         pc <= saved_pc;
