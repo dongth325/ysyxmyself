@@ -11,7 +11,9 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
   input  rd_valid, // 来自EXU的写请求
   output reg  rd_ready,  // 写就绪信号 
   output [DATA_WIDTH-1:0] rdata1,
-  output [DATA_WIDTH-1:0] rdata2
+  output [DATA_WIDTH-1:0] rdata2,
+  input [63:0] num,
+  output reg [63:0] wbu_back_to_idu_num  
 );
  
   // 导出函数供C语言访问
@@ -30,6 +32,7 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
   reg [ADDR_WIDTH-1:0] saved_waddr;
   reg [DATA_WIDTH-1:0] saved_wdata;
   reg saved_wen;
+  reg [63:0] num_r;
   
   // 读出数据
   assign rdata1 = (raddr1[3:0] == 4'b0) ? 32'b0 : rf[raddr1[3:0]];
@@ -42,6 +45,7 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
       saved_wdata <= 0;
       saved_wen <= 0;
       pc <= 32'h3000_0000;
+      num_r <= 64'h0;
     end else begin
       // 状态更新
       state <= next_state;
@@ -54,6 +58,7 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
           saved_wdata <= wdata;
           saved_wen <= wen;
           saved_pc <= next_pc;
+          num_r <= num;
         end
       end else if (state == WRITE) begin
 
@@ -62,6 +67,8 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
         if (saved_wen && saved_waddr[3:0] != 0) begin
           rf[saved_waddr[3:0]] <= saved_wdata;
         end
+
+        wbu_back_to_idu_num <= num_r;
        
       end
     end

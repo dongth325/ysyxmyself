@@ -4,7 +4,10 @@ module ysyx_24090012_IFU (
     
     // Control Interface
     input  wire         if_allow_in,    // 允许取指信号
-    input  wire [31:0]  if_next_pc,     // 外部传入的下一条指令地址
+    input  wire [31:0]  if_next_pc,     // 外部传入的下一条指令地址  //if next pc(真实pc用不到了)
+
+    input control_hazard,
+    input [31:0] branch_target_pc,
     
     // IDU Interface
     input  wire         idu_ready,      // IDU准备好接收新指令
@@ -28,7 +31,8 @@ module ysyx_24090012_IFU (
     input  wire [3:0]   io_master_rid,
     input  wire         io_master_rlast,//暂时不用
     input  wire [1:0]   io_master_rresp,//暂时不用
-    output reg         io_master_rready
+    output reg         io_master_rready,
+    output reg  [63:0]  num
 );
 
 
@@ -100,10 +104,11 @@ end
         if (reset) begin
             state <= IDLE;
             curr_id <= 4'h0;
-            saved_pc <= 32'h0;
+            saved_pc <= 32'h2FFFFFC; // 初始PC值 是30000000 - 4.为了下面默认saved pc = saved pc +4初始值
             ifu_count <= 32'h0;
             hit_count <= 32'h0;
             miss_count <= 32'h0;
+            num <= 64'h0;
 
             burst_count <= 2'b00;  // 初始化burst计数器   突发传输icache
             temp_cache_data <= 128'h0;  // 初始化临时数  突发传输icache
@@ -122,7 +127,16 @@ end
             
                        // 当进入CHECK_CACHE状态时，锁存PC
             if (state == IDLE && next_state == CHECK_CACHE) begin
-                saved_pc <= if_next_pc;
+
+                if (control_hazard) begin  //控制冒险判断
+                    saved_pc <= branch_target_pc;
+                end
+              else begin 
+                // saved_pc <= if_next_pc; //if next pc(真实pc用不到了)
+
+                saved_pc <= saved_pc + 4;
+
+              end
             end
             
             // 当请求发送时更新事务ID
@@ -131,7 +145,7 @@ end
             end
 
             // 计数器更新
-            if (state == CHECK_CACHE) begin
+            if (state == CHECK_CACHE) begin    //计数器在实现控制冒险之后会统计错误，因为取出错误的指令冲刷流水线后count记数不会减去
                 if (cache_hit) begin
                     hit_count <= hit_count + 32'h1;
                 end else begin
@@ -139,7 +153,10 @@ end
                 end
             end
             
-
+     // 在IDU握手成功时增加指令序列号
+            if (idu_valid && idu_ready) begin
+                num <= num + 64'h1;
+            end
 
               // 在FETCH_DATA状态更新缓存
           /*  if (state == FETCH_DATA && io_master_rvalid && io_master_rready) begin
@@ -188,6 +205,11 @@ end
         idu_pc = saved_pc;//当前pc
         idu_inst = 32'h0;//在后面赋值
         state_out = state;
+
+        if (control_hazard) begin
+            next_state = IDLE;
+        end
+
         case (state)
             IDLE: begin
                 if (if_allow_in) begin

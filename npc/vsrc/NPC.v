@@ -96,6 +96,8 @@ module ysyx_24090012(
   wire wbu_csr_valid;
   wire wbu_csr_ready;
 
+ wire control_hazard;
+ wire [31:0] branch_target_pc;
 
   wire out_is_ecall;
   wire out_is_mret;
@@ -107,8 +109,9 @@ module ysyx_24090012(
 
    wire ifu_to_idu_valid;   // IFU向IDU发出的有效信号
    wire idu_to_ifu_ready;
-
+/* verilator lint_off UNOPTFLAT */
    wire idu_to_exu_valid;  // IDU向EXU发出的有效信号
+/* verilator lint_on UNOPTFLAT */
    wire exu_to_idu_ready;  // EXU向IDU发出的就绪信号
 
    wire is_use_lsu;
@@ -159,6 +162,12 @@ wire mem_unsigned;//将idu解码信息进行判断，传给lsu用于无符号读
 
 
  
+
+wire [63:0] ifu_to_idu_num;
+wire [63:0] idu_to_exu_num;
+wire [63:0] exu_to_lsu_num;
+wire [63:0] lsu_to_wbu_num;
+wire [63:0] wbu_back_to_idu_num;
 
  
     wire [31:0] rd_data;
@@ -426,6 +435,9 @@ ysyx_24090012_arbiter arbiter(
     .idu_pc(ifu_to_idu_pc),
     .idu_inst(inst),
 
+    .control_hazard(control_hazard),
+    .branch_target_pc(branch_target_pc),
+
     // AXI4 Interface
     .io_master_arready(ifu_arready),
     .io_master_arvalid(ifu_arvalid),
@@ -439,7 +451,8 @@ ysyx_24090012_arbiter arbiter(
     .io_master_rid(ifu_rid),
     .io_master_rlast(ifu_rlast),
     .io_master_rresp(ifu_rresp),
-    .io_master_rready(ifu_rready)
+    .io_master_rready(ifu_rready),
+    .num(ifu_to_idu_num)
 );
  // 修改IDU实例化
 ysyx_24090012_IDU idu(
@@ -458,6 +471,9 @@ ysyx_24090012_IDU idu(
     .csr_addr(csr_addr),
     .csr_wen(csr_wen),
 
+    .exu_next_pc(next_pc),
+    .control_hazard(control_hazard),
+    .branch_target_pc(branch_target_pc),
     // Instruction Information
     .inst(inst),              // input: 指令
     
@@ -471,7 +487,10 @@ ysyx_24090012_IDU idu(
     .func3(func3),           // output
     .func7(func7),           // output
     .alu_op(alu_op),         // output
-    .rd_wen(rd_wen)      // output
+    .rd_wen(rd_wen),      // output
+    .num(ifu_to_idu_num),
+    .num_r(idu_to_exu_num),
+    .wbu_num(wbu_back_to_idu_num)
   
 );
   ysyx_24090012_RegisterFile regfile(
@@ -488,7 +507,9 @@ ysyx_24090012_IDU idu(
         .rd_ready(wbu_ready),
 
     .rdata1(rs1_data),
-    .rdata2(rs2_data)
+    .rdata2(rs2_data),
+    .num(lsu_to_wbu_num),
+    .wbu_back_to_idu_num(wbu_back_to_idu_num)
     
     );
 
@@ -556,7 +577,10 @@ ysyx_24090012_IDU idu(
     .out_csr_wen(out_csr_wen),
      
       .is_ecall(is_ecall),
-      .is_mret(is_mret)
+      .is_mret(is_mret),
+
+      .num(idu_to_exu_num),
+      .num_r(exu_to_lsu_num)
        
 );
 
@@ -623,6 +647,8 @@ ysyx_24090012_IDU idu(
     .wbu_ready(wbu_ready),
     .wbu_next_pc(wbu_next_pc),
 
+    .num(exu_to_lsu_num),
+    .num_r(lsu_to_wbu_num),
 
     .csr_addr(out_csr_addr),
     .csr_wdata(csr_wdata),

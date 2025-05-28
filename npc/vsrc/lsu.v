@@ -50,6 +50,12 @@ module ysyx_24090012_LSU (
     output reg    wbu_valid,   // 流水线流水线流水线
     input         wbu_ready,   // 流水线流水线流水线
     output [31:0] wbu_next_pc, // 流水线流水线流水线
+
+
+    input [63:0] num,
+    output reg [63:0] num_r,
+
+
     // AXI4 Master Interface
     // Write Address Channel
     input  wire        io_master_awready,
@@ -185,6 +191,7 @@ end
                 saved_csr_wdata <= csr_wdata;
                 saved_pc <= lsu_in_pc;
                 saved_mem_unsigned <= mem_unsigned;
+                num_r <= num;
             end
 
    // 更新计数器 - 当读操作完成时
