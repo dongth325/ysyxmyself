@@ -108,7 +108,7 @@ end
             ifu_count <= 32'h0;
             hit_count <= 32'h0;
             miss_count <= 32'h0;
-            num <= 64'h0;
+            num <= 64'h1;//必须为1,要不然前两条指令发生数据冒险的时候，idu中的num rr会和wbu num的默认值0相同，巧合的破解了数据冒险
 
             burst_count <= 2'b00;  // 初始化burst计数器   突发传输icache
             temp_cache_data <= 128'h0;  // 初始化临时数  突发传输icache
