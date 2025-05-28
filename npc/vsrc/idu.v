@@ -72,7 +72,7 @@ module ysyx_24090012_IDU(
 
 
   
-    assign idu_to_exu_pc = ifu_to_idu_pc;
+    assign idu_to_exu_pc = pc_r;
     assign state_out = state;//向top模块输出当前state
 
      // 冒险检测逻辑 - 简化版
