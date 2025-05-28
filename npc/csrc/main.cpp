@@ -767,7 +767,7 @@ if (regfile_scope == NULL) {
 }
 svSetScope(regfile_scope);
 uint32_t mem_addr = get_saved_sim_lsu_addr();
-
+printf("saved_lsu_addr =  0x%08x\n", mem_addr);
 
     // 检查是否需要跳过DiffTest
     bool is_load = (inst & 0x7F) == 0x03;
