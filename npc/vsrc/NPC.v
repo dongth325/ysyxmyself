@@ -125,6 +125,8 @@ wire instr_completed;
     wire [1:0] ifu_state;  // IFU状态信号
     wire [2:0] lsu_state;
 
+    wire [31:0] sim_lsu_addr;
+
    
 
     // PC更新接口
@@ -508,6 +510,8 @@ ysyx_24090012_IDU idu(
           .rd_valid(wbu_valid),
         .rd_ready(wbu_ready),
 
+    .sim_lsu_addr(sim_lsu_addr),
+
     .rdata1(rs1_data),
     .rdata2(rs2_data),
     .num(lsu_to_wbu_num),
@@ -663,6 +667,8 @@ ysyx_24090012_IDU idu(
 
     .wbu_csr_valid(wbu_csr_valid),
     .wbu_csr_ready(wbu_csr_ready),
+
+    .sim_lsu_addr(sim_lsu_addr),
 
     // AXI4 Interface
     .io_master_awready(lsu_awready),

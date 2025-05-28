@@ -38,6 +38,7 @@ using VysyxSoCFull__Vcb_get_pc_value_t = void (*) (VysyxSoCFull__Syms* __restric
 using VysyxSoCFull__Vcb_get_read_count_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_read_count__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_reg_value_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ reg_index, IData/*31:0*/ &get_reg_value__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_saved_addr_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_saved_addr__Vfuncrtn);
+using VysyxSoCFull__Vcb_get_saved_sim_lsu_addr_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_saved_sim_lsu_addr__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_store_inst_count_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_store_inst_count__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_write_count_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_write_count__Vfuncrtn);
 

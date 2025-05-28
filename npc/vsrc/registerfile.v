@@ -13,6 +13,7 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
   output [DATA_WIDTH-1:0] rdata1,
   output [DATA_WIDTH-1:0] rdata2,
   input [63:0] num,
+  input [31:0] sim_lsu_addr,//lsu传来用于仿真环境判断读写访问地址是否跳过difftest
   output reg instr_completed,  // 新增：指令完成标志
   output reg [63:0] wbu_back_to_idu_num  
 );
@@ -36,6 +37,8 @@ export "DPI-C" function get_instr_completed;
   reg [DATA_WIDTH-1:0] saved_wdata;
   reg saved_wen;
   reg [63:0] num_r;
+
+  reg [31:0] saved_sim_lsu_addr;
   
   // 读出数据
   assign rdata1 = (raddr1[3:0] == 4'b0) ? 32'b0 : rf[raddr1[3:0]];
@@ -50,6 +53,7 @@ export "DPI-C" function get_instr_completed;
       pc <= 32'h3000_0000;
       num_r <= 64'h0;
       instr_completed <= 1'b0;  
+      saved_sim_lsu_addr <= 32'h0;
     end else begin
       // 状态更新
       state <= next_state;
@@ -65,6 +69,7 @@ export "DPI-C" function get_instr_completed;
           saved_wen <= wen;
           saved_pc <= next_pc;
           num_r <= num;
+          saved_sim_lsu_addr <= sim_lsu_addr;
         end
         instr_completed <= 1'b0;
       end else if (state == WRITE) begin
@@ -146,6 +151,13 @@ export "DPI-C" function get_instr_completed;
     get_instr_completed = {31'b0, instr_completed}; // 返回指令完成状态
   endfunction
  
+
+  export "DPI-C"  function get_saved_sim_lsu_addr;
+  function int get_saved_sim_lsu_addr();
+    get_saved_sim_lsu_addr = saved_sim_lsu_addr; // 假设lsu是LSU模块的实例名
+  endfunction
+
+
 endmodule
 
 

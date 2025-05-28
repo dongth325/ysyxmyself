@@ -29,6 +29,7 @@ extern "C" int get_inst_r();
 extern "C" int get_if_allow_in();
 extern "C" int get_saved_addr();
 extern "C" int get_instr_completed();
+extern "C" int get_saved_sim_lsu_addr();
 
 
 static VerilatedVcdC* tfp = nullptr;
@@ -750,15 +751,24 @@ void exec_once(NpcState *s) {
 
 
 
-        // 设置LSU上下文以获取内存地址
-    svScope lsu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.lsu");
+        // 设置LSU上下文以获取内存地址     //流水线判断写入地址不能在lsu中，要从regfile中
+   /* svScope lsu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.lsu");
     if (lsu_scope == NULL) {
         fprintf(stderr, "Error: Unable to set DPI scope for LSU\n");
         exit(1);
     }
     svSetScope(lsu_scope);
-    uint32_t mem_addr = get_saved_addr();  // 假设LSU是CPU的直接子模块
+    uint32_t mem_addr = get_saved_addr();  // 假设LSU是CPU的直接子模块*/
     
+svScope regfile_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.regfile");
+if (regfile_scope == NULL) {
+    fprintf(stderr, "Error: Unable to set DPI scope for regfile\n");
+    exit(1);
+}
+svSetScope(regfile_scope);
+uint32_t mem_addr = get_saved_sim_lsu_addr();
+
+
     // 检查是否需要跳过DiffTest
     bool is_load = (inst & 0x7F) == 0x03;
     bool is_store = (inst & 0x7F) == 0x23;

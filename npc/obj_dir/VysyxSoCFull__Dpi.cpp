@@ -73,7 +73,7 @@ int get_idu_count() {
 #ifndef VL_DPIDECL_get_if_allow_in_
 #define VL_DPIDECL_get_if_allow_in_
 int get_if_allow_in() {
-    // DPI export at vsrc/NPC.v:731:14
+    // DPI export at vsrc/NPC.v:737:14
     return VysyxSoCFull::get_if_allow_in();
 }
 #endif
@@ -97,7 +97,7 @@ int get_inst_r() {
 #ifndef VL_DPIDECL_get_instr_completed_
 #define VL_DPIDECL_get_instr_completed_
 int get_instr_completed() {
-    // DPI export at vsrc/registerfile.v:145:16
+    // DPI export at vsrc/registerfile.v:150:16
     return VysyxSoCFull::get_instr_completed();
 }
 #endif
@@ -121,7 +121,7 @@ int get_load_inst_count() {
 #ifndef VL_DPIDECL_get_lsu_count_
 #define VL_DPIDECL_get_lsu_count_
 int get_lsu_count() {
-    // DPI export at vsrc/lsu.v:671:14
+    // DPI export at vsrc/lsu.v:676:14
     return VysyxSoCFull::get_lsu_count();
 }
 #endif
@@ -145,7 +145,7 @@ int get_other_inst_count() {
 #ifndef VL_DPIDECL_get_pc_value_
 #define VL_DPIDECL_get_pc_value_
 int get_pc_value() {
-    // DPI export at vsrc/NPC.v:726:14
+    // DPI export at vsrc/NPC.v:732:14
     return VysyxSoCFull::get_pc_value();
 }
 #endif
@@ -153,7 +153,7 @@ int get_pc_value() {
 #ifndef VL_DPIDECL_get_read_count_
 #define VL_DPIDECL_get_read_count_
 int get_read_count() {
-    // DPI export at vsrc/lsu.v:675:14
+    // DPI export at vsrc/lsu.v:680:14
     return VysyxSoCFull::get_read_count();
 }
 #endif
@@ -161,7 +161,7 @@ int get_read_count() {
 #ifndef VL_DPIDECL_get_reg_value_
 #define VL_DPIDECL_get_reg_value_
 int get_reg_value(int reg_index) {
-    // DPI export at vsrc/registerfile.v:140:16
+    // DPI export at vsrc/registerfile.v:145:16
     return VysyxSoCFull::get_reg_value(reg_index);
 }
 #endif
@@ -169,8 +169,16 @@ int get_reg_value(int reg_index) {
 #ifndef VL_DPIDECL_get_saved_addr_
 #define VL_DPIDECL_get_saved_addr_
 int get_saved_addr() {
-    // DPI export at vsrc/lsu.v:658:14
+    // DPI export at vsrc/lsu.v:663:14
     return VysyxSoCFull::get_saved_addr();
+}
+#endif
+
+#ifndef VL_DPIDECL_get_saved_sim_lsu_addr_
+#define VL_DPIDECL_get_saved_sim_lsu_addr_
+int get_saved_sim_lsu_addr() {
+    // DPI export at vsrc/registerfile.v:156:16
+    return VysyxSoCFull::get_saved_sim_lsu_addr();
 }
 #endif
 
@@ -185,7 +193,7 @@ int get_store_inst_count() {
 #ifndef VL_DPIDECL_get_write_count_
 #define VL_DPIDECL_get_write_count_
 int get_write_count() {
-    // DPI export at vsrc/lsu.v:679:14
+    // DPI export at vsrc/lsu.v:684:14
     return VysyxSoCFull::get_write_count();
 }
 #endif
