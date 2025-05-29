@@ -54,6 +54,9 @@ module ysyx_24090012_IDU(
     reg [31:0] pc_r;         // PC寄存器
 
     reg [4:0] rd_r;//数据冒险寄存器
+    reg [11:0] csr_addr_r; 
+    reg   [1:0]     csr_wen_r;
+
     reg [63:0] num_r_r;//数据冒险寄存器
     reg  wen_r;//数据冒险寄存器  这个wen可以省略如果最后面积不够的话，可以不对这个wen进行判断
 
@@ -74,6 +77,13 @@ module ysyx_24090012_IDU(
   
     assign idu_to_exu_pc = pc_r;
     assign state_out = state;//向top模块输出当前state
+
+   
+
+    wire csr_hazard = (csr_wen && csr_wen_r == 2'b1 && csr_addr == csr_addr_r && (alu_op != 6'b110010)) ||    //两个都是普通csr指令的情况触发冒险 
+    (csr_wen_r == 2'd2 && (    
+       csr_addr == 12'h341 || 
+       csr_addr == 12'h342  ) && csr_wen && (alu_op != 6'b110010)); //mepc和mcause    //前一个指令是ecall，后面一个是普通csr指令(csrrs csrrw)触发冒险
 
      // 冒险检测逻辑 - 简化版
   wire rs1_hazard = wen_r && (rs1 == rd_r) && (rd_r != 5'b0) && 
@@ -157,13 +167,21 @@ end
             num_r_r <= 64'h0;
             rd_r <= 5'h0;
             exu_next_pc_r <= 32'h0;
+            csr_addr_r <= 12'h0;
+            csr_wen_r <= 2'b0;
 
         end 
 
         if (state == BUSY && exu_valid && exu_ready) begin//数据冒险储存上一条指令的rd和序列号
           rd_r <= rd;
+          csr_addr_r <= csr_addr;
           num_r_r <= num_r;
           wen_r <= rd_wen;
+          if (alu_op == 6'b110010) begin  // ECALL
+            csr_wen_r <= 2'd2;  // ECALL特殊情况
+        end else begin
+            csr_wen_r <= {1'b0, csr_wen};  // 普通CSR指令
+        end
         end
 
          if (ifu_valid && ifu_ready) begin
@@ -250,7 +268,7 @@ end
     else if (inst_r[31:20] == 12'b0) begin
       alu_op = 6'b110010;  // ECALL
       csr_wen = 1;
-        rs1 = 5'd17;  // a7寄存器的地址
+       // rs1 = 5'd17;  // a7寄存器的地址
     end
     else if (inst_r[31:20] == 12'b001100000010) begin
       alu_op = 6'b110011;  // MRET
@@ -458,8 +476,8 @@ end
   next_state = IDLE;
 end
 // 其次检测数据冒险       //wbu写入后wbu num才更新
-else if ((rs1_hazard || rs2_hazard) && (wbu_num != num_r_r)) begin
-      // 有冒险且未解决，阻止指令继续
+else if (((rs1_hazard || rs2_hazard) || csr_hazard) && (wbu_num != num_r_r)) begin
+      // 有冒险且未解决，阻止指令继续      这个csr hazard的解除逻辑用的是普通regfile传来的wbu num，因为regfile和csr的读写时序是一样的
       exu_valid = 1'b0;
     end else begin
       // 无冒险或冒险已解决，指令可以继续
@@ -468,11 +486,7 @@ else if ((rs1_hazard || rs2_hazard) && (wbu_num != num_r_r)) begin
         next_state = IDLE;
       end
     end
-    /* exu_valid = 1'b1;  
-                if (exu_ready) begin
-                    next_state = IDLE;
-                end*/
-
+    
       end
             
             default: begin
