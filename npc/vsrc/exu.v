@@ -203,7 +203,7 @@ end
           $display("rs1_data_r = 32'h%h", rs1_data_r);
           $display("imm_r[4:0] = 5'b%b (Decimal: %0d)", imm_r[4:0], imm_r[4:0]);
           $display("num_r = 64'h%h", num_r);
-          $display("Shift result = 32'h%h", $signed(rs1_data_r) >>> imm_r[4:0]);
+          $display("Shift result = 32'h%h", rd_data);
           $display("----------------------------------");
       end
   end
