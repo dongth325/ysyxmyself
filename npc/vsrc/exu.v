@@ -197,6 +197,19 @@ end
     end*/
 
 
+    always @(posedge clk) begin
+      if (alu_op_r == 6'b010001) begin  // 当执行SRAI操作时打印
+        
+          $display("rs1_data_r = 32'h%h", rs1_data_r);
+          $display("imm_r[4:0] = 5'b%b (Decimal: %0d)", imm_r[4:0], imm_r[4:0]);
+          $display("num_r = 64'h%h", num_r);
+          $display("Shift result = 32'h%h", $signed(rs1_data_r) >>> imm_r[4:0]);
+          $display("----------------------------------");
+      end
+  end
+
+
+
 
     assign rd_data =      //没有s指令
     (alu_op_r == 6'b101111) ? rs1_data_r + imm_r :                                  // ADDI
@@ -211,7 +224,7 @@ end
     (alu_op_r == 6'b001110) ? rs1_data_r ^ imm_r :                                  // XORI
     (alu_op_r == 6'b001111) ? {24'b0, rs1_data_r[7:0]} :                            // ZEXT.B
     (alu_op_r == 6'b010000) ? rs1_data_r & rs2_data_r :                             // AND
-    //(alu_op_r == 6'b010001) ? $signed(rs1_data_r) >>> imm_r[4:0] :                  // SRAI
+    (alu_op_r == 6'b010001) ? $signed(rs1_data_r) >>> imm_r[4:0] :                  // SRAI
     
    
 
