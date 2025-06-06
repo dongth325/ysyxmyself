@@ -197,7 +197,7 @@ end
     end*/
 
 
-    always @(posedge clk) begin
+    /*always @(posedge clk) begin
       if (alu_op_r == 6'b010001) begin  // 当执行SRAI操作时打印
         
           $display("rs1_data_r = 32'h%h", rs1_data_r);
@@ -209,7 +209,7 @@ end
 
           $display("----------------------------------");
       end
-  end
+  end*/
 
 
    wire [31:0] srai_data = $signed(rs1_data_r) >>> imm_r[4:0];
