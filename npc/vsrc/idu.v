@@ -150,8 +150,6 @@ wire use_rs2 = (opcode == 7'b0110011 || opcode == 7'b1100011 ||
     assign idu_to_exu_pc = pc_r;
     assign state_out = state;//向top模块输出当前state
 
- /*   assign rs1_data_out = rs1_data;
-    assign rs2_data_out = rs2_data;*/
    
 
  /*   wire csr_hazard = (csr_wen && csr_wen_r == 2'b1 && csr_addr == csr_addr_r && (alu_op != 6'b110010)) ||    //两个都是普通csr指令的情况触发冒险 
@@ -159,19 +157,15 @@ wire use_rs2 = (opcode == 7'b0110011 || opcode == 7'b1100011 ||
        csr_addr == 12'h341 || 
        csr_addr == 12'h342  ) && csr_wen && (alu_op != 6'b110010)); //mepc和mcause    //前一个指令是ecall，后面一个是普通csr指令(csrrs csrrw)触发冒险
 
-     // 冒险检测逻辑 - 简化版
-  wire rs1_hazard = wen_r && (rs1 == rd_r) && (rd_r != 5'b0) && 
-  (opcode != 7'b0110111 && opcode != 7'b0010111 && 
-   opcode != 7'b1101111);  // LUI, AUIPC和JAL不使用rs1
-
-wire rs2_hazard = wen_r && (rs2 == rd_r) && (rd_r != 5'b0) && 
-  (opcode == 7'b0110011 || opcode == 7'b1100011 || 
-   opcode == 7'b0100011);  // R-type, B-type和S-type使用rs2*/
+*/
 
 
-   assign control_hazard = (state == BUSY) && 
+   /*assign control_hazard = (state == BUSY) && 
    ((exu_next_pc != 32'h0 && exu_next_pc != pc_r) || 
-    (exu_next_pc == 32'h0 && exu_next_pc_r != 32'h0 && exu_next_pc_r != pc_r));
+    (exu_next_pc == 32'h0 && exu_next_pc_r != 32'h0 && exu_next_pc_r != pc_r));*/
+
+    assign control_hazard = (state == BUSY) && 
+   (exu_next_pc != 32'h0 && exu_next_pc != pc_r);
 
    assign branch_target_pc = (exu_next_pc != 32'h0) ? exu_next_pc : exu_next_pc_r;
 
