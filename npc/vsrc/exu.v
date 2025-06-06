@@ -203,7 +203,9 @@ end
           $display("rs1_data_r = 32'h%h", rs1_data_r);
           $display("imm_r[4:0] = 5'b%b (Decimal: %0d)", imm_r[4:0], imm_r[4:0]);
           $display("num_r = 64'h%h", num_r);
-          $display("Shift result = 32'h%h", rd_data);
+          $display("rd_data = 32'h%h", rd_data);
+          $display("shift result = 32'h%h", $signed(rs1_data_r) >>> imm_r[4:0]);
+
           $display("----------------------------------");
       end
   end
@@ -225,9 +227,6 @@ end
     (alu_op_r == 6'b001111) ? {24'b0, rs1_data_r[7:0]} :                            // ZEXT.B
     (alu_op_r == 6'b010000) ? rs1_data_r & rs2_data_r :                             // AND
     (alu_op_r == 6'b010001) ? $signed(rs1_data_r) >>> imm_r[4:0] :                  // SRAI
-    
-   
-
     (alu_op_r == 6'b010010) ? (rs2_data_r != 0) ? 32'h1 : 32'h0 :                   // SNEZ
     (alu_op_r == 6'b010011) ? rs1_data_r & imm_r :                                  // ANDI
     (alu_op_r == 6'b010100) ? rs1_data_r | rs2_data_r :                             // OR
