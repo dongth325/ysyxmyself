@@ -211,9 +211,10 @@ end
     (alu_op_r == 6'b001110) ? rs1_data_r ^ imm_r :                                  // XORI
     (alu_op_r == 6'b001111) ? {24'b0, rs1_data_r[7:0]} :                            // ZEXT.B
     (alu_op_r == 6'b010000) ? rs1_data_r & rs2_data_r :                             // AND
-    (alu_op_r == 6'b010001) ? $signed(rs1_data_r) >>> imm_r[4:0] :                  // SRAI
+    //(alu_op_r == 6'b010001) ? $signed(rs1_data_r) >>> imm_r[4:0] :                  // SRAI
     
-   // (alu_op_r == 6'b010001) ? {{32{rs1_data_r[31]}}, rs1_data_r} >> imm_r[4:0] : 
+   
+
     (alu_op_r == 6'b010010) ? (rs2_data_r != 0) ? 32'h1 : 32'h0 :                   // SNEZ
     (alu_op_r == 6'b010011) ? rs1_data_r & imm_r :                                  // ANDI
     (alu_op_r == 6'b010100) ? rs1_data_r | rs2_data_r :                             // OR
