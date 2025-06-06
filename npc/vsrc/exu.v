@@ -197,14 +197,14 @@ end
     end*/
 
 
-    /*always @(posedge clk) begin
+   /* always @(posedge clk) begin
       if (alu_op_r == 6'b010001) begin  // 当执行SRAI操作时打印
         
           $display("rs1_data_r = 32'h%h", rs1_data_r);
           $display("imm_r[4:0] = 5'b%b (Decimal: %0d)", imm_r[4:0], imm_r[4:0]);
           $display("num_r = 64'h%h", num_r);
           $display("rd_data = 32'h%h", rd_data);
-          $display("srai_data = 32'h%h", srai_data);
+        //  $display("srai_data = 32'h%h", srai_data);
           $display("shift result = 32'h%h", $signed(rs1_data_r) >>> imm_r[4:0]);
 
           $display("----------------------------------");
@@ -213,6 +213,7 @@ end
 
 
    wire [31:0] srai_data = $signed(rs1_data_r) >>> imm_r[4:0];
+   wire [31:0] sra_data = $signed(rs1_data_r) >>> rs2_data_r[4:0];
 
     assign rd_data =      //没有s指令
     (alu_op_r == 6'b101111) ? rs1_data_r + imm_r :                                  // ADDI
@@ -236,7 +237,7 @@ end
     (alu_op_r == 6'b011001) ? rs1_data_r << imm_r[4:0] :                            // SLLI
     (alu_op_r == 6'b011100) ? (rs1_data_r < rs2_data_r) ? 32'h1 : 32'h0 :           // SLTU
     (alu_op_r == 6'b011101) ? ($signed(rs1_data_r) < $signed(rs2_data_r)) ? 32'h1 : 32'h0 : // SLT
-    (alu_op_r == 6'b100001) ? $signed(rs1_data_r) >>> rs2_data_r[4:0] :             // SRA
+    (alu_op_r == 6'b100001) ? sra_data :             // SRA
     (alu_op_r == 6'b100010) ? rs1_data_r >> rs2_data_r[4:0] :                       // SRL
     (alu_op_r == 6'b100101) ? rs1_data_r | imm_r :                                  // ORI
     (alu_op_r == 6'b100110) ? ($signed(rs1_data_r) < $signed(imm_r)) ? 32'h1 : 32'h0 : // SLTI
