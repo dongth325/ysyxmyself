@@ -8,44 +8,24 @@ module ysyx_24090012_LSU (
     input [31:0] lsu_in_pc,
     output  [31:0] lsu_out_pc,   //不清楚是否需要，或许可以去掉
 
-  //  input is_ecall,
-  //  input is_mret,
-  //  output out_is_ecall,
-  //  output out_is_mret,
-
     // EXU Interface (slave)
     input  wire [31:0] mem_addr,
     input  wire        mem_valid,
     input  wire [31:0] mem_wdata,
-   
-   // input  wire        mem_wen,
+
     output          mem_ready,
 
     output wire [31:0] data_hazard_lsu_inst,
     output wire [31:0]  lsu_hazard_result,
- 
-   // input  wire [2:0]  mem_awsize,
-   // input  wire [2:0]  mem_arsize,
 
-   
     input [31:0] mem_result,    // 流水线流水线流水线
     input wire [31:0] next_pc,
 
-   // input        is_use_lsu,    // 流水线流水线流水线
-    
-    // 传递给WBU的寄存器写回信息
- //   output [4:0]  wbu_rd,      // 流水线流水线流水线
-  //  output        wbu_rd_wen,  // 流水线流水线流水线
     output [31:0] wbu_data,    // 流水线流水线流水线
 
-    //input [11:0] csr_addr,
     input [31:0] csr_wdata,
-    //input csr_wen,
-
-   // output [11:0] wbu_csr_addr,
+ 
     output [31:0] wbu_csr_wdata,
-   // output wbu_csr_wen,
-
     input [31:0] exu_to_lsu_inst,
     output [31:0] lsu_to_wbu_inst,
  
@@ -217,18 +197,14 @@ end
               
               
                 curr_id <= curr_id + 4'h1;  // 递增事务ID
-               // saved_rd <= mem_rd;           // 流水线流水线流水线
-              //  saved_rd_wen <= mem_rd_wen;   // 流水线流水线流水线
-                saved_result <= mem_result;   // 流水线流水线流水线
+             
+                saved_result <= mem_result;   
              
                 saved_next_pc <= next_pc;
                
-               
-                //saved_csr_addr <= csr_addr;
-                //saved_csr_wen <= csr_wen;
                 saved_csr_wdata <= csr_wdata;
                 saved_pc <= lsu_in_pc;//                           不确定是否需要
-               // saved_mem_unsigned <= mem_unsigned;
+            
                 num_r <= num;
                 exu_to_lsu_inst_r <= exu_to_lsu_inst;
             end

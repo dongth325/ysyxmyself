@@ -5,14 +5,14 @@ module ysyx_24090012_IDU(
     input wire clock,        // 改用clock
     input wire reset,        // 改用reset
   //ifu interface
-  output reg ifu_ready,
+  output  ifu_ready,
   input  ifu_valid,
 
 
   //exu interface
-  output reg exu_valid,
+  output reg exu_valid,   //尽量不要换成wire因为数据和控制冒险需要在always里，不然很麻烦
   input  exu_ready,
-  output reg  [31:0] idu_to_exu_pc, 
+  output   [31:0] idu_to_exu_pc, 
 
    output  state_out,  // 添加state输出端口
 
@@ -74,14 +74,7 @@ module ysyx_24090012_IDU(
    
     reg [31:0] pc_r;         // PC寄存器
 
-    reg [4:0] rd_r;//数据冒险寄存器
-    reg [11:0] csr_addr_r; 
-    reg   [1:0]     csr_wen_r;
 
-    reg [63:0] num_r_r;//数据冒险寄存器
-    reg  wen_r;//数据冒险寄存器  这个wen可以省略如果最后面积不够的话，可以不对这个wen进行判断
-
-    reg [31:0] exu_next_pc_r;
 
     // 性能计数器
     reg [31:0] idu_count;           // IDU处理指令总计数器
@@ -167,7 +160,7 @@ wire use_rs2 = (opcode == 7'b0110011 || opcode == 7'b1100011 ||
     assign control_hazard = (state == BUSY) && 
    (exu_next_pc != 32'h0 && exu_next_pc != pc_r);
 
-   assign branch_target_pc = (exu_next_pc != 32'h0) ? exu_next_pc : exu_next_pc_r;
+   assign branch_target_pc = exu_next_pc;
 
 always @(posedge clock) begin
    // 当指令被EXU接收执行时，根据opcode更新指令类型计数器
@@ -222,6 +215,7 @@ end
         if (reset) begin
             inst_r <= 32'b0;
             pc_r <= 32'b0;
+            num_r <= 64'h0;
            
             idu_count <= 32'h0;
             compute_inst_count <= 32'h0;
@@ -231,38 +225,14 @@ end
             jump_inst_count <= 32'h0;
             csr_inst_count <= 32'h0;
             other_inst_count <= 32'h0;
-            num_r <= 64'h0;
-            num_r_r <= 64'h0;
-            rd_r <= 5'h0;
-            exu_next_pc_r <= 32'h0;
-            csr_addr_r <= 12'h0;
-            csr_wen_r <= 2'b0;
 
         end 
-
-      /*  if (state == BUSY && exu_valid && exu_ready) begin//数据冒险储存上一条指令的rd和序列号
-          rd_r <= rd;
-          csr_addr_r <= csr_addr;
-          num_r_r <= num_r;
-          wen_r <= rd_wen;
-          if (alu_op == 6'b110010) begin  // ECALL
-            csr_wen_r <= 2'd2;  // ECALL特殊情况
-        end else begin
-            csr_wen_r <= {1'b0, csr_wen};  // 普通CSR指令
-        end
-        end*/
 
          if (ifu_valid && ifu_ready) begin
           inst_r <= inst;
           pc_r <= ifu_to_idu_pc;
           idu_count <= idu_count + 1;  // idu count计数器
           num_r <= num;
-          end
-
-
-          if (exu_next_pc != 32'h0) begin   //保存检测控制冒险所需的exu的next pc
-            exu_next_pc_r <= exu_next_pc;
-            
           end
 
     end
@@ -391,10 +361,12 @@ assign alu_op =
 
 
 
+assign ifu_ready = (state == IDLE);
+
     always @(*) begin
 
        next_state = state;
-        ifu_ready = 1'b0;
+      
         exu_valid = 1'b0;
 
 
@@ -405,7 +377,7 @@ assign alu_op =
 
 
             IDLE: begin
-                ifu_ready = 1'b1;
+              
                 if (ifu_valid) begin
                     next_state = BUSY;
                 end
@@ -421,6 +393,7 @@ assign alu_op =
   exu_valid = 1'b0;
   next_state = IDLE;
 end
+
 // 其次检测数据冒险       //wbu写入后wbu num才更新
 else if (((rs1_exu_hazard && exu_is_load && exu_reg_num != wbu_reg_num) || 
     (rs2_exu_hazard && exu_is_load && exu_reg_num != wbu_reg_num) ||
