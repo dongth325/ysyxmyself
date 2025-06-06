@@ -152,12 +152,12 @@ wire use_rs2 = (opcode == 7'b0110011 || opcode == 7'b1100011 ||
 
    
 
- /*   wire csr_hazard = (csr_wen && csr_wen_r == 2'b1 && csr_addr == csr_addr_r && (alu_op != 6'b110010)) ||    //两个都是普通csr指令的情况触发冒险 
+  /*  wire csr_hazard = (csr_wen && csr_wen_r == 2'b1 && csr_addr == csr_addr_r && (alu_op != 6'b110010)) ||    //两个都是普通csr指令的情况触发冒险 
     (csr_wen_r == 2'd2 && (    
        csr_addr == 12'h341 || 
        csr_addr == 12'h342  ) && csr_wen && (alu_op != 6'b110010)); //mepc和mcause    //前一个指令是ecall，后面一个是普通csr指令(csrrs csrrw)触发冒险
-
 */
+
 
 
    /*assign control_hazard = (state == BUSY) && 
