@@ -49,7 +49,7 @@ int get_csr_reg_value(int csr_reg_index) {
 #ifndef VL_DPIDECL_get_exu_count_
 #define VL_DPIDECL_get_exu_count_
 int get_exu_count() {
-    // DPI export at vsrc/exu.v:493:14
+    // DPI export at vsrc/exu.v:494:14
     return VysyxSoCFull::get_exu_count();
 }
 #endif

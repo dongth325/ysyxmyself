@@ -204,6 +204,7 @@ end
           $display("imm_r[4:0] = 5'b%b (Decimal: %0d)", imm_r[4:0], imm_r[4:0]);
           $display("num_r = 64'h%h", num_r);
           $display("rd_data = 32'h%h", rd_data);
+          $display("srai_data = 32'h%h", srai_data);
           $display("shift result = 32'h%h", $signed(rs1_data_r) >>> imm_r[4:0]);
 
           $display("----------------------------------");
@@ -211,7 +212,7 @@ end
   end
 
 
-
+   wire [31:0] srai_data = $signed(rs1_data_r) >>> imm_r[4:0];
 
     assign rd_data =      //没有s指令
     (alu_op_r == 6'b101111) ? rs1_data_r + imm_r :                                  // ADDI
