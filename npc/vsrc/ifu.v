@@ -17,7 +17,7 @@ module ysyx_24090012_IFU (
 
     // AXI4 Interface for MROM
     input  wire         io_master_arready,
-    output reg         io_master_arvalid,
+    output          io_master_arvalid,
     output wire [31:0]  io_master_araddr,
     output wire [3:0]   io_master_arid,
     output wire [7:0]   io_master_arlen,
@@ -195,12 +195,15 @@ end
         
     end
 
+
+    assign io_master_arvalid = (state == FETCH_ADDR);
+
     // 组合逻辑：状态转换和所有输出信号生成
     always @(*) begin
         // 默认值
         next_state = state;
         io_master_araddr =   {saved_pc[31:4], 4'b0000};
-        io_master_arvalid = 1'b0;
+      //  io_master_arvalid = 1'b0;
         io_master_rready = 1'b0;
         idu_valid = 1'b0;
         idu_pc = saved_pc;//当前pc
@@ -241,7 +244,7 @@ end
 
 
             FETCH_ADDR: begin
-                io_master_arvalid = 1'b1;
+              //  io_master_arvalid = 1'b1;
                 io_master_araddr =   {saved_pc[31:4], 4'b0000};
                 if (io_master_arready) begin
                     next_state = FETCH_DATA;
