@@ -57,7 +57,7 @@ module ysyx_24090012_LSU (
 
     // Write Data Channel
     input  wire        io_master_wready,
-    output reg         io_master_wvalid,
+    output          io_master_wvalid,
     output reg  [31:0] io_master_wdata,
     output reg  [3:0]  io_master_wstrb,
     output reg         io_master_wlast,     // 单次传输永远为1
@@ -245,6 +245,7 @@ end
    assign io_master_arid = curr_id;
    assign io_master_awburst = 2'b01;
    assign io_master_arburst = 2'b01;
+   assign io_master_wvalid = (state == WRITE_DATA);
 
     always @(*) begin
 
@@ -253,7 +254,7 @@ end
         // 默认值
         next_state = state;
        // io_master_awvalid = 0;
-        io_master_wvalid  = 0;
+       // io_master_wvalid  = 0;
         io_master_bready  = 0;
         io_master_arvalid = 0;
         io_master_rready  = 0;
@@ -341,7 +342,7 @@ end
             end
             
             WRITE_DATA: begin
-                io_master_wvalid = 1'b1;
+               // io_master_wvalid = 1'b1;
                 if (io_master_wready) begin
                     next_state = WRITE_RESP;
                 end
