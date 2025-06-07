@@ -31,7 +31,7 @@ module ysyx_24090012_IFU (
     input  wire [3:0]   io_master_rid,
     input  wire         io_master_rlast,//暂时不用
     input  wire [1:0]   io_master_rresp,//暂时不用
-    output reg         io_master_rready,
+    output          io_master_rready,
     output reg  [63:0]  num
 );
 
@@ -197,6 +197,7 @@ end
 
 
     assign io_master_arvalid = (state == FETCH_ADDR);
+    assign io_master_rready = (state == FETCH_DATA);
 
     // 组合逻辑：状态转换和所有输出信号生成
     always @(*) begin
@@ -204,7 +205,7 @@ end
         next_state = state;
         io_master_araddr =   {saved_pc[31:4], 4'b0000};
       //  io_master_arvalid = 1'b0;
-        io_master_rready = 1'b0;
+       // io_master_rready = 1'b0;
         idu_valid = 1'b0;
         idu_pc = saved_pc;//当前pc
         idu_inst = 32'h0;//在后面赋值
@@ -252,7 +253,7 @@ end
             end
             
             FETCH_DATA: begin
-                io_master_rready = 1'b1;
+              //  io_master_rready = 1'b1;
                 if (io_master_rvalid && (io_master_rid == curr_id)) begin
 
                     if (io_master_rlast) begin
