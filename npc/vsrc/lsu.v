@@ -60,7 +60,7 @@ module ysyx_24090012_LSU (
     output          io_master_wvalid,
     output reg  [31:0] io_master_wdata,
     output reg  [3:0]  io_master_wstrb,
-    output reg         io_master_wlast,     // 单次传输永远为1
+    output          io_master_wlast,     // 单次传输永远为1
 
     // Write Response Channel
     output reg         io_master_bready,
@@ -246,6 +246,7 @@ end
    assign io_master_awburst = 2'b01;
    assign io_master_arburst = 2'b01;
    assign io_master_wvalid = (state == WRITE_DATA);
+   assign io_master_wlast = 1'b1;//单次传输为1
   
 
     always @(*) begin
@@ -281,7 +282,7 @@ end
 
 
         //io_master_wstrb  = saved_wmask;
-        io_master_wlast  = 1'b1;            // 单次传输永远为1
+       // io_master_wlast  = 1'b1;            // 单次传输永远为1
 
 
       // wbu_rd = saved_rd;//流水线流水线流水线
