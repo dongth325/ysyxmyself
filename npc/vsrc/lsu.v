@@ -52,7 +52,7 @@ module ysyx_24090012_LSU (
     output   [31:0] io_master_awaddr,
     output reg  [3:0]  io_master_awid,     // 传递事务ID
     output reg  [7:0]  io_master_awlen,
-    output reg  [2:0]  io_master_awsize,
+    output   [2:0]  io_master_awsize,
     output reg  [1:0]  io_master_awburst,
 
     // Write Data Channel
@@ -74,7 +74,7 @@ module ysyx_24090012_LSU (
     output   [31:0] io_master_araddr,
     output reg  [3:0]  io_master_arid,     // 传递事务ID
     output reg  [7:0]  io_master_arlen,
-    output reg  [2:0]  io_master_arsize,
+    output   [2:0]  io_master_arsize,
     output reg  [1:0]  io_master_arburst,
 
     // Read Data Channel
@@ -237,6 +237,8 @@ end
    assign io_master_awvalid = (state == WRITE_ADDR);
    assign io_master_awaddr = saved_addr;
    assign io_master_araddr = saved_addr;
+   assign io_master_awsize = saved_awsize;
+   assign io_master_arsize = saved_arsize;
 
     always @(*) begin
 
@@ -255,13 +257,13 @@ end
         // 固定值
         io_master_awid    = curr_id;        // 使用当前事务ID
         io_master_awlen   = 8'd0;           // 单次传输
-        io_master_awsize  = saved_awsize;  
+       // io_master_awsize  = saved_awsize;  
             
         io_master_awburst = 2'b01;          // INCR模式
         io_master_arid    = curr_id;        // 使用当前事务ID
         io_master_arlen   = 8'd0;           // 单次传输
-        io_master_arsize  = saved_arsize;  
-       //io_master_arsize  = 1;       
+       // io_master_arsize  = saved_arsize;  
+          
         io_master_arburst = 2'b01;          // INCR模式
         
         // 地址和数据连接
