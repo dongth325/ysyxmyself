@@ -63,14 +63,14 @@ module ysyx_24090012_LSU (
     output          io_master_wlast,     // 单次传输永远为1
 
     // Write Response Channel
-    output reg         io_master_bready,
+    output          io_master_bready,
     input  wire        io_master_bvalid,
     input  wire [1:0]  io_master_bresp,    // 写响应状态
     input  wire [3:0]  io_master_bid,      // 写响应ID
 
     // Read Address Channel
     input  wire        io_master_arready,
-    output reg         io_master_arvalid,
+    output          io_master_arvalid,
     output   [31:0] io_master_araddr,
     output   [3:0]  io_master_arid,     // 传递事务ID
     output   [7:0]  io_master_arlen,
@@ -78,7 +78,7 @@ module ysyx_24090012_LSU (
     output   [1:0]  io_master_arburst,
 
     // Read Data Channel
-    output reg         io_master_rready,
+    output          io_master_rready,
     input  wire        io_master_rvalid,
     input  wire [31:0] io_master_rdata,
     input  wire [1:0]  io_master_rresp,    // 读响应状态
@@ -247,6 +247,9 @@ end
    assign io_master_arburst = 2'b01;
    assign io_master_wvalid = (state == WRITE_DATA);
    assign io_master_wlast = 1'b1;//单次传输为1
+   assign io_master_bready = (state == WRITE_RESP);
+   assign io_master_rready = (state == READ_DATA);
+   assign io_master_arvalid = (state == READ_ADDR);
   
 
     always @(*) begin
@@ -257,9 +260,9 @@ end
         next_state = state;
        // io_master_awvalid = 0;
        // io_master_wvalid  = 0;
-        io_master_bready  = 0;
-        io_master_arvalid = 0;
-        io_master_rready  = 0;
+       // io_master_bready  = 0;
+       // io_master_arvalid = 0;
+       // io_master_rready  = 0;
       //  mem_ready = 0;
        
         
@@ -357,7 +360,7 @@ end
 
 
                  WRITE_RESP: begin
-                io_master_bready = 1'b1;
+              //  io_master_bready = 1'b1;
                 if (io_master_bvalid) begin
                     // 检查响应和ID
                     if (io_master_bid == curr_id && io_master_bresp == 2'b00) begin
@@ -383,14 +386,14 @@ end
             end
             
             READ_ADDR: begin
-                io_master_arvalid = 1'b1;
+               // io_master_arvalid = 1'b1;
                 if (io_master_arready) begin
                     next_state = READ_DATA;
                 end
             end
             
             READ_DATA: begin
-                io_master_rready = 1'b1;
+              //  io_master_rready = 1'b1;
                 if (io_master_rvalid) begin
                     // 检查响应和ID
                     //if (io_master_rid == curr_id && io_master_rresp == 2'b00) begin
