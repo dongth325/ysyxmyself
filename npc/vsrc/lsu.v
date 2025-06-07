@@ -49,7 +49,7 @@ module ysyx_24090012_LSU (
     // Write Address Channel
     input  wire        io_master_awready,
     output          io_master_awvalid,
-    output reg  [31:0] io_master_awaddr,
+    output   [31:0] io_master_awaddr,
     output reg  [3:0]  io_master_awid,     // 传递事务ID
     output reg  [7:0]  io_master_awlen,
     output reg  [2:0]  io_master_awsize,
@@ -71,7 +71,7 @@ module ysyx_24090012_LSU (
     // Read Address Channel
     input  wire        io_master_arready,
     output reg         io_master_arvalid,
-    output reg  [31:0] io_master_araddr,
+    output   [31:0] io_master_araddr,
     output reg  [3:0]  io_master_arid,     // 传递事务ID
     output reg  [7:0]  io_master_arlen,
     output reg  [2:0]  io_master_arsize,
@@ -235,6 +235,8 @@ end
    assign  lsu_out_pc = saved_pc;
 
    assign io_master_awvalid = (state == WRITE_ADDR);
+   assign io_master_awaddr = saved_addr;
+   assign io_master_araddr = saved_addr;
 
     always @(*) begin
 
@@ -263,8 +265,8 @@ end
         io_master_arburst = 2'b01;          // INCR模式
         
         // 地址和数据连接
-        io_master_awaddr = saved_addr;
-        io_master_araddr = saved_addr;
+       // io_master_awaddr = saved_addr;
+       // io_master_araddr = saved_addr;
        // io_master_wdata  = saved_wdata;    //综合需要注释 （下面的wstrb不是）
 
 
