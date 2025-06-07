@@ -58,7 +58,7 @@ module ysyx_24090012_LSU (
     // Write Data Channel
     input  wire        io_master_wready,
     output          io_master_wvalid,
-    output   [31:0] io_master_wdata,
+    output reg  [31:0] io_master_wdata,
     output reg  [3:0]  io_master_wstrb,
     output reg         io_master_wlast,     // 单次传输永远为1
 
@@ -246,7 +246,7 @@ end
    assign io_master_awburst = 2'b01;
    assign io_master_arburst = 2'b01;
    assign io_master_wvalid = (state == WRITE_DATA);
-   assign io_master_wdata = saved_wdata;
+  
 
     always @(*) begin
 
@@ -543,7 +543,7 @@ end
 
 always @(*) begin
     // 默认值
-  //  io_master_wdata  = saved_wdata;//综合锁存器需要 yosys
+    io_master_wdata  = saved_wdata;//综合锁存器需要 yosys
   //is_uart_region = (saved_addr[31:24] == 8'h10);
     io_master_wstrb = 4'b0000;
  //io_master_wstrb = 1;
