@@ -48,7 +48,7 @@ module ysyx_24090012_LSU (
     // AXI4 Master Interface
     // Write Address Channel
     input  wire        io_master_awready,
-    output reg         io_master_awvalid,
+    output          io_master_awvalid,
     output reg  [31:0] io_master_awaddr,
     output reg  [3:0]  io_master_awid,     // 传递事务ID
     output reg  [7:0]  io_master_awlen,
@@ -234,6 +234,7 @@ end
    assign wbu_csr_valid = (state == WBU_WAIT);
    assign  lsu_out_pc = saved_pc;
 
+   assign io_master_awvalid = (state == WRITE_ADDR);
 
     always @(*) begin
 
@@ -241,7 +242,7 @@ end
 
         // 默认值
         next_state = state;
-        io_master_awvalid = 0;
+       // io_master_awvalid = 0;
         io_master_wvalid  = 0;
         io_master_bready  = 0;
         io_master_arvalid = 0;
@@ -323,7 +324,7 @@ end
             end
             
             WRITE_ADDR: begin
-                io_master_awvalid = 1'b1;
+               // io_master_awvalid = 1'b1;
                 if (io_master_awready) begin
                     next_state = WRITE_DATA;
                 end
