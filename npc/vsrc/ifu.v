@@ -37,8 +37,8 @@ module ysyx_24090012_IFU (
 
 
     // icache配置参数
-localparam CACHE_LINES = 16;                // 缓存块数量
-localparam INDEX_BITS = 4;                  // 索引位数 (2^4 = 16)
+localparam CACHE_LINES = 2;                // 缓存块数量
+localparam INDEX_BITS = 1;                  // 索引位数 (2^4 = 16)
 //localparam OFFSET_BITS = 2;                 // 偏移位数 (4B块大小)
 localparam OFFSET_BITS = 4;                 // 突发传输icache
 localparam TAG_BITS = 32 - INDEX_BITS - OFFSET_BITS; // 标签位数
