@@ -306,7 +306,7 @@ void init_mem() {
   }
 
     // 随机初始化MROM和SRAM
-  p = (uint32_t *)mrom;//dddddddddddddddddddddddddd
+  /*p = (uint32_t *)mrom;//dddddddddddddddddddddddddd
   for (i = 0; i < (int) (MROM_SIZE / sizeof(p[0])); i ++) {
     p[i] = rand();
   }
@@ -326,7 +326,7 @@ void init_mem() {
   p = (uint32_t *)psram;
   for (i = 0; i < (int) (PSRAM_SIZE / sizeof(p[0])); i ++) {
     p[i] = rand();
-  }
+  }*/
 
     p = (uint32_t *)sdram;
   for (i = 0; i < (int) (SDRAM_SIZE / sizeof(p[0])); i ++) {
