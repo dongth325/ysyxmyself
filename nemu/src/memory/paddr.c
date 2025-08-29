@@ -312,9 +312,9 @@ word_t paddr_read(paddr_t addr, int len) {
   else if (likely(in_psram(addr))) { return psram_read(addr, len); } 
    
 
-#ifdef CONFIG_MTRACE
+/*#ifdef CONFIG_MTRACE
   mtrace_read(addr, len, data);  // 调用 mtrace_read 记录读取操作
-#endif
+#endif*/
  
 
     
@@ -344,9 +344,9 @@ void paddr_write(paddr_t addr, int len, word_t data) {
     out_of_bound(addr);
     
   
-#ifdef CONFIG_MTRACE
+/*#ifdef CONFIG_MTRACE
   mtrace_write(addr, len, data);  // 调用 mtrace_write 记录写入操作
-#endif
+#endif*/
 }
 
 
