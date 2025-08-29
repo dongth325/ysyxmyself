@@ -176,7 +176,7 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 }
 
 // MROM读取函数
-static word_t mrom_read(paddr_t addr, int len) {//dddddd
+/*static word_t mrom_read(paddr_t addr, int len) {//dddddd
   uint8_t *host_addr = mrom_to_host(addr);
   word_t ret = host_read(host_addr, len);
   return ret;
@@ -234,7 +234,7 @@ static void sdram_write(paddr_t addr, int len, word_t data) {
   uint8_t *host_addr = sdram_to_host(addr);
   host_write(host_addr, len, data);
 }
-
+*/
   static void out_of_bound(paddr_t addr) {
   
           panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] "
@@ -256,58 +256,71 @@ void init_mem() {
 #if   defined(CONFIG_PMEM_MALLOC)
   pmem = malloc(CONFIG_MSIZE);
   assert(pmem);
+    mrom = malloc(MROM_SIZE);//dddddddddddddd
+  assert(mrom);
+  sram = malloc(SRAM_SIZE);
+  assert(sram);//ddddddddddd
+    flash = malloc(FLASH_SIZE);  // 添加flash内存分配
+  assert(flash);
+    psram = malloc(PSRAM_SIZE);  // 添加 PSRAM 分配
+  assert(psram);
+    sdram = malloc(SDRAM_SIZE);  // 添加 SDRAM 分配
+  assert(sdram);
 #endif
-  IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE));
+#ifdef CONFIG_MEM_RANDOM
+  uint32_t *p = (uint32_t *)pmem;
+  int i;
+  for (i = 0; i < (int) (CONFIG_MSIZE / sizeof(p[0])); i ++) {
+    p[i] = rand();
+  }
+
+    // 随机初始化MROM和SRAM
+  p = (uint32_t *)mrom;//dddddddddddddddddddddddddd
+  for (i = 0; i < (int) (MROM_SIZE / sizeof(p[0])); i ++) {
+    p[i] = rand();
+  }
+  
+  p = (uint32_t *)sram;
+  for (i = 0; i < (int) (SRAM_SIZE / sizeof(p[0])); i ++) {
+    p[i] = rand();
+  }//ddddddddddd
+
+    // 初始化flash内存
+  p = (uint32_t *)flash;
+  for (i = 0; i < (int) (FLASH_SIZE / sizeof(p[0])); i ++) {
+    p[i] = rand();
+  }
+
+    // 初始化 PSRAM 内存
+  p = (uint32_t *)psram;
+  for (i = 0; i < (int) (PSRAM_SIZE / sizeof(p[0])); i ++) {
+    p[i] = rand();
+  }
+
+    p = (uint32_t *)sdram;
+  for (i = 0; i < (int) (SDRAM_SIZE / sizeof(p[0])); i ++) {
+    p[i] = rand();
+  }
+#endif
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
+  Log("MROM area [0x%x, 0x%x]", MROM_BASE, MROM_BASE + MROM_SIZE - 1);
+  Log("SRAM area [0x%x, 0x%x]", SRAM_BASE, SRAM_BASE + SRAM_SIZE - 1);
+  Log("Flash area [0x%x, 0x%x]", FLASH_BASE, FLASH_BASE + FLASH_SIZE - 1);
+    Log("PSRAM area [0x%x, 0x%x]", PSRAM_BASE, PSRAM_BASE + PSRAM_SIZE - 1);
+     Log("SDRAM area [0x%x, 0x%x]", SDRAM_BASE, SDRAM_BASE + SDRAM_SIZE - 1);
 }
 
 word_t paddr_read(paddr_t addr, int len) {
-  word_t data;      //psram和pmem 重叠，所以运行psram mem test的时候无法进行处理 在运行nemu的时候要把pmem放到psram判断上面，diff的时候则相反，下面的write也一样
-   if (likely(in_mrom(addr))) { return mrom_read(addr, len); }//ddddddddddddd
-    else if (likely(in_sdram(addr))) { return sdram_read(addr, len); }
- else if (likely(in_sram(addr))) { return sram_read(addr, len); }//dddddddddddd
- else if (likely(in_flash(addr))) { return flash_read(addr, len); }
- 
- else if (likely(in_pmem(addr))) {
-    //printf("dt dt dt dt dt from (word_t paddr_read)\n");
-    data = pmem_read(addr, len);
-    //printf("th th th th th th from(word_t paddr_read)\n");
-  } 
-  else if (likely(in_psram(addr))) { return psram_read(addr, len); } 
-   
-  else {
-   // printf("aaaaaaaaaa from (word_t paddr_read)\n");
-    IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
-   // printf("bbbbbbbbbbbbbbb from (word_t paddr_read)\n");
-    //out_of_bound(addr);//npc difftest的时候nemu设备device不能开启 要把这一部分判定注释掉 才能跑diffdddddddddddddddddd
-    //printf("cccccccccccccccc from (word_t paddr_read)\n");
-    return 0;
-  }
-#ifdef CONFIG_MTRACE
-  mtrace_read(addr, len, data);  // 调用 mtrace_read 记录读取操作
-#endif
-  return data;
+  if (likely(in_pmem(addr))) return pmem_read(addr, len);
+  IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
+  out_of_bound(addr);
+  return 0;
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (likely(in_mrom(addr))) { mrom_write(addr, len, data); return; }//ddddddddddddd
-  else if (likely(in_sdram(addr))) { sdram_write(addr, len, data); return; }
- else if (likely(in_sram(addr))) { sram_write(addr, len, data); return; }//dddddddddddd
- 
-  else if (likely(in_pmem(addr))) {
-    pmem_write(addr, len, data);
-  }
-  else  if (likely(in_psram(addr))) { psram_write(addr, len, data); return; }
- 
- else if (likely(in_flash(addr))) { flash_write(addr, len, data); return; }
- else {
-    IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
-    out_of_bound(addr);
-    return;
-  }
-#ifdef CONFIG_MTRACE
-  mtrace_write(addr, len, data);  // 调用 mtrace_write 记录写入操作
-#endif
+  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
+  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
+  out_of_bound(addr);
 }
 
 
