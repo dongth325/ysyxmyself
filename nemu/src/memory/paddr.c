@@ -335,6 +335,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
  
   else if (likely(in_pmem(addr))) {
     pmem_write(addr, len, data);
+    return;
   }
   else  if (likely(in_psram(addr))) { psram_write(addr, len, data); return; }
  
