@@ -1,18 +1,3 @@
-/***************************************************************************************
-* Copyright (c) 2014-2022 Zihao Yu, Nanjing University
-*
-* NEMU is licensed under Mulan PSL v2.
-* You can use this software according to the terms and conditions of the Mulan PSL v2.
-* You may obtain a copy of Mulan PSL v2 at:
-*          http://license.coscl.org.cn/MulanPSL2
-*
-* THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
-* EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
-* MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
-*
-* See the Mulan PSL v2 for more details.
-***************************************************************************************/
-
 #include <memory/host.h>
 #include <memory/paddr.h>
 #include <device/mmio.h>
@@ -311,6 +296,10 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
+  if (likely(in_pmem(addr))) return pmem_read(addr, len);
+  IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
+  out_of_bound(addr);
+  return 0;
   word_t data;      //psram和pmem 重叠，所以运行psram mem test的时候无法进行处理 在运行nemu的时候要把pmem放到psram判断上面，diff的时候则相反，下面的write也一样
    if (likely(in_mrom(addr))) { return mrom_read(addr, len); }//ddddddddddddd
     else if (likely(in_sdram(addr))) { return sdram_read(addr, len); }
@@ -324,14 +313,14 @@ word_t paddr_read(paddr_t addr, int len) {
   } 
   else if (likely(in_psram(addr))) { return psram_read(addr, len); } 
    
-  //else {
+  else {
    // printf("aaaaaaaaaa from (word_t paddr_read)\n");
     IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
    // printf("bbbbbbbbbbbbbbb from (word_t paddr_read)\n");
     //out_of_bound(addr);//npc difftest的时候nemu设备device不能开启 要把这一部分判定注释掉 才能跑diffdddddddddddddddddd
     //printf("cccccccccccccccc from (word_t paddr_read)\n");
     return 0;
-  //}
+  }
 #ifdef CONFIG_MTRACE
   mtrace_read(addr, len, data);  // 调用 mtrace_read 记录读取操作
 #endif
@@ -339,6 +328,9 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
+  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
+  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
+  out_of_bound(addr);
   if (likely(in_mrom(addr))) { mrom_write(addr, len, data); return; }//ddddddddddddd
   else if (likely(in_sdram(addr))) { sdram_write(addr, len, data); return; }
  else if (likely(in_sram(addr))) { sram_write(addr, len, data); return; }//dddddddddddd
@@ -349,11 +341,11 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   else  if (likely(in_psram(addr))) { psram_write(addr, len, data); return; }
  
  else if (likely(in_flash(addr))) { flash_write(addr, len, data); return; }
- //else {
+ else {
     IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
     out_of_bound(addr);
     return;
-  //}
+  }
 #ifdef CONFIG_MTRACE
   mtrace_write(addr, len, data);  // 调用 mtrace_write 记录写入操作
 #endif
