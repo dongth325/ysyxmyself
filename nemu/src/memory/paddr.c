@@ -287,7 +287,7 @@ void init_mem() {
 #if   defined(CONFIG_PMEM_MALLOC)
   pmem = malloc(CONFIG_MSIZE);
   assert(pmem);
-    mrom = malloc(MROM_SIZE);//dddddddddddddd
+   /* mrom = malloc(MROM_SIZE);//dddddddddddddd
   assert(mrom);
   sram = malloc(SRAM_SIZE);
   assert(sram);//ddddddddddd
@@ -296,7 +296,7 @@ void init_mem() {
     psram = malloc(PSRAM_SIZE);  // 添加 PSRAM 分配
   assert(psram);
     sdram = malloc(SDRAM_SIZE);  // 添加 SDRAM 分配
-  assert(sdram);
+  assert(sdram);*/
 #endif
 #ifdef CONFIG_MEM_RANDOM
   uint32_t *p = (uint32_t *)pmem;
@@ -326,12 +326,12 @@ void init_mem() {
   p = (uint32_t *)psram;
   for (i = 0; i < (int) (PSRAM_SIZE / sizeof(p[0])); i ++) {
     p[i] = rand();
-  }*/
+  }
 
     p = (uint32_t *)sdram;
   for (i = 0; i < (int) (SDRAM_SIZE / sizeof(p[0])); i ++) {
     p[i] = rand();
-  }
+  }*/
 #endif
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
   Log("MROM area [0x%x, 0x%x]", MROM_BASE, MROM_BASE + MROM_SIZE - 1);
