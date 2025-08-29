@@ -297,9 +297,9 @@ void init_mem() {
 
 word_t paddr_read(paddr_t addr, int len) {
   if (likely(in_pmem(addr))) return pmem_read(addr, len);
-  IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
+  /*IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
   out_of_bound(addr);
-  return 0;
+  return 0;*/
   word_t data;      //psram和pmem 重叠，所以运行psram mem test的时候无法进行处理 在运行nemu的时候要把pmem放到psram判断上面，diff的时候则相反，下面的write也一样
    if (likely(in_mrom(addr))) { return mrom_read(addr, len); }//ddddddddddddd
     else if (likely(in_sdram(addr))) { return sdram_read(addr, len); }
@@ -329,8 +329,8 @@ word_t paddr_read(paddr_t addr, int len) {
 
 void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
-  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
-  out_of_bound(addr);
+  /*IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
+  out_of_bound(addr);*/
   if (likely(in_mrom(addr))) { mrom_write(addr, len, data); return; }//ddddddddddddd
   else if (likely(in_sdram(addr))) { sdram_write(addr, len, data); return; }
  else if (likely(in_sram(addr))) { sram_write(addr, len, data); return; }//dddddddddddd
