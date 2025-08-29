@@ -12,7 +12,7 @@
 *
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
-
+/*
 #include <memory/host.h>
 #include <memory/paddr.h>
 #include <device/mmio.h>
@@ -236,38 +236,7 @@ static void sdram_write(paddr_t addr, int len, word_t data) {
 }
 
   static void out_of_bound(paddr_t addr) {
-  /*panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
-      addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);*/
-
-        /*panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] "//dddddddddddddd
-        "mrom [" FMT_PADDR ", " FMT_PADDR "] "
-        "sram [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
-        addr, PMEM_LEFT, PMEM_RIGHT, 
-        MROM_BASE, MROM_BASE + MROM_SIZE - 1,
-        SRAM_BASE, SRAM_BASE + SRAM_SIZE - 1, 
-        cpu.pc);//ddddddd*/
-
-         /* panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] "
-        "mrom [" FMT_PADDR ", " FMT_PADDR "] "
-        "sram [" FMT_PADDR ", " FMT_PADDR "] "
-        "flash [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
-        addr, PMEM_LEFT, PMEM_RIGHT, 
-        MROM_BASE, MROM_BASE + MROM_SIZE - 1,
-        SRAM_BASE, SRAM_BASE + SRAM_SIZE - 1,
-        FLASH_BASE, FLASH_BASE + FLASH_SIZE - 1,
-        cpu.pc);*/
-
-         /* panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] "
-        "mrom [" FMT_PADDR ", " FMT_PADDR "] "
-        "sram [" FMT_PADDR ", " FMT_PADDR "] "
-        "flash [" FMT_PADDR ", " FMT_PADDR "] "
-        "psram [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
-        addr, PMEM_LEFT, PMEM_RIGHT, 
-        MROM_BASE, MROM_BASE + MROM_SIZE - 1,
-        SRAM_BASE, SRAM_BASE + SRAM_SIZE - 1,
-        FLASH_BASE, FLASH_BASE + FLASH_SIZE - 1,
-        PSRAM_BASE, PSRAM_BASE + PSRAM_SIZE - 1,
-        cpu.pc);*/
+  
           panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] "
         "mrom [" FMT_PADDR ", " FMT_PADDR "] "
         "sram [" FMT_PADDR ", " FMT_PADDR "] "
@@ -287,7 +256,7 @@ void init_mem() {
 #if   defined(CONFIG_PMEM_MALLOC)
   pmem = malloc(CONFIG_MSIZE);
   assert(pmem);
-   /* mrom = malloc(MROM_SIZE);//dddddddddddddd
+    mrom = malloc(MROM_SIZE);//dddddddddddddd
   assert(mrom);
   sram = malloc(SRAM_SIZE);
   assert(sram);//ddddddddddd
@@ -296,7 +265,7 @@ void init_mem() {
     psram = malloc(PSRAM_SIZE);  // 添加 PSRAM 分配
   assert(psram);
     sdram = malloc(SDRAM_SIZE);  // 添加 SDRAM 分配
-  assert(sdram);*/
+  assert(sdram);
 #endif
 #ifdef CONFIG_MEM_RANDOM
   uint32_t *p = (uint32_t *)pmem;
@@ -306,7 +275,7 @@ void init_mem() {
   }
 
     // 随机初始化MROM和SRAM
-  /*p = (uint32_t *)mrom;//dddddddddddddddddddddddddd
+  p = (uint32_t *)mrom;//dddddddddddddddddddddddddd
   for (i = 0; i < (int) (MROM_SIZE / sizeof(p[0])); i ++) {
     p[i] = rand();
   }
@@ -331,7 +300,7 @@ void init_mem() {
     p = (uint32_t *)sdram;
   for (i = 0; i < (int) (SDRAM_SIZE / sizeof(p[0])); i ++) {
     p[i] = rand();
-  }*/
+  }
 #endif
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
   Log("MROM area [0x%x, 0x%x]", MROM_BASE, MROM_BASE + MROM_SIZE - 1);
@@ -390,11 +359,11 @@ void paddr_write(paddr_t addr, int len, word_t data) {
 #endif
 }
 
+*/
 
 
 
-
-/*#include <memory/host.h>
+#include <memory/host.h>
 #include <memory/paddr.h>
 #include <device/mmio.h>
 #include <isa.h>
@@ -442,4 +411,4 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);
-}*/
+}
