@@ -1,55 +1,62 @@
 module ysyx_24090012_LSU (
     input wire         clock,
     input wire         reset,
-    output reg [2:0] state_out,
+    output reg [2:0] state_out,   //换成wire
   
-    input   mem_unsigned,
+   // input   mem_unsigned,
 
     input [31:0] lsu_in_pc,
-    output reg [31:0] lsu_out_pc,
+    output  [31:0] lsu_out_pc,   //不清楚是否需要，或许可以去掉
 
-    input is_ecall,
-    input is_mret,
-    output out_is_ecall,
-    output out_is_mret,
+  //  input is_ecall,
+  //  input is_mret,
+  //  output out_is_ecall,
+  //  output out_is_mret,
 
     // EXU Interface (slave)
     input  wire [31:0] mem_addr,
     input  wire        mem_valid,
     input  wire [31:0] mem_wdata,
-    input  wire [3:0]  mem_wmask,
-    input  wire        mem_wen,
-    output reg         mem_ready,
+   
+   // input  wire        mem_wen,
+    output          mem_ready,
 
-    input  wire [2:0]  mem_awsize,
-    input  wire [2:0]  mem_arsize,
+    output wire [31:0] data_hazard_lsu_inst,
+    output wire [31:0]  lsu_hazard_result,
+ 
+   // input  wire [2:0]  mem_awsize,
+   // input  wire [2:0]  mem_arsize,
 
-    input [4:0]  mem_rd,        // 流水线流水线流水线   
-    input        mem_rd_wen,    // 流水线流水线流水线
+   
     input [31:0] mem_result,    // 流水线流水线流水线
     input wire [31:0] next_pc,
 
-    input        is_use_lsu,    // 流水线流水线流水线
+   // input        is_use_lsu,    // 流水线流水线流水线
     
     // 传递给WBU的寄存器写回信息
-    output [4:0]  wbu_rd,      // 流水线流水线流水线
-    output        wbu_rd_wen,  // 流水线流水线流水线
+ //   output [4:0]  wbu_rd,      // 流水线流水线流水线
+  //  output        wbu_rd_wen,  // 流水线流水线流水线
     output [31:0] wbu_data,    // 流水线流水线流水线
 
-    input [11:0] csr_addr,
+    //input [11:0] csr_addr,
     input [31:0] csr_wdata,
-    input csr_wen,
+    //input csr_wen,
 
-    output [11:0] wbu_csr_addr,
+   // output [11:0] wbu_csr_addr,
     output [31:0] wbu_csr_wdata,
-    output wbu_csr_wen,
+   // output wbu_csr_wen,
+
+    input [31:0] exu_to_lsu_inst,
+    output [31:0] lsu_to_wbu_inst,
  
-    output reg    wbu_csr_valid,
+    output     wbu_csr_valid,
     output        wbu_csr_ready,
 
-    output reg    wbu_valid,   // 流水线流水线流水线
+    output     wbu_valid,   // 流水线流水线流水线
     input         wbu_ready,   // 流水线流水线流水线
     output [31:0] wbu_next_pc, // 流水线流水线流水线
+
+    output wire [63:0] lsu_reg_num,
 
 
     input [63:0] num,
@@ -108,34 +115,65 @@ module ysyx_24090012_LSU (
     localparam WBU_WAIT    = 3'd6;
     localparam SAVE_STATE  = 3'd7; 
    
+assign lsu_to_wbu_inst = exu_to_lsu_inst_r;
+assign data_hazard_lsu_inst = exu_to_lsu_inst_r;
+
+assign lsu_hazard_result = saved_result;
+
+assign lsu_reg_num = num_r;
+
+wire [6:0] opcode = exu_to_lsu_inst_r[6:0];
+wire [2:0] func3 = exu_to_lsu_inst_r[14:12];
 
 
-    
+wire saved_mem_unsigned = 
+    (opcode == 7'b0000011 && func3 == 3'b100) || // LBU
+    (opcode == 7'b0000011 && func3 == 3'b101);   // LHU
+
+wire saved_is_use_lsu = (opcode == 7'b0000011) || (opcode == 7'b0100011);  
+wire saved_wen = (opcode == 7'b0100011);
+
+
+   wire [2:0] saved_arsize = 
+    (opcode == 7'b0000011 && (func3 == 3'b000 || func3 == 3'b100)) ? 3'b000 :  // LB/LBU
+    (opcode == 7'b0000011 && (func3 == 3'b001 || func3 == 3'b101)) ? 3'b001 :  // LH/LHU
+    (opcode == 7'b0000011 && func3 == 3'b010) ? 3'b010 :                       // LW
+    3'b000;      
+
+    wire [2:0] saved_awsize = 
+    (opcode == 7'b0100011 && func3 == 3'b000) ? 3'b000 :  // SB
+    (opcode == 7'b0100011 && func3 == 3'b001) ? 3'b001 :  // SH
+    (opcode == 7'b0100011 && func3 == 3'b010) ? 3'b010 :  // SW
+    3'b000;     
+
+
+    reg [31:0] exu_to_lsu_inst_r;
 
     // 寄存器定义
     reg [2:0] state;
-    reg [31:0] saved_addr;
+    reg [31:0] saved_addr;//读写地址
     reg [31:0] saved_wdata;
-    reg [3:0]  saved_wmask;
-    reg [2:0]  saved_arsize;
-    reg [2:0]  saved_awsize;
+    
+     // 组合逻辑：状态转换和控制信号生成
+    reg [2:0] next_state;
+    reg [31:0] processed_rdata;//用于对读出数据进行寄存，最后赋值给mem rdata
+
     reg [3:0]  curr_id;    // 当前事务ID
-    reg saved_unsigned;
-    reg [4:0]  saved_rd;//流水线流水线流水线
-    reg        saved_rd_wen;//流水线流水线流水线
+  
+   // reg [4:0]  saved_rd;//流水线流水线流水线
+   // reg        saved_rd_wen;//流水线流水线流水线
     reg [31:0] saved_result;//流水线流水线流水线    
-    reg        saved_is_use_lsu;
+ 
     reg [31:0] saved_next_pc;
-    reg saved_mem_unsigned;
+   
 
     reg  [31:0] saved_pc;
 
-    reg        saved_wen;
-    reg saved_is_ecall;
-    reg saved_is_mret;
-    reg [11:0] saved_csr_addr;
+  
+ 
+    //reg [11:0] saved_csr_addr;
     reg [31:0] saved_csr_wdata;
-    reg saved_csr_wen;
+    //reg saved_csr_wen;
 
     reg [31:0] lsu_count;          // LSU总操作计数器
     reg [31:0] read_count;         // 读操作计数器
@@ -173,28 +211,26 @@ end
         end else begin
             // 在IDLE状态且有新请求时保存数据
             if (state == IDLE && mem_valid) begin
-                saved_addr <= mem_addr;
-                saved_wdata <= mem_wdata;
-                saved_wmask <= mem_wmask;
-                saved_arsize <= mem_arsize;
-                saved_awsize <= mem_awsize;
-                saved_unsigned <= mem_unsigned;
+                saved_addr <= mem_addr;//读写地址
+                saved_wdata <= mem_wdata;//写数据
+             
+              
+              
                 curr_id <= curr_id + 4'h1;  // 递增事务ID
-                saved_rd <= mem_rd;           // 流水线流水线流水线
-                saved_rd_wen <= mem_rd_wen;   // 流水线流水线流水线
+               // saved_rd <= mem_rd;           // 流水线流水线流水线
+              //  saved_rd_wen <= mem_rd_wen;   // 流水线流水线流水线
                 saved_result <= mem_result;   // 流水线流水线流水线
-                saved_is_use_lsu <= is_use_lsu;
+             
                 saved_next_pc <= next_pc;
-                saved_wen <= mem_wen;
-                saved_is_ecall <= is_ecall;
-                saved_is_mret <= is_mret;
-                saved_csr_addr <= csr_addr;
-                saved_csr_wen <= csr_wen;
-                saved_csr_wdata <= csr_wdata;
-                saved_pc <= lsu_in_pc;
-                saved_mem_unsigned <= mem_unsigned;
-                num_r <= num;
                
+               
+                //saved_csr_addr <= csr_addr;
+                //saved_csr_wen <= csr_wen;
+                saved_csr_wdata <= csr_wdata;
+                saved_pc <= lsu_in_pc;//                           不确定是否需要
+               // saved_mem_unsigned <= mem_unsigned;
+                num_r <= num;
+                exu_to_lsu_inst_r <= exu_to_lsu_inst;
             end
 
    // 更新计数器 - 当读操作完成时
@@ -217,10 +253,10 @@ end
         end
     end
 
-    // 组合逻辑：状态转换和控制信号生成
-    reg [2:0] next_state;
-    reg [31:0] processed_rdata;//用于对读出数据进行寄存，最后赋值给mem rdata
-
+   assign mem_ready = (state == IDLE);
+   assign wbu_valid = (state == WBU_WAIT);
+   assign wbu_csr_valid = (state == WBU_WAIT);
+   assign  lsu_out_pc = saved_pc;
 
 
     always @(*) begin
@@ -234,7 +270,7 @@ end
         io_master_bready  = 0;
         io_master_arvalid = 0;
         io_master_rready  = 0;
-        mem_ready = 0;
+      //  mem_ready = 0;
        
         
         // 固定值
@@ -259,20 +295,19 @@ end
         io_master_wlast  = 1'b1;            // 单次传输永远为1
 
 
-       wbu_rd = saved_rd;//流水线流水线流水线
-       wbu_rd_wen = saved_rd_wen;//流水线流水线流水线
+      // wbu_rd = saved_rd;//流水线流水线流水线
+      // wbu_rd_wen = saved_rd_wen;//流水线流水线流水线
        wbu_data = saved_result;//流水线流水线流水线
        wbu_next_pc = saved_next_pc;
-       wbu_valid = 1'b0;
-       wbu_csr_valid = 1'b0;
+      // wbu_valid = 1'b0;
+     //  wbu_csr_valid = 1'b0;
 
-       wbu_csr_addr = saved_csr_addr;
+     //  wbu_csr_addr = saved_csr_addr;
        wbu_csr_wdata = saved_csr_wdata;
-       wbu_csr_wen = saved_csr_wen;
+    //   wbu_csr_wen = saved_csr_wen;
 
-       lsu_out_pc = saved_pc;
-       out_is_ecall = saved_is_ecall;
-       out_is_mret = saved_is_mret;
+      
+   
 
        sim_lsu_addr = saved_addr;
       
@@ -280,7 +315,7 @@ end
         // 状态转换和控制信号生成
         case (state)
             IDLE: begin
-                mem_ready = 1'b1;//流水线流水线流水线
+              //  mem_ready = 1'b1;//改为wire assign
                 if (mem_valid) begin//流水线流水线流水线
                     // 有新请求，进入保存状态
                    
@@ -300,8 +335,8 @@ end
             end
 
             WBU_WAIT: begin //流水线流水线流水线    
-                wbu_valid = 1'b1; 
-                wbu_csr_valid = 1'b1;
+               // wbu_valid = 1'b1; 
+              //  wbu_csr_valid = 1'b1;
                 if (wbu_ready  && wbu_csr_ready) begin
                     // WBU已就绪，完成操作
                     next_state = IDLE;
@@ -402,18 +437,17 @@ end
 
 
 
-reg is_mrom_region;
-reg is_uart_region;
+   wire is_mrom_region = (saved_addr[31:24] == 8'h20);
+   wire is_uart_region = (saved_addr[31:24] == 8'h10);
 
-
+//这里processed data和 下面的io master信号也能换成wire
 
 always @(*) begin
     // 默认值
     processed_rdata = 32'b0;
         // 判断地址区间 - MROM区域通常在0x2000_0000开始
    
- is_mrom_region = (saved_addr[31:24] == 8'h20);
- is_uart_region = (saved_addr[31:24] == 8'h10);
+
 
 
     // 根据读操作类型处理数据
@@ -516,12 +550,12 @@ end
 
 
 
-
+//
 
 always @(*) begin
     // 默认值
     io_master_wdata  = saved_wdata;//综合锁存器需要 yosys
-  is_uart_region = (saved_addr[31:24] == 8'h10);
+  //is_uart_region = (saved_addr[31:24] == 8'h10);
     io_master_wstrb = 4'b0000;
  //io_master_wstrb = 1;
 
@@ -692,48 +726,5 @@ endfunction
 
 
 endmodule
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

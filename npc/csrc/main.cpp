@@ -617,7 +617,34 @@ extern "C" void ebreak(uint32_t exit_code) {
 }
 
 
+/*void exec_once(NpcState *s) {
+ 
+        // 时钟下降沿
+        s->top->reset = 0;
 
+
+        s->top->clock = 0;
+        s->top->eval();
+        //if (tfp) tfp->dump(main_time++);
+        // if (record_wave && tfp) tfp->dump(main_time++);
+        
+        s->top->eval();
+        //if (tfp) tfp->dump(main_time++);
+      //    if (record_wave && tfp) tfp->dump(main_time++);
+   
+    
+        
+        // 时钟上升沿
+        s->top->clock = 1;
+        s->top->eval();
+        //if (tfp) tfp->dump(main_time++);
+        // if (record_wave && tfp) tfp->dump(main_time++);
+        
+        s->top->eval();
+       // if (tfp) tfp->dump(main_time++);
+        // if (record_wave && tfp) tfp->dump(main_time++);
+     
+}*/
 
 // 执行单条指令的函数（类似于 NEMU 的 exec_once）
 void exec_once(NpcState *s) {
@@ -655,7 +682,7 @@ void exec_once(NpcState *s) {
 
         s->top->clock = 0;
         s->top->eval();
-        //if (tfp) tfp->dump(main_time++);
+       // if (tfp) tfp->dump(main_time++);
         // if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
@@ -667,7 +694,7 @@ void exec_once(NpcState *s) {
         // 时钟上升沿
         s->top->clock = 1;
         s->top->eval();
-        //if (tfp) tfp->dump(main_time++);
+      //  if (tfp) tfp->dump(main_time++);
         // if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
@@ -699,9 +726,6 @@ void exec_once(NpcState *s) {
 
 
  
-    /*    if (get_if_allow_in()) {
-            cycle_count = 0;  // 收到新指令时重置计数器
-        }*/
 
           // 设置RegisterFile上下文以检查指令完成状态
        
@@ -751,14 +775,7 @@ void exec_once(NpcState *s) {
 
 
 
-        // 设置LSU上下文以获取内存地址     //流水线判断写入地址不能在lsu中，要从regfile中
-   /* svScope lsu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.lsu");
-    if (lsu_scope == NULL) {
-        fprintf(stderr, "Error: Unable to set DPI scope for LSU\n");
-        exit(1);
-    }
-    svSetScope(lsu_scope);
-    uint32_t mem_addr = get_saved_addr();  // 假设LSU是CPU的直接子模块*/
+   
     
 svScope regfile_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.regfile");
 if (regfile_scope == NULL) {
