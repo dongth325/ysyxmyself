@@ -28,7 +28,8 @@ extern "C" int get_pc_value();
 extern "C" int get_inst_r();
 extern "C" int get_if_allow_in();
 extern "C" int get_saved_addr();
-
+extern "C" int get_instr_completed();
+extern "C" int get_saved_sim_lsu_addr();
 
 
 static VerilatedVcdC* tfp = nullptr;
@@ -197,8 +198,8 @@ int cmd_si(char *args) {
 extern "C" {   //所有性能计数器dpi-c
     // IFU相关
     extern int get_ifu_count();
-    extern int get_hit_count();
-    extern int get_miss_count();
+  //  extern int get_hit_count();
+  //  extern int get_miss_count();
     // IDU相关
     extern int get_idu_count();
     extern int get_compute_inst_count();
@@ -262,8 +263,8 @@ void print_performance_stats() {
     }
     svSetScope(ifu_scope);
     ifu_count = get_ifu_count();
-    hit_count = get_hit_count();
-    miss_count = get_miss_count();
+   // hit_count = get_hit_count();
+   // miss_count = get_miss_count();
     double hit_rate = (hit_count + miss_count > 0) ? 
                  (100.0 * hit_count / (hit_count + miss_count)) : 0.0;
     
@@ -403,7 +404,7 @@ int cmd_q(char *args) {
  print_performance_stats();
 
 
-   close_pc_trace();//npc执行后关闭用于cachesim的pc序列统计
+  // close_pc_trace();//npc执行后关闭用于cachesim的pc序列统计
 
 
      if (tfp) {
@@ -616,29 +617,38 @@ extern "C" void ebreak(uint32_t exit_code) {
 }
 
 
+/*void exec_once(NpcState *s) {
+ 
+        // 时钟下降沿
+        s->top->reset = 0;
 
+
+        s->top->clock = 0;
+        s->top->eval();
+        //if (tfp) tfp->dump(main_time++);
+        // if (record_wave && tfp) tfp->dump(main_time++);
+        
+        s->top->eval();
+        //if (tfp) tfp->dump(main_time++);
+      //    if (record_wave && tfp) tfp->dump(main_time++);
+   
+    
+        
+        // 时钟上升沿
+        s->top->clock = 1;
+        s->top->eval();
+        //if (tfp) tfp->dump(main_time++);
+        // if (record_wave && tfp) tfp->dump(main_time++);
+        
+        s->top->eval();
+       // if (tfp) tfp->dump(main_time++);
+        // if (record_wave && tfp) tfp->dump(main_time++);
+     
+}*/
 
 // 执行单条指令的函数（类似于 NEMU 的 exec_once）
 void exec_once(NpcState *s) {
-    /* 从内存中获取指令
-    uint32_t inst;
-    execution_count++;//实际循环了多少次exec_once 也就是真实执行次数 可截止到报错（可在下方添加以便追寻报错）
-    uint32_t pc = s->pc;//h后面会再复用
-    if (pc >= MEM_BASE && pc < MEM_BASE + MEM_SIZE) {
-        //inst = pmem_read(pc);
-         //std::cout << "Fetched instruction: 0x" << std::hex << inst << std::dec << std::endl;
-        //s->top->mem_data = inst;
-         s->top->input_pc = pc;
-         
-         s->top->input_valid = 1;
-         
-    } else {
-        std::cerr << "Error: PC out of bounds: 0x" << std::hex << pc << std::dec << std::endl;
-        std::cout << "Total instructions executed before error: " << execution_count << std::endl;  // 输出执行次数
-        exit(1);
-    }*/
- //111111111111111111111111111111111111111111111111111111111111111111111111111111111111
-
+  
              // 时钟上升沿（更新 PC 和寄存器）
   
         // 设置CPU上下文
@@ -652,8 +662,8 @@ void exec_once(NpcState *s) {
     // 获取旧的PC值
     uint32_t old_pc = get_pc_value();
     
-    //bool record_wave = (old_pc >= 0x80000400);
-bool record_wave = 1;//运行difftest以外程序默认全部记录波形
+    bool record_wave = (old_pc >= 0xa0000400);
+//bool record_wave = 1;//运行difftest以外程序默认全部记录波形
      static int cycle_count = 0;  // 静态计数器，确保在函数调用
 
     // 使用do-while循环等待指令执行完成
@@ -663,7 +673,7 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
             return;  // 立即返回
         }
 
-
+     
         
 
         // 时钟下降沿
@@ -672,8 +682,8 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
 
         s->top->clock = 0;
         s->top->eval();
-        //if (tfp) tfp->dump(main_time++);
-       //  if (record_wave && tfp) tfp->dump(main_time++);
+       // if (tfp) tfp->dump(main_time++);
+        // if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
         //if (tfp) tfp->dump(main_time++);
@@ -684,8 +694,8 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
         // 时钟上升沿
         s->top->clock = 1;
         s->top->eval();
-       // if (tfp) tfp->dump(main_time++);
-      //   if (record_wave && tfp) tfp->dump(main_time++);
+      //  if (tfp) tfp->dump(main_time++);
+        // if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
        // if (tfp) tfp->dump(main_time++);
@@ -695,6 +705,7 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
 
 
                cycle_count++;  // 增加每条指令周期计数
+               
         if (cycle_count >= 200000) {
             std::cout << "\nError: No new instruction received for 200000 cycles, simulation terminated" << std::endl;
          npc_state.ebreak_encountered = true;
@@ -706,29 +717,45 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
     }
     svSetScope(cpu_scope);
     
-    // 获取旧的PC值
+    
     uint32_t old_pc = get_pc_value();
 
     printf("111111111111111pc is %08x from exec_once.cpp line:485\n",old_pc);
-
-
-
-
-
-
             return;
         }
 
 
-        if (get_if_allow_in()) {
+ 
+
+          // 设置RegisterFile上下文以检查指令完成状态
+       
+
+
+      svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu");
+    if (cpu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope for CPU\n");
+        exit(1);
+    }
+    svSetScope(cpu_scope);
+      
+       s->pc = get_pc_value();
+
+
+        svScope regfile_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.regfile");
+        if (regfile_scope == NULL) {
+            fprintf(stderr, "Error: Unable to set DPI scope for RegisterFile\n");
+            exit(1);
+        }
+        svSetScope(regfile_scope);
+    
+ if (get_instr_completed()) {
             cycle_count = 0;  // 收到新指令时重置计数器
         }
     
-
-    
-        s->pc = get_pc_value();
       
-    } while (!get_if_allow_in());
+   // } while (!get_if_allow_in());
+
+    } while (!get_instr_completed());  // 使用之前获取的指令完成状态
    
     // 更新指令计数
     s->inst_count++;//用不上
@@ -748,23 +775,26 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
 
 
 
-        // 设置LSU上下文以获取内存地址
-    svScope lsu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.lsu");
-    if (lsu_scope == NULL) {
-        fprintf(stderr, "Error: Unable to set DPI scope for LSU\n");
-        exit(1);
-    }
-    svSetScope(lsu_scope);
-    uint32_t mem_addr = get_saved_addr();  // 假设LSU是CPU的直接子模块
+   
     
+svScope regfile_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.regfile");
+if (regfile_scope == NULL) {
+    fprintf(stderr, "Error: Unable to set DPI scope for regfile\n");
+    exit(1);
+}
+svSetScope(regfile_scope);
+uint32_t mem_addr = get_saved_sim_lsu_addr();
+//printf("saved_lsu_addr =  0x%08x\n", mem_addr);
+
     // 检查是否需要跳过DiffTest
-    bool is_load = (inst & 0x7F) == 0x03;
-    bool is_store = (inst & 0x7F) == 0x23;
+    //bool is_load = (inst & 0x7F) == 0x03;//流水线检测的时候inst不是当前diff的inst，所以不检测inst了。太麻烦了
+    //bool is_store = (inst & 0x7F) == 0x23;
     
-    if ((is_load || is_store) && (((mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) ||  // UART地址范围，下面的spi
+   // if ((is_load || is_store) && (((mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) ||  // UART地址范围，下面的spi
+   if ((((mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) ||
         (mem_addr >= 0x10001000 && mem_addr <= 0x10001fff))||  // UART扩展地址范围
         (mem_addr >= 0x02000000 && mem_addr <= 0x0200000f) )    ) {// CLINT时钟地址范围
-       // printf("Skipping DiffTest for UART access at 0x%08x\n", mem_addr);
+        //printf("Skipping DiffTest for UART access at 0x%08x\n", mem_addr);
         difftest_skip_ref();
     }
        
@@ -878,11 +908,10 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
         printf("rrrrrrrreset555 = %d \n", top->reset);
     }
    
-        //printf("Available Verilator scopes:\n");
-//Verilated::scopesDump();
+     
 
 
-  init_pc_trace("pc_trace.txt");//初始化用于cachesim的pc序列统计
+ // init_pc_trace("pc_trace.txt");//初始化用于cachesim的pc序列统计
 
 
 
@@ -901,7 +930,6 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
     delete[] memory;
    
 
-    //trace->close();
 
     return 0;
 }

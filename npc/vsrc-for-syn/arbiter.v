@@ -33,9 +33,7 @@ module ysyx_24090012_arbiter(
     output wire        lsu_rlast,
     output wire [3:0]  lsu_rid,
 
-    // IFU Master Interface
- // IFU Master Interface (完整的AXI接口)
-  
+
     
     // 读地址通道 使用
     input  wire        ifu_arvalid,
@@ -165,6 +163,13 @@ module ysyx_24090012_arbiter(
     assign lsu_bresp        = io_master_bresp;
     assign lsu_bid          = io_master_bid;
 
+      // LSU读响应
+    assign lsu_rvalid = io_master_rvalid && is_lsu_read;
+    assign lsu_rresp  = io_master_rresp;
+    assign lsu_rdata  = io_master_rdata;
+    assign lsu_rlast  = io_master_rlast;
+    assign lsu_rid    = io_master_rid;
+
    
 
    // 状态信号
@@ -172,21 +177,12 @@ module ysyx_24090012_arbiter(
     wire is_lsu_write = (current_state == LSU_WRITE);
     wire is_ifu_read  = (current_state == IFU_READ);
 
-//wire use_lsu_addr = (current_state == IDLE && lsu_arvalid) || is_lsu_read; //流水线先注释掉，设计的有问题
-//wire use_ifu_addr = (current_state == IDLE && ifu_arvalid) || is_ifu_read;
 
-// 读通道连接 - 使用统一的选择信号
-/*assign io_master_arvalid = (lsu_arvalid && (current_state == IDLE || is_lsu_read)) || 
-                          (ifu_arvalid && (current_state == IDLE || is_ifu_read));*/   //流水线 注释掉 设计的有问题
 
 assign io_master_arvalid = (lsu_arvalid && is_lsu_read) || 
                           (ifu_arvalid && is_ifu_read);
 
-/*assign io_master_araddr  = use_lsu_addr ? lsu_araddr : ifu_araddr;
-assign io_master_arid    = use_lsu_addr ? lsu_arid : ifu_arid;
-assign io_master_arlen   = use_lsu_addr ? lsu_arlen : ifu_arlen;
-assign io_master_arsize  = use_lsu_addr ? lsu_arsize : ifu_arsize;
-assign io_master_arburst = use_lsu_addr ? lsu_arburst : ifu_arburst;*/
+
 assign io_master_araddr  = is_lsu_read ? lsu_araddr : ifu_araddr;
 assign io_master_arid    = is_lsu_read ? lsu_arid : ifu_arid;
 assign io_master_arlen   = is_lsu_read ? lsu_arlen : ifu_arlen;
@@ -195,21 +191,12 @@ assign io_master_arburst = is_lsu_read ? lsu_arburst : ifu_arburst;
 
 
 
-
-   // assign lsu_arready      = io_master_arready && (current_state == IDLE || is_lsu_read);
-    //assign ifu_arready      = io_master_arready && (current_state == IDLE || is_ifu_read);
-
  assign lsu_arready      = io_master_arready && is_lsu_read;
  assign ifu_arready      = io_master_arready && is_ifu_read;
 
     assign io_master_rready  = (lsu_rready && is_lsu_read) || (ifu_rready && is_ifu_read);
 
-    // LSU读响应
-    assign lsu_rvalid = io_master_rvalid && is_lsu_read;
-    assign lsu_rresp  = io_master_rresp;
-    assign lsu_rdata  = io_master_rdata;
-    assign lsu_rlast  = io_master_rlast;
-    assign lsu_rid    = io_master_rid;
+  
 
     // IFU读响应
     assign ifu_rvalid = io_master_rvalid && is_ifu_read;
