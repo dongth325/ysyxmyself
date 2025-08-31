@@ -13,6 +13,9 @@
 #include <cstdbool>       // 包含 bool 定义
 
 
+// 声明PC跟踪相关函数
+extern "C" void init_pc_trace(const char* filename);
+extern "C" void close_pc_trace();
 
 
 typedef void (*difftest_memcpy_t)(paddr_t, void*, size_t, bool);
