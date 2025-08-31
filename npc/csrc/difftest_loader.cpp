@@ -2,12 +2,19 @@
 #include "difftest_loader.h"
 #include <iostream>
 #include <fstream> 
+ 
 #include "isa.h" // 包含 CPU_state 的定义
 #include "VysyxSoCFull.h" 
 #include "svdpi.h"
 difftest_memcpy_t difftest_memcpy = nullptr;
 difftest_regcpy_t difftest_regcpy = nullptr;
 difftest_exec_t difftest_exec = nullptr;
+
+
+
+
+
+
 
 
 
@@ -70,9 +77,6 @@ extern "C" void difftest_skip_dut(int nr_ref, int nr_dut) {//add difftest skip..
 
 
 
-
-
-
 void load_difftest_library() {
     void *handle = dlopen("/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/build/riscv32-nemu-interpreter-so", RTLD_LAZY);
     if (!handle) {
@@ -88,7 +92,13 @@ void load_difftest_library() {
         std::cerr << "Failed to load DiffTest functions: " << dlerror() << std::endl;
         exit(1);
     }
+
+
+
+
+   
 }
+
 
 
 void get_dut_cpu_state(VysyxSoCFull *top, CPU_state *dut_cpu_state) {
@@ -137,26 +147,17 @@ svSetScope(csr_scope);
     dut_cpu_state->csr.mtvec = get_csr_reg_value(2);   
     dut_cpu_state->csr.mepc = get_csr_reg_value(3);    
     dut_cpu_state->csr.mstatus = get_csr_reg_value(4); 
-   
-     //  printf("mcause2 = %d\n",dut_cpu_state->csr.mcause);
-     //  printf("mtvec2 = %d\n",dut_cpu_state->csr.mtvec);
-     //  printf("mepc2 = %d\n",dut_cpu_state->csr.mepc);
-     //  printf("mstatus2 = %d\n",dut_cpu_state->csr.mstatus);
-   // printf("yue yue yue yue\n");;
+  
     for (int i = 0; i < 32; i++) {
-       // printf("sun sun sun sun %d\n",i);
-        //printf("当前寄存器值：regs[%d] = 0x%08x\n", i, regs[i]);
-       // dut_cpu_state->gpr[i] = regs[i];
-      // printf("赋值后的 dut_cpu_state->gpr[%d] = 0x%08x\n", i, dut_cpu_state->gpr[i]);
-        //printf("赋值后的 dut_cpu_state->pc = 0x%08x\n", dut_cpu_state->pc);
+      
     }
-    //printf("shu shu shu shu\n");
+  
      
 }
 
 bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
     // 比较通用寄存器
-  for (int i = 0; i < 32; i++) {
+  for (int i = 0; i < 16; i++) {
    
    if (dut->gpr[i] != ref->gpr[i]) {
         std::cerr << "Register " << i << " mismatch: "
@@ -198,6 +199,9 @@ bool isa_difftest_checkregs(CPU_state *dut, CPU_state *ref) {
                   << ", REF = 0x" << ref->csr.mstatus << std::dec << std::endl;
         return false;
     }
+
+  
+    
     return true;
 }
 
@@ -209,12 +213,11 @@ extern "C" void difftest_step(VysyxSoCFull *top,uint32_t pc, uint32_t npc) {
 
 
   // 记录当前PC到跟踪文件用于cachesim
-    if (pc_trace_enabled && pc_trace_file.is_open()) {
+   /* if (pc_trace_enabled && pc_trace_file.is_open()) {
         pc_trace_file << std::hex << "0x" << pc << std::endl;
-    }
-    
+    }*/
 
-
+   
 
     CPU_state ref_cpu_state;
 
@@ -262,7 +265,7 @@ extern "C" void difftest_step(VysyxSoCFull *top,uint32_t pc, uint32_t npc) {
 
         // 重置跳过标志
         is_skip_ref = false;
-       // std::cout << "[DiffTest] Skipped register comparison for current instruction." << std::endl;
+      
         return;
     }
 

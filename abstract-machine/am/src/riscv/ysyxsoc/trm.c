@@ -245,7 +245,7 @@ void halt(int code) {
   
   while (1);
 }
-
+//2025.5.24  下面这一部分先注释掉，先不打印学号 在实现流水线的过程中还没有考虑csr
 static void put_dec(uint32_t num) {
     char buf[10];
     int i = 0;
@@ -265,6 +265,10 @@ void execute_main() {
     //uart_init();
       // 添加CSR读取
   
+
+
+
+  //2025.5.24  下面这一部分先注释掉，先不打印学号 在实现流水线的过程中还没有考虑csr
   uint32_t vendor_id, arch_id;
   __asm__ __volatile__("csrr %0, 0xF11" : "=r"(vendor_id));  // mvendorid
   __asm__ __volatile__("csrr %0, 0xF12" : "=r"(arch_id));    // marchid
