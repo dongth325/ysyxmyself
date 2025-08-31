@@ -28,7 +28,8 @@ extern "C" int get_pc_value();
 extern "C" int get_inst_r();
 extern "C" int get_if_allow_in();
 extern "C" int get_saved_addr();
-
+extern "C" int get_instr_completed();
+extern "C" int get_saved_sim_lsu_addr();
 
 
 static VerilatedVcdC* tfp = nullptr;
@@ -645,7 +646,7 @@ void exec_once(NpcState *s) {
             return;  // 立即返回
         }
 
-
+     
         
 
         // 时钟下降沿
@@ -654,8 +655,8 @@ void exec_once(NpcState *s) {
 
         s->top->clock = 0;
         s->top->eval();
-      //  if (tfp) tfp->dump(main_time++);
-         if (record_wave && tfp) tfp->dump(main_time++);
+        //if (tfp) tfp->dump(main_time++);
+        // if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
         //if (tfp) tfp->dump(main_time++);
@@ -666,8 +667,8 @@ void exec_once(NpcState *s) {
         // 时钟上升沿
         s->top->clock = 1;
         s->top->eval();
-      //  if (tfp) tfp->dump(main_time++);
-         if (record_wave && tfp) tfp->dump(main_time++);
+        //if (tfp) tfp->dump(main_time++);
+        // if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
        // if (tfp) tfp->dump(main_time++);
@@ -677,6 +678,7 @@ void exec_once(NpcState *s) {
 
 
                cycle_count++;  // 增加每条指令周期计数
+               
         if (cycle_count >= 200000) {
             std::cout << "\nError: No new instruction received for 200000 cycles, simulation terminated" << std::endl;
          npc_state.ebreak_encountered = true;
@@ -688,29 +690,48 @@ void exec_once(NpcState *s) {
     }
     svSetScope(cpu_scope);
     
-    // 获取旧的PC值
+    
     uint32_t old_pc = get_pc_value();
 
     printf("111111111111111pc is %08x from exec_once.cpp line:485\n",old_pc);
-
-
-
-
-
-
             return;
         }
 
 
-        if (get_if_allow_in()) {
+ 
+    /*    if (get_if_allow_in()) {
+            cycle_count = 0;  // 收到新指令时重置计数器
+        }*/
+
+          // 设置RegisterFile上下文以检查指令完成状态
+       
+
+
+      svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu");
+    if (cpu_scope == NULL) {
+        fprintf(stderr, "Error: Unable to set DPI scope for CPU\n");
+        exit(1);
+    }
+    svSetScope(cpu_scope);
+      
+       s->pc = get_pc_value();
+
+
+        svScope regfile_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.regfile");
+        if (regfile_scope == NULL) {
+            fprintf(stderr, "Error: Unable to set DPI scope for RegisterFile\n");
+            exit(1);
+        }
+        svSetScope(regfile_scope);
+    
+ if (get_instr_completed()) {
             cycle_count = 0;  // 收到新指令时重置计数器
         }
     
-
-    
-        s->pc = get_pc_value();
       
-    } while (!get_if_allow_in());
+   // } while (!get_if_allow_in());
+
+    } while (!get_instr_completed());  // 使用之前获取的指令完成状态
    
     // 更新指令计数
     s->inst_count++;//用不上
@@ -730,23 +751,33 @@ void exec_once(NpcState *s) {
 
 
 
-        // 设置LSU上下文以获取内存地址
-    svScope lsu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.lsu");
+        // 设置LSU上下文以获取内存地址     //流水线判断写入地址不能在lsu中，要从regfile中
+   /* svScope lsu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.lsu");
     if (lsu_scope == NULL) {
         fprintf(stderr, "Error: Unable to set DPI scope for LSU\n");
         exit(1);
     }
     svSetScope(lsu_scope);
-    uint32_t mem_addr = get_saved_addr();  // 假设LSU是CPU的直接子模块
+    uint32_t mem_addr = get_saved_addr();  // 假设LSU是CPU的直接子模块*/
     
+svScope regfile_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.regfile");
+if (regfile_scope == NULL) {
+    fprintf(stderr, "Error: Unable to set DPI scope for regfile\n");
+    exit(1);
+}
+svSetScope(regfile_scope);
+uint32_t mem_addr = get_saved_sim_lsu_addr();
+//printf("saved_lsu_addr =  0x%08x\n", mem_addr);
+
     // 检查是否需要跳过DiffTest
-    bool is_load = (inst & 0x7F) == 0x03;
-    bool is_store = (inst & 0x7F) == 0x23;
+    //bool is_load = (inst & 0x7F) == 0x03;//流水线检测的时候inst不是当前diff的inst，所以不检测inst了。太麻烦了
+    //bool is_store = (inst & 0x7F) == 0x23;
     
-    if ((is_load || is_store) && (((mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) ||  // UART地址范围，下面的spi
+   // if ((is_load || is_store) && (((mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) ||  // UART地址范围，下面的spi
+   if ((((mem_addr >= 0x10000000 && mem_addr <= 0x10000fff) ||
         (mem_addr >= 0x10001000 && mem_addr <= 0x10001fff))||  // UART扩展地址范围
         (mem_addr >= 0x02000000 && mem_addr <= 0x0200000f) )    ) {// CLINT时钟地址范围
-       // printf("Skipping DiffTest for UART access at 0x%08x\n", mem_addr);
+        //printf("Skipping DiffTest for UART access at 0x%08x\n", mem_addr);
         difftest_skip_ref();
     }
        

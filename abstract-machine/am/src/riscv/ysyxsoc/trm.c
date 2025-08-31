@@ -130,7 +130,7 @@ words = (_data_extra_vma_end - _data_extra_vma_start) / 4;
 
 
 // 检查是否需要复制
-if (src == dst) {
+ if (src == dst) {
   // 源地址和目标地址相同，不需要复制
   putch('S'); putch('k'); putch('i'); putch('p'); putch(':');
   putch('S'); putch('a'); putch('m'); putch('e');

@@ -64,7 +64,9 @@ module ysyx_24090012_EXU(
 
     output  reg [31:0] csr_wdata,//csr csr csr csr
 
-    output  out_csr_wen//csr csr csr csr
+    output  out_csr_wen,//csr csr csr csr
+    input [63:0] num,
+    output reg [63:0] num_r
    
 
  
@@ -141,6 +143,7 @@ end
             csr_addr_r <= 12'b0;
             csr_wen_r <= 1'b0;
             csr_rdata_r <= 32'b0;
+            num_r <= 64'h0;
             
         end else if (state == IDLE && idu_valid) begin
             // 基本输入寄存器更新
@@ -158,6 +161,7 @@ end
             csr_wen_r <= csr_wen;
       
             csr_rdata_r <= csr_rdata;
+            num_r <= num;
         end
     end
 
@@ -235,7 +239,7 @@ always @(*) begin
 
       
     result = 32'b0;
-    next_pc = pc;  // 默认是顺序执行的下一条指令
+    next_pc = 0;  // 默认是0
 
   
   case (state)
@@ -373,7 +377,7 @@ always @(*) begin
                     mem_wen = 0;
                     mem_wmask = 0;
                     mem_arsize = 3'b010;
-                    next_pc = pc + 4;
+                    next_pc = pc_r + 4;
 
                 mem_valid = 1;
                 if(mem_ready) begin
@@ -396,7 +400,7 @@ always @(*) begin
             
 
 
-                    next_pc = pc + 4;
+                    next_pc = pc_r + 4;
                     mem_valid = 1;
                 if(mem_ready) begin
                  
@@ -615,7 +619,7 @@ always @(*) begin
                     mem_arsize = 3'b000;
                     //next_state = WAIT_READY;
   mem_unsigned = 1'b1; 
-  next_pc = pc + 4;
+  next_pc = pc_r + 4;
                     mem_valid = 1;
                 if(mem_ready) begin
                   
@@ -736,7 +740,7 @@ always @(*) begin
 
                     mem_valid = 1;
                     if(mem_ready) begin
-                      next_pc = pc + 4;
+                      next_pc = pc_r + 4;
                       next_state = IDLE;
                     end
 
@@ -754,7 +758,7 @@ always @(*) begin
                     mem_unsigned = 1'b1; 
                     mem_valid = 1;
                     if(mem_ready) begin
-                      next_pc = pc + 4;
+                      next_pc = pc_r + 4;
                       next_state = IDLE;
                     end
 
@@ -796,11 +800,11 @@ always @(*) begin
                     mem_wmask = 1;
                     mem_awsize = 3'b000;
                  
-
+                    next_pc = pc_r + 4;
 
                     mem_valid = 1;
                 if(mem_ready) begin
-                  next_pc = pc + 4;
+                  
                   next_state = IDLE;
                 end
 
@@ -814,10 +818,10 @@ always @(*) begin
                     mem_wmask = 0;
                     mem_arsize = 3'b000;
                   
-
+                    next_pc = pc_r + 4;
                     mem_valid = 1;
                     if(mem_ready) begin
-                      next_pc = pc + 4;
+                      
                       next_state = IDLE;
                     end
 
@@ -927,10 +931,10 @@ end
                     mem_awsize = 3'b001;
                 
 
-
+                    next_pc = pc_r + 4;
                     mem_valid = 1;
                     if(mem_ready) begin
-                      next_pc = pc + 4;
+                      
                       next_state = IDLE;
                     end
 

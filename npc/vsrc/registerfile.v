@@ -11,9 +11,15 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
   input  rd_valid, // 来自EXU的写请求
   output reg  rd_ready,  // 写就绪信号 
   output [DATA_WIDTH-1:0] rdata1,
-  output [DATA_WIDTH-1:0] rdata2
+  output [DATA_WIDTH-1:0] rdata2,
+  input [63:0] num,
+  input [31:0] sim_lsu_addr,//lsu传来用于仿真环境判断读写访问地址是否跳过difftest
+  output reg instr_completed,  // 新增：指令完成标志
+  output reg [63:0] wbu_back_to_idu_num  
 );
  
+
+export "DPI-C" function get_instr_completed; 
   // 导出函数供C语言访问
   export "DPI-C" function get_reg_value;    //综合需要注释
   //reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];  //综合需要实现16个而不是32个
@@ -30,6 +36,9 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
   reg [ADDR_WIDTH-1:0] saved_waddr;
   reg [DATA_WIDTH-1:0] saved_wdata;
   reg saved_wen;
+  reg [63:0] num_r;
+
+  reg [31:0] saved_sim_lsu_addr;
   
   // 读出数据
   assign rdata1 = (raddr1[3:0] == 4'b0) ? 32'b0 : rf[raddr1[3:0]];
@@ -42,10 +51,15 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
       saved_wdata <= 0;
       saved_wen <= 0;
       pc <= 32'h3000_0000;
+      num_r <= 64'h0;
+      instr_completed <= 1'b0;  
+      saved_sim_lsu_addr <= 32'h0;
     end else begin
       // 状态更新
       state <= next_state;
       
+   
+
       // 数据处理
       if (state == IDLE) begin
         if (rd_valid && rd_ready) begin
@@ -54,7 +68,10 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
           saved_wdata <= wdata;
           saved_wen <= wen;
           saved_pc <= next_pc;
+          num_r <= num;
+          saved_sim_lsu_addr <= sim_lsu_addr;
         end
+        instr_completed <= 1'b0;
       end else if (state == WRITE) begin
 
         pc <= saved_pc;
@@ -62,6 +79,11 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
         if (saved_wen && saved_waddr[3:0] != 0) begin
           rf[saved_waddr[3:0]] <= saved_wdata;
         end
+
+        wbu_back_to_idu_num <= num_r;
+
+            // 在WRITE状态完成时设置指令完成标志
+        instr_completed <= 1'b1;
        
       end
     end
@@ -123,7 +145,19 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
   function int get_reg_value(input int reg_index);
     get_reg_value = rf[reg_index]; // 根据索引返回寄存器的值
   endfunction
+
+    // 新增DPI-C函数实现
+  function int get_instr_completed();
+    get_instr_completed = {31'b0, instr_completed}; // 返回指令完成状态
+  endfunction
  
+
+  export "DPI-C"  function get_saved_sim_lsu_addr;
+  function int get_saved_sim_lsu_addr();
+    get_saved_sim_lsu_addr = saved_sim_lsu_addr; // 假设lsu是LSU模块的实例名
+  endfunction
+
+
 endmodule
 
 

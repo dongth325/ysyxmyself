@@ -16,7 +16,10 @@ module ysyx_24090012_IDU(
 
    output  state_out,  // 添加state输出端口
 
-  
+  input [31:0] exu_next_pc,
+
+  output wire control_hazard, //控制冒险信号
+  output  wire [31:0] branch_target_pc, // 添加分支目标PC输出
 
   output reg [6:0] opcode,
   output reg [2:0] func3,
@@ -31,7 +34,10 @@ module ysyx_24090012_IDU(
   output reg [31:0] imm,
 
   output reg [11:0] csr_addr,
-  output reg  csr_wen
+  output reg  csr_wen,
+  input [63:0] num,
+  output reg [63:0] num_r,
+  input [63:0] wbu_num
 
 
 );
@@ -47,7 +53,14 @@ module ysyx_24090012_IDU(
    
     reg [31:0] pc_r;         // PC寄存器
 
+    reg [4:0] rd_r;//数据冒险寄存器
+    reg [11:0] csr_addr_r; 
+    reg   [1:0]     csr_wen_r;
 
+    reg [63:0] num_r_r;//数据冒险寄存器
+    reg  wen_r;//数据冒险寄存器  这个wen可以省略如果最后面积不够的话，可以不对这个wen进行判断
+
+    reg [31:0] exu_next_pc_r;
 
     // 性能计数器
     reg [31:0] idu_count;           // IDU处理指令总计数器
@@ -62,15 +75,35 @@ module ysyx_24090012_IDU(
 
 
   
-    assign idu_to_exu_pc = ifu_to_idu_pc;
+    assign idu_to_exu_pc = pc_r;
     assign state_out = state;//向top模块输出当前state
 
    
 
+    wire csr_hazard = (csr_wen && csr_wen_r == 2'b1 && csr_addr == csr_addr_r && (alu_op != 6'b110010)) ||    //两个都是普通csr指令的情况触发冒险 
+    (csr_wen_r == 2'd2 && (    
+       csr_addr == 12'h341 || 
+       csr_addr == 12'h342  ) && csr_wen && (alu_op != 6'b110010)); //mepc和mcause    //前一个指令是ecall，后面一个是普通csr指令(csrrs csrrw)触发冒险
+
+     // 冒险检测逻辑 - 简化版
+  wire rs1_hazard = wen_r && (rs1 == rd_r) && (rd_r != 5'b0) && 
+  (opcode != 7'b0110111 && opcode != 7'b0010111 && 
+   opcode != 7'b1101111);  // LUI, AUIPC和JAL不使用rs1
+
+wire rs2_hazard = wen_r && (rs2 == rd_r) && (rd_r != 5'b0) && 
+  (opcode == 7'b0110011 || opcode == 7'b1100011 || 
+   opcode == 7'b0100011);  // R-type, B-type和S-type使用rs2
+
+
+   assign control_hazard = (state == BUSY) && 
+   ((exu_next_pc != 32'h0 && exu_next_pc != pc_r) || 
+    (exu_next_pc == 32'h0 && exu_next_pc_r != 32'h0 && exu_next_pc_r != pc_r));
+
+   assign branch_target_pc = (exu_next_pc != 32'h0) ? exu_next_pc : exu_next_pc_r;
 
 always @(posedge clock) begin
    // 当指令被EXU接收执行时，根据opcode更新指令类型计数器
-    if (state == BUSY && next_state == IDLE) begin
+    if (state == BUSY && next_state == IDLE && exu_valid && exu_ready) begin
 
     case (opcode)
         7'b0010011, 7'b0110111, 7'b0110011, 7'b0010111: begin
@@ -130,14 +163,40 @@ end
             jump_inst_count <= 32'h0;
             csr_inst_count <= 32'h0;
             other_inst_count <= 32'h0;
+            num_r <= 64'h0;
+            num_r_r <= 64'h0;
+            rd_r <= 5'h0;
+            exu_next_pc_r <= 32'h0;
+            csr_addr_r <= 12'h0;
+            csr_wen_r <= 2'b0;
 
         end 
 
-        else if (ifu_valid && ifu_ready) begin
+        if (state == BUSY && exu_valid && exu_ready) begin//数据冒险储存上一条指令的rd和序列号
+          rd_r <= rd;
+          csr_addr_r <= csr_addr;
+          num_r_r <= num_r;
+          wen_r <= rd_wen;
+          if (alu_op == 6'b110010) begin  // ECALL
+            csr_wen_r <= 2'd2;  // ECALL特殊情况
+        end else begin
+            csr_wen_r <= {1'b0, csr_wen};  // 普通CSR指令
+        end
+        end
+
+         if (ifu_valid && ifu_ready) begin
           inst_r <= inst;
           pc_r <= ifu_to_idu_pc;
           idu_count <= idu_count + 1;  // idu count计数器
+          num_r <= num;
           end
+
+
+          if (exu_next_pc != 32'h0) begin   //保存检测控制冒险所需的exu的next pc
+            exu_next_pc_r <= exu_next_pc;
+            
+          end
+
     end
 
 
@@ -209,7 +268,7 @@ end
     else if (inst_r[31:20] == 12'b0) begin
       alu_op = 6'b110010;  // ECALL
       csr_wen = 1;
-        rs1 = 5'd17;  // a7寄存器的地址
+       // rs1 = 5'd17;  // a7寄存器的地址
     end
     else if (inst_r[31:20] == 12'b001100000010) begin
       alu_op = 6'b110011;  // MRET
@@ -408,13 +467,26 @@ end
 
       
     endcase
-
-
-     exu_valid = 1'b1;
-                if (exu_ready) begin
-                    next_state = IDLE;
-                end
-
+   
+//先检测控制冒险
+    if ((exu_next_pc != 32'h0 && exu_next_pc != pc_r) || 
+    (exu_next_pc == 32'h0 && exu_next_pc_r != 32'h0 && exu_next_pc_r != pc_r)) begin
+  // 有控制冒险，阻止指令继续并立即切换状态
+  exu_valid = 1'b0;
+  next_state = IDLE;
+end
+// 其次检测数据冒险       //wbu写入后wbu num才更新
+else if (((rs1_hazard || rs2_hazard) || csr_hazard) && (wbu_num != num_r_r)) begin
+      // 有冒险且未解决，阻止指令继续      这个csr hazard的解除逻辑用的是普通regfile传来的wbu num，因为regfile和csr的读写时序是一样的
+      exu_valid = 1'b0;
+    end else begin
+      // 无冒险或冒险已解决，指令可以继续
+      exu_valid = 1'b1;
+      if (exu_ready) begin
+        next_state = IDLE;
+      end
+    end
+    
       end
             
             default: begin
