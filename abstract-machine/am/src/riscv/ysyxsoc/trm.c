@@ -122,8 +122,8 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
   }
 
 
-
 /*
+
 src = (uint32_t*)_data_extra_lma;
 dst = (uint32_t*)_data_extra_vma_start;   //在ysyxsoclinker2中data extra lma前面是一道杠，其余extra的是两道
 words = (_data_extra_vma_end - _data_extra_vma_start) / 4;

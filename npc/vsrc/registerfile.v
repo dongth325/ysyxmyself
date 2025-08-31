@@ -5,17 +5,22 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
   output reg [31:0] pc,
   input [ADDR_WIDTH-1:0] raddr1,
   input [ADDR_WIDTH-1:0] raddr2,
-  input [ADDR_WIDTH-1:0] waddr,
+ // input [ADDR_WIDTH-1:0] waddr,
   input [DATA_WIDTH-1:0] wdata,
-  input wen,
+
+  output wire [31:0] wbu_hazard_result,
+  //input wen,
+  input [31:0] lsu_to_wbu_inst,
+  output wire [31:0] data_hazard_wbu_inst,
   input  rd_valid, // 来自EXU的写请求
-  output reg  rd_ready,  // 写就绪信号 
+  output   rd_ready,  // 写就绪信号 
   output [DATA_WIDTH-1:0] rdata1,
   output [DATA_WIDTH-1:0] rdata2,
   input [63:0] num,
   input [31:0] sim_lsu_addr,//lsu传来用于仿真环境判断读写访问地址是否跳过difftest
   output reg instr_completed,  // 新增：指令完成标志
-  output reg [63:0] wbu_back_to_idu_num  
+  output reg [63:0] wbu_back_to_idu_num,
+  output wire [63:0] wbu_reg_num  
 );
  
 
@@ -33,27 +38,46 @@ export "DPI-C" function get_instr_completed;
   reg state, next_state;
   reg [31:0] saved_pc;
   // 保存写请求的寄存器
-  reg [ADDR_WIDTH-1:0] saved_waddr;
-  reg [DATA_WIDTH-1:0] saved_wdata;
-  reg saved_wen;
+ // reg [ADDR_WIDTH-1:0] saved_waddr;
+ 
+ // reg saved_wen;
   reg [63:0] num_r;
-
+  reg [DATA_WIDTH-1:0] saved_wdata;
   reg [31:0] saved_sim_lsu_addr;
-  
+  reg [31:0] saved_lsu_to_wbu_inst;
   // 读出数据
   assign rdata1 = (raddr1[3:0] == 4'b0) ? 32'b0 : rf[raddr1[3:0]];
   assign rdata2 = (raddr2[3:0] == 4'b0) ? 32'b0 : rf[raddr2[3:0]];
+
+
+  assign data_hazard_wbu_inst = saved_lsu_to_wbu_inst;
+
+  assign wbu_reg_num = num_r;
+
+  assign wbu_hazard_result = saved_wdata;
+
+
+
+
+  wire [4:0] saved_waddr = saved_lsu_to_wbu_inst[11:7];
+  wire [6:0] opcode = saved_lsu_to_wbu_inst[6:0];
+
+
+  wire saved_wen = (opcode == 7'b0010011 || opcode == 7'b0110111 || opcode == 7'b0010111 || opcode == 7'b1110011||
+  opcode == 7'b1101111 || opcode == 7'b1100111 || opcode == 7'b0110011 || 
+   opcode == 7'b0000011);//流水线流水线流水线
   
   always @(posedge clock) begin
     if (reset) begin
       state <= IDLE;
-      saved_waddr <= 0;
+     
       saved_wdata <= 0;
-      saved_wen <= 0;
+     
       pc <= 32'h3000_0000;
       num_r <= 64'h0;
       instr_completed <= 1'b0;  
       saved_sim_lsu_addr <= 32'h0;
+      saved_lsu_to_wbu_inst <= 32'h0;
     end else begin
       // 状态更新
       state <= next_state;
@@ -64,12 +88,13 @@ export "DPI-C" function get_instr_completed;
       if (state == IDLE) begin
         if (rd_valid && rd_ready) begin
           // 保存写请求数据
-          saved_waddr <= waddr;
+       
           saved_wdata <= wdata;
-          saved_wen <= wen;
+        
           saved_pc <= next_pc;
           num_r <= num;
           saved_sim_lsu_addr <= sim_lsu_addr;
+          saved_lsu_to_wbu_inst <= lsu_to_wbu_inst;
         end
         instr_completed <= 1'b0;
       end else if (state == WRITE) begin
@@ -109,18 +134,18 @@ export "DPI-C" function get_instr_completed;
 
 
 
-
+assign rd_ready = (state == IDLE);
 
   
   // 状态机逻辑和数据保存
   always @(*) begin
     // 默认值
     next_state = state;
-    rd_ready = 1'b0;
+   
     
     case (state)
       IDLE: begin
-        rd_ready = 1'b1;
+       
         // 在IDLE状态，如果有有效的写请求，保存数据并转到WRITE状态
         if (rd_valid && rd_ready) begin
           next_state = WRITE;
@@ -159,7 +184,6 @@ export "DPI-C" function get_instr_completed;
 
 
 endmodule
-
 
 
 

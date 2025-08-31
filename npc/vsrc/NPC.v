@@ -103,12 +103,18 @@ module ysyx_24090012(
   wire out_is_mret;
 
 
+  wire [31:0] rs1_data_out;
+  wire [31:0] rs2_data_out;
+
+
 wire instr_completed;
 
   wire [31:0] exu_out_pc;
   wire [31:0] lsu_out_pc;
 
-
+  wire [31:0] idu_to_exu_inst;
+  wire [31:0] exu_to_lsu_inst;
+  wire [31:0] lsu_to_wbu_inst;
    wire ifu_to_idu_valid;   // IFU向IDU发出的有效信号
    wire idu_to_ifu_ready;
 /* verilator lint_off UNOPTFLAT */
@@ -127,6 +133,11 @@ wire instr_completed;
 
     wire [31:0] sim_lsu_addr;
 
+
+
+    wire [31:0] data_hazard_exu_inst;
+    wire [31:0] data_hazard_lsu_inst;
+    wire [31:0] data_hazard_wbu_inst;
    
 
     // PC更新接口
@@ -167,11 +178,20 @@ wire mem_unsigned;//将idu解码信息进行判断，传给lsu用于无符号读
 
  
 
-wire [63:0] ifu_to_idu_num;
+wire [63:0] ifu_to_idu_num;//流水线下传
 wire [63:0] idu_to_exu_num;
 wire [63:0] exu_to_lsu_num;
 wire [63:0] lsu_to_wbu_num;
 wire [63:0] wbu_back_to_idu_num;
+
+
+wire [63:0] wbu_reg_num;//冒险上传
+wire [63:0] exu_reg_num;
+wire [63:0] lsu_reg_num;
+
+wire [31:0] wbu_hazard_result;//冒险上传
+wire [31:0] exu_hazard_result;
+wire [31:0] lsu_hazard_result;
 
  
     wire [31:0] rd_data;
@@ -467,19 +487,37 @@ ysyx_24090012_IDU idu(
     // IFU Interface
     .ifu_ready(idu_to_ifu_ready),    // output: 告诉IFU是否准备好接收新指令
     .ifu_valid(ifu_to_idu_valid),    // input: IFU提供的指令是否有效
-    
+    .rs1_data(rs1_data),
+    .rs2_data(rs2_data),
+
+
+    .data_hazard_exu_inst(data_hazard_exu_inst),
+    .data_hazard_lsu_inst(data_hazard_lsu_inst),
+    .data_hazard_wbu_inst(data_hazard_wbu_inst),
+
+
+    .exu_hazard_result(exu_hazard_result),
+    .lsu_hazard_result(lsu_hazard_result),
+    .wbu_hazard_result(wbu_hazard_result),
     // EXU Interface
     .exu_ready(exu_to_idu_ready),    // input: EXU是否准备好接收新指令
     .exu_valid(idu_to_exu_valid),    // output: 向EXU提供的指令是否有效
     
     .csr_addr(csr_addr),
-    .csr_wen(csr_wen),
+   
+    .rs1_data_out(rs1_data_out),
+    .rs2_data_out(rs2_data_out),
+    .wbu_reg_num(wbu_reg_num),
+    .lsu_reg_num(lsu_reg_num),
+    .exu_reg_num(exu_reg_num),
 
     .exu_next_pc(next_pc),
     .control_hazard(control_hazard),
     .branch_target_pc(branch_target_pc),
     // Instruction Information
     .inst(inst),              // input: 指令
+
+    .idu_to_exu_inst(idu_to_exu_inst),
     
     .state_out(idu_state),  // 连接状态输出
     // Decoded Information
@@ -498,19 +536,29 @@ ysyx_24090012_IDU idu(
   
 );
   ysyx_24090012_RegisterFile regfile(
+
+    .lsu_to_wbu_inst(lsu_to_wbu_inst),
     .next_pc(wbu_next_pc),
     .clock(clock),
     .pc(pc),
     .reset(reset),
     .raddr1(rs1),
     .raddr2(rs2),
-    .waddr(wbu_rd),
+    //.waddr(wbu_rd),
     .wdata(wbu_data),
-    .wen(wbu_rd_wen),
+   // .wen(wbu_rd_wen),
           .rd_valid(wbu_valid),
         .rd_ready(wbu_ready),
 
+
+        .wbu_hazard_result(wbu_hazard_result),
+
+        .data_hazard_wbu_inst(data_hazard_wbu_inst),
+
+        .wbu_reg_num(wbu_reg_num),
+   
     .sim_lsu_addr(sim_lsu_addr),
+   
 
     .rdata1(rs1_data),
     .rdata2(rs2_data),
@@ -530,39 +578,43 @@ ysyx_24090012_IDU idu(
     .clk(clock),
 
   .pc(idu_to_exu_pc),
-  .rs1_data(rs1_data),
-  .rs2_data(rs2_data),  // 添加 rs2_data 连接
+  .rs1_data(rs1_data_out),
+  .rs2_data(rs2_data_out),  // 添加 rs2_data 连接
   .imm(imm),
 
   .out_pc(exu_out_pc),
   .alu_op(alu_op),
    .state_out(exu_state),
 
-   .is_use_lsu(is_use_lsu),
+   .exu_reg_num(exu_reg_num),
+
+   .exu_hazard_result(exu_hazard_result),
+
+   .data_hazard_exu_inst(data_hazard_exu_inst),
+
+ //  .is_use_lsu(is_use_lsu),
 
   .idu_valid(idu_to_exu_valid),
   .idu_ready(exu_to_idu_ready),
+
+  .idu_to_exu_inst(idu_to_exu_inst),
+  .exu_to_lsu_inst(exu_to_lsu_inst),
           // LSU接口
         .mem_addr(mem_addr),
         .mem_valid(mem_valid),
         .mem_wdata(mem_wdata),
-        .mem_wmask(mem_wmask),
-        .mem_wen(mem_wen),
+      
+       
         .mem_ready(mem_ready),
       
-        .mem_arsize(mem_arsize),
-        .mem_awsize(mem_awsize),
-
-        .mem_unsigned(mem_unsigned),
+   
                 // RegisterFile写回接口
-        .rd_addr(rd),
-        .rd_addr_out(rd_addr_out),
+       
         .rd_data(rd_data),
 
        
 
-        .rd_wen(rd_wen),
-        .rd_wen_out(rd_wen_out),
+ 
         // PC更新接口
        
 
@@ -571,20 +623,21 @@ ysyx_24090012_IDU idu(
    
     .mepc(mepc),
 
-    .csr_addr(csr_addr),
-    .csr_wen(csr_wen),
+   
 
-  .result(result),
+  
   .next_pc(next_pc),
    .csr_rdata(csr_rdata),
+
+   .csr_addr(csr_addr),
+   .csr_wen(csr_wen),
 
     .csr_wdata(csr_wdata),
    
     .out_csr_addr(out_csr_addr),
     .out_csr_wen(out_csr_wen),
      
-      .is_ecall(is_ecall),
-      .is_mret(is_mret),
+   
 
       .num(idu_to_exu_num),
       .num_r(exu_to_lsu_num)
@@ -595,17 +648,17 @@ ysyx_24090012_IDU idu(
 
 
    ysyx_24090012_CSR csr(
-  .is_ecall(out_is_ecall),
+  
   .wbu_csr_valid(wbu_csr_valid),
   .wbu_csr_ready(wbu_csr_ready),
   .pc(lsu_out_pc),
   .clk(clock),
   .rst(reset),
   .csr_addr(csr_addr),
-  .wbu_csr_addr(wbu_csr_addr),
-  .csr_wdata(wbu_csr_wdata),
-  .csr_wen(wbu_csr_wen),
 
+  .csr_wdata(wbu_csr_wdata),
+ 
+  .lsu_to_wbu_inst(lsu_to_wbu_inst),
   .csr_rdata(csr_rdata),
   .mstatus(mstatus),
   .mtvec(mtvec),
@@ -620,34 +673,43 @@ ysyx_24090012_IDU idu(
     .clock(clock),
     .reset(reset),
      .next_pc(next_pc),
-    .mem_unsigned(mem_unsigned),  // 无符号处理flag 
+   // .mem_unsigned(mem_unsigned),  // 无符号处理flag 
     .state_out(lsu_state),
     // EXU Interface
     .mem_addr(mem_addr),
     .mem_valid(mem_valid),
     .mem_wdata(mem_wdata),
-    .mem_wmask(mem_wmask),
-    .mem_wen(mem_wen),
+
+    .lsu_hazard_result(lsu_hazard_result),
+
+
+
+    .lsu_reg_num(lsu_reg_num),
+  
+
+
+    .data_hazard_lsu_inst(data_hazard_lsu_inst),
+  //  .mem_wen(mem_wen),
     .mem_ready(mem_ready),
 
     .lsu_in_pc(exu_out_pc),
     .lsu_out_pc(lsu_out_pc),
 
-    .mem_arsize(mem_arsize),
-    .mem_awsize(mem_awsize),
+   // .mem_arsize(mem_arsize),
+   // .mem_awsize(mem_awsize),
 
-    .is_ecall(is_ecall),
-    .is_mret(is_mret),
-    .out_is_ecall(out_is_ecall),
-    .out_is_mret(out_is_mret),
+    //.is_ecall(is_ecall),
+   // .is_mret(is_mret),
+   // .out_is_ecall(out_is_ecall),
+   // .out_is_mret(out_is_mret),
    
-    .mem_rd(rd_addr_out),
-    .mem_rd_wen(rd_wen_out),
-    .mem_result(result),
-    .is_use_lsu(is_use_lsu),
+   // .mem_rd(rd_addr_out),
+   // .mem_rd_wen(rd_wen_out),
+    .mem_result(rd_data),
+   // .is_use_lsu(is_use_lsu),
 
-    .wbu_rd(wbu_rd),
-    .wbu_rd_wen(wbu_rd_wen),
+    //.wbu_rd(wbu_rd),
+    //.wbu_rd_wen(wbu_rd_wen),
     .wbu_data(wbu_data),
 
     .wbu_valid(wbu_valid),
@@ -657,13 +719,16 @@ ysyx_24090012_IDU idu(
     .num(exu_to_lsu_num),
     .num_r(lsu_to_wbu_num),
 
-    .csr_addr(out_csr_addr),
+    //.csr_addr(out_csr_addr),
     .csr_wdata(csr_wdata),
-    .csr_wen(out_csr_wen),
+   // .csr_wen(out_csr_wen),
 
-    .wbu_csr_addr(wbu_csr_addr),
+    .exu_to_lsu_inst(exu_to_lsu_inst),
+    .lsu_to_wbu_inst(lsu_to_wbu_inst),
+
+   // .wbu_csr_addr(wbu_csr_addr),
     .wbu_csr_wdata(wbu_csr_wdata),
-    .wbu_csr_wen(wbu_csr_wen),
+   // .wbu_csr_wen(wbu_csr_wen),
 
     .wbu_csr_valid(wbu_csr_valid),
     .wbu_csr_ready(wbu_csr_ready),
@@ -710,19 +775,6 @@ ysyx_24090012_IDU idu(
         end 
       end
 
-
-
-
-   /*assign wen = (opcode == 7'b0010011 || opcode == 7'b0110111 || opcode == 7'b0010111 || opcode == 7'b1110011||
-                opcode == 7'b1101111 || opcode == 7'b1100111 || opcode == 7'b0110011 || 
-                 opcode == 7'b0000011);*/ //流水线流水线流水线删去
-
- 
-
-
-
-
-  
 
 
 
