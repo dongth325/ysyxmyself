@@ -153,29 +153,8 @@ wire saved_wen = (opcode == 7'b0100011);
  
     //reg [11:0] saved_csr_addr;
     reg [31:0] saved_csr_wdata;
-    //reg saved_csr_wen;
 
-    reg [31:0] lsu_count;          // LSU总操作计数器
-    reg [31:0] read_count;         // 读操作计数器
-    reg [31:0] write_count;        // 写操作计数器
 
-always @(posedge clock) begin
-    // 写响应检测
-    if (io_master_bresp != 2'b00) begin
-        $display("LSU error! bid expected: %h, received: %h, bresp: %b", 
-                curr_id, 
-                io_master_bid, 
-                io_master_bresp);     //综合需要注释
-    end
-    
-    // 读响应检测
-    if (io_master_rresp != 2'b00) begin
-        $display("LSU read ID wrong! curr_id: %h, rid: %h, rresp: %b",
-                curr_id,
-                io_master_rid,
-                io_master_rresp);   //综合需要注释
-    end
-end
 
 
     // 时序逻辑：状态更新和数据保存
@@ -184,9 +163,6 @@ end
             state <= IDLE;
             curr_id <= 4'h0;
 
-            lsu_count <= 32'h0;
-            read_count <= 32'h0;
-            write_count <= 32'h0;
 
         end else begin
             // 在IDLE状态且有新请求时保存数据
@@ -209,17 +185,6 @@ end
                 exu_to_lsu_inst_r <= exu_to_lsu_inst;
             end
 
-   // 更新计数器 - 当读操作完成时
-            if (state == READ_DATA && next_state == IDLE) begin
-                read_count <= read_count + 1;
-                lsu_count <= lsu_count + 1;
-            end
-            
-            // 更新计数器 - 当写操作完成时
-            if (state == WRITE_RESP && next_state == IDLE) begin
-                write_count <= write_count + 1;
-                lsu_count <= lsu_count + 1;
-            end
 
             if (state == READ_DATA && io_master_rvalid && io_master_rresp == 2'b00) begin
                 saved_result <= processed_rdata;
@@ -258,50 +223,12 @@ end
 
         // 默认值
         next_state = state;
-       // io_master_awvalid = 0;
-       // io_master_wvalid  = 0;
-       // io_master_bready  = 0;
-       // io_master_arvalid = 0;
-       // io_master_rready  = 0;
-      //  mem_ready = 0;
-       
-        
-        // 固定值
-       // io_master_awid    = curr_id;        // 使用当前事务ID
-      //  io_master_awlen   = 8'd0;           // 单次传输
-       // io_master_awsize  = saved_awsize;  
-            
-       // io_master_awburst = 2'b01;          // INCR模式
-       //io_master_arid    = curr_id;        // 使用当前事务ID
-      //  io_master_arlen   = 8'd0;           // 单次传输
-       // io_master_arsize  = saved_arsize;  
-          
-      //  io_master_arburst = 2'b01;          // INCR模式
-        
-        // 地址和数据连接
-       // io_master_awaddr = saved_addr;
-       // io_master_araddr = saved_addr;
-       // io_master_wdata  = saved_wdata;    //综合需要注释 （下面的wstrb不是）
-
-
-        //io_master_wstrb  = saved_wmask;
-       // io_master_wlast  = 1'b1;            // 单次传输永远为1
-
-
-      // wbu_rd = saved_rd;//流水线流水线流水线
-      // wbu_rd_wen = saved_rd_wen;//流水线流水线流水线
+     
        wbu_data = saved_result;//流水线流水线流水线
        wbu_next_pc = saved_next_pc;
-      // wbu_valid = 1'b0;
-     //  wbu_csr_valid = 1'b0;
 
-     //  wbu_csr_addr = saved_csr_addr;
        wbu_csr_wdata = saved_csr_wdata;
-    //   wbu_csr_wen = saved_csr_wen;
-
-      
-   
-
+ 
        sim_lsu_addr = saved_addr;
       
         
@@ -374,12 +301,7 @@ end
 
                    else begin
             // 写操作失败，记录错误
-            $display("LSU write error! bid expected: %h, received: %h, bresp: %b", 
-                    curr_id, 
-                    io_master_bid, 
-                    io_master_bresp);     //综合需要注释
-            
-            // 返回IDLE状态
+        
                    next_state = IDLE;
                         end
                 end
@@ -396,25 +318,14 @@ end
               //  io_master_rready = 1'b1;
                 if (io_master_rvalid) begin
                     // 检查响应和ID
-                    //if (io_master_rid == curr_id && io_master_rresp == 2'b00) begin
+                  
                      if (io_master_rresp == 2'b00) begin//在初始化串口发现id不匹配先不对比id
-                        //mem_ready = 1'b1;流水线流水线流水线
                       
-                      //  mem_rdata = processed_rdata; 流水线流水线流水线
-                       //$display("mem_rdata is %h from lsu.v line:197", mem_rdata);
-                      
-                          // 读操作成功完成，更新计数器
                         next_state = WBU_WAIT;//流水线流水线流水线
            
                     end
                     else begin
-                        // 写操作失败，记录错误
-                        $display("LSU write error! bid expected: %h, received: %h, bresp: %b", 
-                                curr_id, 
-                                io_master_bid, 
-                                io_master_bresp);     //综合需要注释
-                        
-                        // 返回IDLE状态
+                    
                         next_state = IDLE;
                     end
                 end
@@ -489,7 +400,7 @@ always @(*) begin
                 2'b10: processed_rdata = {{16{io_master_rdata[31]}}, io_master_rdata[31:16]};
                 default: begin
                     processed_rdata = 32'b0;
-                    $display("error!!!!! half word read is not aligned");        //综合需要注释
+                 
                 end
             endcase
         end
@@ -500,7 +411,7 @@ always @(*) begin
                 2'b10: processed_rdata = {{16{1'b0}}, io_master_rdata[31:16]};
                 default: begin
                     processed_rdata = 32'b0;
-                    $display("error!!!!! half word read is not aligned");        //综合需要注释
+                  
                 end
             endcase
         end
@@ -519,15 +430,14 @@ always @(*) begin
                 2'b00: processed_rdata = io_master_rdata;
                 default: begin
                     processed_rdata = 32'b0;
-                    $display("error!!!!! word read is not aligned");
-                    $display("saved_addr is %h from lsu.v line:303", saved_addr);    //综合需要注释
+                  
                 end
             endcase
         end
         end
         default: begin
             processed_rdata = 32'b0;
-            $display("wrong!!!!! unknown read size");    //综合需要注释
+           
         end
     endcase
 end
@@ -610,7 +520,7 @@ always @(*) begin
         end
         default: begin 
             io_master_wstrb = 4'b0000;
-            $display("error!!!!! half word access is not aligned");   //综合需要注释
+           
         end
     endcase
     end
@@ -627,7 +537,7 @@ always @(*) begin
         end
         default: begin 
             io_master_wstrb = 4'b0000;
-            $display("error!!!!! half word access is not aligned");   //综合需要注释
+           
         end
     endcase
     end
@@ -638,9 +548,7 @@ end
             2'b00: io_master_wstrb = 4'b1111;
             default: begin
                 io_master_wstrb = 4'b0000;
-                $display("error!!!!! word access is not aligned from lsu.v line:236");
-                $display("saved_addr is %h from lsu.v line:237", saved_addr);    //综合需要注释
-                // 应该触发非对齐
+              
             end
         endcase
     end
@@ -649,72 +557,17 @@ end
             2'b00: io_master_wstrb = 4'b1111;
             default: begin
                 io_master_wstrb = 4'b0000;
-                $display("error!!!!! word access is not aligned from lsu.v line:236");
-                $display("saved_addr is %h from lsu.v line:237", saved_addr);     //综合需要注释
-                // 应该触发非对齐
+              
             end
         endcase
     end
     end
         default: begin
             io_master_wstrb = 4'b0000;
-           $display("wrong!!!!!!!saved awsizes is unknown number from lsu.v line:230");
-            $display("saved_awsize is %h from lsu.v line:231", saved_awsize);   //综合需要注释
+         
         end
     endcase
 end   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-always @(reset) begin
-    $display("RESET CHANGED TO %d from lsu \n", reset);    //综合需要注释
-end
-
-export "DPI-C"  function get_saved_addr;
-function int get_saved_addr();
-  get_saved_addr = saved_addr; // 假设lsu是LSU模块的实例名
-endfunction
-
-
-
-
-    // 导出DPI-C函数，供C++仿真环境访问
-export "DPI-C" function get_lsu_count;
-export "DPI-C" function get_read_count;
-export "DPI-C" function get_write_count;
-
-// DPI-C函数实现
-function int get_lsu_count();
-    return lsu_count;
-endfunction
-
-function int get_read_count();
-    return read_count;
-endfunction
-
-function int get_write_count();
-    return write_count;
-endfunction
-
-
-
-
 
 
 

@@ -158,14 +158,6 @@ end
                 num <= num + 64'h1;
             end
 
-              // 在FETCH_DATA状态更新缓存
-          /*  if (state == FETCH_DATA && io_master_rvalid && io_master_rready) begin
-                cache_tags[req_index] <= req_tag;
-                cache_valid[req_index] <= 1'b1;
-                cache_data[req_index] <= io_master_rdata;
-            end*/
-
-
             if (state == FETCH_DATA && io_master_rvalid && io_master_rready) begin
                 case (burst_count)
                     2'b00: begin
@@ -309,27 +301,140 @@ end
   
 
 
-
-
-    
-
-
-    export "DPI-C" function get_ifu_count;
-
-    export "DPI-C" function get_hit_count;
-    export "DPI-C" function get_miss_count;
-
-    // DPI-C函数实现
-    function int get_ifu_count();
-        return ifu_count;
-    endfunction   //综合需要注释
-
-    function int get_hit_count();
-    return hit_count;
-    endfunction
-
-    function int get_miss_count();
-    return miss_count;
-    endfunction
-
 endmodule
+
+
+
+
+
+
+
+
+
+
+
+
+/*module ysyx_24090012_IFU (
+    input  wire         clock,
+    input  wire         reset,
+    
+    // Control Interface
+    input  wire         if_allow_in,    // 允许取指信号
+    input  wire [31:0]  if_next_pc,     // 外部传入的下一条指令地址
+    
+    input control_hazard,
+    input [31:0] branch_target_pc,
+    // IDU Interface
+    input  wire         idu_ready,      // IDU准备好接收新指令
+    output reg         idu_valid,      // 指令有效信号
+    output reg [31:0]  idu_pc,         // 当前指令PC
+    output reg [31:0]  idu_inst,       // 当前指令
+
+    // AXI4 Interface for MROM
+    input  wire         io_master_arready,
+    output reg         io_master_arvalid,
+    output wire [31:0]  io_master_araddr,
+    output wire [3:0]   io_master_arid,
+    output wire [7:0]   io_master_arlen,
+    output wire [2:0]   io_master_arsize,
+    output wire [1:0]   io_master_arburst,
+    
+    output reg [1:0] state_out,
+
+    input  wire         io_master_rvalid,
+    input  wire [31:0]  io_master_rdata,
+    input  wire [3:0]   io_master_rid,
+    input  wire         io_master_rlast,//暂时不用
+    input  wire [1:0]   io_master_rresp,//暂时不用
+    output reg         io_master_rready,
+    output reg  [63:0]  num
+);
+
+    // 状态定义
+    localparam IDLE       = 2'b00;
+    localparam FETCH_ADDR = 2'b01;
+    localparam FETCH_DATA = 2'b10;
+
+    // 寄存器定义
+    reg [1:0] state;
+    reg [1:0] next_state;
+    reg [31:0] saved_pc;    // 锁存的PC
+    reg [3:0]  curr_id;     // 当前事务ID
+
+
+
+    always @(posedge clock) begin
+        if (reset) begin
+            state <= IDLE;
+            curr_id <= 4'h0;
+            saved_pc <= 32'h0;
+           
+        end
+        
+        else begin
+            state <= next_state;
+            
+            if (next_state == FETCH_ADDR) begin
+                saved_pc <= if_next_pc;
+                curr_id <= curr_id + 4'h1;
+               
+            end
+        end
+
+        
+        
+    end
+
+   
+    always @(*) begin
+        // 默认值
+        next_state = state;
+        io_master_arvalid = 1'b0;
+        io_master_rready = 1'b0;
+        idu_valid = 1'b0;
+        state_out = state;
+        case (state)
+            IDLE: begin
+                if (if_allow_in) begin
+                    next_state = FETCH_ADDR;
+                end
+            end
+            
+            FETCH_ADDR: begin
+                io_master_arvalid = 1'b1;
+                if (io_master_arready) begin
+                    next_state = FETCH_DATA;
+                end
+            end
+            
+            FETCH_DATA: begin
+                io_master_rready = 1'b1;
+                if (io_master_rvalid && (io_master_rid == curr_id)) begin
+
+               
+                   
+                    idu_valid = 1'b1;
+                    if (idu_ready) begin
+                        next_state = IDLE;
+                    end
+                end
+            end
+            
+            default: begin
+                next_state = IDLE;
+            end
+        endcase
+    end
+
+    // 其他输出信号直接赋值
+    assign io_master_araddr  = saved_pc;
+    assign io_master_arid    = curr_id;
+    assign io_master_arlen   = 8'b0;        // 单次传输
+    assign io_master_arsize  = 3'b010;      // 4字节
+    assign io_master_arburst = 2'b01;       // INCR模式
+    assign idu_pc    = saved_pc;
+    assign idu_inst  = io_master_rdata;
+
+
+
+endmodule*/
