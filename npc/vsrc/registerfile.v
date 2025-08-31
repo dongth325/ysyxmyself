@@ -1,191 +1,71 @@
 module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WIDTH = 32) (
   input clock,
   input reset,
-  input [31:0] next_pc,
-  output reg [31:0] pc,
+  input [31:0] pc,
   input [ADDR_WIDTH-1:0] raddr1,
   input [ADDR_WIDTH-1:0] raddr2,
- // input [ADDR_WIDTH-1:0] waddr,
+  input [ADDR_WIDTH-1:0] waddr,
   input [DATA_WIDTH-1:0] wdata,
-
-  output wire [31:0] wbu_hazard_result,
-  //input wen,
-  input [31:0] lsu_to_wbu_inst,
-  output wire [31:0] data_hazard_wbu_inst,
+  input wen,
   input  rd_valid, // 来自EXU的写请求
-  output   rd_ready,  // 写就绪信号 
+  output reg  rd_ready,  // 写就绪信号 
   output [DATA_WIDTH-1:0] rdata1,
-  output [DATA_WIDTH-1:0] rdata2,
-  input [63:0] num,
-  input [31:0] sim_lsu_addr,//lsu传来用于仿真环境判断读写访问地址是否跳过difftest
-  output reg instr_completed,  // 新增：指令完成标志
-  output reg [63:0] wbu_back_to_idu_num,
-  output wire [63:0] wbu_reg_num  
+  output [DATA_WIDTH-1:0] rdata2
 );
  
 
-export "DPI-C" function get_instr_completed; 
+  
+
   // 导出函数供C语言访问
   export "DPI-C" function get_reg_value;    //综合需要注释
-  //reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];  //综合需要实现16个而不是32个
-  reg [DATA_WIDTH-1:0] rf [15:0];
-  
-  // 状态定义
-  localparam IDLE = 1'b0;    // 空闲状态，等待写请求
-  localparam WRITE = 1'b1;   // 写入状态，执行寄存器写入
-  
-  // 状态寄存器
-  reg state, next_state;
-  reg [31:0] saved_pc;
-  // 保存写请求的寄存器
- // reg [ADDR_WIDTH-1:0] saved_waddr;
- 
- // reg saved_wen;
-  reg [63:0] num_r;
-  reg [DATA_WIDTH-1:0] saved_wdata;
-  reg [31:0] saved_sim_lsu_addr;
-  reg [31:0] saved_lsu_to_wbu_inst;
+  reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];  //综合需要实现16个而不是32个
+//reg [DATA_WIDTH-1:0] rf [15:0];
   // 读出数据
-  assign rdata1 = (raddr1[3:0] == 4'b0) ? 32'b0 : rf[raddr1[3:0]];
-  assign rdata2 = (raddr2[3:0] == 4'b0) ? 32'b0 : rf[raddr2[3:0]];
-
-
-  assign data_hazard_wbu_inst = saved_lsu_to_wbu_inst;
-
-  assign wbu_reg_num = num_r;
-
-  assign wbu_hazard_result = saved_wdata;
-
-
-
-
-  wire [4:0] saved_waddr = saved_lsu_to_wbu_inst[11:7];
-  wire [6:0] opcode = saved_lsu_to_wbu_inst[6:0];
-
-
-  wire saved_wen = (opcode == 7'b0010011 || opcode == 7'b0110111 || opcode == 7'b0010111 || opcode == 7'b1110011||
-  opcode == 7'b1101111 || opcode == 7'b1100111 || opcode == 7'b0110011 || 
-   opcode == 7'b0000011);//流水线流水线流水线
-  
-  always @(posedge clock) begin
-    if (reset) begin
-      state <= IDLE;
-     
-      saved_wdata <= 0;
-     
-      pc <= 32'h3000_0000;
-      num_r <= 64'h0;
-      instr_completed <= 1'b0;  
-      saved_sim_lsu_addr <= 32'h0;
-      saved_lsu_to_wbu_inst <= 32'h0;
-    end else begin
-      // 状态更新
-      state <= next_state;
+  assign rdata1 = (raddr1 == 5'b0) ? 32'b0 : rf[raddr1];
+  assign rdata2 = (raddr2 == 5'b0) ? 32'b0 : rf[raddr2];
       
-   
 
-      // 数据处理
-      if (state == IDLE) begin
-        if (rd_valid && rd_ready) begin
-          // 保存写请求数据
-       
-          saved_wdata <= wdata;
-        
-          saved_pc <= next_pc;
-          num_r <= num;
-          saved_sim_lsu_addr <= sim_lsu_addr;
-          saved_lsu_to_wbu_inst <= lsu_to_wbu_inst;
-        end
-        instr_completed <= 1'b0;
-      end else if (state == WRITE) begin
-
-        pc <= saved_pc;
-        // 执行写入操作
-        if (saved_wen && saved_waddr[3:0] != 0) begin
-          rf[saved_waddr[3:0]] <= saved_wdata;
-        end
-
-        wbu_back_to_idu_num <= num_r;
-
-            // 在WRITE状态完成时设置指令完成标志
-        instr_completed <= 1'b1;
-       
-      end
+  // 写数据
+  /*always @(posedge clk) begin
+    if (wen && rd_valid && rd_ready && waddr != 5'b0) begin
+     // $display("At time %t: Writing to  (rf[%d]), old value = %h from (registerfile.v11111)", $time, waddr,rf[waddr]);
+      rf[waddr] <= wdata;  // 忽略对x0寄存器的写操作
+ 
     end
-  end
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-assign rd_ready = (state == IDLE);
-
-  
-  // 状态机逻辑和数据保存
-  always @(*) begin
-    // 默认值
-    next_state = state;
-   
-    
-    case (state)
-      IDLE: begin
-       
-        // 在IDLE状态，如果有有效的写请求，保存数据并转到WRITE状态
-        if (rd_valid && rd_ready) begin
-          next_state = WRITE;
+  end*/
+    always @(posedge clock) begin
+        if (reset) begin
+            rd_ready <= 1;
+        end else if (rd_valid && rd_ready) begin
+            // 握手成功，写入数据并拉低ready
+            
+            if (waddr != 0) begin
+                rf[waddr] <= wdata;
+            end
+            rd_ready <= 0;  // 写入过程中拉低ready
+        end else if (!rd_ready) begin
+            // 写入已完成，重新拉高readys
+            rd_ready <= 1;
         end
-      end
-      
-      WRITE: begin
-        // 在WRITE状态，完成写入后返回IDLE状态
-        next_state = IDLE;
-      end
-    endcase
-  end
-  
+    end
 
 
-  // 实现 get_reg0 函数以返回寄存器0的值
+ 
+
+ // 实现 get_reg0 函数以返回寄存器0的值
   function void get_reg0(output int reg0_value);
     reg0_value = rf[0];  // 假设 rf 存储寄存器值的数组
   endfunction
 
-  //综合需要注释
-  function int get_reg_value(input int reg_index);
-    get_reg_value = rf[reg_index]; // 根据索引返回寄存器的值
-  endfunction
+                                                  //综合需要注释
 
-    // 新增DPI-C函数实现
-  function int get_instr_completed();
-    get_instr_completed = {31'b0, instr_completed}; // 返回指令完成状态
-  endfunction
+function int get_reg_value(input int reg_index);
+  get_reg_value = rf[reg_index]; // 根据索引返回寄存器的值
+  
+endfunction
  
-
-  export "DPI-C"  function get_saved_sim_lsu_addr;
-  function int get_saved_sim_lsu_addr();
-    get_saved_sim_lsu_addr = saved_sim_lsu_addr; // 假设lsu是LSU模块的实例名
-  endfunction
-
-
+ 
 endmodule
-
-
 
 
 
