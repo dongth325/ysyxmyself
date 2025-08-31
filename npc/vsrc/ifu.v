@@ -35,7 +35,8 @@ module ysyx_24090012_IFU (
     // icache配置参数
 localparam CACHE_LINES = 16;                // 缓存块数量
 localparam INDEX_BITS = 4;                  // 索引位数 (2^4 = 16)
-localparam OFFSET_BITS = 2;                 // 偏移位数 (4B块大小)
+//localparam OFFSET_BITS = 2;                 // 偏移位数 (4B块大小)
+localparam OFFSET_BITS = 4;                 // 突发传输icache
 localparam TAG_BITS = 32 - INDEX_BITS - OFFSET_BITS; // 标签位数
 
 // 状态定义 - 简化的三状态机
@@ -60,9 +61,15 @@ localparam FETCH_DATA  = 2'b11;  // 第4-5步：接收数据并响应
     reg [31:0] hit_count;   // 缓存命中计数
     reg [31:0] miss_count;  // 缓存未命中计数
 
+
+    reg [1:0] burst_count;  // 突发传输计数器  突发传输icache
     reg [TAG_BITS-1:0] cache_tags [0:CACHE_LINES-1];  // 标签数组
     reg cache_valid [0:CACHE_LINES-1];                // 有效位数组
-    reg [31:0] cache_data [0:CACHE_LINES-1];          // 数据数组
+    //reg [31:0] cache_data [0:CACHE_LINES-1];          // 数据数组
+    reg [127:0] cache_data [0:CACHE_LINES-1];   //突发传输icache
+    // 添加临时缓存数据
+reg [127:0] temp_cache_data;  // 临时数据寄存器用于累积突发传输数据   突发传输icache
+wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选择正确的32位指令  突发传输icache
 
       // 地址解析
     wire [TAG_BITS-1:0] req_tag = saved_pc[31:INDEX_BITS+OFFSET_BITS];
@@ -98,11 +105,13 @@ end
             hit_count <= 32'h0;
             miss_count <= 32'h0;
 
+            burst_count <= 2'b00;  // 初始化burst计数器   突发传输icache
+            temp_cache_data <= 128'h0;  // 初始化临时数  突发传输icache
 
             for (integer i = 0; i < CACHE_LINES; i = i + 1) begin
                 cache_valid[i] <= 1'b0;
                 cache_tags[i] <= {TAG_BITS{1'b0}};
-                cache_data[i] <= 32'h0;
+                cache_data[i] <= 128'h0;
             end
         end
         
@@ -133,10 +142,34 @@ end
 
 
               // 在FETCH_DATA状态更新缓存
-            if (state == FETCH_DATA && io_master_rvalid && io_master_rready) begin
+          /*  if (state == FETCH_DATA && io_master_rvalid && io_master_rready) begin
                 cache_tags[req_index] <= req_tag;
                 cache_valid[req_index] <= 1'b1;
                 cache_data[req_index] <= io_master_rdata;
+            end*/
+
+            if (state == FETCH_DATA && io_master_rvalid && io_master_rready) begin
+                case (burst_count)
+                    2'b00: begin
+                        temp_cache_data[31:0] <= io_master_rdata;
+                        burst_count <= burst_count + 1;
+                    end
+                    2'b01: begin
+                        temp_cache_data[63:32] <= io_master_rdata;
+                        burst_count <= burst_count + 1;
+                    end
+                    2'b10: begin
+                        temp_cache_data[95:64] <= io_master_rdata;
+                        burst_count <= burst_count + 1;
+                    end
+                    2'b11: begin
+                        // 最后一个传输，完成缓存更新
+                        cache_tags[req_index] <= req_tag;
+                        cache_valid[req_index] <= 1'b1;
+                        cache_data[req_index] <= {io_master_rdata, temp_cache_data[95:0]};
+                        burst_count <= 2'b00;  // 重置计数器
+                    end
+                endcase
             end
         end
 
@@ -148,6 +181,7 @@ end
     always @(*) begin
         // 默认值
         next_state = state;
+        io_master_araddr =   {saved_pc[31:4], 4'b0000};
         io_master_arvalid = 1'b0;
         io_master_rready = 1'b0;
         idu_valid = 1'b0;
@@ -165,7 +199,13 @@ end
                 if (cache_hit) begin
                     // 缓存命中，直接响应
                     idu_valid = 1'b1;
-                    idu_inst = cache_data[req_index];
+                  //  idu_inst = cache_data[req_index];
+                    case (word_offset)    //突发传输icache
+                    2'b00: idu_inst = cache_data[req_index][31:0];
+                    2'b01: idu_inst = cache_data[req_index][63:32];
+                    2'b10: idu_inst = cache_data[req_index][95:64];
+                    2'b11: idu_inst = cache_data[req_index][127:96];
+                endcase   
                     
                     if (idu_ready) begin
                         next_state = IDLE;
@@ -179,6 +219,7 @@ end
 
             FETCH_ADDR: begin
                 io_master_arvalid = 1'b1;
+                io_master_araddr =   {saved_pc[31:4], 4'b0000};
                 if (io_master_arready) begin
                     next_state = FETCH_DATA;
                 end
@@ -188,12 +229,25 @@ end
                 io_master_rready = 1'b1;
                 if (io_master_rvalid && (io_master_rid == curr_id)) begin
 
-               
-                    idu_inst = io_master_rdata;
+                    if (io_master_rlast) begin
+                        // 根据word_offset选择正确的指令
+                        case (word_offset)
+                            2'b00: idu_inst = temp_cache_data[31:0];
+                            2'b01: idu_inst = temp_cache_data[63:32];
+                            2'b10: idu_inst = temp_cache_data[95:64];
+                            2'b11: idu_inst = io_master_rdata; // 最后一个word
+                        endcase
+                      
+                        idu_valid = 1'b1;
+                        if (idu_ready) begin
+                            next_state = IDLE;
+                        end
+                    end
+                   /* idu_inst = io_master_rdata;
                     idu_valid = 1'b1;
                     if (idu_ready) begin
                         next_state = IDLE;
-                    end
+                    end*/
                 end
             end
             
@@ -204,14 +258,18 @@ end
     end
 
     // 其他输出信号直接赋值
-    assign io_master_araddr  = saved_pc;
+    //assign io_master_araddr  = saved_pc;
     assign io_master_arid    = curr_id;
-    assign io_master_arlen   = 8'b0;        // 单次传输
+  //  assign io_master_arlen   = 8'b0;        // 单次传输
+    assign io_master_arlen   = 8'd3;        // 4次传输(长度=传输次数-1)
     assign io_master_arsize  = 3'b010;      // 4字节
     assign io_master_arburst = 2'b01;       // INCR模式
   
 
 
+
+
+    
 
 
     export "DPI-C" function get_ifu_count;
@@ -232,4 +290,4 @@ end
     return miss_count;
     endfunction
 
-endmodule 
+endmodule
