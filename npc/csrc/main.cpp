@@ -197,8 +197,7 @@ int cmd_si(char *args) {
 extern "C" {   //所有性能计数器dpi-c
     // IFU相关
     extern int get_ifu_count();
-    extern int get_hit_count();
-    extern int get_miss_count();
+    
     // IDU相关
     extern int get_idu_count();
     extern int get_compute_inst_count();
@@ -232,8 +231,6 @@ void print_performance_stats() {
 
     // 获取各模块计数器值
     int ifu_count = 0;
-    int hit_count = 0;
-    int miss_count = 0;
     int idu_count = 0;
     int exu_count = 0;
     int lsu_count = 0;
@@ -262,10 +259,6 @@ void print_performance_stats() {
     }
     svSetScope(ifu_scope);
     ifu_count = get_ifu_count();
-    hit_count = get_hit_count();
-    miss_count = get_miss_count();
-    double hit_rate = (hit_count + miss_count > 0) ? 
-                 (100.0 * hit_count / (hit_count + miss_count)) : 0.0;
     
     // 切换到IDU作用域并获取计数
     svScope idu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.idu");
@@ -375,23 +368,13 @@ void print_performance_stats() {
     } else {
         printf("未检测到控制流指令\n");
     }
-
-
-
-
-
- 
-                 
-printf("\n----- ICache统计 -----\n");
-printf("缓存命中次数: %d\n", hit_count);
-printf("缓存未命中次数: %d\n", miss_count);
-printf("缓存命中率: %.2f%%\n", hit_rate);
     
     printf("\n====================================\n");
 
 
 
 }
+
 
 
 int cmd_q(char *args) {
@@ -403,7 +386,7 @@ int cmd_q(char *args) {
  print_performance_stats();
 
 
-   close_pc_trace();//npc执行后关闭用于cachesim的pc序列统计
+
 
 
      if (tfp) {
@@ -672,7 +655,7 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
 
         s->top->clock = 0;
         s->top->eval();
-        //if (tfp) tfp->dump(main_time++);
+       // if (tfp) tfp->dump(main_time++);
        //  if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
@@ -684,7 +667,7 @@ bool record_wave = 1;//运行difftest以外程序默认全部记录波形
         // 时钟上升沿
         s->top->clock = 1;
         s->top->eval();
-       // if (tfp) tfp->dump(main_time++);
+      //  if (tfp) tfp->dump(main_time++);
       //   if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
@@ -880,13 +863,6 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
    
         //printf("Available Verilator scopes:\n");
 //Verilated::scopesDump();
-
-
-  init_pc_trace("pc_trace.txt");//初始化用于cachesim的pc序列统计
-
-
-
-
 
      sdb_mainloop();  //dddddddddddddddddddd
 

@@ -26,13 +26,11 @@ extern "C" {
     extern int get_csr_reg_value(int csr_reg_index);
     // DPI export at vsrc/exu.v:950:14
     extern int get_exu_count();
-    // DPI export at vsrc/ifu.v:285:18
-    extern int get_hit_count();
     // DPI export at vsrc/idu.v:456:14
     extern int get_idu_count();
     // DPI export at vsrc/NPC.v:683:14
     extern int get_if_allow_in();
-    // DPI export at vsrc/ifu.v:281:18
+    // DPI export at vsrc/ifu.v:136:18
     extern int get_ifu_count();
     // DPI export at vsrc/idu.v:437:14
     extern int get_inst_r();
@@ -40,23 +38,21 @@ extern "C" {
     extern int get_jump_inst_count();
     // DPI export at vsrc/idu.v:464:14
     extern int get_load_inst_count();
-    // DPI export at vsrc/lsu.v:562:14
+    // DPI export at vsrc/lsu.v:548:14
     extern int get_lsu_count();
-    // DPI export at vsrc/ifu.v:289:18
-    extern int get_miss_count();
     // DPI export at vsrc/idu.v:484:14
     extern int get_other_inst_count();
     // DPI export at vsrc/NPC.v:678:14
     extern int get_pc_value();
-    // DPI export at vsrc/lsu.v:566:14
+    // DPI export at vsrc/lsu.v:552:14
     extern int get_read_count();
     // DPI export at vsrc/registerfile.v:62:14
     extern int get_reg_value(int reg_index);
-    // DPI export at vsrc/lsu.v:549:14
+    // DPI export at vsrc/lsu.v:535:14
     extern int get_saved_addr();
     // DPI export at vsrc/idu.v:468:14
     extern int get_store_inst_count();
-    // DPI export at vsrc/lsu.v:570:14
+    // DPI export at vsrc/lsu.v:556:14
     extern int get_write_count();
 
     // DPI IMPORTS
@@ -64,7 +60,7 @@ extern "C" {
     extern void ebreak(int exit_code);
     // DPI import at ../ysyxSoC/perip/flash/flash.v:84:30
     extern void flash_read(int addr, int* data);
-    // DPI import at ../ysyxSoC/build/ysyxSoCFull.v:5986:30
+    // DPI import at ../ysyxSoC/build/ysyxSoCFull.v:4659:30
     extern void mrom_read(int raddr, int* rdata);
 
 #ifdef __cplusplus

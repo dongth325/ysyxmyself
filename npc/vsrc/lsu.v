@@ -64,11 +64,6 @@ module ysyx_24090012_LSU (
     localparam READ_ADDR   = 3'd4;
     localparam READ_DATA   = 3'd5;
 
-
-
-
-reg aw_done, w_done;
-
     // 寄存器定义
     reg [2:0] state;
     reg [31:0] saved_addr;
@@ -146,9 +141,6 @@ end
     reg [2:0] next_state;
     reg [31:0] processed_rdata;//用于对读出数据进行寄存，最后赋值给mem rdata
     always @(*) begin
-
-
-
         // 默认值
         next_state = state;
         io_master_awvalid = 0;
@@ -202,12 +194,6 @@ end
                 end
             end
             
-
-            
-
-
-
-
                  WRITE_RESP: begin
                 io_master_bready = 1'b1;
                 if (io_master_bvalid) begin
