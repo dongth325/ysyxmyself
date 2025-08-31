@@ -75,94 +75,108 @@ module ysyx_24090012(
   wire [6:0] func7;
   wire [31:0] imm;
   wire [5:0] alu_op;
+
   wire [31:0] rs1_data, rs2_data, result, next_pc;
   wire wen;
   wire [31:0] inst;
 
+  wire [31:0] pc;
 
-   //wire idu_valid;//ifu to idu
-   //wire idu_ready;//idu to ifu
+  wire [4:0] wbu_rd;
+  wire wbu_rd_wen;
+  wire [31:0] wbu_data;
+  wire wbu_valid;
+  wire wbu_ready;
+  wire [31:0] wbu_next_pc;
 
-   //wire        exu_valid;
-   //wire        exu_ready;
+  wire [11:0] wbu_csr_addr;
+  wire [31:0] wbu_csr_wdata;
+  wire wbu_csr_wen;
+
+  wire wbu_csr_valid;
+  wire wbu_csr_ready;
+
+
+  wire out_is_ecall;
+  wire out_is_mret;
+
+
+  wire [31:0] exu_out_pc;
+  wire [31:0] lsu_out_pc;
+
+
    wire ifu_to_idu_valid;   // IFU向IDU发出的有效信号
    wire idu_to_ifu_ready;
 
    wire idu_to_exu_valid;  // IDU向EXU发出的有效信号
    wire exu_to_idu_ready;  // EXU向IDU发出的就绪信号
 
+   wire is_use_lsu;
+   wire [4:0] rd_addr_out;
+   wire rd_wen_out;
+
     wire idu_state;  // IDU状态信号
     wire [1:0] exu_state;  // EXU状态信号
     wire [1:0] ifu_state;  // IFU状态信号
+    wire [2:0] lsu_state;
 
-   wire csr_rd_valid;
-   wire csr_rd_ready;
+   
 
     // PC更新接口
-   wire if_allow_in = !reset && pc_ready && rd_ready && idu_state == 1'b0 && exu_state == 2'b00 && ifu_state == 2'b00;
+   wire if_allow_in = !reset && wbu_ready && idu_state == 1'b0 && exu_state == 2'b00 && ifu_state == 2'b00  && lsu_state == 3'b00;
 
 
 // 使用组合逻辑(wire)实现mem_unsigned
 wire mem_unsigned;//将idu解码信息进行判断，传给lsu用于无符号读取指令的逻辑处理
 
-// 使用case语句为所有加载指令类型分配mem_unsigned值
-assign mem_unsigned = (alu_op == 6'b011000) || // LBU (Load Byte Unsigned)
-                      (alu_op == 6'b100000);   // LHU (Load Halfword Unsigned)
-//将idu解码信息进行判断，传给lsu用于无符号读取指令的逻辑处理
 
 
+
+   
 
 
 
     wire [31:0] ifu_to_idu_pc;    // IFU传给IDU的PC
     wire [31:0] idu_to_exu_pc;    // IDU传给EXU的PC
-    reg  [31:0] pc;  
-    wire        pc_valid;
-    reg         pc_ready;
+ 
+
 
 
         // LSU接口
     wire [31:0] mem_addr;
+     // verilator lint_off UNOPTFLAT
     wire        mem_valid;
+    // verilator lint_on UNOPTFLAT
     wire [31:0] mem_wdata;
     wire [3:0]  mem_wmask;
     wire        mem_wen;
+    // verilator lint_off UNOPTFLAT
     wire        mem_ready;
-    wire [31:0] mem_rdata;
+    // verilator lint_on UNOPTFLAT
+
     wire [2:0]  mem_arsize;
     wire [2:0]  mem_awsize;
 
 
  
 
-        // RegisterFile写回接口
-    wire [4:0]  rd_addr;
+ 
     wire [31:0] rd_data;
-    wire        rd_valid;
-    wire        rd_ready;
 
-    // CSR相关信号
-reg [11:0] csr_addr3;
-reg [31:0] csr_wdata3;
-reg csr_wen3;
-reg [11:0] csr_addr1;
-reg [31:0] csr_wdata1;
-reg csr_wen1;
-reg [11:0] csr_addr2;
-reg [31:0] csr_wdata2;
-reg csr_wen2;
-/* verilator lint_off MULTIDRIVEN */
-reg [11:0] csr_addr;
-reg csr_wen;
-/* verilator lint_on MULTIDRIVEN */
-reg [31:0] csr_wdata;
-reg [31:0] mstatus_new;//用于mret指令对mstatus寄存器访问取值后的保存............
+    wire        rd_wen;
 
 
 
+wire [11:0] out_csr_addr;
+wire out_csr_wen;
+
+wire [11:0] csr_addr;
+wire [31:0] csr_wdata;
+wire csr_wen;
 
 
-wire is_ecall, is_mret;
+wire is_ecall;
+wire is_mret;
 wire [31:0] csr_rdata;
 wire [31:0] mstatus;
 wire [31:0] mtvec;
@@ -195,8 +209,13 @@ wire [7:0]  lsu_arlen;
 wire [2:0]  lsu_arsize;
 wire [1:0]  lsu_arburst;
 wire        lsu_rready;
+// verilator lint_off UNOPTFLAT
 wire        lsu_rvalid;
+// verilator lint_on UNOPTFLAT
+
+// verilator lint_off UNOPTFLAT
 wire [1:0]  lsu_rresp;
+// verilator lint_on UNOPTFLAT
 wire [31:0] lsu_rdata;
 wire        lsu_rlast;
 wire [3:0]  lsu_rid;
@@ -220,12 +239,19 @@ wire [3:0]  ifu_rid;
 
 
 
+
+
+
+
+
+
+
 // CLINT地址范围定义
 localparam CLINT_BASE = 32'h0200_0000;
 localparam CLINT_SIZE = 32'h0001_0000;  // 64KB空间
 
 // 从arbiter获取的原始arvalid信号
-wire arbiter_arvalid;
+wire        arbiter_arvalid;
 wire [31:0] arbiter_araddr;
 wire [3:0]  arbiter_arid;
 wire [7:0]  arbiter_arlen;
@@ -263,7 +289,9 @@ assign io_master_arburst = arbiter_arburst;
 assign io_master_rready = arbiter_rready;
 
 // 返回给arbiter的信号
+// verilator lint_off UNOPTFLAT
 wire        arbiter_arready = is_clint_addr ? clint_arready : io_master_arready;
+// verilator lint_on UNOPTFLAT
 wire        arbiter_rvalid = is_clint_addr ? clint_rvalid : io_master_rvalid;
 wire [1:0]  arbiter_rresp = is_clint_addr ? clint_rresp : io_master_rresp;
 wire [31:0] arbiter_rdata = is_clint_addr ? clint_rdata : io_master_rdata;
@@ -352,19 +380,19 @@ ysyx_24090012_arbiter arbiter(
     .io_master_bvalid(io_master_bvalid),
     .io_master_bresp(io_master_bresp),
     .io_master_bid(io_master_bid),
-    /*.io_master_arvalid(io_master_arvalid),
-    .io_master_arready(io_master_arready),
-    .io_master_araddr(io_master_araddr),
-    .io_master_arid(io_master_arid),
-    .io_master_arlen(io_master_arlen),
-    .io_master_arsize(io_master_arsize),
-    .io_master_arburst(io_master_arburst),
-    .io_master_rready(io_master_rready),
-    .io_master_rvalid(io_master_rvalid),
-    .io_master_rresp(io_master_rresp),
-    .io_master_rdata(io_master_rdata),
-    .io_master_rlast(io_master_rlast),
-    .io_master_rid(io_master_rid)*/
+   // .io_master_arvalid(io_master_arvalid),
+   // .io_master_arready(io_master_arready),
+  //  .io_master_araddr(io_master_araddr),
+ //  .io_master_arid(io_master_arid),
+   // .io_master_arlen(io_master_arlen),
+   // .io_master_arsize(io_master_arsize),
+   // .io_master_arburst(io_master_arburst),
+  //  .io_master_rready(io_master_rready),
+   // .io_master_rvalid(io_master_rvalid),
+   // .io_master_rresp(io_master_rresp),
+   // .io_master_rdata(io_master_rdata),
+    //.io_master_rlast(io_master_rlast),
+    //.io_master_rid(io_master_rid)
     .io_master_arvalid(arbiter_arvalid),
     .io_master_arready(arbiter_arready),
     .io_master_araddr(arbiter_araddr),
@@ -427,6 +455,9 @@ ysyx_24090012_IDU idu(
     .exu_ready(exu_to_idu_ready),    // input: EXU是否准备好接收新指令
     .exu_valid(idu_to_exu_valid),    // output: 向EXU提供的指令是否有效
     
+    .csr_addr(csr_addr),
+    .csr_wen(csr_wen),
+
     // Instruction Information
     .inst(inst),              // input: 指令
     
@@ -440,38 +471,46 @@ ysyx_24090012_IDU idu(
     .func3(func3),           // output
     .func7(func7),           // output
     .alu_op(alu_op),         // output
-    
-    // CSR Related
-    .csr_addr(csr_addr),     // output
-    .csr_wen(csr_wen),       // output
-    .is_ecall(is_ecall),     // output
-    .is_mret(is_mret)        // output
+    .rd_wen(rd_wen)      // output
+  
 );
   ysyx_24090012_RegisterFile regfile(
-    .pc(pc),
+    .next_pc(wbu_next_pc),
     .clock(clock),
-    
+    .pc(pc),
     .reset(reset),
     .raddr1(rs1),
     .raddr2(rs2),
-    .waddr(rd),
-    .wdata(result),
-    .wen(wen),
-          .rd_valid(rd_valid),
-        .rd_ready(rd_ready),
+    .waddr(wbu_rd),
+    .wdata(wbu_data),
+    .wen(wbu_rd_wen),
+          .rd_valid(wbu_valid),
+        .rd_ready(wbu_ready),
 
     .rdata1(rs1_data),
-    .rdata2(rs2_data));
+    .rdata2(rs2_data)
+    
+    );
+
+
+
+
+
   
   ysyx_24090012_EXU exu(
     .rst(reset),
     .clk(clock),
+
   .pc(idu_to_exu_pc),
   .rs1_data(rs1_data),
   .rs2_data(rs2_data),  // 添加 rs2_data 连接
   .imm(imm),
+
+  .out_pc(exu_out_pc),
   .alu_op(alu_op),
    .state_out(exu_state),
+
+   .is_use_lsu(is_use_lsu),
 
   .idu_valid(idu_to_exu_valid),
   .idu_ready(exu_to_idu_ready),
@@ -482,67 +521,60 @@ ysyx_24090012_IDU idu(
         .mem_wmask(mem_wmask),
         .mem_wen(mem_wen),
         .mem_ready(mem_ready),
-        .mem_rdata(mem_rdata),
+      
         .mem_arsize(mem_arsize),
         .mem_awsize(mem_awsize),
 
+        .mem_unsigned(mem_unsigned),
                 // RegisterFile写回接口
-        .rd_addr(rd_addr),
+        .rd_addr(rd),
+        .rd_addr_out(rd_addr_out),
         .rd_data(rd_data),
-        .rd_valid(rd_valid),
-        .rd_ready(rd_ready),
-        // PC更新接口
-        .pc_valid(pc_valid),
-        .pc_ready(pc_ready),
 
-    .mstatus(mstatus),
+       
+
+        .rd_wen(rd_wen),
+        .rd_wen_out(rd_wen_out),
+        // PC更新接口
+       
+
+  
     .mtvec(mtvec),
-    .mcause(mcause),
+   
     .mepc(mepc),
 
-
+    .csr_addr(csr_addr),
+    .csr_wen(csr_wen),
 
   .result(result),
   .next_pc(next_pc),
    .csr_rdata(csr_rdata),
 
     .csr_wdata(csr_wdata),
-    .csr_wen(csr_wen),
-      .csr_addr(csr_addr),
+   
+    .out_csr_addr(out_csr_addr),
+    .out_csr_wen(out_csr_wen),
      
-        .csr_addr1(csr_addr1),
-        .csr_wdata1(csr_wdata1),
-        .csr_wen1(csr_wen1),
-
-        .csr_addr2(csr_addr2),
-        .csr_wdata2(csr_wdata2),
-        .csr_wen2(csr_wen2),
-
-        .csr_addr3(csr_addr3),
-        .csr_wdata3(csr_wdata3),
-        .csr_wen3(csr_wen3),
-
-        .csr_rd_valid(csr_rd_valid),
-        .csr_rd_ready(csr_rd_ready)
+      .is_ecall(is_ecall),
+      .is_mret(is_mret)
        
 );
+
+
+
+
    ysyx_24090012_CSR csr(
-         .csr_rd_valid(csr_rd_valid),    // 添加这行
-        .csr_rd_ready(csr_rd_ready),    // 添加这行
+  .is_ecall(out_is_ecall),
+  .wbu_csr_valid(wbu_csr_valid),
+  .wbu_csr_ready(wbu_csr_ready),
+  .pc(lsu_out_pc),
   .clk(clock),
   .rst(reset),
   .csr_addr(csr_addr),
-  .csr_wdata(csr_wdata),
-  .csr_wen(csr_wen),
-   .csr_addr1(csr_addr1),
-  .csr_wdata1(csr_wdata1),
-  .csr_wen1(csr_wen1),
-   .csr_addr2(csr_addr2),
-  .csr_wdata2(csr_wdata2),
-  .csr_wen2(csr_wen2),
-  .csr_addr3(csr_addr3),
-  .csr_wdata3(csr_wdata3),
-  .csr_wen3(csr_wen3),
+  .wbu_csr_addr(wbu_csr_addr),
+  .csr_wdata(wbu_csr_wdata),
+  .csr_wen(wbu_csr_wen),
+
   .csr_rdata(csr_rdata),
   .mstatus(mstatus),
   .mtvec(mtvec),
@@ -556,9 +588,9 @@ ysyx_24090012_IDU idu(
     ysyx_24090012_LSU lsu(
     .clock(clock),
     .reset(reset),
-     
+     .next_pc(next_pc),
     .mem_unsigned(mem_unsigned),  // 无符号处理flag 
-
+    .state_out(lsu_state),
     // EXU Interface
     .mem_addr(mem_addr),
     .mem_valid(mem_valid),
@@ -566,9 +598,42 @@ ysyx_24090012_IDU idu(
     .mem_wmask(mem_wmask),
     .mem_wen(mem_wen),
     .mem_ready(mem_ready),
-    .mem_rdata(mem_rdata),
+
+    .lsu_in_pc(exu_out_pc),
+    .lsu_out_pc(lsu_out_pc),
+
     .mem_arsize(mem_arsize),
     .mem_awsize(mem_awsize),
+
+    .is_ecall(is_ecall),
+    .is_mret(is_mret),
+    .out_is_ecall(out_is_ecall),
+    .out_is_mret(out_is_mret),
+   
+    .mem_rd(rd_addr_out),
+    .mem_rd_wen(rd_wen_out),
+    .mem_result(result),
+    .is_use_lsu(is_use_lsu),
+
+    .wbu_rd(wbu_rd),
+    .wbu_rd_wen(wbu_rd_wen),
+    .wbu_data(wbu_data),
+
+    .wbu_valid(wbu_valid),
+    .wbu_ready(wbu_ready),
+    .wbu_next_pc(wbu_next_pc),
+
+
+    .csr_addr(out_csr_addr),
+    .csr_wdata(csr_wdata),
+    .csr_wen(out_csr_wen),
+
+    .wbu_csr_addr(wbu_csr_addr),
+    .wbu_csr_wdata(wbu_csr_wdata),
+    .wbu_csr_wen(wbu_csr_wen),
+
+    .wbu_csr_valid(wbu_csr_valid),
+    .wbu_csr_ready(wbu_csr_ready),
 
     // AXI4 Interface
     .io_master_awready(lsu_awready),
@@ -602,11 +667,20 @@ ysyx_24090012_IDU idu(
     );
 
 
+    always @(posedge clock) begin// 更新 PC
+      if (inst == 32'h00100073 && ifu_to_idu_valid == 1) begin  // ebreak 指令  用于没有cache的ifu，如果不加这个判断会在bootloader取到ebreak就会停止仿真
+            $display("pc = 0x%08x from NPC", pc);
+            $display("inst = 0x%08x from NPC",inst);
+          ebreak(regfile.rf[10]);       // 调用 DPI-C 函数     综合需要注释
+        end 
+      end
 
 
-   assign wen = (opcode == 7'b0010011 || opcode == 7'b0110111 || opcode == 7'b0010111 || opcode == 7'b1110011||
+
+
+   /*assign wen = (opcode == 7'b0010011 || opcode == 7'b0110111 || opcode == 7'b0010111 || opcode == 7'b1110011||
                 opcode == 7'b1101111 || opcode == 7'b1100111 || opcode == 7'b0110011 || 
-                 opcode == 7'b0000011);
+                 opcode == 7'b0000011);*/ //流水线流水线流水线删去
 
  
 
@@ -614,62 +688,7 @@ ysyx_24090012_IDU idu(
 
 
   
-  always @(posedge clock) begin// 更新 PC
-      
-    if (reset) begin
-      pc <= 32'h3000_0000;
-     
-    end 
-else begin 
-        
 
-     if (inst == 32'h00100073) begin  // ebreak 指令
-        $display("pc = 0x%08x from NPC", pc);
-        $display("inst = 0x%08x from NPC",inst);
-      ebreak(regfile.rf[10]);       // 调用 DPI-C 函数     综合需要注释
-    end 
-
-
-
-
-
-
-
-  /* else if (pc_valid && pc_ready) begin  // 普通指令
-                pc <= next_pc;
-            end*/
-
-    //$display("At time %t: NPC after update-pc PC = 0x%08x", $time, pc);*/
-end
-  end
-// 添加reset状态变化监控
-always @(reset) begin
-    $display("RESET CHANGED TO %d from NPC \n", reset);
-end    //综合需要注释
-
-      always @(posedge clock) begin
-     //   $display("5555pc = %08x",pc);
-      //  $display("6666next pc = %08x",next_pc);
-      //  $display("7777pc valid = %08x",pc_valid);
-      //  $display("8888pc ready = %08x",pc_ready);
-      //  $display("9999 reset = %08x",reset);
-        
-        if (reset) begin
-           $display("reset = %d ", reset);    //综合需要注释
-            pc <= 32'h3000_0000;
-            pc_ready <= 1;
-
-        end else if (pc_valid && pc_ready) begin
-            // 握手成功，更新PC并拉低ready
-          //  $display("4444pc = %08x",next_pc);
-            pc <= next_pc;
-            pc_ready <= 0;  // 更新过程中拉低ready
-          //  $display("9999pc = %08x",pc);
-        end else if (!pc_ready) begin
-            // 更新已完成，重新拉高ready
-            pc_ready <= 1;
-        end
-    end
 
 
 export "DPI-C"  function get_pc_value;
@@ -685,4 +704,3 @@ function int get_if_allow_in();
 endfunction
 
 endmodule
-

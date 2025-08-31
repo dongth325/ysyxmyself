@@ -1,30 +1,29 @@
 module ysyx_24090012_CSR (
   input clk,
   input rst,
-  input [11:0] csr_addr,
+  input [11:0] csr_addr,//read
+  input [11:0] wbu_csr_addr,//write
   input [31:0] csr_wdata,
   input csr_wen,
-    input [11:0] csr_addr1,
-  input [31:0] csr_wdata1,
-  input csr_wen1,
-    input [11:0] csr_addr2,
-  input [31:0] csr_wdata2,
-  input csr_wen2,
-   input [11:0] csr_addr3,
-  input [31:0] csr_wdata3,
-  input csr_wen3,
+
+  input [31:0] pc,
+   
   output reg [31:0] csr_rdata,
   
-  input csr_rd_valid,
-  output reg csr_rd_ready,
+  input wbu_csr_valid,
+  output reg wbu_csr_ready,
+
+  input is_ecall,
+
  
   
-  
-  // CSR寄存器
-  output reg [31:0] mstatus,
   output reg [31:0] mtvec,
   output reg [31:0] mepc,
+  output reg [31:0] mstatus,
+  
   output reg [31:0] mcause,
+  
+  
   output reg [31:0] mvendorid,
   output reg [31:0] marchid
 );
@@ -37,8 +36,20 @@ export "DPI-C" function get_csr_reg_value; //综合需要注释
   localparam MVENDORID = 12'hf11;
   localparam MARCHID = 12'hf12;
 
-// 初始化标志
-   //reg initialized;     //明天再来弄  使通过difftest
+// 状态定义
+  localparam IDLE = 1'b0;  // 空闲状态，等待请求
+  localparam WRITE = 1'b1; // 写入状态，执行CSR操作
+  
+  // 状态寄存器
+  reg state, next_state;
+  
+  // 保存CSR请求的寄存器
+  reg [11:0] saved_csr_addr;
+  reg [31:0] saved_csr_wdata;
+  reg saved_csr_wen;
+  reg saved_is_ecall;
+ 
+  reg [31:0] saved_pc;  // 用于ECALL保存PC
 
   // CSR寄存器初始化和写入逻辑
   always @(posedge clk or posedge rst) begin
@@ -47,67 +58,78 @@ export "DPI-C" function get_csr_reg_value; //综合需要注释
       mtvec   <= 32'h0;
       mepc    <= 32'h0;
       mcause  <= 32'h0;
-      csr_rd_ready <= 1;
+      state <= IDLE;
+      saved_csr_addr <= 12'h0;
+      saved_csr_wdata <= 32'h0;
+      saved_csr_wen <= 1'b0;
+      saved_is_ecall <= 1'b0;
+     
+      saved_pc <= 32'h0;
     end
-
- else if (csr_rd_valid && csr_rd_ready) begin
-
-     if (csr_wen) begin
-      case (csr_addr)
-        MSTATUS: mstatus <= csr_wdata;
-        MTVEC:   mtvec   <= csr_wdata;
-        MEPC:    mepc    <= csr_wdata;
-        MCAUSE:  mcause  <= csr_wdata;
-         default: ; 
-      endcase
-    end
-      if (csr_wen1) begin
-      case (csr_addr1)
-        MSTATUS: mstatus <= csr_wdata1;
-        MTVEC:   mtvec   <= csr_wdata1;
-        MEPC:    mepc    <= csr_wdata1;
-        MCAUSE:  mcause  <= csr_wdata1;
-       
-         default: ; 
-      endcase
-        //$display("csr_wdata1 = %08x",csr_wdata1);
-        //$display("mcause = %08x",mcause);
-    end
-      if (csr_wen2) begin
-      case (csr_addr2)
-        MSTATUS: mstatus <= csr_wdata2;
-        MTVEC:   mtvec   <= csr_wdata2;
-        MEPC:    mepc    <= csr_wdata2;
-        MCAUSE:  mcause  <= csr_wdata2;
-         default: ; 
-      endcase
-        //$display("csr_wdata2 = %08x",csr_wdata2);
-        //$display("mepc = %08x",mepc);
-    end
-    if (csr_wen3) begin
-      case (csr_addr3)
-        MSTATUS: mstatus <= csr_wdata3;
-        MTVEC:   mtvec   <= csr_wdata3;
-        MEPC:    mepc    <= csr_wdata3;
-        MCAUSE:  mcause  <= csr_wdata3;
-         default: ; 
-      endcase
-        //$display("csr_wdata2 = %08x",csr_wdata2);
-        //$display("mepc = %08x",mepc);
-    end
-    csr_rd_ready <= 0;
- end
- else if (!csr_rd_ready) begin
-            // 写入已完成，重新拉高readys
-            csr_rd_ready <= 1;
+    else begin
+      // 状态更新
+      state <= next_state;
+            // 数据处理
+      if (state == IDLE) begin
+        if (wbu_csr_valid && wbu_csr_ready) begin
+          // 保存CSR请求数据
+          saved_csr_addr <= wbu_csr_addr;
+          saved_csr_wdata <= csr_wdata;
+          saved_csr_wen <= csr_wen;
+          saved_is_ecall <= is_ecall;
+         
+          saved_pc <=  pc; // 对于ECALL，csr_wdata是当前PC
         end
+      end
+      else if (state == WRITE) begin
+        // 执行CSR操作
+        if(!saved_is_ecall) begin
+        if (saved_csr_wen) begin
+          case (saved_csr_addr)
+            MSTATUS: mstatus <= saved_csr_wdata;
+            MTVEC:   mtvec   <= saved_csr_wdata;
+            MEPC:    mepc    <= saved_csr_wdata;
+            MCAUSE:  mcause  <= saved_csr_wdata;
+            default: ;
+          endcase
+        end
+      end
+        
+        // 处理特殊指令
+        if (saved_is_ecall) begin
+          mepc <= saved_pc;        // 保存当前PC到mepc
+          mcause <= 32'h0000000b;  // 环境调用异常码
+        end
+       
+      end
+    end
   end
 
 
 
 
 
-
+  // 状态机逻辑
+  always @(*) begin
+    // 默认值
+    next_state = state;
+    wbu_csr_ready = 1'b0;
+    
+    case (state)
+      IDLE: begin
+        wbu_csr_ready = 1'b1;
+        // 在IDLE状态，如果有有效的CSR请求，保存数据并转到WRITE状态
+        if (wbu_csr_valid && wbu_csr_ready) begin
+          next_state = WRITE;
+        end
+      end
+      
+      WRITE: begin
+        // 在WRITE状态，完成CSR操作后返回IDLE状态
+        next_state = IDLE;
+      end
+    endcase
+  end
 
 
 
