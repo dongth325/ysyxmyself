@@ -84,4 +84,3 @@ module ysyx_24090012_CLINT (
     assign s_axi_rresp = 2'b00;
 
 endmodule
-
