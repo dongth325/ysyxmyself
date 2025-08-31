@@ -121,7 +121,7 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
     dst[i] = src[i];  // 32位对齐访问
   }
 
-
+//下面的运行rtt要取消注释
 /*
 
 src = (uint32_t*)_data_extra_lma;
