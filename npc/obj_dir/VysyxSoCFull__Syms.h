@@ -57,6 +57,7 @@ class alignas(VL_CACHE_LINE_BYTES)VysyxSoCFull__Syms final : public VerilatedSym
     // SCOPE NAMES
     VerilatedScope __Vscope_ysyxSoCFull__asic__axi42apb;
     VerilatedScope __Vscope_ysyxSoCFull__asic__axi4frag;
+    VerilatedScope __Vscope_ysyxSoCFull__asic__axi4xbar;
     VerilatedScope __Vscope_ysyxSoCFull__asic__axi4xbar_1;
     VerilatedScope __Vscope_ysyxSoCFull__asic__axi4yank;
     VerilatedScope __Vscope_ysyxSoCFull__asic__axi4yank__unnamedblk1;
