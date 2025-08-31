@@ -4,7 +4,10 @@ module ysyx_24090012_IFU (
     
     // Control Interface
     input  wire         if_allow_in,    // 允许取指信号
-    input  wire [31:0]  if_next_pc,     // 外部传入的下一条指令地址
+    input  wire [31:0]  if_next_pc,     // 外部传入的下一条指令地址  //if next pc(真实pc用不到了)
+
+    input control_hazard,
+    input [31:0] branch_target_pc,
     
     // IDU Interface
     input  wire         idu_ready,      // IDU准备好接收新指令
@@ -21,14 +24,15 @@ module ysyx_24090012_IFU (
     output wire [2:0]   io_master_arsize,
     output wire [1:0]   io_master_arburst,
     
-    output reg [1:0] state_out,
+    output reg [2:0] state_out,
 
     input  wire         io_master_rvalid,
     input  wire [31:0]  io_master_rdata,
     input  wire [3:0]   io_master_rid,
     input  wire         io_master_rlast,//暂时不用
     input  wire [1:0]   io_master_rresp,//暂时不用
-    output reg         io_master_rready
+    output reg         io_master_rready,
+    output reg  [63:0]  num
 );
 
 
@@ -40,11 +44,11 @@ localparam OFFSET_BITS = 4;                 // 突发传输icache
 localparam TAG_BITS = 32 - INDEX_BITS - OFFSET_BITS; // 标签位数
 
 // 状态定义 - 简化的三状态机
-localparam IDLE        = 2'b00;  // 空闲状态
-localparam CHECK_CACHE = 2'b01;  // 第1步：检查缓存是否命中
-localparam FETCH_ADDR  = 2'b10;  // 第2-3步：发起总线请求取数据
-localparam FETCH_DATA  = 2'b11;  // 第4-5步：接收数据并响应
-
+localparam IDLE        = 3'b000;  // 空闲状态
+localparam CHECK_CACHE = 3'b001;  // 第1步：检查缓存是否命中
+localparam FETCH_ADDR  = 3'b010;  // 第2-3步：发起总线请求取数据
+localparam FETCH_DATA  = 3'b011;  // 第4-5步：接收数据并响应
+localparam WAIT_IDU    = 3'b100;
 
 
 
@@ -52,8 +56,8 @@ localparam FETCH_DATA  = 2'b11;  // 第4-5步：接收数据并响应
 
 
     // 寄存器定义
-    reg [1:0] state;
-    reg [1:0] next_state;
+    reg [2:0] state;
+    reg [2:0] next_state;
     reg [31:0] saved_pc;    // 锁存的PC
     reg [3:0]  curr_id;     // 当前事务ID
 
@@ -100,10 +104,11 @@ end
         if (reset) begin
             state <= IDLE;
             curr_id <= 4'h0;
-            saved_pc <= 32'h0;
+            saved_pc <= 32'h2FFFFFFC; // 初始PC值 是30000000 - 4.为了下面默认saved pc = saved pc +4初始值
             ifu_count <= 32'h0;
             hit_count <= 32'h0;
             miss_count <= 32'h0;
+            num <= 64'h1;//必须为1,要不然前两条指令发生数据冒险的时候，idu中的num rr会和wbu num的默认值0相同，巧合的破解了数据冒险
 
             burst_count <= 2'b00;  // 初始化burst计数器   突发传输icache
             temp_cache_data <= 128'h0;  // 初始化临时数  突发传输icache
@@ -122,7 +127,16 @@ end
             
                        // 当进入CHECK_CACHE状态时，锁存PC
             if (state == IDLE && next_state == CHECK_CACHE) begin
-                saved_pc <= if_next_pc;
+
+                if (control_hazard) begin  //控制冒险判断
+                    saved_pc <= branch_target_pc;
+                end
+              else begin 
+                // saved_pc <= if_next_pc; //if next pc(真实pc用不到了)
+
+                saved_pc <= saved_pc + 4;
+
+              end
             end
             
             // 当请求发送时更新事务ID
@@ -131,7 +145,7 @@ end
             end
 
             // 计数器更新
-            if (state == CHECK_CACHE) begin
+            if (state == CHECK_CACHE) begin    //计数器在实现控制冒险之后会统计错误，因为取出错误的指令冲刷流水线后count记数不会减去
                 if (cache_hit) begin
                     hit_count <= hit_count + 32'h1;
                 end else begin
@@ -139,7 +153,10 @@ end
                 end
             end
             
-
+     // 在IDU握手成功时增加指令序列号
+            if (idu_valid && idu_ready) begin
+                num <= num + 64'h1;
+            end
 
               // 在FETCH_DATA状态更新缓存
           /*  if (state == FETCH_DATA && io_master_rvalid && io_master_rready) begin
@@ -147,6 +164,7 @@ end
                 cache_valid[req_index] <= 1'b1;
                 cache_data[req_index] <= io_master_rdata;
             end*/
+
 
             if (state == FETCH_DATA && io_master_rvalid && io_master_rready) begin
                 case (burst_count)
@@ -188,6 +206,11 @@ end
         idu_pc = saved_pc;//当前pc
         idu_inst = 32'h0;//在后面赋值
         state_out = state;
+
+        if (control_hazard) begin
+            next_state = IDLE;
+        end
+
         case (state)
             IDLE: begin
                 if (if_allow_in) begin
@@ -241,13 +264,28 @@ end
                         idu_valid = 1'b1;
                         if (idu_ready) begin
                             next_state = IDLE;
+                        end else begin
+                            next_state = WAIT_IDU;  // IDU未准备好，进入等待状态
                         end
                     end
-                   /* idu_inst = io_master_rdata;
-                    idu_valid = 1'b1;
-                    if (idu_ready) begin
-                        next_state = IDLE;
-                    end*/
+                    end
+            end
+
+            WAIT_IDU: begin
+                // 在此状态中，我们已经有了指令数据，只是在等IDU准备好
+                idu_valid = 1'b1;
+                
+                // 根据缓存的数据提供指令
+                case (word_offset)
+                    2'b00: idu_inst = temp_cache_data[31:0];
+                    2'b01: idu_inst = temp_cache_data[63:32];
+                    2'b10: idu_inst = temp_cache_data[95:64];
+                    2'b11: idu_inst = temp_cache_data[127:96]; // 使用已缓存的最后一个word
+                endcase
+                
+                // 只有当IDU准备好时才回到IDLE
+                if (idu_ready) begin
+                    next_state = IDLE;
                 end
             end
             
