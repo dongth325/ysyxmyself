@@ -19,7 +19,9 @@ void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cp
 void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__get_load_inst_count_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_load_inst_count__Vfuncrtn);
 void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__get_other_inst_count_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_other_inst_count__Vfuncrtn);
 void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__get_store_inst_count_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_store_inst_count__Vfuncrtn);
+void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__ifu__DOT__get_hit_count_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_hit_count__Vfuncrtn);
 void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__ifu__DOT__get_ifu_count_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_ifu_count__Vfuncrtn);
+void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__ifu__DOT__get_miss_count_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_miss_count__Vfuncrtn);
 void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__get_lsu_count_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_lsu_count__Vfuncrtn);
 void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__get_read_count_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_read_count__Vfuncrtn);
 void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__get_saved_addr_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_saved_addr__Vfuncrtn);
@@ -40,7 +42,7 @@ VysyxSoCFull__Syms::VysyxSoCFull__Syms(VerilatedContext* contextp, const char* n
     , TOP____024unit{this, Verilated::catName(namep, "$unit")}
 {
         // Check resources
-        Verilated::stackCheck(825);
+        Verilated::stackCheck(883);
     // Configure time unit / time precision
     _vm_contextp__->timeunit(-9);
     _vm_contextp__->timeprecision(-12);
@@ -80,7 +82,9 @@ VysyxSoCFull__Syms::VysyxSoCFull__Syms(VerilatedContext* contextp, const char* n
         __Vscope_ysyxSoCFull__asic__cpu__cpu__idu.exportInsert(__Vfinal, "get_load_inst_count", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__get_load_inst_count_TOP));
         __Vscope_ysyxSoCFull__asic__cpu__cpu__idu.exportInsert(__Vfinal, "get_other_inst_count", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__get_other_inst_count_TOP));
         __Vscope_ysyxSoCFull__asic__cpu__cpu__idu.exportInsert(__Vfinal, "get_store_inst_count", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__get_store_inst_count_TOP));
+        __Vscope_ysyxSoCFull__asic__cpu__cpu__ifu.exportInsert(__Vfinal, "get_hit_count", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__ifu__DOT__get_hit_count_TOP));
         __Vscope_ysyxSoCFull__asic__cpu__cpu__ifu.exportInsert(__Vfinal, "get_ifu_count", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__ifu__DOT__get_ifu_count_TOP));
+        __Vscope_ysyxSoCFull__asic__cpu__cpu__ifu.exportInsert(__Vfinal, "get_miss_count", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__ifu__DOT__get_miss_count_TOP));
         __Vscope_ysyxSoCFull__asic__cpu__cpu__lsu.exportInsert(__Vfinal, "get_lsu_count", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__get_lsu_count_TOP));
         __Vscope_ysyxSoCFull__asic__cpu__cpu__lsu.exportInsert(__Vfinal, "get_read_count", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__get_read_count_TOP));
         __Vscope_ysyxSoCFull__asic__cpu__cpu__lsu.exportInsert(__Vfinal, "get_saved_addr", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__get_saved_addr_TOP));
