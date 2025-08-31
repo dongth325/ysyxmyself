@@ -122,15 +122,15 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
   }
 
 
-/*
 
+/*
 src = (uint32_t*)_data_extra_lma;
 dst = (uint32_t*)_data_extra_vma_start;   //在ysyxsoclinker2中data extra lma前面是一道杠，其余extra的是两道
 words = (_data_extra_vma_end - _data_extra_vma_start) / 4;
 
 
 // 检查是否需要复制
- if (src == dst) {
+if (src == dst) {
   // 源地址和目标地址相同，不需要复制
   putch('S'); putch('k'); putch('i'); putch('p'); putch(':');
   putch('S'); putch('a'); putch('m'); putch('e');
@@ -245,7 +245,7 @@ void halt(int code) {
   
   while (1);
 }
-//2025.5.24  下面这一部分先注释掉，先不打印学号 在实现流水线的过程中还没有考虑csr
+
 static void put_dec(uint32_t num) {
     char buf[10];
     int i = 0;
@@ -265,10 +265,6 @@ void execute_main() {
     //uart_init();
       // 添加CSR读取
   
-
-
-
-  //2025.5.24  下面这一部分先注释掉，先不打印学号 在实现流水线的过程中还没有考虑csr
   uint32_t vendor_id, arch_id;
   __asm__ __volatile__("csrr %0, 0xF11" : "=r"(vendor_id));  // mvendorid
   __asm__ __volatile__("csrr %0, 0xF12" : "=r"(arch_id));    // marchid

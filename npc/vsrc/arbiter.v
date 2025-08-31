@@ -35,7 +35,27 @@ module ysyx_24090012_arbiter(
 
     // IFU Master Interface
  // IFU Master Interface (完整的AXI接口)
-  
+    // 写地址通道（不使用）
+   /* output wire        ifu_awready,
+    input  wire        ifu_awvalid,
+    input  wire [31:0] ifu_awaddr,
+    input  wire [3:0]  ifu_awid,
+    input  wire [7:0]  ifu_awlen,
+    input  wire [2:0]  ifu_awsize,
+    input  wire [1:0]  ifu_awburst,
+    
+    // 写数据通道（不使用）
+    output wire        ifu_wready,
+    input  wire        ifu_wvalid,
+    input  wire [31:0] ifu_wdata,
+    input  wire [3:0]  ifu_wstrb,
+    input  wire        ifu_wlast,
+    
+    // 写响应通道（不使用）
+    input  wire        ifu_bready,
+    output wire        ifu_bvalid,
+    output wire [1:0]  ifu_bresp,
+    output wire [3:0]  ifu_bid,*/
     
     // 读地址通道 使用
     input  wire        ifu_arvalid,
@@ -90,7 +110,6 @@ module ysyx_24090012_arbiter(
     localparam IDLE      = 2'b00;
     localparam LSU_READ  = 2'b01;
     localparam IFU_READ  = 2'b10;
-    localparam LSU_WRITE  = 2'b11;
     
     reg [1:0] current_state;
     reg [1:0] next_state;
@@ -108,21 +127,12 @@ module ysyx_24090012_arbiter(
     always @(*) begin
         case (current_state)
             IDLE: begin
-                if (lsu_awvalid)          // LSU写优先级最高
-                next_state = LSU_WRITE;
-            else if (lsu_arvalid)     // LSU读其次
-                next_state = LSU_READ;
-            else if (ifu_arvalid)     // IFU读优先级最低
-                next_state = IFU_READ;
-            else
-                next_state = IDLE;
-            end
-
-            LSU_WRITE: begin
-                if (io_master_bvalid && lsu_bready)
-                    next_state = IDLE;
+                if (lsu_arvalid)          // LSU读优先
+                    next_state = LSU_READ;
+                else if (ifu_arvalid)     // IFU读其次
+                    next_state = IFU_READ;
                 else
-                    next_state = LSU_WRITE;
+                    next_state = IDLE;
             end
             
             LSU_READ: begin
@@ -143,64 +153,59 @@ module ysyx_24090012_arbiter(
         endcase
     end
 
-  
+     // 状态信号
+    wire is_lsu_read  = (current_state == LSU_READ);
+    wire is_ifu_read  = (current_state == IFU_READ);
 
     // 写通道连接 - 直接连接LSU
-    assign io_master_awvalid = lsu_awvalid && is_lsu_write;
+    assign io_master_awvalid = lsu_awvalid;
     assign io_master_awaddr  = lsu_awaddr;
     assign io_master_awid    = lsu_awid;
     assign io_master_awlen   = lsu_awlen;
     assign io_master_awsize  = lsu_awsize;
     assign io_master_awburst = lsu_awburst;
-    assign lsu_awready      = io_master_awready && is_lsu_write;
+    assign lsu_awready      = io_master_awready;
 
-    assign io_master_wvalid  = lsu_wvalid && is_lsu_write;
+    assign io_master_wvalid  = lsu_wvalid;
     assign io_master_wdata   = lsu_wdata;
     assign io_master_wstrb   = lsu_wstrb;
     assign io_master_wlast   = lsu_wlast;
-    assign lsu_wready       = io_master_wready && is_lsu_write;
+    assign lsu_wready       = io_master_wready;
 
-    assign io_master_bready  = lsu_bready && is_lsu_write;
-    assign lsu_bvalid       = io_master_bvalid && is_lsu_write;
+    assign io_master_bready  = lsu_bready;
+    assign lsu_bvalid       = io_master_bvalid;
     assign lsu_bresp        = io_master_bresp;
     assign lsu_bid          = io_master_bid;
 
-   
+    // 读通道连接 - LSU和IFU共享
+  /*  assign io_master_arvalid = (lsu_arvalid && (current_state == IDLE || is_lsu_read)) || 
+                              (ifu_arvalid && (current_state == IDLE || is_ifu_read));
+    assign io_master_araddr  = is_lsu_read ? lsu_araddr : ifu_araddr;
+    assign io_master_arid    = is_lsu_read ? lsu_arid : ifu_arid;
+    assign io_master_arlen   = is_lsu_read ? lsu_arlen : ifu_arlen;
+    assign io_master_arsize  = is_lsu_read ? lsu_arsize : ifu_arsize;
+    assign io_master_arburst = is_lsu_read ? lsu_arburst : ifu_arburst;*/
 
-   // 状态信号
-    wire is_lsu_read  = (current_state == LSU_READ);
-    wire is_lsu_write = (current_state == LSU_WRITE);
-    wire is_ifu_read  = (current_state == IFU_READ);
 
-//wire use_lsu_addr = (current_state == IDLE && lsu_arvalid) || is_lsu_read; //流水线先注释掉，设计的有问题
-//wire use_ifu_addr = (current_state == IDLE && ifu_arvalid) || is_ifu_read;
+
+wire use_lsu_addr = (current_state == IDLE && lsu_arvalid) || is_lsu_read;
+wire use_ifu_addr = (current_state == IDLE && ifu_arvalid) || is_ifu_read;
 
 // 读通道连接 - 使用统一的选择信号
-/*assign io_master_arvalid = (lsu_arvalid && (current_state == IDLE || is_lsu_read)) || 
-                          (ifu_arvalid && (current_state == IDLE || is_ifu_read));*/   //流水线 注释掉 设计的有问题
-
-assign io_master_arvalid = (lsu_arvalid && is_lsu_read) || 
-                          (ifu_arvalid && is_ifu_read);
-
-/*assign io_master_araddr  = use_lsu_addr ? lsu_araddr : ifu_araddr;
+assign io_master_arvalid = (lsu_arvalid && (current_state == IDLE || is_lsu_read)) || 
+                          (ifu_arvalid && (current_state == IDLE || is_ifu_read));
+assign io_master_araddr  = use_lsu_addr ? lsu_araddr : ifu_araddr;
 assign io_master_arid    = use_lsu_addr ? lsu_arid : ifu_arid;
 assign io_master_arlen   = use_lsu_addr ? lsu_arlen : ifu_arlen;
 assign io_master_arsize  = use_lsu_addr ? lsu_arsize : ifu_arsize;
-assign io_master_arburst = use_lsu_addr ? lsu_arburst : ifu_arburst;*/
-assign io_master_araddr  = is_lsu_read ? lsu_araddr : ifu_araddr;
-assign io_master_arid    = is_lsu_read ? lsu_arid : ifu_arid;
-assign io_master_arlen   = is_lsu_read ? lsu_arlen : ifu_arlen;
-assign io_master_arsize  = is_lsu_read ? lsu_arsize : ifu_arsize;
-assign io_master_arburst = is_lsu_read ? lsu_arburst : ifu_arburst;
+assign io_master_arburst = use_lsu_addr ? lsu_arburst : ifu_arburst;
 
 
 
 
-   // assign lsu_arready      = io_master_arready && (current_state == IDLE || is_lsu_read);
-    //assign ifu_arready      = io_master_arready && (current_state == IDLE || is_ifu_read);
 
- assign lsu_arready      = io_master_arready && is_lsu_read;
- assign ifu_arready      = io_master_arready && is_ifu_read;
+    assign lsu_arready      = io_master_arready && (current_state == IDLE || is_lsu_read);
+    assign ifu_arready      = io_master_arready && (current_state == IDLE || is_ifu_read);
 
     assign io_master_rready  = (lsu_rready && is_lsu_read) || (ifu_rready && is_ifu_read);
 
