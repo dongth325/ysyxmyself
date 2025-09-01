@@ -210,7 +210,7 @@ static word_t flash_read(paddr_t addr, int len) {
 static void flash_write(paddr_t addr, int len, word_t data) {
   uint8_t *host_addr = flash_to_host(addr);
   host_write(host_addr, len, data);
-  //Log("FLASH write: address " FMT_PADDR ", data " FMT_WORD ", len %d", addr, data, len);
+  Log("FLASH write: address " FMT_PADDR ", data " FMT_WORD ", len %d", addr, data, len);
 }
 
 static word_t psram_read(paddr_t addr, int len) {

@@ -1,84 +1,89 @@
 module ysyx_24090012_LSU (
     input wire         clock,
     input wire         reset,
-    output reg [2:0] state_out,   //换成wire
+    output reg [2:0] state_out,
   
-   // input   mem_unsigned,
+    input   mem_unsigned,
 
     input [31:0] lsu_in_pc,
-    output  [31:0] lsu_out_pc,   //不清楚是否需要，或许可以去掉
+    output reg [31:0] lsu_out_pc,
+
+    input is_ecall,
+    input is_mret,
+    output out_is_ecall,
+    output out_is_mret,
 
     // EXU Interface (slave)
     input  wire [31:0] mem_addr,
     input  wire        mem_valid,
     input  wire [31:0] mem_wdata,
+    input  wire [3:0]  mem_wmask,
+    input  wire        mem_wen,
+    output reg         mem_ready,
 
-    output          mem_ready,
+    input  wire [2:0]  mem_awsize,
+    input  wire [2:0]  mem_arsize,
 
-    output wire [31:0] data_hazard_lsu_inst,
-    output wire [31:0]  lsu_hazard_result,
-
+    input [4:0]  mem_rd,        // 流水线流水线流水线   
+    input        mem_rd_wen,    // 流水线流水线流水线
     input [31:0] mem_result,    // 流水线流水线流水线
     input wire [31:0] next_pc,
 
+    input        is_use_lsu,    // 流水线流水线流水线
+    
+    // 传递给WBU的寄存器写回信息
+    output [4:0]  wbu_rd,      // 流水线流水线流水线
+    output        wbu_rd_wen,  // 流水线流水线流水线
     output [31:0] wbu_data,    // 流水线流水线流水线
 
+    input [11:0] csr_addr,
     input [31:0] csr_wdata,
- 
+    input csr_wen,
+
+    output [11:0] wbu_csr_addr,
     output [31:0] wbu_csr_wdata,
-    input [31:0] exu_to_lsu_inst,
-    output [31:0] lsu_to_wbu_inst,
+    output wbu_csr_wen,
  
-    output     wbu_csr_valid,
+    output reg    wbu_csr_valid,
     output        wbu_csr_ready,
 
-    output     wbu_valid,   // 流水线流水线流水线
+    output reg    wbu_valid,   // 流水线流水线流水线
     input         wbu_ready,   // 流水线流水线流水线
     output [31:0] wbu_next_pc, // 流水线流水线流水线
-
-    output wire [63:0] lsu_reg_num,
-
-
-    input [63:0] num,
-    output reg [63:0] num_r,
-
-    output reg [31:0] sim_lsu_addr,//用于流水线仿真环境取出写入地址判断是否跳过difftest
-
-
     // AXI4 Master Interface
     // Write Address Channel
     input  wire        io_master_awready,
-    output          io_master_awvalid,
-    output   [31:0] io_master_awaddr,
-    output   [3:0]  io_master_awid,     // 传递事务ID
-    output   [7:0]  io_master_awlen,
-    output   [2:0]  io_master_awsize,
-    output   [1:0]  io_master_awburst,
+    output reg         io_master_awvalid,
+    output reg  [31:0] io_master_awaddr,
+    output reg  [3:0]  io_master_awid,     // 传递事务ID
+    output reg  [7:0]  io_master_awlen,
+    output reg  [2:0]  io_master_awsize,
+    output reg  [1:0]  io_master_awburst,
 
     // Write Data Channel
     input  wire        io_master_wready,
-    output          io_master_wvalid,
+    output reg         io_master_wvalid,
     output reg  [31:0] io_master_wdata,
     output reg  [3:0]  io_master_wstrb,
-    output          io_master_wlast,     // 单次传输永远为1
+    output reg         io_master_wlast,     // 单次传输永远为1
 
     // Write Response Channel
-    output          io_master_bready,
+    output reg         io_master_bready,
     input  wire        io_master_bvalid,
     input  wire [1:0]  io_master_bresp,    // 写响应状态
     input  wire [3:0]  io_master_bid,      // 写响应ID
 
     // Read Address Channel
     input  wire        io_master_arready,
-    output          io_master_arvalid,
-    output   [31:0] io_master_araddr,
-    output   [3:0]  io_master_arid,     // 传递事务ID
-    output   [7:0]  io_master_arlen,
-    output   [2:0]  io_master_arsize,
-    output   [1:0]  io_master_arburst,
+    output reg         io_master_arvalid,
+    output reg  [31:0] io_master_araddr,
+    output reg  [3:0]  io_master_arid,     // 传递事务ID
+    output reg  [7:0]  io_master_arlen,
+    output reg  [2:0]  io_master_arsize,
+    output reg  [1:0]  io_master_arburst,
 
     // Read Data Channel
-    output          io_master_rready,
+    output reg         io_master_rready,
     input  wire        io_master_rvalid,
     input  wire [31:0] io_master_rdata,
     input  wire [1:0]  io_master_rresp,    // 读响应状态
@@ -95,65 +100,34 @@ module ysyx_24090012_LSU (
     localparam WBU_WAIT    = 3'd6;
     localparam SAVE_STATE  = 3'd7; 
    
-assign lsu_to_wbu_inst = exu_to_lsu_inst_r;
-assign data_hazard_lsu_inst = exu_to_lsu_inst_r;
-
-assign lsu_hazard_result = saved_result;
-
-assign lsu_reg_num = num_r;
-
-wire [6:0] opcode = exu_to_lsu_inst_r[6:0];
-wire [2:0] func3 = exu_to_lsu_inst_r[14:12];
 
 
-wire saved_mem_unsigned = 
-    (opcode == 7'b0000011 && func3 == 3'b100) || // LBU
-    (opcode == 7'b0000011 && func3 == 3'b101);   // LHU
-
-wire saved_is_use_lsu = (opcode == 7'b0000011) || (opcode == 7'b0100011);  
-wire saved_wen = (opcode == 7'b0100011);
-
-
-   wire [2:0] saved_arsize = 
-    (opcode == 7'b0000011 && (func3 == 3'b000 || func3 == 3'b100)) ? 3'b000 :  // LB/LBU
-    (opcode == 7'b0000011 && (func3 == 3'b001 || func3 == 3'b101)) ? 3'b001 :  // LH/LHU
-    (opcode == 7'b0000011 && func3 == 3'b010) ? 3'b010 :                       // LW
-    3'b000;      
-
-    wire [2:0] saved_awsize = 
-    (opcode == 7'b0100011 && func3 == 3'b000) ? 3'b000 :  // SB
-    (opcode == 7'b0100011 && func3 == 3'b001) ? 3'b001 :  // SH
-    (opcode == 7'b0100011 && func3 == 3'b010) ? 3'b010 :  // SW
-    3'b000;     
-
-
-    reg [31:0] exu_to_lsu_inst_r;
+    
 
     // 寄存器定义
     reg [2:0] state;
-    reg [31:0] saved_addr;//读写地址
+    reg [31:0] saved_addr;
     reg [31:0] saved_wdata;
-    
-     // 组合逻辑：状态转换和控制信号生成
-    reg [2:0] next_state;
-    reg [31:0] processed_rdata;//用于对读出数据进行寄存，最后赋值给mem rdata
-
+    reg [3:0]  saved_wmask;
+    reg [2:0]  saved_arsize;
+    reg [2:0]  saved_awsize;
     reg [3:0]  curr_id;    // 当前事务ID
-  
-   // reg [4:0]  saved_rd;//流水线流水线流水线
-   // reg        saved_rd_wen;//流水线流水线流水线
+    reg saved_unsigned;
+    reg [4:0]  saved_rd;//流水线流水线流水线
+    reg        saved_rd_wen;//流水线流水线流水线
     reg [31:0] saved_result;//流水线流水线流水线    
- 
+    reg        saved_is_use_lsu;
     reg [31:0] saved_next_pc;
-   
+    reg saved_mem_unsigned;
 
     reg  [31:0] saved_pc;
 
-  
- 
-    //reg [11:0] saved_csr_addr;
+    reg        saved_wen;
+    reg saved_is_ecall;
+    reg saved_is_mret;
+    reg [11:0] saved_csr_addr;
     reg [31:0] saved_csr_wdata;
-    //reg saved_csr_wen;
+    reg saved_csr_wen;
 
     reg [31:0] lsu_count;          // LSU总操作计数器
     reg [31:0] read_count;         // 读操作计数器
@@ -191,22 +165,26 @@ end
         end else begin
             // 在IDLE状态且有新请求时保存数据
             if (state == IDLE && mem_valid) begin
-                saved_addr <= mem_addr;//读写地址
-                saved_wdata <= mem_wdata;//写数据
-             
-              
-              
+                saved_addr <= mem_addr;
+                saved_wdata <= mem_wdata;
+                saved_wmask <= mem_wmask;
+                saved_arsize <= mem_arsize;
+                saved_awsize <= mem_awsize;
+                saved_unsigned <= mem_unsigned;
                 curr_id <= curr_id + 4'h1;  // 递增事务ID
-             
-                saved_result <= mem_result;   
-             
+                saved_rd <= mem_rd;           // 流水线流水线流水线
+                saved_rd_wen <= mem_rd_wen;   // 流水线流水线流水线
+                saved_result <= mem_result;   // 流水线流水线流水线
+                saved_is_use_lsu <= is_use_lsu;
                 saved_next_pc <= next_pc;
-               
+                saved_wen <= mem_wen;
+                saved_is_ecall <= is_ecall;
+                saved_is_mret <= is_mret;
+                saved_csr_addr <= csr_addr;
+                saved_csr_wen <= csr_wen;
                 saved_csr_wdata <= csr_wdata;
-                saved_pc <= lsu_in_pc;//                           不确定是否需要
-            
-                num_r <= num;
-                exu_to_lsu_inst_r <= exu_to_lsu_inst;
+                saved_pc <= lsu_in_pc;
+                saved_mem_unsigned <= mem_unsigned;
             end
 
    // 更新计数器 - 当读操作完成时
@@ -229,28 +207,11 @@ end
         end
     end
 
-   assign mem_ready = (state == IDLE);
-   assign wbu_valid = (state == WBU_WAIT);
-   assign wbu_csr_valid = (state == WBU_WAIT);
-   assign  lsu_out_pc = saved_pc;
+    // 组合逻辑：状态转换和控制信号生成
+    reg [2:0] next_state;
+    reg [31:0] processed_rdata;//用于对读出数据进行寄存，最后赋值给mem rdata
 
-   assign io_master_awvalid = (state == WRITE_ADDR);
-   assign io_master_awaddr = saved_addr;
-   assign io_master_araddr = saved_addr;
-   assign io_master_awsize = saved_awsize;
-   assign io_master_arsize = saved_arsize;
-   assign io_master_awlen = 8'b0;
-   assign io_master_arlen = 8'b0;
-   assign io_master_awid = curr_id;
-   assign io_master_arid = curr_id;
-   assign io_master_awburst = 2'b01;
-   assign io_master_arburst = 2'b01;
-   assign io_master_wvalid = (state == WRITE_DATA);
-   assign io_master_wlast = 1'b1;//单次传输为1
-   assign io_master_bready = (state == WRITE_RESP);
-   assign io_master_rready = (state == READ_DATA);
-   assign io_master_arvalid = (state == READ_ADDR);
-  
+
 
     always @(*) begin
 
@@ -258,57 +219,56 @@ end
 
         // 默认值
         next_state = state;
-       // io_master_awvalid = 0;
-       // io_master_wvalid  = 0;
-       // io_master_bready  = 0;
-       // io_master_arvalid = 0;
-       // io_master_rready  = 0;
-      //  mem_ready = 0;
+        io_master_awvalid = 0;
+        io_master_wvalid  = 0;
+        io_master_bready  = 0;
+        io_master_arvalid = 0;
+        io_master_rready  = 0;
+        mem_ready = 0;
        
         
         // 固定值
-       // io_master_awid    = curr_id;        // 使用当前事务ID
-      //  io_master_awlen   = 8'd0;           // 单次传输
-       // io_master_awsize  = saved_awsize;  
+        io_master_awid    = curr_id;        // 使用当前事务ID
+        io_master_awlen   = 8'd0;           // 单次传输
+        io_master_awsize  = saved_awsize;  
             
-       // io_master_awburst = 2'b01;          // INCR模式
-       //io_master_arid    = curr_id;        // 使用当前事务ID
-      //  io_master_arlen   = 8'd0;           // 单次传输
-       // io_master_arsize  = saved_arsize;  
-          
-      //  io_master_arburst = 2'b01;          // INCR模式
+        io_master_awburst = 2'b01;          // INCR模式
+        io_master_arid    = curr_id;        // 使用当前事务ID
+        io_master_arlen   = 8'd0;           // 单次传输
+        io_master_arsize  = saved_arsize;  
+       //io_master_arsize  = 1;       
+        io_master_arburst = 2'b01;          // INCR模式
         
         // 地址和数据连接
-       // io_master_awaddr = saved_addr;
-       // io_master_araddr = saved_addr;
+        io_master_awaddr = saved_addr;
+        io_master_araddr = saved_addr;
        // io_master_wdata  = saved_wdata;    //综合需要注释 （下面的wstrb不是）
 
 
         //io_master_wstrb  = saved_wmask;
-       // io_master_wlast  = 1'b1;            // 单次传输永远为1
+        io_master_wlast  = 1'b1;            // 单次传输永远为1
 
 
-      // wbu_rd = saved_rd;//流水线流水线流水线
-      // wbu_rd_wen = saved_rd_wen;//流水线流水线流水线
+       wbu_rd = saved_rd;//流水线流水线流水线
+       wbu_rd_wen = saved_rd_wen;//流水线流水线流水线
        wbu_data = saved_result;//流水线流水线流水线
        wbu_next_pc = saved_next_pc;
-      // wbu_valid = 1'b0;
-     //  wbu_csr_valid = 1'b0;
+       wbu_valid = 1'b0;
+       wbu_csr_valid = 1'b0;
 
-     //  wbu_csr_addr = saved_csr_addr;
+       wbu_csr_addr = saved_csr_addr;
        wbu_csr_wdata = saved_csr_wdata;
-    //   wbu_csr_wen = saved_csr_wen;
+       wbu_csr_wen = saved_csr_wen;
 
-      
-   
-
-       sim_lsu_addr = saved_addr;
+       lsu_out_pc = saved_pc;
+       out_is_ecall = saved_is_ecall;
+       out_is_mret = saved_is_mret;
       
         
         // 状态转换和控制信号生成
         case (state)
             IDLE: begin
-              //  mem_ready = 1'b1;//改为wire assign
+                mem_ready = 1'b1;//流水线流水线流水线
                 if (mem_valid) begin//流水线流水线流水线
                     // 有新请求，进入保存状态
                    
@@ -328,8 +288,8 @@ end
             end
 
             WBU_WAIT: begin //流水线流水线流水线    
-               // wbu_valid = 1'b1; 
-              //  wbu_csr_valid = 1'b1;
+                wbu_valid = 1'b1; 
+                wbu_csr_valid = 1'b1;
                 if (wbu_ready  && wbu_csr_ready) begin
                     // WBU已就绪，完成操作
                     next_state = IDLE;
@@ -340,14 +300,14 @@ end
             end
             
             WRITE_ADDR: begin
-               // io_master_awvalid = 1'b1;
+                io_master_awvalid = 1'b1;
                 if (io_master_awready) begin
                     next_state = WRITE_DATA;
                 end
             end
             
             WRITE_DATA: begin
-               // io_master_wvalid = 1'b1;
+                io_master_wvalid = 1'b1;
                 if (io_master_wready) begin
                     next_state = WRITE_RESP;
                 end
@@ -360,7 +320,7 @@ end
 
 
                  WRITE_RESP: begin
-              //  io_master_bready = 1'b1;
+                io_master_bready = 1'b1;
                 if (io_master_bvalid) begin
                     // 检查响应和ID
                     if (io_master_bid == curr_id && io_master_bresp == 2'b00) begin
@@ -386,14 +346,14 @@ end
             end
             
             READ_ADDR: begin
-               // io_master_arvalid = 1'b1;
+                io_master_arvalid = 1'b1;
                 if (io_master_arready) begin
                     next_state = READ_DATA;
                 end
             end
             
             READ_DATA: begin
-              //  io_master_rready = 1'b1;
+                io_master_rready = 1'b1;
                 if (io_master_rvalid) begin
                     // 检查响应和ID
                     //if (io_master_rid == curr_id && io_master_rresp == 2'b00) begin
@@ -430,17 +390,18 @@ end
 
 
 
-   wire is_mrom_region = (saved_addr[31:24] == 8'h20);
-   wire is_uart_region = (saved_addr[31:24] == 8'h10);
+reg is_mrom_region;
+reg is_uart_region;
 
-//这里processed data和 下面的io master信号也能换成wire
+
 
 always @(*) begin
     // 默认值
     processed_rdata = 32'b0;
         // 判断地址区间 - MROM区域通常在0x2000_0000开始
    
-
+ is_mrom_region = (saved_addr[31:24] == 8'h20);
+ is_uart_region = (saved_addr[31:24] == 8'h10);
 
 
     // 根据读操作类型处理数据
@@ -543,12 +504,12 @@ end
 
 
 
-//
+
 
 always @(*) begin
     // 默认值
     io_master_wdata  = saved_wdata;//综合锁存器需要 yosys
-  //is_uart_region = (saved_addr[31:24] == 8'h10);
+  is_uart_region = (saved_addr[31:24] == 8'h10);
     io_master_wstrb = 4'b0000;
  //io_master_wstrb = 1;
 
@@ -719,5 +680,48 @@ endfunction
 
 
 endmodule
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
