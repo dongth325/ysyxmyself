@@ -13,6 +13,7 @@
 #include "verilated_dpi.h"//用于打印所有dpi 上下文环境
 #include <chrono>  // 添加获取时间的库 
 //dddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+#include <nvboard.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #define MEM_SIZE (128 * 1024 * 1024)
@@ -22,6 +23,7 @@ uint64_t execution_count = 0;//统计exec_once真实执行多少次 可以截止
 size_t program_size = 0;
 #define MEM_BASE 0x80000000
 
+void nvboard_bind_all_pins(VysyxSoCFull* top);
 
 extern "C" int get_reg_value(int reg_index);
 extern "C" int get_pc_value();
@@ -666,6 +668,9 @@ void exec_once(NpcState *s) {
         // 时钟上升沿
         s->top->clock = 1;
         s->top->eval();
+
+        nvboard_update();
+
       //  if (tfp) tfp->dump(main_time++);
          if (record_wave && tfp) tfp->dump(main_time++);
         
@@ -799,6 +804,9 @@ int main(int argc, char **argv) {
     // 初始化 Verilated 模型
    VysyxSoCFull *top = new VysyxSoCFull; 
 
+   nvboard_bind_all_pins(top);
+   nvboard_init();
+
         // 设置 npc_state 的初始值
     npc_state.top = top;
    npc_state.inst_count = 0;
@@ -875,6 +883,8 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
     /*while (!Verilated::gotFinish() && !npc_state.ebreak_encountered) {    //while循环=批处理模式 dddddddddd
         exec_once(&npc_state);
     }*/
+
+    nvboard_quit();
 
     // 完成仿真
     top->final();
