@@ -132,8 +132,8 @@ LDFLAGS += -lreadline -lhistory
 
 $(EXE): $(VSRCS) $(CSRC) $(NVBOARD_ARCHIVE)
 	$(VERILATOR) $(VERILATOR_FLAGS)
-		$(addprefix -LDFLAGS, $(LDFLAGS)) \
-		$(MAKE) -C obj_dir -f V$(TOP).mk
+	$(addprefix -LDFLAGS, $(LDFLAGS)) \
+	$(MAKE) -C obj_dir -f V$(TOP).mk
 
 # 运行仿真并传递镜像
 run: $(EXE)
