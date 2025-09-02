@@ -49,15 +49,13 @@ VERILATOR_FLAGS = --cc  $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
 	--timescale "1ns/1ns" \
 	--no-timing \
     -CFLAGS "$(INCLUDE_PATHS) -I$(NVBOARD_HOME)/usr/include -D__GUEST_ISA__=$(GUEST_ISA) -DDEBUG_PRINT_FULL  -g -O0" \
-    -LDFLAGS "-lreadline -lhistory" \
 	-autoflush
 
 
 	
 
 
-# 3. 将 NVBoard 的链接选项添加到 Verilator 的参数中
-VERILATOR_FLAGS += -LDFLAGS "$(LDFLAGS) $(NVBOARD_LDFLAGS)"	
+
 
     
 
@@ -130,10 +128,15 @@ LDFLAGS += -lreadline -lhistory
 # 生成可执行文件时包含 LDFLAGS
 
 
+#$(EXE): $(VSRCS) $(CSRC) $(NVBOARD_ARCHIVE)
+#	$(VERILATOR) $(VERILATOR_FLAGS)
+#	$(MAKE) -C obj_dir -f V$(TOP).mk
+
 $(EXE): $(VSRCS) $(CSRC) $(NVBOARD_ARCHIVE)
-	$(VERILATOR) $(VERILATOR_FLAGS)
-	$(addprefix -LDFLAGS, $(LDFLAGS)) \
-	$(MAKE) -C obj_dir -f V$(TOP).mk
+	@rm -rf ./obj_dir
+	$(VERILATOR) $(VERILATOR_FLAGS) \
+		-LDFLAGS "$(LDFLAGS)" \
+		--Mdir ./obj_dir -o $(abspath $(EXE))
 
 # 运行仿真并传递镜像
 run: $(EXE)
