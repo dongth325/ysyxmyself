@@ -5197,8 +5197,8 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__7(VysyxSoCFull___0
     VysyxSoCFull__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Init
-    IData/*31:0*/ __Vtask_flash_read__13__data;
-    __Vtask_flash_read__13__data = 0;
+    IData/*31:0*/ __Vtask_flash_read__5__data;
+    __Vtask_flash_read__5__data = 0;
     // Body
     if (((1U == (IData)(vlSelfRef.ysyxSoCFull__DOT__flash__DOT__state)) 
          & (0x17U == (IData)(vlSelfRef.ysyxSoCFull__DOT__flash__DOT__counter)))) {
@@ -5207,9 +5207,9 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__7(VysyxSoCFull___0
                                                                            ((0xfffffeU 
                                                                              & (vlSelfRef.ysyxSoCFull__DOT__flash__DOT__addr 
                                                                                 << 1U)) 
-                                                                            | (IData)(vlSelfRef.ysyxSoCFull__DOT___asic_spi_mosi)), __Vtask_flash_read__13__data);
+                                                                            | (IData)(vlSelfRef.ysyxSoCFull__DOT___asic_spi_mosi)), __Vtask_flash_read__5__data);
             vlSelfRef.ysyxSoCFull__DOT__flash__DOT__rdata 
-                = __Vtask_flash_read__13__data;
+                = __Vtask_flash_read__5__data;
         } else {
             VL_FWRITEF_NX(0x80000002U,"Assertion failed: Unsupport command `%xh`, only support `03h` read command\n",0,
                           8,vlSelfRef.ysyxSoCFull__DOT__flash__DOT__cmd);
