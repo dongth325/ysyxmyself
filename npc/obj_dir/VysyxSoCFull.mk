@@ -4,7 +4,7 @@
 # Execute this makefile from the object directory:
 #    make -f VysyxSoCFull.mk
 
-default: /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/npc/VysyxSoCFull
+default: VysyxSoCFull
 
 ### Constants...
 # Perl executable (from $PERL, defaults to 'perl' if not set)
@@ -41,6 +41,7 @@ VM_USER_CFLAGS = \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \
+	/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nvboard/build/nvboard.a \
 	-lSDL2 -lSDL2_image -lSDL2_ttf -lreadline -lhistory \
 
 # User .cpp files (from .cpp's on Verilator command line)
@@ -73,7 +74,7 @@ main.o: csrc/main.cpp
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 
 ### Link rules... (from --exe)
-/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/npc/VysyxSoCFull: $(VK_USER_OBJS) $(VK_GLOBAL_OBJS) $(VM_PREFIX)__ALL.a $(VM_HIER_LIBS)
+VysyxSoCFull: $(VK_USER_OBJS) $(VK_GLOBAL_OBJS) $(VM_PREFIX)__ALL.a $(VM_HIER_LIBS)
 	$(LINK) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) $(LIBS) $(SC_LIBS) -o $@
 
 

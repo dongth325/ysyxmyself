@@ -125,6 +125,7 @@ all: sim
 # 添加对 readline 和 history 库的链接
 LDFLAGS += -lreadline -lhistory
 
+
 # 生成可执行文件时包含 LDFLAGS
 
 
@@ -134,9 +135,8 @@ LDFLAGS += -lreadline -lhistory
 
 $(EXE): $(VSRCS) $(CSRC) $(NVBOARD_ARCHIVE)
 	@rm -rf ./obj_dir
-	$(VERILATOR) $(VERILATOR_FLAGS) \
-		-LDFLAGS "$(LDFLAGS)" \
-		--Mdir ./obj_dir -o $(abspath $(EXE))
+	$(VERILATOR) $(VERILATOR_FLAGS) $(NVBOARD_ARCHIVE) -LDFLAGS "$(LDFLAGS)"
+	$(MAKE) -C obj_dir -f V$(TOP).mk
 
 # 运行仿真并传递镜像
 run: $(EXE)
