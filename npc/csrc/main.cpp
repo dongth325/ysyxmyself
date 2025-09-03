@@ -883,7 +883,7 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
  printf("Please set switches to password (0x%04X) to continue...\n", SWITCH_PASSWORD);
     
  // 切换到正确的 DPI 作用域
- svScope gpio_scope = svGetScopeFromName("TOP.ysyxSoCFull.mgpio"); // 假设实例名叫 mgpio
+ svScope gpio_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.lgpio"); // 
  if (gpio_scope) {
      svSetScope(gpio_scope);
  } else {
