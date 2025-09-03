@@ -93,14 +93,6 @@ VL_ATTR_COLD void VysyxSoCFull___024root___eval_initial__TOP(VysyxSoCFull___024r
     VysyxSoCFull__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs[0U] = 0xfdU;
-    vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs[1U] = 0x60U;
-    vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs[2U] = 0xdaU;
-    vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs[3U] = 0xf2U;
-    vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs[4U] = 0x66U;
-    vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs[5U] = 0xb6U;
-    vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs[6U] = 0xbeU;
-    vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs[7U] = 0xe0U;
     vlSelfRef.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__mvendorid = 0x79737978U;
     vlSelfRef.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__marchid = 0x16f959eU;
     vlSelfRef.ysyxSoCFull__DOT___bitrev_miso = 1U;
@@ -381,51 +373,6 @@ VL_ATTR_COLD void VysyxSoCFull___024root___stl_sequent__TOP__0(VysyxSoCFull___02
         = ((IData)(vlSelfRef.ysyxSoCFull__DOT__asic__DOT__axi4frag__DOT__deq_q__DOT__full)
             ? (3U & (IData)((vlSelfRef.ysyxSoCFull__DOT__asic__DOT__axi4frag__DOT__deq_q__DOT__ram 
                              >> 0x2fU))) : 1U);
-    vlSelfRef.externalPins_gpio_seg_0 = (0xffU & (~ 
-                                                  vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs
-                                                  [vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__offset]));
-    vlSelfRef.externalPins_gpio_seg_1 = (0xffU & (~ 
-                                                  vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs
-                                                  [
-                                                  (7U 
-                                                   & ((IData)(1U) 
-                                                      + (IData)(vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__offset)))]));
-    vlSelfRef.externalPins_gpio_seg_2 = (0xffU & (~ 
-                                                  vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs
-                                                  [
-                                                  (7U 
-                                                   & ((IData)(2U) 
-                                                      + (IData)(vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__offset)))]));
-    vlSelfRef.externalPins_gpio_seg_3 = (0xffU & (~ 
-                                                  vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs
-                                                  [
-                                                  (7U 
-                                                   & ((IData)(3U) 
-                                                      + (IData)(vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__offset)))]));
-    vlSelfRef.externalPins_gpio_seg_4 = (0xffU & (~ 
-                                                  vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs
-                                                  [
-                                                  (7U 
-                                                   & ((IData)(4U) 
-                                                      + (IData)(vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__offset)))]));
-    vlSelfRef.externalPins_gpio_seg_5 = (0xffU & (~ 
-                                                  vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs
-                                                  [
-                                                  (7U 
-                                                   & ((IData)(5U) 
-                                                      + (IData)(vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__offset)))]));
-    vlSelfRef.externalPins_gpio_seg_6 = (0xffU & (~ 
-                                                  vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs
-                                                  [
-                                                  (7U 
-                                                   & ((IData)(6U) 
-                                                      + (IData)(vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__offset)))]));
-    vlSelfRef.externalPins_gpio_seg_7 = (0xffU & (~ 
-                                                  vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs
-                                                  [
-                                                  (7U 
-                                                   & ((IData)(7U) 
-                                                      + (IData)(vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__offset)))]));
     vlSelfRef.ysyxSoCFull__DOT__sdram__DOT__cke_pair0 
         = ((~ (IData)(vlSelfRef.ysyxSoCFull__DOT__sdram__DOT__chip_select)) 
            & (IData)(vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__cke_q));
@@ -2375,11 +2322,6 @@ VL_ATTR_COLD void VysyxSoCFull___024root___ctor_var_reset(VysyxSoCFull___024root
     vlSelf->ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__led_reg = VL_RAND_RESET_I(16);
     vlSelf->ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__seg_reg = VL_RAND_RESET_I(32);
     vlSelf->ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__Vstatic__segs = VL_RAND_RESET_I(7);
-    for (int __Vi0 = 0; __Vi0 < 8; ++__Vi0) {
-        vlSelf->ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__segs[__Vi0] = VL_RAND_RESET_I(8);
-    }
-    vlSelf->ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__count = VL_RAND_RESET_I(32);
-    vlSelf->ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__offset = VL_RAND_RESET_I(3);
     vlSelf->ysyxSoCFull__DOT__asic__DOT__lspi__DOT__mspi__DOT__is_flash_access = VL_RAND_RESET_I(1);
     vlSelf->ysyxSoCFull__DOT__asic__DOT__lspi__DOT__mspi__DOT__xip_state = VL_RAND_RESET_I(3);
     vlSelf->ysyxSoCFull__DOT__asic__DOT__lspi__DOT__mspi__DOT__xip_next_state = VL_RAND_RESET_I(3);
