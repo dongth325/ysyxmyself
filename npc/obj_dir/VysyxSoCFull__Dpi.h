@@ -56,6 +56,8 @@ extern "C" {
     extern int get_saved_addr();
     // DPI export at vsrc/idu.v:461:14
     extern int get_store_inst_count();
+    // DPI export at ../ysyxSoC/perip/gpio/gpio_top_apb.v:114:16
+    extern int get_switch_value();
     // DPI export at vsrc/lsu.v:672:14
     extern int get_write_count();
 

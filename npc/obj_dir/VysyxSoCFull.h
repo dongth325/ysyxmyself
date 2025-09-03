@@ -117,6 +117,7 @@ class alignas(VL_CACHE_LINE_BYTES) VysyxSoCFull VL_NOT_FINAL : public VerilatedM
     static int get_reg_value(int reg_index);
     static int get_saved_addr();
     static int get_store_inst_count();
+    static int get_switch_value();
     static int get_write_count();
 
     // Abstract methods from VerilatedModel

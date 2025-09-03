@@ -22,6 +22,9 @@ uint64_t execution_count = 0;//统计exec_once真实执行多少次 可以截止
 #define PROGRAM_START_ADDRESS 0x30000000//   flash
 size_t program_size = 0;
 #define MEM_BASE 0x80000000
+#define GPIO_BASE             0x10002000
+#define SWITCH_REG_OFFSET     0x4
+#define SWITCH_PASSWORD       0x0325 //
 
 void nvboard_bind_all_pins(VysyxSoCFull* top);
 
@@ -30,6 +33,7 @@ extern "C" int get_pc_value();
 extern "C" int get_inst_r();
 extern "C" int get_if_allow_in();
 extern "C" int get_saved_addr();
+extern "C" int get_switch_value(); // 返回值类型应为 int
 
 
 
@@ -875,6 +879,22 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
 
 
 
+
+ printf("Please set switches to password (0x%04X) to continue...\n", SWITCH_PASSWORD);
+    
+ // 切换到正确的 DPI 作用域
+ svScope gpio_scope = svGetScopeFromName("TOP.ysyxSoCFull.mgpio"); // 假设实例名叫 mgpio
+ if (gpio_scope) {
+     svSetScope(gpio_scope);
+ } else {
+     fprintf(stderr, "Error: Unable to set GPIO DPI scope\n");
+ }
+
+ // 调用函数并进行比较 (int 和 uint16_t 比较是安全的)
+ while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {
+     // ... (循环内部不变) ...
+ }
+ printf("Password correct. Entering interactive mode.\n");
 
 
      sdb_mainloop();  //dddddddddddddddddddd

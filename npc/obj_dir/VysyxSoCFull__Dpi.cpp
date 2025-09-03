@@ -174,6 +174,14 @@ int get_store_inst_count() {
 }
 #endif
 
+#ifndef VL_DPIDECL_get_switch_value_
+#define VL_DPIDECL_get_switch_value_
+int get_switch_value() {
+    // DPI export at ../ysyxSoC/perip/gpio/gpio_top_apb.v:114:16
+    return VysyxSoCFull::get_switch_value();
+}
+#endif
+
 #ifndef VL_DPIDECL_get_write_count_
 #define VL_DPIDECL_get_write_count_
 int get_write_count() {
