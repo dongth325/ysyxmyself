@@ -293,21 +293,26 @@ void execute_main() {
 
 
 
-
-// 新增: 将学号分解为 8 个 hex 数字并显示到数码管
-  // 分解 32 位 arch_id 为 8 个 4-bit hex 数字 (从高位到低位)
   unsigned char hex_digits[8];
   for (int i = 0; i < 8; i++) {
       hex_digits[i] = (arch_id >> (28 - i * 4)) & 0xF;  // 提取每个 4 位
   }
 
-  // 写入 GPIO 的 seg_reg (64位，假设地址 0x10002008)
-  volatile unsigned long long *seg_reg = (unsigned long long *)0x10002008;
-  unsigned long long seg_val = 0;
-  for (int i = 0; i < 8; i++) {
-      seg_val |= ((unsigned long long)hex_digits[i] << (i * 8));  // 每个 8-bit 设置 hex 值 (Verilog 转换段码)
+  // 无限循环不断写入 seg_reg 以保持显示
+  while (1) {
+      volatile uint64_t *seg_reg = (volatile uint64_t *)0x10002008;  // 统一用 uint64_t (64 位)
+      uint64_t seg_val = 0;
+      for (int i = 0; i < 8; i++) {
+          seg_val |= ((uint64_t)hex_digits[i] << (i * 8));  // 每个 8-bit 设置 hex 值
+      }
+      *seg_reg = seg_val;  // 写入 64 位数码管
+
+      // 添加延迟以闪烁或稳定显示
+      for (volatile int delay = 0; delay < 500000; delay++) {}  // 延迟约0.5秒
+      *seg_reg = 0;  // 短暂关闭（闪烁，可注释掉）
+      for (volatile int delay = 0; delay < 500000; delay++) {}  // 延迟
   }
-  *seg_reg = seg_val;  // 写入数码管
+
 
 
 
