@@ -142,6 +142,8 @@ void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cp
         get_csr_reg_value__Vfuncrtn = vlSymsp->TOP.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__mepc;
     } else if ((4U == csr_reg_index)) {
         get_csr_reg_value__Vfuncrtn = vlSymsp->TOP.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__mstatus;
+    } else if ((5U == csr_reg_index)) {
+        get_csr_reg_value__Vfuncrtn = vlSymsp->TOP.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__marchid;
     }
 }
 

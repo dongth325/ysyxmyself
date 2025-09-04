@@ -170,6 +170,7 @@ function int get_csr_reg_value(input int csr_reg_index);
      2:   get_csr_reg_value = mtvec;
      3:   get_csr_reg_value = mepc;
      4:   get_csr_reg_value = mstatus;
+     5:   get_csr_reg_value = marchid; 
   endcase
 endfunction   //综合需要注释
 
