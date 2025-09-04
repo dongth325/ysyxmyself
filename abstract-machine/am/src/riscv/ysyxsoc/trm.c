@@ -293,18 +293,31 @@ void execute_main() {
 
 
 
-  uint32_t seg_val = arch_id;  // 直接从 CSR 解析，无需转换 (arch_id = 0x016F959E)
+  uint32_t student_id = arch_id; // student_id = 24090014
+  unsigned char decimal_digits[8];
 
-  // 打印验证
- // printf("seg_val set from CSR: 0x%08X (decimal: %u)\n", seg_val, seg_val);
-  
+  // 从右到左提取每个十进制位 (4, 1, 0, 0, 9, 0, 4, 2)
+  for (int i = 7; i >= 0; i--) {
+      decimal_digits[i] = student_id % 10;
+      student_id /= 10;
+  }
+
+
+
   // 无限循环不断写入 seg_reg 以保持显示
   while (1) {
-      volatile uint64_t *seg_reg = (volatile uint64_t *)0x10002008;  // 64 位寄存器
-      *seg_reg = (uint64_t)seg_val;  // 写入低 32 位，高 32 位 0
-  
+      volatile uint64_t *seg_reg = (volatile uint64_t *)0x10002008;
+      uint64_t seg_val = 0;
+
+      // 将8个十进制数字打包到64位seg_val中
+      // 假设数码管从左到右显示，decimal_digits[0]对应最左边的数码管
+      for (int i = 0; i < 8; i++) {
+          seg_val |= ((uint64_t)decimal_digits[i] << ((7 - i) * 8));
+      }
+      *seg_reg = seg_val;
+
       // 添加延迟以稳定显示
-      for (volatile int delay = 0; delay < 1000000; delay++) {}  // 延迟约1秒
+      for (volatile int delay = 0; delay < 1000000; delay++) {}
   }
 
 
