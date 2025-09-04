@@ -24,7 +24,7 @@ size_t program_size = 0;
 #define MEM_BASE 0x80000000
 #define GPIO_BASE             0x10002000
 #define SWITCH_REG_OFFSET     0x4
-#define SWITCH_PASSWORD       0x0325 //
+#define SWITCH_PASSWORD       0x0001 //
 
 void nvboard_bind_all_pins(VysyxSoCFull* top);
 
@@ -902,7 +902,7 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
         while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {
         // 在等待期间，我们需要继续驱动时钟并更新nvboard
        
-        printf("Current switch value: 0x%04X (expected: 0x%04X)\n", get_switch_value() & 0xFFFF, SWITCH_PASSWORD);  // 调试打印：实时输出当前开关值
+        //printf("Current switch value: 0x%04X (expected: 0x%04X)\n", get_switch_value() & 0xFFFF, SWITCH_PASSWORD);  // 调试打印：实时输出当前开关值
 
         nvboard_update();
     }
