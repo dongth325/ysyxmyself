@@ -258,6 +258,24 @@ static void put_dec(uint32_t num) {
         putch(buf[i]);
     }
 }
+
+uint32_t convert_arch_id_to_seg_val(uint32_t arch_id) {
+  uint32_t temp = arch_id;
+  uint32_t seg_val = 0;
+  uint32_t multiplier = 1;
+
+  // 循环提取arch_id的每一位十进制数字，并用它们构建seg_val
+  while (temp > 0) {
+      uint8_t digit = temp % 10; // 获取最低位数字
+      seg_val += digit * multiplier;
+      multiplier *= 16; // 关键：将提取出的十进制数字当作十六进制数字来组合
+      temp /= 10;
+  }
+
+  return seg_val;
+}
+
+
 void execute_main(void) __attribute__((used));
 void execute_main() {
     uart_init();
@@ -292,35 +310,16 @@ void execute_main() {
 
 
 
+  uint32_t seg_val = convert_arch_id_to_seg_val(arch_id);
 
-  uint32_t student_id = arch_id; // student_id = 0x016F959E
-  unsigned char decimal_digits[8] = {0}; // 存储数值，而不是ASCII
-
-  // --- 正确的逻辑：复用算法，存储数值 ---
-  int i = 7;
-  do {
-      if (i < 0) break; // 防止学号超过8位
-      decimal_digits[i--] = student_id % 10; // 存储数值 (例如 4), 而不是 '4'
-      student_id /= 10;
-  } while (student_id > 0);
 
   while (1) {
-    volatile uint64_t *seg_reg = (volatile uint64_t *)0x10002008;
-    uint64_t seg_val = 0;
-
-    // 将8个十进制数值打包到64位seg_val中
-    for (int j = 0; j < 8; j++) {
-        seg_val |= ((uint64_t)decimal_digits[j] << ((7 - j) * 8));
-    }
-    *seg_reg = seg_val; // 现在 seg_val 是正确的 64 位整数
+    volatile uint64_t *seg_reg = (volatile uint64_t *)0x10002008;  // 64 位寄存器
+    *seg_reg = (uint64_t)seg_val;  // 写入低 32 位，高 32 位 0
 
     // 添加延迟以稳定显示
-    for (volatile int delay = 0; delay < 1000000; delay++) {}
+    for (volatile int delay = 0; delay < 1000000; delay++) {}  // 延迟约1秒
 }
-
-
-
-
 
 
 
