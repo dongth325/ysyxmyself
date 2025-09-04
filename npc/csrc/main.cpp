@@ -623,7 +623,7 @@ extern "C" void ebreak(uint32_t exit_code) {
 
 
 
-bool password_checked = false;
+bool password_checked = false; 
 // 执行单条指令的函数（类似于 NEMU 的 exec_once）
 void exec_once(NpcState *s) {
 
@@ -904,7 +904,6 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
 
 
  // init_pc_trace("pc_trace.txt");//初始化用于cachesim的pc序列统计
-
 
 
 
