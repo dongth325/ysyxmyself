@@ -309,10 +309,16 @@ void execute_main() {
 
 
 
-//投射学号id到nvboard数码管
+
   uint32_t seg_val = convert_arch_id_to_seg_val(arch_id);
+
+
+
     volatile uint64_t *seg_reg = (volatile uint64_t *)0x10002008;  // 64 位寄存器
     *seg_reg = (uint64_t)seg_val;  // 写入低 32 位，高 32 位 0
+
+    // 添加延迟以稳定显示
+    for (volatile int delay = 0; delay < 1000000; delay++) {}  // 延迟约1秒
 
 
 
