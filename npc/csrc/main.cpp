@@ -623,36 +623,11 @@ extern "C" void ebreak(uint32_t exit_code) {
 
 
 
-bool password_checked = false; 
+
 // 执行单条指令的函数（类似于 NEMU 的 exec_once）
 void exec_once(NpcState *s) {
 
-    if (!password_checked) {
-        printf("Please set switches to password (0x%04X) to continue...\n", SWITCH_PASSWORD);
-        
-        // 切换到正确的 DPI 作用域
-        svScope gpio_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.lgpio.mgpio");
-        if (gpio_scope) {
-            svSetScope(gpio_scope);
-        } else {
-            fprintf(stderr, "Fatal Error: Unable to set GPIO DPI scope inside exec_once. Aborting.\n");
-            // 在这里直接退出，因为这是一个致命错误
-            exit(1); 
-        }
 
-        // 循环等待密码正确
-        //while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {
-            while (1) {
-            // 在等待期间，我们需要继续驱动时钟并更新nvboard
-           
-            printf("Current switch value: 0x%04X (expected: 0x%04X)\n", get_switch_value() & 0xFFFF, SWITCH_PASSWORD);  // 调试打印：实时输出当前开关值
-            s->top->clock = 0; s->top->eval();
-            s->top->clock = 1; s->top->eval();
-            nvboard_update();
-        }
-        printf("Password correct. Entering interactive mode.\n");
-        password_checked = true; // 标记密码已通过，不再检查
-    }
 
 
 
@@ -908,6 +883,30 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
 
  // init_pc_trace("pc_trace.txt");//初始化用于cachesim的pc序列统计
 
+
+
+    printf("Please set switches to password (0x%04X) to continue...\n", SWITCH_PASSWORD);
+    
+    // 切换到正确的 DPI 作用域
+    svScope gpio_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.lgpio.mgpio");
+    if (gpio_scope) {
+        svSetScope(gpio_scope);
+    } else {
+        fprintf(stderr, "Fatal Error: Unable to set GPIO DPI scope inside exec_once. Aborting.\n");
+        // 在这里直接退出，因为这是一个致命错误
+        exit(1); 
+    }
+
+    // 循环等待密码正确
+    //while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {
+        while (get_switch_value() & 0xFFFF) {
+        // 在等待期间，我们需要继续驱动时钟并更新nvboard
+       
+        printf("Current switch value: 0x%04X (expected: 0x%04X)\n", get_switch_value() & 0xFFFF, SWITCH_PASSWORD);  // 调试打印：实时输出当前开关值
+
+        nvboard_update();
+    }
+    printf("Password correct. Entering interactive mode.\n");
 
 
  
