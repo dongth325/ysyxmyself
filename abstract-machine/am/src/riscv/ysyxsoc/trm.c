@@ -318,7 +318,7 @@ void execute_main() {
     *seg_reg = (uint64_t)seg_val;  // 写入低 32 位，高 32 位 0
 
     // 添加延迟以稳定显示
-    for (volatile int delay = 0; delay < 10000; delay++) {}  // 延迟约1秒
+    //for (volatile int delay = 0; delay < 10000; delay++) {}  // 延迟约1秒
 
 
 
