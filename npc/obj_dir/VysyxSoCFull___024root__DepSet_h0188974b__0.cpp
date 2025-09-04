@@ -5489,14 +5489,14 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                             ? ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__1__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__1__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__1__hex_digit))
-                                        ? 0x71U : 0x79U)
+                                        ? 0x8eU : 0x9eU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__1__hex_digit))
-                                        ? 0x5eU : 0x39U))
+                                        ? 0x7aU : 0x9cU))
                                 : ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__1__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__1__hex_digit))
-                                        ? 0x7cU : 0x77U)
+                                        ? 0x3eU : 0xeeU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__1__hex_digit))
-                                        ? 0xdeU : 0xfeU)))
+                                        ? 0xf6U : 0xfeU)))
                             : ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__1__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__1__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__1__hex_digit))
@@ -5507,7 +5507,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__1__hex_digit))
                                         ? 0xf2U : 0xdaU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__1__hex_digit))
-                                        ? 0x60U : 0xfdU))));
+                                        ? 0x60U : 0xfcU))));
                 }(), (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__1__Vfuncout))));
     vlSelfRef.externalPins_gpio_seg_1 = (0xffU & (~ 
                                                   ([&]() {
@@ -5519,14 +5519,14 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                             ? ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__2__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__2__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__2__hex_digit))
-                                        ? 0x71U : 0x79U)
+                                        ? 0x8eU : 0x9eU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__2__hex_digit))
-                                        ? 0x5eU : 0x39U))
+                                        ? 0x7aU : 0x9cU))
                                 : ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__2__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__2__hex_digit))
-                                        ? 0x7cU : 0x77U)
+                                        ? 0x3eU : 0xeeU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__2__hex_digit))
-                                        ? 0xdeU : 0xfeU)))
+                                        ? 0xf6U : 0xfeU)))
                             : ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__2__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__2__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__2__hex_digit))
@@ -5537,7 +5537,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__2__hex_digit))
                                         ? 0xf2U : 0xdaU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__2__hex_digit))
-                                        ? 0x60U : 0xfdU))));
+                                        ? 0x60U : 0xfcU))));
                 }(), (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__2__Vfuncout))));
     vlSelfRef.externalPins_gpio_seg_2 = (0xffU & (~ 
                                                   ([&]() {
@@ -5549,14 +5549,14 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                             ? ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__3__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__3__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__3__hex_digit))
-                                        ? 0x71U : 0x79U)
+                                        ? 0x8eU : 0x9eU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__3__hex_digit))
-                                        ? 0x5eU : 0x39U))
+                                        ? 0x7aU : 0x9cU))
                                 : ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__3__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__3__hex_digit))
-                                        ? 0x7cU : 0x77U)
+                                        ? 0x3eU : 0xeeU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__3__hex_digit))
-                                        ? 0xdeU : 0xfeU)))
+                                        ? 0xf6U : 0xfeU)))
                             : ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__3__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__3__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__3__hex_digit))
@@ -5567,7 +5567,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__3__hex_digit))
                                         ? 0xf2U : 0xdaU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__3__hex_digit))
-                                        ? 0x60U : 0xfdU))));
+                                        ? 0x60U : 0xfcU))));
                 }(), (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__3__Vfuncout))));
     vlSelfRef.externalPins_gpio_seg_3 = (0xffU & (~ 
                                                   ([&]() {
@@ -5579,14 +5579,14 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                             ? ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__4__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__4__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__4__hex_digit))
-                                        ? 0x71U : 0x79U)
+                                        ? 0x8eU : 0x9eU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__4__hex_digit))
-                                        ? 0x5eU : 0x39U))
+                                        ? 0x7aU : 0x9cU))
                                 : ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__4__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__4__hex_digit))
-                                        ? 0x7cU : 0x77U)
+                                        ? 0x3eU : 0xeeU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__4__hex_digit))
-                                        ? 0xdeU : 0xfeU)))
+                                        ? 0xf6U : 0xfeU)))
                             : ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__4__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__4__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__4__hex_digit))
@@ -5597,7 +5597,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__4__hex_digit))
                                         ? 0xf2U : 0xdaU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__4__hex_digit))
-                                        ? 0x60U : 0xfdU))));
+                                        ? 0x60U : 0xfcU))));
                 }(), (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__4__Vfuncout))));
     vlSelfRef.externalPins_gpio_seg_4 = (0xffU & (~ 
                                                   ([&]() {
@@ -5609,14 +5609,14 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                             ? ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__5__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__5__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__5__hex_digit))
-                                        ? 0x71U : 0x79U)
+                                        ? 0x8eU : 0x9eU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__5__hex_digit))
-                                        ? 0x5eU : 0x39U))
+                                        ? 0x7aU : 0x9cU))
                                 : ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__5__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__5__hex_digit))
-                                        ? 0x7cU : 0x77U)
+                                        ? 0x3eU : 0xeeU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__5__hex_digit))
-                                        ? 0xdeU : 0xfeU)))
+                                        ? 0xf6U : 0xfeU)))
                             : ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__5__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__5__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__5__hex_digit))
@@ -5627,7 +5627,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__5__hex_digit))
                                         ? 0xf2U : 0xdaU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__5__hex_digit))
-                                        ? 0x60U : 0xfdU))));
+                                        ? 0x60U : 0xfcU))));
                 }(), (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__5__Vfuncout))));
     vlSelfRef.externalPins_gpio_seg_5 = (0xffU & (~ 
                                                   ([&]() {
@@ -5639,14 +5639,14 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                             ? ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__6__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__6__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__6__hex_digit))
-                                        ? 0x71U : 0x79U)
+                                        ? 0x8eU : 0x9eU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__6__hex_digit))
-                                        ? 0x5eU : 0x39U))
+                                        ? 0x7aU : 0x9cU))
                                 : ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__6__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__6__hex_digit))
-                                        ? 0x7cU : 0x77U)
+                                        ? 0x3eU : 0xeeU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__6__hex_digit))
-                                        ? 0xdeU : 0xfeU)))
+                                        ? 0xf6U : 0xfeU)))
                             : ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__6__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__6__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__6__hex_digit))
@@ -5657,7 +5657,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__6__hex_digit))
                                         ? 0xf2U : 0xdaU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__6__hex_digit))
-                                        ? 0x60U : 0xfdU))));
+                                        ? 0x60U : 0xfcU))));
                 }(), (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__6__Vfuncout))));
     vlSelfRef.externalPins_gpio_seg_6 = (0xffU & (~ 
                                                   ([&]() {
@@ -5669,14 +5669,14 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                             ? ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__7__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__7__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__7__hex_digit))
-                                        ? 0x71U : 0x79U)
+                                        ? 0x8eU : 0x9eU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__7__hex_digit))
-                                        ? 0x5eU : 0x39U))
+                                        ? 0x7aU : 0x9cU))
                                 : ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__7__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__7__hex_digit))
-                                        ? 0x7cU : 0x77U)
+                                        ? 0x3eU : 0xeeU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__7__hex_digit))
-                                        ? 0xdeU : 0xfeU)))
+                                        ? 0xf6U : 0xfeU)))
                             : ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__7__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__7__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__7__hex_digit))
@@ -5687,7 +5687,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__7__hex_digit))
                                         ? 0xf2U : 0xdaU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__7__hex_digit))
-                                        ? 0x60U : 0xfdU))));
+                                        ? 0x60U : 0xfcU))));
                 }(), (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__7__Vfuncout))));
     vlSelfRef.externalPins_gpio_seg_7 = (0xffU & (~ 
                                                   ([&]() {
@@ -5699,14 +5699,14 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                             ? ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__8__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__8__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__8__hex_digit))
-                                        ? 0x71U : 0x79U)
+                                        ? 0x8eU : 0x9eU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__8__hex_digit))
-                                        ? 0x5eU : 0x39U))
+                                        ? 0x7aU : 0x9cU))
                                 : ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__8__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__8__hex_digit))
-                                        ? 0x7cU : 0x77U)
+                                        ? 0x3eU : 0xeeU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__8__hex_digit))
-                                        ? 0xdeU : 0xfeU)))
+                                        ? 0xf6U : 0xfeU)))
                             : ((4U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__8__hex_digit))
                                 ? ((2U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__8__hex_digit))
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__8__hex_digit))
@@ -5717,7 +5717,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__5(VysyxSoCFull___0
                                     ? ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__8__hex_digit))
                                         ? 0xf2U : 0xdaU)
                                     : ((1U & (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__8__hex_digit))
-                                        ? 0x60U : 0xfdU))));
+                                        ? 0x60U : 0xfcU))));
                 }(), (IData)(vlSelfRef.__Vfunc_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__hex_to_seg__8__Vfuncout))));
     vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lpsram__DOT__mpsram__DOT__u0__DOT__mr_dout 
         = (0xfU & ((IData)(vlSelfRef.ysyxSoCFull__DOT__asic__DOT__lpsram__DOT__mpsram__DOT__u0__DOT__MR__DOT__qpi_enabled)
