@@ -293,7 +293,7 @@ void execute_main() {
 
 
 
-  uint32_t seg_val = arch_id;  // 直接从 CSR 解析，无需转换 (arch_id = 0x016F959E)
+  uint32_t seg_val = 0x12345678;  // 直接从 CSR 解析，无需转换 (arch_id = 0x016F959E)
 
   // 打印验证
  // printf("seg_val set from CSR: 0x%08X (decimal: %u)\n", seg_val, seg_val);
