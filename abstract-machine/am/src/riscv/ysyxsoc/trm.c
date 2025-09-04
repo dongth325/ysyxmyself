@@ -293,7 +293,7 @@ void execute_main() {
 
 
 
-  uint32_t seg_val = 0x016F959E;  // uint32_t 类型，学号的 hex 值 (对应 24090014)
+  uint32_t seg_val = 0x24090014;  // uint32_t 类型，学号的 hex 值 (对应 24090014)
 
   // 打印验证
   //printf("seg_val set to: 0x%08X (decimal: %u)\n", seg_val, seg_val);
