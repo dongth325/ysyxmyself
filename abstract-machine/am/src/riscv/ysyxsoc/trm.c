@@ -293,10 +293,10 @@ void execute_main() {
 
 
 
-  uint32_t seg_val = 0x24090014;  // uint32_t 类型，学号的 hex 值 (对应 24090014)
+  uint32_t seg_val = arch_id;  // 直接从 CSR 解析，无需转换 (arch_id = 0x016F959E)
 
   // 打印验证
-  //printf("seg_val set to: 0x%08X (decimal: %u)\n", seg_val, seg_val);
+ // printf("seg_val set from CSR: 0x%08X (decimal: %u)\n", seg_val, seg_val);
   
   // 无限循环不断写入 seg_reg 以保持显示
   while (1) {
