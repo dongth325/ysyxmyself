@@ -34,7 +34,7 @@ extern "C" int get_inst_r();
 extern "C" int get_if_allow_in();
 extern "C" int get_saved_addr();
 extern "C" int get_switch_value(); // 返回值类型应为 int
-extern "C" int get_csr_reg_value(int csr_reg_index);
+
 
 
 
@@ -884,34 +884,6 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
 
  // init_pc_trace("pc_trace.txt");//初始化用于cachesim的pc序列统计
 
- printf("Reading student ID from CSR and displaying on 7-segment...\n");
-    
- // 切换到 CSR 作用域
- svScope csr_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu.csr");
- if (csr_scope) {
-     svSetScope(csr_scope);
- } else {
-     fprintf(stderr, "Fatal Error: Unable to set CSR DPI scope in main. Aborting.\n");
-     exit(1); 
- }
-
- // 读取 marchid (索引 5, 如 csr.v 中定义)
- int student_id = get_csr_reg_value(5);  // 读取学号 (0x016F959E)
- printf("Read student ID from CSR: 0x%08X (decimal: %d)\n", student_id, student_id);
-
- // 将 32位学号分解为 8 个 4-bit 十六进制数字 (从高位到低位)
- unsigned char hex_digits[8];
- for (int i = 0; i < 8; i++) {
-     hex_digits[i] = (student_id >> (28 - i * 4)) & 0xF;  // 提取每个 4 位
- }
-
- // 写入 GPIO 的 seg_reg (假设地址 0x10002008, 64位)
- volatile unsigned long long *seg_reg = (unsigned long long *)0x10002008;  // 数码管寄存器
- unsigned long long seg_val = 0;
- for (int i = 0; i < 8; i++) {
-     seg_val |= ((unsigned long long)hex_digits[i] << (i * 8));  // 每个 8-bit 设置 hex 值 (Verilog 转换段码)
- }
- *seg_reg = seg_val;  // 写入数码管
 
 
 

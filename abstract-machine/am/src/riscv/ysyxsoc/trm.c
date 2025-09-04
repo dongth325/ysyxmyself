@@ -287,6 +287,34 @@ void execute_main() {
   
   // 换行
   putch('\n');
+
+
+
+
+
+
+
+// 新增: 将学号分解为 8 个 hex 数字并显示到数码管
+  // 分解 32 位 arch_id 为 8 个 4-bit hex 数字 (从高位到低位)
+  unsigned char hex_digits[8];
+  for (int i = 0; i < 8; i++) {
+      hex_digits[i] = (arch_id >> (28 - i * 4)) & 0xF;  // 提取每个 4 位
+  }
+
+  // 写入 GPIO 的 seg_reg (64位，假设地址 0x10002008)
+  volatile unsigned long long *seg_reg = (unsigned long long *)0x10002008;
+  unsigned long long seg_val = 0;
+  for (int i = 0; i < 8; i++) {
+      seg_val |= ((unsigned long long)hex_digits[i] << (i * 8));  // 每个 8-bit 设置 hex 值 (Verilog 转换段码)
+  }
+  *seg_reg = seg_val;  // 写入数码管
+
+
+
+
+
+
+
    
  volatile int ret = main(mainargs);
   halt(ret);
