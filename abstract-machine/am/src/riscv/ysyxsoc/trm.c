@@ -293,26 +293,18 @@ void execute_main() {
 
 
 
-  unsigned char hex_digits[8];
-  for (int i = 0; i < 8; i++) {
-      hex_digits[i] = (arch_id >> (28 - i * 4)) & 0xF;  // 提取每个 4 位
-  }
+  uint32_t seg_val = 0x016F959E;  // uint32_t 类型，学号的 hex 值 (对应 24090014)
 
+  // 打印验证
+  //printf("seg_val set to: 0x%08X (decimal: %u)\n", seg_val, seg_val);
+  
   // 无限循环不断写入 seg_reg 以保持显示
   while (1) {
-    volatile uint64_t *seg_reg = (volatile uint64_t *)0x10002008;  // 64 位寄存器
-    uint64_t seg_val = 0;
-    for (int i = 0; i < 8; i++) {
-        seg_val |= ((uint64_t)hex_digits[i] << (i * 8));  // 每个 8-bit 设置 hex 值 (Verilog 转换段码)
-    }
-    *seg_reg = seg_val;  // 写入 (seg_val 应为 0xE959F6100 或类似)
-
-    put_dec(seg_val);
-
-      // 添加延迟以闪烁或稳定显示
-      for (volatile int delay = 0; delay < 500000; delay++) {}  // 延迟约0.5秒
-      *seg_reg = 0;  // 短暂关闭（闪烁，可注释掉）
-      for (volatile int delay = 0; delay < 500000; delay++) {}  // 延迟
+      volatile uint64_t *seg_reg = (volatile uint64_t *)0x10002008;  // 64 位寄存器
+      *seg_reg = (uint64_t)seg_val;  // 写入低 32 位，高 32 位 0
+  
+      // 添加延迟以稳定显示
+      for (volatile int delay = 0; delay < 1000000; delay++) {}  // 延迟约1秒
   }
 
 
