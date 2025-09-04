@@ -307,6 +307,7 @@ void execute_main() {
     }
     *seg_reg = seg_val;  // 写入 (seg_val 应为 0xE959F6100 或类似)
 
+    put_dec(seg_val);
 
       // 添加延迟以闪烁或稳定显示
       for (volatile int delay = 0; delay < 500000; delay++) {}  // 延迟约0.5秒
