@@ -899,7 +899,7 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
 
     // 循环等待密码正确
     //while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {
-        while (get_switch_value() & 0xFFFF) {
+        while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {
         // 在等待期间，我们需要继续驱动时钟并更新nvboard
        
         printf("Current switch value: 0x%04X (expected: 0x%04X)\n", get_switch_value() & 0xFFFF, SWITCH_PASSWORD);  // 调试打印：实时输出当前开关值
