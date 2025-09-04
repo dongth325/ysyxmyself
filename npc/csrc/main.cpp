@@ -644,6 +644,8 @@ void exec_once(NpcState *s) {
         //while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {
             while (1) {
             // 在等待期间，我们需要继续驱动时钟并更新nvboard
+           
+            printf("Current switch value: 0x%04X (expected: 0x%04X)\n", get_switch_value() & 0xFFFF, SWITCH_PASSWORD);  // 调试打印：实时输出当前开关值
             s->top->clock = 0; s->top->eval();
             s->top->clock = 1; s->top->eval();
             nvboard_update();
