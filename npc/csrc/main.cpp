@@ -641,7 +641,8 @@ void exec_once(NpcState *s) {
         }
 
         // 循环等待密码正确
-        while ((get_switch_value() & 0xFFFF) == SWITCH_PASSWORD) {
+        //while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {
+            while (1) {
             // 在等待期间，我们需要继续驱动时钟并更新nvboard
             s->top->clock = 0; s->top->eval();
             s->top->clock = 1; s->top->eval();
