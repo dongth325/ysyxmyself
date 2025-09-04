@@ -300,12 +300,13 @@ void execute_main() {
 
   // 无限循环不断写入 seg_reg 以保持显示
   while (1) {
-      volatile uint64_t *seg_reg = (volatile uint64_t *)0x10002008;  // 统一用 uint64_t (64 位)
-      uint64_t seg_val = 0;
-      for (int i = 0; i < 8; i++) {
-          seg_val |= ((uint64_t)hex_digits[i] << (i * 8));  // 每个 8-bit 设置 hex 值
-      }
-      *seg_reg = seg_val;  // 写入 64 位数码管
+    volatile uint64_t *seg_reg = (volatile uint64_t *)0x10002008;  // 64 位寄存器
+    uint64_t seg_val = 0;
+    for (int i = 0; i < 8; i++) {
+        seg_val |= ((uint64_t)hex_digits[i] << (i * 8));  // 每个 8-bit 设置 hex 值 (Verilog 转换段码)
+    }
+    *seg_reg = seg_val;  // 写入 (seg_val 应为 0xE959F6100 或类似)
+
 
       // 添加延迟以闪烁或稳定显示
       for (volatile int delay = 0; delay < 500000; delay++) {}  // 延迟约0.5秒
