@@ -631,7 +631,7 @@ void exec_once(NpcState *s) {
         printf("Please set switches to password (0x%04X) to continue...\n", SWITCH_PASSWORD);
         
         // 切换到正确的 DPI 作用域
-        svScope gpio_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.lgpio");
+        svScope gpio_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.lgpio.mgpio");
         if (gpio_scope) {
             svSetScope(gpio_scope);
         } else {
