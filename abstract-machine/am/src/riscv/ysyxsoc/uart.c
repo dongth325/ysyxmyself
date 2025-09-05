@@ -13,7 +13,8 @@ static inline uint8_t inb(uintptr_t addr) {
 void __am_uart_rx(AM_UART_RX_T *rx) {
   //if ((inb(UART_BASE + UART_REG_LSR) & UART_LSR_DR)) {
     if (1) {
-    rx->data = inb(UART_BASE + UART_REG_RBR);
+    //rx->data = inb(UART_BASE + UART_REG_RBR);
+    rx->data = 1;
   } else {
     rx->data = -1;
   }
