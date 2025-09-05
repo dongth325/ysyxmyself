@@ -16,6 +16,6 @@ void __am_uart_rx(AM_UART_RX_T *rx) {
     //rx->data = inb(UART_BASE + UART_REG_RBR);
     rx->data = 1;
   } else {
-    rx->data = -1;
+    rx->data = 1;
   }
 }
