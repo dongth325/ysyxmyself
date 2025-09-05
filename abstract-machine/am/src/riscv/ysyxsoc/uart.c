@@ -14,6 +14,6 @@ void __am_uart_rx(AM_UART_RX_T *rx) {
   if ((inb(UART_BASE + UART_REG_LSR) & UART_LSR_DR)) {
     rx->data = inb(UART_BASE + UART_REG_RBR);
   } else {
-    rx->data = AM_KEY_NONE;
+    rx->data = -1;
   }
 }
