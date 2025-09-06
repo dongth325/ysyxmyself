@@ -668,7 +668,7 @@ void exec_once(NpcState *s) {
         s->top->clock = 0;
         s->top->eval();
       //  if (tfp) tfp->dump(main_time++);
-         if (record_wave && tfp) tfp->dump(main_time++);
+         //if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
         //if (tfp) tfp->dump(main_time++);
@@ -683,7 +683,7 @@ void exec_once(NpcState *s) {
         nvboard_update();
 
       //  if (tfp) tfp->dump(main_time++);
-         if (record_wave && tfp) tfp->dump(main_time++);
+       //  if (record_wave && tfp) tfp->dump(main_time++);
         
         s->top->eval();
        // if (tfp) tfp->dump(main_time++);
