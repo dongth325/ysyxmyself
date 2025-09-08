@@ -12,7 +12,7 @@
 *
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
-/*
+
 #include <memory/host.h>
 #include <memory/paddr.h>
 #include <device/mmio.h>
@@ -354,9 +354,9 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   mtrace_write(addr, len, data);  // 调用 mtrace_write 记录写入操作
 #endif
 }
-*/
 
 
+/*
 #include <memory/host.h>
 #include <memory/paddr.h>
 #include <device/mmio.h>
@@ -405,4 +405,4 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
   out_of_bound(addr);
-}
+}*/
