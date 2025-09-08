@@ -1,9 +1,9 @@
 #include <am.h>
 
-// 函数前置声明（避免 implicit declaration 错误，像 NEMU 中的函数处理）
-void __am_gpu_config(AM_GPU_CONFIG_T *cfg);
-void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl);
-void __am_gpu_status(AM_GPU_STATUS_T *status);
+// 函数声明（避免 implicit declaration）
+void __am_gpu_config(AM_GPU_CONFIG_T *);
+void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *);
+
 
 // 模仿 NEMU 的 SYNC_ADDR (虚拟地址，无实际效果)
 #define SYNC_ADDR 0x0
@@ -23,11 +23,11 @@ void __am_gpu_init() {
     color_buf[i] = i;  // 每个像素使用不同的颜色值，像 NEMU
   }
   
-  // 模仿 NEMU 的绘制方式写入 fb (全屏绘制)
+  // 模仿 NEMU 的全屏绘制
   AM_GPU_FBDRAW_T ctl = {.x = 0, .y = 0, .w = w, .h = h, .pixels = color_buf, .sync = 1};
-  __am_gpu_fbdraw(&ctl);  // 调用 fbdraw 进行实际写入
+  __am_gpu_fbdraw(&ctl);
   
- 
+
 }
 
 void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
@@ -54,7 +54,8 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
       fb[screen_w * i + j] = pixels[ctl->w * (i - ctl->y) + (j - ctl->x)];  // 精确模仿 NEMU 索引
     }
   }
- 
+
 }
+
 
 
