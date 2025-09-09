@@ -2,9 +2,22 @@
 VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v vsrc/csr.v vsrc/arbiter.v vsrc/lsu.v vsrc/clint.v
 CSRC = csrc/main.cpp csrc/difftest_loader.cpp
 
+# ==================== NVBoard Integration Start ====================
+# 1. 自动生成引脚绑定文件并将其加入C++源文件列表
+SRC_AUTO_BIND = build/auto_bind.cpp
+$(SRC_AUTO_BIND): constr/npc.nxdc
+	@python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $< $@
+CSRC += $(SRC_AUTO_BIND)
+
+# 2. 包含 NVBoard 的构建脚本
+include $(NVBOARD_HOME)/scripts/nvboard.mk
+# ===================== NVBoard Integration End =====================
+
 # 添加ysyxSoC/perip下的所有.v文件
 VSRCS += $(shell find ../ysyxSoC/perip -name "*.v")
 VSRCS += ../ysyxSoC/build/ysyxSoCFull.v
+
+
 
 TOP = ysyxSoCFull
 EXE = V$(TOP)
@@ -14,6 +27,9 @@ NEMU_HOME = /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu
 INCLUDE_PATHS = -I$(NEMU_HOME)/include \
                 -I$(NEMU_HOME)/src/isa/$(GUEST_ISA)/include \
                 -I$(NEMU_HOME)/build/generated
+
+
+			
 
 # 定义 GUEST_ISA，确保与 NEMU 的配置一致
 GUEST_ISA = riscv32
@@ -32,9 +48,14 @@ VERILATOR_FLAGS = --cc  $(VSRCS) --exe $(CSRC) --top-module $(TOP) --trace \
 	-I../ysyxSoC/perip/spi/rtl \
 	--timescale "1ns/1ns" \
 	--no-timing \
-    -CFLAGS "$(INCLUDE_PATHS) -D__GUEST_ISA__=$(GUEST_ISA) -DDEBUG_PRINT_FULL  -g -O0" \
-    -LDFLAGS "-lreadline -lhistory" \
+    -CFLAGS "$(INCLUDE_PATHS) -I$(NVBOARD_HOME)/usr/include -D__GUEST_ISA__=$(GUEST_ISA) -DDEBUG_PRINT_FULL  -g -O0" \
 	-autoflush
+
+
+	
+
+
+
 
     
 
@@ -104,11 +125,17 @@ all: sim
 # 添加对 readline 和 history 库的链接
 LDFLAGS += -lreadline -lhistory
 
+
 # 生成可执行文件时包含 LDFLAGS
 
 
-$(EXE):
-	$(VERILATOR) $(VERILATOR_FLAGS)
+#$(EXE): $(VSRCS) $(CSRC) $(NVBOARD_ARCHIVE)
+#	$(VERILATOR) $(VERILATOR_FLAGS)
+#	$(MAKE) -C obj_dir -f V$(TOP).mk
+
+$(EXE): $(VSRCS) $(CSRC) $(NVBOARD_ARCHIVE)
+	@rm -rf ./obj_dir
+	$(VERILATOR) $(VERILATOR_FLAGS) $(NVBOARD_ARCHIVE) -LDFLAGS "$(LDFLAGS)"
 	$(MAKE) -C obj_dir -f V$(TOP).mk
 
 # 运行仿真并传递镜像

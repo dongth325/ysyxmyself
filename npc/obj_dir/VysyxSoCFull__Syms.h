@@ -28,7 +28,6 @@ using VysyxSoCFull__Vcb_get_idu_count_t = void (*) (VysyxSoCFull__Syms* __restri
 using VysyxSoCFull__Vcb_get_if_allow_in_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_if_allow_in__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_ifu_count_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_ifu_count__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_inst_r_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_inst_r__Vfuncrtn);
-using VysyxSoCFull__Vcb_get_instr_completed_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_instr_completed__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_jump_inst_count_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_jump_inst_count__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_load_inst_count_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_load_inst_count__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_lsu_count_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_lsu_count__Vfuncrtn);
@@ -38,8 +37,8 @@ using VysyxSoCFull__Vcb_get_pc_value_t = void (*) (VysyxSoCFull__Syms* __restric
 using VysyxSoCFull__Vcb_get_read_count_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_read_count__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_reg_value_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ reg_index, IData/*31:0*/ &get_reg_value__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_saved_addr_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_saved_addr__Vfuncrtn);
-using VysyxSoCFull__Vcb_get_saved_sim_lsu_addr_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_saved_sim_lsu_addr__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_store_inst_count_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_store_inst_count__Vfuncrtn);
+using VysyxSoCFull__Vcb_get_switch_value_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_switch_value__Vfuncrtn);
 using VysyxSoCFull__Vcb_get_write_count_t = void (*) (VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_write_count__Vfuncrtn);
 
 // SYMS CLASS (contains all model state)
@@ -70,6 +69,7 @@ class alignas(VL_CACHE_LINE_BYTES)VysyxSoCFull__Syms final : public VerilatedSym
     VerilatedScope __Vscope_ysyxSoCFull__asic__cpu__cpu__ifu;
     VerilatedScope __Vscope_ysyxSoCFull__asic__cpu__cpu__lsu;
     VerilatedScope __Vscope_ysyxSoCFull__asic__cpu__cpu__regfile;
+    VerilatedScope __Vscope_ysyxSoCFull__asic__lgpio__mgpio;
     VerilatedScope __Vscope_ysyxSoCFull__asic__lmrom;
     VerilatedScope __Vscope_ysyxSoCFull__flash;
     VerilatedScope __Vscope_ysyxSoCFull__flash__flash_cmd_i;

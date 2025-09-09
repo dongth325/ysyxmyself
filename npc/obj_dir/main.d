@@ -21,4 +21,6 @@ main.o: ../csrc/main.cpp VysyxSoCFull.h \
  /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/memory/paddr.h \
  /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/isa.h \
  /home/dongtaiheng/desktopp/ffuck/oss-cad-suite/share/verilator/include/verilated_dpi.h \
- /home/dongtaiheng/desktopp/ffuck/oss-cad-suite/share/verilator/include/verilated_sym_props.h
+ /home/dongtaiheng/desktopp/ffuck/oss-cad-suite/share/verilator/include/verilated_sym_props.h \
+ /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nvboard/usr/include/nvboard.h \
+ /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nvboard/usr/include/pins.h

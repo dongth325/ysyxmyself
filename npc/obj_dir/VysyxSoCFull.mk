@@ -37,20 +37,23 @@ VM_PREFIX = VysyxSoCFull
 VM_MODPREFIX = VysyxSoCFull
 # User CFLAGS (from -CFLAGS on Verilator command line)
 VM_USER_CFLAGS = \
-	-I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/src/isa/riscv32/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/build/generated -D__GUEST_ISA__=riscv32 -DDEBUG_PRINT_FULL  -g -O0 \
+	-I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/src/isa/riscv32/include -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/build/generated -I/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nvboard/usr/include -D__GUEST_ISA__=riscv32 -DDEBUG_PRINT_FULL  -g -O0 \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \
-	-lreadline -lhistory \
+	/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nvboard/build/nvboard.a \
+	-lSDL2 -lSDL2_image -lSDL2_ttf -lreadline -lhistory \
 
 # User .cpp files (from .cpp's on Verilator command line)
 VM_USER_CLASSES = \
+	auto_bind \
 	difftest_loader \
 	main \
 
 # User .cpp directories (from .cpp's on Verilator command line)
 VM_USER_DIR = \
 	.. \
+	../build \
 	../csrc \
 
 
@@ -63,6 +66,8 @@ include $(VERILATOR_ROOT)/include/verilated.mk
 ### Executable rules... (from --exe)
 VPATH += $(VM_USER_DIR)
 
+auto_bind.o: build/auto_bind.cpp 
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 difftest_loader.o: csrc/difftest_loader.cpp 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 main.o: csrc/main.cpp 
