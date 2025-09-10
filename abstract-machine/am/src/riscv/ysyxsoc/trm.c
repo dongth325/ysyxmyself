@@ -122,15 +122,15 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
   }
 
 
-/*
 
-src = (uint32_t*)_data_extra_lma;
+
+/*src = (uint32_t*)_data_extra_lma;
 dst = (uint32_t*)_data_extra_vma_start;   //在ysyxsoclinker2中data extra lma前面是一道杠，其余extra的是两道
 words = (_data_extra_vma_end - _data_extra_vma_start) / 4;
 
 
 // 检查是否需要复制
- if (src == dst) {
+if (src == dst) {
   // 源地址和目标地址相同，不需要复制
   putch('S'); putch('k'); putch('i'); putch('p'); putch(':');
   putch('S'); putch('a'); putch('m'); putch('e');
@@ -258,6 +258,24 @@ static void put_dec(uint32_t num) {
         putch(buf[i]);
     }
 }
+
+uint32_t convert_arch_id_to_seg_val(uint32_t arch_id) {
+  uint32_t temp = arch_id;
+  uint32_t seg_val = 0;
+  uint32_t multiplier = 1;
+
+  // 循环提取arch_id的每一位十进制数字，并用它们构建seg_val
+  while (temp > 0) {
+      uint8_t digit = temp % 10; // 获取最低位数字
+      seg_val += digit * multiplier;
+      multiplier *= 16; // 关键：将提取出的十进制数字当作十六进制数字来组合
+      temp /= 10;
+  }
+
+  return seg_val;
+}
+
+
 void execute_main(void) __attribute__((used));
 void execute_main() {
     uart_init();
@@ -287,6 +305,24 @@ void execute_main() {
   
   // 换行
   putch('\n');
+
+
+
+
+
+  uint32_t seg_val = convert_arch_id_to_seg_val(arch_id);
+
+
+
+    volatile uint64_t *seg_reg = (volatile uint64_t *)0x10002008;  // 64 位寄存器
+    *seg_reg = (uint64_t)seg_val;  // 写入低 32 位，高 32 位 0
+
+    // 添加延迟以稳定显示
+    for (volatile int delay = 0; delay < 10000; delay++) {}  // 不能去掉！具体也不清楚 
+
+
+
+
    
  volatile int ret = main(mainargs);
   halt(ret);
