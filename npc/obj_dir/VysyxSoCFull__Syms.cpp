@@ -26,7 +26,9 @@ void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cp
 void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__get_read_count_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_read_count__Vfuncrtn);
 void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__get_saved_addr_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_saved_addr__Vfuncrtn);
 void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__get_write_count_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_write_count__Vfuncrtn);
+void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__regfile__DOT__get_instr_completed_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_instr_completed__Vfuncrtn);
 void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__regfile__DOT__get_reg_value_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ reg_index, IData/*31:0*/ &get_reg_value__Vfuncrtn);
+void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__regfile__DOT__get_saved_sim_lsu_addr_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_saved_sim_lsu_addr__Vfuncrtn);
 void VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__get_switch_value_TOP(VysyxSoCFull__Syms* __restrict vlSymsp, IData/*31:0*/ &get_switch_value__Vfuncrtn);
 
 // FUNCTIONS
@@ -43,7 +45,7 @@ VysyxSoCFull__Syms::VysyxSoCFull__Syms(VerilatedContext* contextp, const char* n
     , TOP____024unit{this, Verilated::catName(namep, "$unit")}
 {
         // Check resources
-        Verilated::stackCheck(1113);
+        Verilated::stackCheck(1111);
     // Configure time unit / time precision
     _vm_contextp__->timeunit(-9);
     _vm_contextp__->timeprecision(-12);
@@ -92,7 +94,9 @@ VysyxSoCFull__Syms::VysyxSoCFull__Syms(VerilatedContext* contextp, const char* n
         __Vscope_ysyxSoCFull__asic__cpu__cpu__lsu.exportInsert(__Vfinal, "get_read_count", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__get_read_count_TOP));
         __Vscope_ysyxSoCFull__asic__cpu__cpu__lsu.exportInsert(__Vfinal, "get_saved_addr", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__get_saved_addr_TOP));
         __Vscope_ysyxSoCFull__asic__cpu__cpu__lsu.exportInsert(__Vfinal, "get_write_count", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu__DOT__get_write_count_TOP));
+        __Vscope_ysyxSoCFull__asic__cpu__cpu__regfile.exportInsert(__Vfinal, "get_instr_completed", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__regfile__DOT__get_instr_completed_TOP));
         __Vscope_ysyxSoCFull__asic__cpu__cpu__regfile.exportInsert(__Vfinal, "get_reg_value", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__regfile__DOT__get_reg_value_TOP));
+        __Vscope_ysyxSoCFull__asic__cpu__cpu__regfile.exportInsert(__Vfinal, "get_saved_sim_lsu_addr", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__regfile__DOT__get_saved_sim_lsu_addr_TOP));
         __Vscope_ysyxSoCFull__asic__lgpio__mgpio.exportInsert(__Vfinal, "get_switch_value", (void*)(&VysyxSoCFull___024root____Vdpiexp_ysyxSoCFull__DOT__asic__DOT__lgpio__DOT__mgpio__DOT__get_switch_value_TOP));
     }
 }

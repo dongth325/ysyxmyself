@@ -78,11 +78,7 @@ module ysyx_24090012_EXU(
 
  
 );
- //import "DPI-C" function void pmem_write(input int addr, input int data, input int mask);
- //import "DPI-C" function int pmem_read(input int addr);
 
-
-    // 状态定义
     localparam IDLE = 2'b00;
 
     localparam EXEC = 2'b11;
@@ -106,7 +102,7 @@ module ysyx_24090012_EXU(
 
   
     
-    reg [31:0] exu_count;    // EXU执行指令计数器
+  
 
     reg [31:0] idu_to_exu_inst_r;
 
@@ -123,18 +119,11 @@ module ysyx_24090012_EXU(
  assign state_out = state; 
 
 
-always @(posedge clk) begin
-   // 当指令执行完成时，增加计数器
-  if (state == EXEC && next_state == IDLE) begin
-    exu_count <= exu_count + 1;
-end
-end
-
-    // 状态转换
+   
     always @(posedge clk) begin
         if (rst) begin
             state <= IDLE;
-            exu_count <= 0;
+           
         end else begin
           
             state <= next_state;
@@ -179,37 +168,6 @@ end
 
 
 
-
-   /* always @(*) begin
-      case (alu_op_r)
-        6'b001000,  // LW
-        6'b001001,  // SW
-        6'b011000,  // LBU
-        6'b011111,  // LH
-        6'b100000,  // LHU
-        6'b100011,  // SB
-        6'b100100,  // LB
-        6'b110100:  // SH
-          is_use_lsu = 1'b1;
-        default:
-          is_use_lsu = 1'b0;
-      endcase
-    end*/
-
-
-   /* always @(posedge clk) begin
-      if (alu_op_r == 6'b010001) begin  // 当执行SRAI操作时打印
-        
-          $display("rs1_data_r = 32'h%h", rs1_data_r);
-          $display("imm_r[4:0] = 5'b%b (Decimal: %0d)", imm_r[4:0], imm_r[4:0]);
-          $display("num_r = 64'h%h", num_r);
-          $display("rd_data = 32'h%h", rd_data);
-        //  $display("srai_data = 32'h%h", srai_data);
-          $display("shift result = 32'h%h", $signed(rs1_data_r) >>> imm_r[4:0]);
-
-          $display("----------------------------------");
-      end
-  end*/
 
 
    wire [31:0] srai_data = $signed(rs1_data_r) >>> imm_r[4:0];
@@ -324,42 +282,8 @@ end
     
 always @(*) begin
 
-  //csr_wdata = 32'b0;////mmmmmm
-    // 初始化默认值，防止锁存器推断
   next_state = state;//mmmmmmmmmm
 
- // idu_ready = (state == IDLE);//mmmmmmmmm
-
-
-  //out_pc = pc_r;//mmmmmmmmmmmmmmm
-
-
-       // LSU接口默认值
-       // mem_valid = 0;//mmmmmmmmmmmmmmm
-       // mem_addr = 0;//mmmmmmmmmmmm
-       // mem_wdata = 0;//mmmmmmmmmmmm
-       
-        
-      // RegFile写回接口默认值
-      
-        //rd_data = 0;//mmmmmmmmmmmmmmmm
-       
-        
-       
-      //  csr_wdata = 32'h0;//mmmmmmmmmmmmmmmm
-       
-       
-       
- 
-
-
-      // is_ecall = 1'b0;
-      // is_mret = 1'b0;
-
-   
-   // next_pc = 0;  // 默认是0//mmmmmmmmmmmmmmmmmmmmmmmmmm
-
-  
   case (state)
     IDLE: begin
       if (idu_valid && idu_ready) begin   //idu_ready在idle时一直为1
@@ -370,74 +294,11 @@ always @(*) begin
  EXEC: begin
 
     case (alu_op_r)
-    
-      
   
- 
-
-  /* 6'b110000: begin  // CSRRW
-  
-  rd_data = csr_rdata_r;
-
-  csr_wdata = rs1_data_r;
- 
-  next_pc = pc_r + 4;
-
-  mem_valid = 1'b1;
-  if(mem_ready) begin
-    next_state = IDLE;
-  end//流水线流水线流水线
-
- 
-end
-6'b110001: begin  // CSRRS
- 
-  rd_data = csr_rdata_r;
-  csr_wdata = csr_rdata_r | rs1_data_r;
-  
- 
-  next_pc = pc_r + 4;
-  mem_valid = 1'b1;
-   if(mem_ready) begin
-     next_state = IDLE;
-   end//流水线流水线流水线
-
-end
-6'b110010: begin  // ECALL
-                           
-
-is_ecall = 1'b1;
-  next_pc = mtvec_r;
-
-  mem_valid = 1'b1;
-
-  if(mem_ready) begin
-    next_state = IDLE;
-  end//流水线流水线流水线
-
- 
-end
-6'b110011: begin  // MRET
-
-
-  is_mret = 1'b1;
-
-  next_pc = mepc_r;
-
-  mem_valid = 1'b1;
-
-  if(mem_ready) begin
-    next_state = IDLE;
-  end//流水线流水线流水线
-
-  
-end*/
 
 
     default: begin
-        //$display("111default:didnt match any inst from (exu.v)");    //综合需要注释
-        // NOP 或未实现的操作
-        // 已经在开始时赋值了 result 和 next_pc 的默认值
+        
 
       end
 
@@ -448,53 +309,12 @@ end*/
 
     default: begin
       
-      $display("1114default:didnt match any inst from (exu.v)");    //综合需要注释
+     
     end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   endcase
 end
 
-
-
-    // 导出DPI-C函数，供C++仿真环境访问
-export "DPI-C" function get_exu_count;
-    
-// DPI-C函数实现
-function int get_exu_count();
-    return exu_count;
-endfunction
 
 
 
