@@ -22,6 +22,9 @@ uint64_t execution_count = 0;//统计exec_once真实执行多少次 可以截止
 #define PROGRAM_START_ADDRESS 0x30000000//   flash
 size_t program_size = 0;
 #define MEM_BASE 0x80000000
+#define GPIO_BASE             0x10002000
+#define SWITCH_REG_OFFSET     0x4
+#define SWITCH_PASSWORD       0x0001 //
 
 void nvboard_bind_all_pins(VysyxSoCFull* top);
 
@@ -32,6 +35,7 @@ extern "C" int get_if_allow_in();
 extern "C" int get_saved_addr();
 extern "C" int get_instr_completed();
 extern "C" int get_saved_sim_lsu_addr();
+extern "C" int get_switch_value();
 
 
 static VerilatedVcdC* tfp = nullptr;
@@ -921,6 +925,28 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
 
  // init_pc_trace("pc_trace.txt");//初始化用于cachesim的pc序列统计
 
+ printf("Please set switches to password (0x%04X) to continue...\n", SWITCH_PASSWORD);
+    
+ // 切换到正确的 DPI 作用域
+ svScope gpio_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.lgpio.mgpio");
+ if (gpio_scope) {
+     svSetScope(gpio_scope);
+ } else {
+     fprintf(stderr, "Fatal Error: Unable to set GPIO DPI scope inside exec_once. Aborting.\n");
+     // 在这里直接退出，因为这是一个致命错误
+     exit(1); 
+ }
+
+ // 循环等待密码正确
+ //while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {
+     while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {
+     // 在等待期间，我们需要继续驱动时钟并更新nvboard
+    
+     //printf("Current switch value: 0x%04X (expected: 0x%04X)\n", get_switch_value() & 0xFFFF, SWITCH_PASSWORD);  // 调试打印：实时输出当前开关值
+
+     nvboard_update();
+ }
+ printf("Password correct. Entering interactive mode.\n");
 
 
 
