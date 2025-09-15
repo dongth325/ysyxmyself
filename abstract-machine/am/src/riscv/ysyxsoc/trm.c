@@ -103,12 +103,12 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
       cache_polluted = 1;
 
   #define NOP_SEQ_LEN 64
-  uint32_t nop_seq[NOP_SEQ_LEN + 1];
-  uint32_t *nop_ptr = nop_seq;
+  //uint32_t nop_seq[NOP_SEQ_LEN + 1];
+  //uint32_t *nop_ptr = nop_seq;
   for (size_t i = 0; i < NOP_SEQ_LEN; i++) {
-      *nop_ptr++ = 0x13;  // nop: addi x0, x0, 0
+     // *nop_ptr++ = 0x13;  // nop: addi x0, x0, 0
   }
-  *nop_ptr = 0x00008067;  // ret: jr ra
+ // *nop_ptr = 0x00008067;  // ret: jr ra
 /*
   // 填充到 &_text_vma_start
   uint32_t *text_dst = (uint32_t*)&_text_vma_start;
