@@ -97,6 +97,8 @@ void __attribute__((section(".fsbl"))) fsbl(void) {
 void __attribute__((section(".bootloader"), used)) bootloader(void) {
 
 
+/*
+
   #define NOP_SEQ_LEN 64
   uint32_t nop_seq[NOP_SEQ_LEN + 1];
   uint32_t *nop_ptr = nop_seq;
@@ -118,7 +120,7 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
       "jalr ra, t0, 0"  // 执行 nop + ret，返回
       : : : "t0"
   );
-
+*/
 
 
 
