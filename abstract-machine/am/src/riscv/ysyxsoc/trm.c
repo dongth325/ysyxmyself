@@ -97,7 +97,7 @@ void __attribute__((section(".fsbl"))) fsbl(void) {
 void __attribute__((section(".bootloader"), used)) bootloader(void) {
 
 
-/*
+
 
   #define NOP_SEQ_LEN 64
   uint32_t nop_seq[NOP_SEQ_LEN + 1];
@@ -106,7 +106,7 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
       *nop_ptr++ = 0x13;  // nop: addi x0, x0, 0
   }
   *nop_ptr = 0x00008067;  // ret: jr ra
-
+/*
   // 填充到 &_text_vma_start
   uint32_t *text_dst = (uint32_t*)&_text_vma_start;
   uint32_t *src_ptr = nop_seq;
