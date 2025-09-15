@@ -716,7 +716,7 @@ void exec_once(NpcState *s) {
                
         if (cycle_count >= 200000) {
             std::cout << "\nError: No new instruction received for 200000 cycles, simulation terminated" << std::endl;
-         npc_state.ebreak_encountered = true;
+       //  npc_state.ebreak_encountered = true;
 
            svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu");
     if (cpu_scope == NULL) {
