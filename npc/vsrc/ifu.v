@@ -35,7 +35,7 @@ module ysyx_24090012_IFU (
     output reg  [63:0]  num
 );
 
-
+localparam FENCE_I_INST = 32'h0000100F;  // fence.i 指令编码
     // icache配置参数
 localparam CACHE_LINES = 2;                // 缓存块数量
 localparam INDEX_BITS = 1;                  // 索引位数 (2^4 = 16)
@@ -189,6 +189,22 @@ end
                     end
                 endcase
             end
+
+
+            //0000000000000000000000000000
+
+            if (state == CHECK_CACHE && cache_hit && idu_inst == FENCE_I_INST) begin
+                for (integer i = 0; i < CACHE_LINES; i = i + 1) begin
+                    cache_valid[i] <= 1'b0;  // 无效化所有缓存行
+                end
+            end else if (state == FETCH_DATA && io_master_rvalid && io_master_rready && io_master_rlast && idu_inst == FENCE_I_INST) begin
+                for (integer i = 0; i < CACHE_LINES; i = i + 1) begin
+                    cache_valid[i] <= 1'b0;  // 无效化所有缓存行
+                end
+            end
+//000000000000000000000000000000
+
+
         end
 
         
@@ -232,7 +248,12 @@ end
                     2'b01: idu_inst = cache_data[req_index][63:32];
                     2'b10: idu_inst = cache_data[req_index][95:64];
                     2'b11: idu_inst = cache_data[req_index][127:96];
-                endcase   
+                endcase 
+            //00000000000000000000000000000000000    
+                if (idu_inst == FENCE_I_INST) begin
+                    idu_valid = 1'b0;  // 不传递给 IDU
+                    next_state = IDLE;  // 直接返回 IDLE 重新取指
+                end else    //00000000000000000000000000000
                     
                     if (idu_ready) begin
                         next_state = IDLE;
@@ -264,13 +285,19 @@ end
                             2'b10: idu_inst = temp_cache_data[95:64];
                             2'b11: idu_inst = io_master_rdata; // 最后一个word
                         endcase
-                      
+//000000000000000000000000000000000
+                        if (idu_inst == FENCE_I_INST) begin
+                            idu_valid = 1'b0;  // 不传递给 IDU
+                            next_state = IDLE;  // 直接返回 IDLE 重新取指
+                        end
+                        else begin   //000000000000000000000000000000
                         idu_valid = 1'b1;
                         if (idu_ready) begin
                             next_state = IDLE;
                         end else begin
                             next_state = WAIT_IDU;  // IDU未准备好，进入等待状态
                         end
+                    end
                     end
                     end
             end
