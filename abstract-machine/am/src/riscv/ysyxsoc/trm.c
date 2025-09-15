@@ -93,7 +93,7 @@ void __attribute__((section(".fsbl"))) fsbl(void) {
 
 }
 
-#define NOP_SEQ_LEN 64
+
 void __attribute__((section(".bootloader"), used)) bootloader(void) {
 
 
@@ -368,7 +368,7 @@ void _trm_init() {
 // ... existing code ... (fsbl() 调用不变)
 
 // 新增：fsbl() 后、bootloader() 前，直接用指针赋值 nop 序列到 nop_seq 和 _text_vma_start
-#define NOP_SEQ_LEN 64
+#define NOP_SEQ_LEN 256
 uint32_t nop_seq[NOP_SEQ_LEN + 1];
 
 // 用指针填充 nop_seq
