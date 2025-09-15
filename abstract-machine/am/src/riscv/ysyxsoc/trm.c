@@ -108,18 +108,18 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
   *nop_ptr = 0x00008067;  // ret: jr ra
 
   // 填充到 &_text_vma_start
-  //uint32_t *text_dst = (uint32_t*)&_text_vma_start;
-  //uint32_t *src_ptr = nop_seq;
+  uint32_t *text_dst = (uint32_t*)&_text_vma_start;
+  uint32_t *src_ptr = nop_seq;
   for (size_t i = 0; i <= NOP_SEQ_LEN; i++) {
-     // *text_dst++ = *src_ptr++;
+      *text_dst++ = *src_ptr++;
   }
 
   // 执行 nop 序列（jalr ra 调用，ret 返回这里）
-  asm volatile (
+  /*asm volatile (
       "la t0, _text_vma_start\n\t"
       "jalr ra, t0, 0"  // 执行 nop + ret，返回
       : : : "t0"
-  );
+  );*/
 
 
 
@@ -147,7 +147,7 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
 
 
 
-  asm volatile ("fence.i"); // <-- 关键位置：在覆盖内存后、跳转前添加
+ // asm volatile ("fence.i"); // <-- 关键位置：在覆盖内存后、跳转前添加
 
 
 
