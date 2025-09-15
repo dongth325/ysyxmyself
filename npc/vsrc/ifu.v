@@ -38,8 +38,15 @@ module ysyx_24090012_IFU (
 localparam FENCE_I_INST = 32'h0000100F;  // fence.i 指令编码
 
     // icache配置参数
-localparam CACHE_LINES = 2;                // 缓存块数量
-localparam INDEX_BITS = 1;                  // 索引位数 (2^4 = 16)
+
+//原来的23100面积
+//localparam CACHE_LINES = 2;                // 缓存块数量
+//localparam INDEX_BITS = 1;                  // 索引位数 (2^4 = 16)
+
+//新的23000面积
+localparam CACHE_LINES = 64;                // 缓存块数量
+localparam INDEX_BITS = 6;                  // 索引位数 (2^4 = 16)
+
 //localparam OFFSET_BITS = 2;                 // 偏移位数 (4B块大小)
 localparam OFFSET_BITS = 4;                 // 突发传输icache
 localparam TAG_BITS = 32 - INDEX_BITS - OFFSET_BITS; // 标签位数
@@ -200,7 +207,7 @@ end
                     cache_valid[i] <= 1'b0;  // 无效化所有缓存行
                 end
             end
-            
+
         end
 
         
