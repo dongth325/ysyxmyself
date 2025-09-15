@@ -715,8 +715,8 @@ void exec_once(NpcState *s) {
                cycle_count++;  // 增加每条指令周期计数
                
         if (cycle_count >= 200000) {
-           // std::cout << "\nError: No new instruction received for 200000 cycles, simulation terminated" << std::endl;
-       //  npc_state.ebreak_encountered = true;
+            std::cout << "\nError: No new instruction received for 200000 cycles, simulation terminated" << std::endl;
+         npc_state.ebreak_encountered = true;
 
            svScope cpu_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.cpu.cpu");
     if (cpu_scope == NULL) {
@@ -728,7 +728,7 @@ void exec_once(NpcState *s) {
     
     uint32_t old_pc = get_pc_value();
 
-  //  printf("111111111111111pc is %08x from exec_once.cpp line:485\n",old_pc);
+    printf("111111111111111pc is %08x from exec_once.cpp line:485\n",old_pc);
             return;
         }
 
