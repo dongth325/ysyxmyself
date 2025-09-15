@@ -147,7 +147,7 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
 
 
 
-  //asm volatile ("fence.i"); // <-- 关键位置：在覆盖内存后、跳转前添加
+  asm volatile ("fence.i"); // <-- 关键位置：在覆盖内存后、跳转前添加
 
 
 
