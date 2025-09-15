@@ -97,7 +97,7 @@ void __attribute__((section(".fsbl"))) fsbl(void) {
 void __attribute__((section(".bootloader"), used)) bootloader(void) {
 
 
-/*
+
 
   #define NOP_SEQ_LEN 64
   uint32_t nop_seq[NOP_SEQ_LEN + 1];
@@ -120,7 +120,7 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
       "jalr ra, t0, 0"  // 执行 nop + ret，返回
       : : : "t0"
   );
-*/
+
 
 
 
@@ -145,7 +145,7 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
 
 
 
-  
+
 
   //asm volatile ("fence.i"); // <-- 关键位置：在覆盖内存后、跳转前添加
 
