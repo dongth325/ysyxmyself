@@ -156,8 +156,10 @@ end
             if (state == CHECK_CACHE) begin    //计数器在实现控制冒险之后会统计错误，因为取出错误的指令冲刷流水线后count记数不会减去
                 if (cache_hit) begin
                     hit_count <= hit_count + 32'h1;
+                    $display("hit_count: %d", hit_count);
                 end else begin
                     miss_count <= miss_count + 32'h1;
+                    $display("miss_count: %d", miss_count);
                 end
             end
             
