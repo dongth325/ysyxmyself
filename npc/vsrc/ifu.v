@@ -44,8 +44,8 @@ localparam FENCE_I_INST = 32'h0000100F;  // fence.i 指令编码
 //localparam INDEX_BITS = 1;                  // 索引位数 (2^4 = 16)
 
 //新的23000面积
-localparam CACHE_LINES = 1024;                // 缓存块数量
-localparam INDEX_BITS = 10;                  // 索引位数 (2^4 = 16)
+localparam CACHE_LINES = 131072;                // 缓存块数量
+localparam INDEX_BITS = 17;                  // 索引位数 (2^4 = 16)
 
 //localparam OFFSET_BITS = 2;                 // 偏移位数 (4B块大小)
 localparam OFFSET_BITS = 4;                 // 突发传输icache
@@ -103,7 +103,7 @@ always @(posedge clock) begin
     if ((state == CHECK_CACHE && cache_hit && next_state == IDLE) || 
     (state == FETCH_DATA && io_master_rvalid && io_master_rready && next_state == IDLE)) begin
     ifu_count <= ifu_count + 32'h1;
-    $display("ifu_count: %d", ifu_count);
+   // $display("ifu_count: %d", ifu_count);
 end
 end
 
