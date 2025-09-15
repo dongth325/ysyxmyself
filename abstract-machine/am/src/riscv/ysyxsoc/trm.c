@@ -118,11 +118,11 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
       }
       
       // 3. 执行这个序列来污染I-Cache
-      asm volatile (
+   /*   asm volatile (
           "la t0, _text_vma_start\n\t"
           "jalr ra, t0, 0\n\t"
           : : : "t0", "ra"
-      );
+      );*/
   }
 
 
