@@ -24,10 +24,6 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
 );
  
 
-export "DPI-C" function get_instr_completed; 
-  // 导出函数供C语言访问
-  export "DPI-C" function get_reg_value;    //综合需要注释
-  //reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];  //综合需要实现16个而不是32个
   reg [DATA_WIDTH-1:0] rf [15:0];
   
   // 状态定义
@@ -37,10 +33,7 @@ export "DPI-C" function get_instr_completed;
   // 状态寄存器
   reg state, next_state;
   reg [31:0] saved_pc;
-  // 保存写请求的寄存器
- // reg [ADDR_WIDTH-1:0] saved_waddr;
- 
- // reg saved_wen;
+
   reg [63:0] num_r;
   reg [DATA_WIDTH-1:0] saved_wdata;
   reg [31:0] saved_sim_lsu_addr;
@@ -65,7 +58,7 @@ export "DPI-C" function get_instr_completed;
 
   wire saved_wen = (opcode == 7'b0010011 || opcode == 7'b0110111 || opcode == 7'b0010111 || opcode == 7'b1110011||
   opcode == 7'b1101111 || opcode == 7'b1100111 || opcode == 7'b0110011 || 
-   opcode == 7'b0000011);//流水线流水线流水线
+   opcode == 7'b0000011);
   
   always @(posedge clock) begin
     if (reset) begin
@@ -176,11 +169,6 @@ assign rd_ready = (state == IDLE);
     get_instr_completed = {31'b0, instr_completed}; // 返回指令完成状态
   endfunction
  
-
-  export "DPI-C"  function get_saved_sim_lsu_addr;
-  function int get_saved_sim_lsu_addr();
-    get_saved_sim_lsu_addr = saved_sim_lsu_addr; // 假设lsu是LSU模块的实例名
-  endfunction
 
 
 endmodule

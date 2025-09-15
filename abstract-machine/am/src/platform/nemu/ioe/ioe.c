@@ -44,7 +44,8 @@ static void *lut[128] = {
   [AM_NET_CONFIG  ] = __am_net_config,
 };
 
-static void fail(void *buf) { panic("access nonexist register"); }
+static void fail(void *buf) { //panic("access nonexist register");  //实现rtt读取串口信息后，由于nemu没有实现串口所以用rtt运行并调用串口api会调用fail函数
+}
 
 bool ioe_init() {
   for (int i = 0; i < LENGTH(lut); i++)
