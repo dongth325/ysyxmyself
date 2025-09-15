@@ -140,7 +140,7 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
   for (size_t i = 0; i < words; i++) {
     dst[i] = src[i];  // 32位对齐访问
   }
- 
+  asm volatile ("fence.i"); // <-- 关键位置：在覆盖内存后、跳转前添加
 
   // 复制.rodata段
   src = (uint32_t*)&_rodata_lma;
