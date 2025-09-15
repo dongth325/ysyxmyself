@@ -93,7 +93,11 @@ void __attribute__((section(".fsbl"))) fsbl(void) {
 
 }
 
+#define NOP_SEQ_LEN 64
 void __attribute__((section(".bootloader"), used)) bootloader(void) {
+
+
+
 
   uint32_t *src = (uint32_t*)&_data_lma;// 按字复制保证对齐
   uint32_t *dst = (uint32_t*)&_data_vma_start;
@@ -358,7 +362,32 @@ void _trm_init() {
   putch('\n');*/
   fsbl();
 
-  
+// ... existing code ... (fsbl() 调用不变)
+
+
+// ... existing code ... (fsbl() 调用不变)
+
+// 新增：fsbl() 后、bootloader() 前，直接用指针赋值 nop 序列到 nop_seq 和 _text_vma_start
+#define NOP_SEQ_LEN 64
+uint32_t nop_seq[NOP_SEQ_LEN + 1];
+
+// 用指针填充 nop_seq
+uint32_t *nop_ptr = nop_seq;
+for (size_t i = 0; i <= NOP_SEQ_LEN; i++) {
+    *nop_ptr++ = 0x13;  // nop: addi x0, x0, 0
+}
+
+
+// 用指针填充到 &_text_vma_start
+uint32_t *text_dst = (uint32_t*)&_text_vma_start;
+uint32_t *src_ptr = nop_seq;
+for (size_t i = 0; i <= NOP_SEQ_LEN; i++) {
+    *text_dst++ = *src_ptr++;  // 指针直接写入
+}
+
+// ... existing code ... (直接继续 bootloader()，顺序执行会导致覆盖，但如果缓存 nop，则后续出错)
+
+
 
   bootloader();
 
