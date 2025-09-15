@@ -103,7 +103,7 @@ always @(posedge clock) begin
     if ((state == CHECK_CACHE && cache_hit && next_state == IDLE) || 
     (state == FETCH_DATA && io_master_rvalid && io_master_rready && next_state == IDLE)) begin
     ifu_count <= ifu_count + 32'h1;
-   // $display("ifu_count: %d", ifu_count);
+    $display("ifu_count: %d", ifu_count);
 end
 end
 
