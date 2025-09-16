@@ -693,7 +693,7 @@ void exec_once(NpcState *s) {
         
         s->top->eval();
         //if (tfp) tfp->dump(main_time++);
-      //    if (record_wave && tfp) tfp->dump(main_time++);
+          if (record_wave && tfp) tfp->dump(main_time++);
    
     
         
@@ -707,7 +707,7 @@ void exec_once(NpcState *s) {
         
         s->top->eval();
        // if (tfp) tfp->dump(main_time++);
-        // if (record_wave && tfp) tfp->dump(main_time++);
+         if (record_wave && tfp) tfp->dump(main_time++);
         
          total_cycles++;  // 全局周期计数
 

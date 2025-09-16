@@ -26,13 +26,13 @@ extern "C" {
     extern int get_csr_reg_value(int csr_reg_index);
     // DPI export at vsrc/exu.v:495:14
     extern int get_exu_count();
-    // DPI export at vsrc/ifu.v:327:18
+    // DPI export at vsrc/ifu.v:349:18
     extern int get_hit_count();
     // DPI export at vsrc/idu.v:451:14
     extern int get_idu_count();
     // DPI export at vsrc/NPC.v:789:14
     extern int get_if_allow_in();
-    // DPI export at vsrc/ifu.v:323:18
+    // DPI export at vsrc/ifu.v:345:18
     extern int get_ifu_count();
     // DPI export at vsrc/idu.v:432:14
     extern int get_inst_r();
@@ -44,7 +44,7 @@ extern "C" {
     extern int get_load_inst_count();
     // DPI export at vsrc/lsu.v:703:14
     extern int get_lsu_count();
-    // DPI export at vsrc/ifu.v:331:18
+    // DPI export at vsrc/ifu.v:353:18
     extern int get_miss_count();
     // DPI export at vsrc/idu.v:479:14
     extern int get_other_inst_count();

@@ -57,7 +57,7 @@ int get_exu_count() {
 #ifndef VL_DPIDECL_get_hit_count_
 #define VL_DPIDECL_get_hit_count_
 int get_hit_count() {
-    // DPI export at vsrc/ifu.v:327:18
+    // DPI export at vsrc/ifu.v:349:18
     return VysyxSoCFull::get_hit_count();
 }
 #endif
@@ -81,7 +81,7 @@ int get_if_allow_in() {
 #ifndef VL_DPIDECL_get_ifu_count_
 #define VL_DPIDECL_get_ifu_count_
 int get_ifu_count() {
-    // DPI export at vsrc/ifu.v:323:18
+    // DPI export at vsrc/ifu.v:345:18
     return VysyxSoCFull::get_ifu_count();
 }
 #endif
@@ -129,7 +129,7 @@ int get_lsu_count() {
 #ifndef VL_DPIDECL_get_miss_count_
 #define VL_DPIDECL_get_miss_count_
 int get_miss_count() {
-    // DPI export at vsrc/ifu.v:331:18
+    // DPI export at vsrc/ifu.v:353:18
     return VysyxSoCFull::get_miss_count();
 }
 #endif

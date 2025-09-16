@@ -35,10 +35,18 @@ module ysyx_24090012_IFU (
     output reg  [63:0]  num
 );
 
+localparam FENCE_I_INST = 32'h0000100F;  // fence.i 指令编码
 
     // icache配置参数
+
+//原来的23100面积
 localparam CACHE_LINES = 2;                // 缓存块数量
 localparam INDEX_BITS = 1;                  // 索引位数 (2^4 = 16)
+
+//新的23000面积
+//localparam CACHE_LINES = 1048576;                // 缓存块数量
+//localparam INDEX_BITS = 20;                  // 索引位数 (2^20 = 1048576)  这里是将icache扩大到可以可以容纳dummy所有指令触发缓存一致性问题
+
 //localparam OFFSET_BITS = 2;                 // 偏移位数 (4B块大小)
 localparam OFFSET_BITS = 4;                 // 突发传输icache
 localparam TAG_BITS = 32 - INDEX_BITS - OFFSET_BITS; // 标签位数
@@ -95,6 +103,7 @@ always @(posedge clock) begin
     if ((state == CHECK_CACHE && cache_hit && next_state == IDLE) || 
     (state == FETCH_DATA && io_master_rvalid && io_master_rready && next_state == IDLE)) begin
     ifu_count <= ifu_count + 32'h1;
+   // $display("ifu_count: %d", ifu_count);
 end
 end
 
@@ -148,8 +157,10 @@ end
             if (state == CHECK_CACHE) begin    //计数器在实现控制冒险之后会统计错误，因为取出错误的指令冲刷流水线后count记数不会减去
                 if (cache_hit) begin
                     hit_count <= hit_count + 32'h1;
+                   // $display("hit_count: %d", hit_count);
                 end else begin
                     miss_count <= miss_count + 32'h1;
+                   // $display("miss_count: %d", miss_count);
                 end
             end
             
@@ -189,6 +200,17 @@ end
                     end
                 endcase
             end
+
+            if (state == CHECK_CACHE && cache_hit && idu_inst == FENCE_I_INST) begin
+                for (integer i = 0; i < CACHE_LINES; i = i + 1) begin
+                    cache_valid[i] <= 1'b0;  // 无效化所有缓存行
+                end
+            end else if (state == FETCH_DATA && io_master_rvalid && io_master_rready && io_master_rlast && idu_inst == FENCE_I_INST) begin
+                for (integer i = 0; i < CACHE_LINES; i = i + 1) begin
+                    cache_valid[i] <= 1'b0;  // 无效化所有缓存行
+                end
+            end
+
         end
 
         

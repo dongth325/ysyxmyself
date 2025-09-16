@@ -34,7 +34,7 @@ module ysyx_24090012_IFU (
     output          io_master_rready,
     output reg  [63:0]  num
 );
-
+localparam FENCE_I_INST = 32'h0000100F;
 
     // icache配置参数
 localparam CACHE_LINES = 2;                // 缓存块数量
@@ -180,6 +180,16 @@ end
                         burst_count <= 2'b00;  // 重置计数器
                     end
                 endcase
+            end
+
+            if (state == CHECK_CACHE && cache_hit && idu_inst == FENCE_I_INST) begin
+                for (integer i = 0; i < CACHE_LINES; i = i + 1) begin
+                    cache_valid[i] <= 1'b0;  // 无效化所有缓存行
+                end
+            end else if (state == FETCH_DATA && io_master_rvalid && io_master_rready && io_master_rlast && idu_inst == FENCE_I_INST) begin
+                for (integer i = 0; i < CACHE_LINES; i = i + 1) begin
+                    cache_valid[i] <= 1'b0;  // 无效化所有缓存行
+                end
             end
         end
 

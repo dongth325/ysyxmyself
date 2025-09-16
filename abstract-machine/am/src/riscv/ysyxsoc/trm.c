@@ -93,106 +93,8 @@ void __attribute__((section(".fsbl"))) fsbl(void) {
 
 }
 
-void __attribute__((section(".bootloader"), used)) bootloader(void) {
-
-  uint32_t *src = (uint32_t*)&_data_lma;// 按字复制保证对齐
-  uint32_t *dst = (uint32_t*)&_data_vma_start;
-  size_t words = (&_data_vma_end - &_data_vma_start) / 4;
-  
-  for (size_t i=0; i<words; i++) {
-    dst[i] = src[i]; // 32位对齐访问
-  }
-
-   src = (uint32_t*)&_text_lma;
-  dst = (uint32_t*)&_text_vma_start;
-  words = (&_text_vma_end - &_text_vma_start) / 4;
-  
-  for (size_t i = 0; i < words; i++) {
-    dst[i] = src[i];  // 32位对齐访问
-  }
- 
-
-  // 复制.rodata段
-  src = (uint32_t*)&_rodata_lma;
-  dst = (uint32_t*)&_rodata_vma_start;
-  words = (&_rodata_vma_end - &_rodata_vma_start) / 4;
-  
-  for (size_t i = 0; i < words; i++) {
-    dst[i] = src[i];  // 32位对齐访问
-  }
 
 
-/*
-
-src = (uint32_t*)_data_extra_lma;
-dst = (uint32_t*)_data_extra_vma_start;   //在ysyxsoclinker2中data extra lma前面是一道杠，其余extra的是两道
-words = (_data_extra_vma_end - _data_extra_vma_start) / 4;
-
-
-// 检查是否需要复制
-if (src == dst) {
-  // 源地址和目标地址相同，不需要复制
-  putch('S'); putch('k'); putch('i'); putch('p'); putch(':');
-  putch('S'); putch('a'); putch('m'); putch('e');
-  putch('\n');
-} else if (words > 0 && words < 1000000) {  // 添加合理性检查
-  for (size_t i = 0; i < words; i++) {
-    dst[i] = src[i];  // 32位对齐访问
-  }
-} else {
-  // 处理异常情况
-  putch('E'); putch('r'); putch('r'); putch(':');
-  if (words == 0) {
-    putch('Z'); putch('e'); putch('r'); putch('o');
-  } else {
-    putch('O'); putch('v'); putch('e'); putch('r');
-  }
-  putch('\n');
-}*/
-
-//清灵没必要，没有写入本来就是0
-/*src = (uint32_t*)_bss_extra_lma;
-dst = (uint32_t*)_bss_extra_vma_start;
-words = (_bss_extra_vma_end - _bss_extra_vma_start) / 4;
-for (size_t i = 0; i < words; i++) {
-  dst[i] = 0;  // 32位对齐访问
-}
-
-
-src = (uint32_t*)_bss_lma;
-dst = (uint32_t*)_bss_vma_start;
-words = (_bss_vma_end - _bss_vma_start) / 4;
-for (size_t i = 0; i < words; i++) {
-  dst[i] = 0;  // 32位对齐访问
-}*/
-
-
-
-
-
-
-
-
-asm volatile (
-    "la sp, _stack_pointer\n\t"  // 直接加载栈指针
-    "la t0, _execute_main\n\t"    // 加载目标地址
-    "jalr zero, t0, 0"            // 跳转
-    : : : "t0"                    // 只声明 t0 被修改
-);
-}
-
-
-/*void bootloader() {
-  uint32_t *src = (uint32_t*)&_data_lma;// 按字复制保证对齐
-  uint32_t *dst = (uint32_t*)&_data_vma_start;
-  size_t words = (&_data_vma_end - &_data_vma_start) / 4;
-  
-  for (size_t i=0; i<words; i++) {
-    dst[i] = src[i]; // 32位对齐访问
-  }
-
-
-}*/
 
 //extern char _pmem_start;
 //#define PMEM_SIZE (16 * 1024 * 1024)  // ysyxSoC的SRAM大小，16MB
@@ -274,6 +176,183 @@ uint32_t convert_arch_id_to_seg_val(uint32_t arch_id) {
 
   return seg_val;
 }
+
+
+
+
+void __attribute__((section(".bootloader"), used)) bootloader(void) {
+
+
+
+
+  uart_init();
+  //用多周期noicache版本debug   原来的版本在桌面上  名字是ysyx-workbench
+
+  putch('h');
+
+  static int cache_polluted = 0;
+
+
+  putch('g');
+    
+  if (!cache_polluted) {
+      cache_polluted = 1;
+      
+     
+  
+      putch('W');
+      
+     
+      putch('s');
+    
+      putch('d');
+      
+      // 2. 将序列复制到目标程序区域（使用指针运算避免警告）
+      uint32_t *target_ptr = (uint32_t *)(&_text_vma_start);
+      putch('t');
+      
+      for (int i = 0; i < 16; i++) {
+        *target_ptr = 0x00000013;
+          putch('h');
+          target_ptr++;  // 移动指针，而不是使用数组索引
+          putch('a');
+         
+      }
+      for (int i = 16; i < 20; i++) {
+        *target_ptr = 0x00008067;
+          putch('m');
+          target_ptr++;  // 移动指针，而不是使用数组索引
+          putch('n');
+         
+      }
+     
+      putch('r');
+      
+      asm volatile (
+        "la t0, _text_vma_start\n\t"
+        "jalr ra, t0, 0"  // jalr ra: 保存返回地址到 ra，跳转到 t0
+        : : : "t0"
+    );
+      putch('b');
+      
+  }
+
+
+// ... existing code ... (nop 填充和执行不变)
+
+// 新增：插入 fence.i 刷新 I-cache（修复不一致问题）
+//asm volatile("fence.i");
+
+// ... existing code ... (然后复制 .text 等，加载 dummy)
+
+
+ 
+
+
+  uint32_t *src = (uint32_t*)&_data_lma;// 按字复制保证对齐
+  uint32_t *dst = (uint32_t*)&_data_vma_start;
+  size_t words = (&_data_vma_end - &_data_vma_start) / 4;
+  
+  for (size_t i=0; i<words; i++) {
+    dst[i] = src[i]; // 32位对齐访问
+  }
+
+   src = (uint32_t*)&_text_lma;
+  dst = (uint32_t*)&_text_vma_start;
+  words = (&_text_vma_end - &_text_vma_start) / 4;
+  
+  for (size_t i = 0; i < words; i++) {
+    dst[i] = src[i];  // 32位对齐访问
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // 复制.rodata段
+  src = (uint32_t*)&_rodata_lma;
+  dst = (uint32_t*)&_rodata_vma_start;
+  words = (&_rodata_vma_end - &_rodata_vma_start) / 4;
+  
+  for (size_t i = 0; i < words; i++) {
+    dst[i] = src[i];  // 32位对齐访问
+  }
+
+
+/*
+
+src = (uint32_t*)_data_extra_lma;
+dst = (uint32_t*)_data_extra_vma_start;   //在ysyxsoclinker2中data extra lma前面是一道杠，其余extra的是两道
+words = (_data_extra_vma_end - _data_extra_vma_start) / 4;
+
+
+// 检查是否需要复制
+if (src == dst) {
+  // 源地址和目标地址相同，不需要复制
+  putch('S'); putch('k'); putch('i'); putch('p'); putch(':');
+  putch('S'); putch('a'); putch('m'); putch('e');
+  putch('\n');
+} else if (words > 0 && words < 1000000) {  // 添加合理性检查
+  for (size_t i = 0; i < words; i++) {
+    dst[i] = src[i];  // 32位对齐访问
+  }
+} else {
+  // 处理异常情况
+  putch('E'); putch('r'); putch('r'); putch(':');
+  if (words == 0) {
+    putch('Z'); putch('e'); putch('r'); putch('o');
+  } else {
+    putch('O'); putch('v'); putch('e'); putch('r');
+  }
+  putch('\n');
+}*/
+
+//清灵没必要，没有写入本来就是0
+/*src = (uint32_t*)_bss_extra_lma;
+dst = (uint32_t*)_bss_extra_vma_start;
+words = (_bss_extra_vma_end - _bss_extra_vma_start) / 4;
+for (size_t i = 0; i < words; i++) {
+  dst[i] = 0;  // 32位对齐访问
+}
+
+
+src = (uint32_t*)_bss_lma;
+dst = (uint32_t*)_bss_vma_start;
+words = (_bss_vma_end - _bss_vma_start) / 4;
+for (size_t i = 0; i < words; i++) {
+  dst[i] = 0;  // 32位对齐访问
+}*/
+
+
+
+
+
+
+
+
+asm volatile (
+    "la sp, _stack_pointer\n\t"  // 直接加载栈指针
+    "la t0, _execute_main\n\t"    // 加载目标地址
+    "jalr zero, t0, 0"            // 跳转
+    : : : "t0"                    // 只声明 t0 被修改
+);
+}
+
+
+
+
+
 
 
 void execute_main(void) __attribute__((used));
@@ -358,7 +437,8 @@ void _trm_init() {
   putch('\n');*/
   fsbl();
 
-  
+
+
 
   bootloader();
 
