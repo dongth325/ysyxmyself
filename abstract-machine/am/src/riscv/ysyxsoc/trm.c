@@ -94,8 +94,148 @@ void __attribute__((section(".fsbl"))) fsbl(void) {
 }
 
 
+
+
+//extern char _pmem_start;
+//#define PMEM_SIZE (16 * 1024 * 1024)  // ysyxSoC的SRAM大小，16MB
+//#define PMEM_END  ((uintptr_t)&_pmem_start + PMEM_SIZE)
+
+Area heap = RANGE(&_heap_start, &_heap_end);
+#ifndef MAINARGS
+#define MAINARGS ""
+#endif
+static const char mainargs[] = MAINARGS;
+static inline void outb(uintptr_t addr, uint8_t data) { *(volatile uint8_t *)addr = data; }
+static inline uint8_t inb(uintptr_t addr) { 
+    return *(volatile uint8_t *)addr; 
+}
+#define UART_BASE     0x10000000  // ysyxSoC的UART设备基地址
+#define UART_TX       0x00        // 发送寄存器偏移
+
+// 初始化UART
+void uart_init() {
+    // 1. 设置DLAB位以访问除数锁存器
+    //outb(UART_BASE + UART_REG_LCR, 0x10); // LCR[7] = 1
+  // outb(UART_BASE + UART_REG_LCR, 0x20); // LCR[7] = 1
+    outb(UART_BASE + UART_REG_LCR, 0x80); // LCR[7] = 1
+    // 2. 设置波特率除数（示例值1，最高波特率）
+    outb(UART_BASE + UART_REG_DLL, 0x01); // 除数低位
+    outb(UART_BASE + UART_REG_DLM, 0x00); // 除数高位
+    
+    
+    // 3. 配置数据格式：8位数据，1停止位，无校验，清除DLAB
+    outb(UART_BASE + UART_REG_LCR, 0x03); // LCR = 0000 0011
+    
+    // 4. 可选：启用并重置FIFO
+    // outb(UART_BASE + 2, 0x07); // FCR寄存器
+}
+
+
+
+
+void putch(char ch) {
+    
+    while ((inb(UART_BASE + UART_REG_LSR) & UART_LSR_THRE) == 0) {
+        // 等待THRE位置1
+    }
+   outb(UART_BASE + UART_TX, ch);
+}
+
+void halt(int code) {
+  asm volatile ("mv a0, %0" : : "r"(code));  // 将返回码移到a0寄存器
+  asm volatile("ebreak");  // 触发ebreak指令
+  
+  while (1);
+}
+//2025.5.24  下面这一部分先注释掉，先不打印学号 在实现流水线的过程中还没有考虑csr
+static void put_dec(uint32_t num) {
+    char buf[10];
+    int i = 0;
+    do {
+        buf[i++] = '0' + num % 10;
+        num /= 10;
+    } while (num > 0);
+    
+    while (--i >= 0) {
+        putch(buf[i]);
+    }
+}
+
+uint32_t convert_arch_id_to_seg_val(uint32_t arch_id) {
+  uint32_t temp = arch_id;
+  uint32_t seg_val = 0;
+  uint32_t multiplier = 1;
+
+  // 循环提取arch_id的每一位十进制数字，并用它们构建seg_val
+  while (temp > 0) {
+      uint8_t digit = temp % 10; // 获取最低位数字
+      seg_val += digit * multiplier;
+      multiplier *= 16; // 关键：将提取出的十进制数字当作十六进制数字来组合
+      temp /= 10;
+  }
+
+  return seg_val;
+}
+
+
+
+
 void __attribute__((section(".bootloader"), used)) bootloader(void) {
 
+
+
+
+  uart_init();
+  //用多周期noicache版本debug   原来的版本在桌面上  名字是ysyx-workbench
+
+  putch('h');
+
+  static int cache_polluted = 0;
+
+
+  putch('g');
+    
+  if (!cache_polluted) {
+      cache_polluted = 1;
+      
+     
+  
+      putch('W');
+      
+     
+      putch('s');
+    
+      putch('d');
+      
+      // 2. 将序列复制到目标程序区域（使用指针运算避免警告）
+      uint32_t *target_ptr = (uint32_t *)(&_text_vma_start);
+      putch('t');
+      
+      for (int i = 0; i < 16; i++) {
+        *target_ptr = 0x00000013;
+          putch('h');
+          target_ptr++;  // 移动指针，而不是使用数组索引
+          putch('a');
+         
+      }
+      for (int i = 16; i < 20; i++) {
+        *target_ptr = 0x00008067;
+          putch('m');
+          target_ptr++;  // 移动指针，而不是使用数组索引
+          putch('n');
+         
+      }
+     
+      putch('r');
+      
+      asm volatile (
+        "la t0, _text_vma_start\n\t"
+        "jalr ra, t0, 0"  // jalr ra: 保存返回地址到 ra，跳转到 t0
+        : : : "t0"
+    );
+      putch('b');
+      
+  }
 
 
 
@@ -205,98 +345,9 @@ asm volatile (
 }
 
 
-/*void bootloader() {
-  uint32_t *src = (uint32_t*)&_data_lma;// 按字复制保证对齐
-  uint32_t *dst = (uint32_t*)&_data_vma_start;
-  size_t words = (&_data_vma_end - &_data_vma_start) / 4;
-  
-  for (size_t i=0; i<words; i++) {
-    dst[i] = src[i]; // 32位对齐访问
-  }
-
-
-}*/
-
-//extern char _pmem_start;
-//#define PMEM_SIZE (16 * 1024 * 1024)  // ysyxSoC的SRAM大小，16MB
-//#define PMEM_END  ((uintptr_t)&_pmem_start + PMEM_SIZE)
-
-Area heap = RANGE(&_heap_start, &_heap_end);
-#ifndef MAINARGS
-#define MAINARGS ""
-#endif
-static const char mainargs[] = MAINARGS;
-static inline void outb(uintptr_t addr, uint8_t data) { *(volatile uint8_t *)addr = data; }
-static inline uint8_t inb(uintptr_t addr) { 
-    return *(volatile uint8_t *)addr; 
-}
-#define UART_BASE     0x10000000  // ysyxSoC的UART设备基地址
-#define UART_TX       0x00        // 发送寄存器偏移
-
-// 初始化UART
-void uart_init() {
-    // 1. 设置DLAB位以访问除数锁存器
-    //outb(UART_BASE + UART_REG_LCR, 0x10); // LCR[7] = 1
-  // outb(UART_BASE + UART_REG_LCR, 0x20); // LCR[7] = 1
-    outb(UART_BASE + UART_REG_LCR, 0x80); // LCR[7] = 1
-    // 2. 设置波特率除数（示例值1，最高波特率）
-    outb(UART_BASE + UART_REG_DLL, 0x01); // 除数低位
-    outb(UART_BASE + UART_REG_DLM, 0x00); // 除数高位
-    
-    
-    // 3. 配置数据格式：8位数据，1停止位，无校验，清除DLAB
-    outb(UART_BASE + UART_REG_LCR, 0x03); // LCR = 0000 0011
-    
-    // 4. 可选：启用并重置FIFO
-    // outb(UART_BASE + 2, 0x07); // FCR寄存器
-}
 
 
 
-
-void putch(char ch) {
-    
-    while ((inb(UART_BASE + UART_REG_LSR) & UART_LSR_THRE) == 0) {
-        // 等待THRE位置1
-    }
-   outb(UART_BASE + UART_TX, ch);
-}
-
-void halt(int code) {
-  asm volatile ("mv a0, %0" : : "r"(code));  // 将返回码移到a0寄存器
-  asm volatile("ebreak");  // 触发ebreak指令
-  
-  while (1);
-}
-//2025.5.24  下面这一部分先注释掉，先不打印学号 在实现流水线的过程中还没有考虑csr
-static void put_dec(uint32_t num) {
-    char buf[10];
-    int i = 0;
-    do {
-        buf[i++] = '0' + num % 10;
-        num /= 10;
-    } while (num > 0);
-    
-    while (--i >= 0) {
-        putch(buf[i]);
-    }
-}
-
-uint32_t convert_arch_id_to_seg_val(uint32_t arch_id) {
-  uint32_t temp = arch_id;
-  uint32_t seg_val = 0;
-  uint32_t multiplier = 1;
-
-  // 循环提取arch_id的每一位十进制数字，并用它们构建seg_val
-  while (temp > 0) {
-      uint8_t digit = temp % 10; // 获取最低位数字
-      seg_val += digit * multiplier;
-      multiplier *= 16; // 关键：将提取出的十进制数字当作十六进制数字来组合
-      temp /= 10;
-  }
-
-  return seg_val;
-}
 
 
 void execute_main(void) __attribute__((used));
