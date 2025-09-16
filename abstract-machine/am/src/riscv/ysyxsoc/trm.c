@@ -95,37 +95,10 @@ void __attribute__((section(".fsbl"))) fsbl(void) {
 
 
 void __attribute__((section(".bootloader"), used)) bootloader(void) {
-/*
-  static int cache_polluted = 0;
-    
-  if (!cache_polluted) {
-      cache_polluted = 1;
-      
-      // 1. 定义NOP+RET序列
-      uint32_t nop_ret_sequence[65];
-      
-      for (int i = 0; i < 64; i++) {
-          nop_ret_sequence[i] = 0x00000013;  // nop
-      }
-      nop_ret_sequence[64] = 0x00008067;     // ret
-      
-      // 2. 将序列复制到目标程序区域（使用指针运算避免警告）
-      uint32_t *target_ptr = (uint32_t *)(&_text_vma_start);
-      
-      for (int i = 0; i < 65; i++) {
-          *target_ptr = nop_ret_sequence[i];
-          target_ptr++;  // 移动指针，而不是使用数组索引
-      }
-      
-      // 3. 执行这个序列来污染I-Cache
-      asm volatile (
-          "la t0, _text_vma_start\n\t"
-          "jalr ra, t0, 0\n\t"
-          : : : "t0", "ra"
-      );
-  }
 
-*/
+
+
+
 
 
  
