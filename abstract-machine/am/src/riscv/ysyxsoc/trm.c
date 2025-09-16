@@ -238,7 +238,12 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
   }
 
 
+// ... existing code ... (nop 填充和执行不变)
 
+// 新增：插入 fence.i 刷新 I-cache（修复不一致问题）
+asm volatile("fence.i");
+
+// ... existing code ... (然后复制 .text 等，加载 dummy)
 
 
  
