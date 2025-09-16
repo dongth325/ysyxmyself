@@ -40,12 +40,12 @@ localparam FENCE_I_INST = 32'h0000100F;  // fence.i 指令编码
     // icache配置参数
 
 //原来的23100面积
-localparam CACHE_LINES = 2;                // 缓存块数量
-localparam INDEX_BITS = 1;                  // 索引位数 (2^4 = 16)
+//localparam CACHE_LINES = 2;                // 缓存块数量
+//localparam INDEX_BITS = 1;                  // 索引位数 (2^4 = 16)
 
 //新的23000面积
-//localparam CACHE_LINES = 1048576;                // 缓存块数量
-//localparam INDEX_BITS = 20;                  // 索引位数 (2^4 = 16)
+localparam CACHE_LINES = 1048576;                // 缓存块数量
+localparam INDEX_BITS = 20;                  // 索引位数 (2^4 = 16)
 
 //localparam OFFSET_BITS = 2;                 // 偏移位数 (4B块大小)
 localparam OFFSET_BITS = 4;                 // 突发传输icache
