@@ -822,24 +822,19 @@ int main(int argc, char **argv) {
     cpu_state.pc = PROGRAM_START_ADDRESS;
    difftest_regcpy(&cpu_state, true);  */// 初始化参考模型的 CPU 状态
 
-    // 复位 
-    top->reset = 1;
-        top->eval();
-     if (tfp) tfp->dump(main_time++);  // 记录波形
 
-printf("rrrrrrrreset111 = %d \n", top->reset);
+
     // 施加复位信号若干周期
     for (int i = 0; i < 30; i++) {
         top->clock = 0;
             top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
-        
-
         top->clock = 1;
             top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
-      printf("rrrrrrrreset222 = %d \n", top->reset);
+      
     }
+    printf("Finish Reset\n");
 
 
 
