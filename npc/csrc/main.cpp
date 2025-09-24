@@ -836,6 +836,9 @@ printf("rrrrrrrreset111 = %d \n", top->reset);*/
         top->clock = 0;
             top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
+     top->clock = 1;
+     top->eval();
+if (tfp) tfp->dump(main_time++);  // 记录波形
       printf("rrrrrrrreset222 = %d \n", top->reset);
     }
 
