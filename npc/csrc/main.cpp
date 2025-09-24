@@ -563,36 +563,6 @@ extern "C" void ebreak(uint32_t exit_code) {
     Verilated::gotFinish(true);  // 通知 Verilator 结束仿真
 }
 
-
-/*void exec_once(NpcState *s) {
- 
-        // 时钟下降沿
-        s->top->reset = 0;
-
-
-        s->top->clock = 0;
-        s->top->eval();
-        //if (tfp) tfp->dump(main_time++);
-        // if (record_wave && tfp) tfp->dump(main_time++);
-        
-        s->top->eval();
-        //if (tfp) tfp->dump(main_time++);
-      //    if (record_wave && tfp) tfp->dump(main_time++);
-   
-    
-        
-        // 时钟上升沿
-        s->top->clock = 1;
-        s->top->eval();
-        //if (tfp) tfp->dump(main_time++);
-        // if (record_wave && tfp) tfp->dump(main_time++);
-        
-        s->top->eval();
-       // if (tfp) tfp->dump(main_time++);
-        // if (record_wave && tfp) tfp->dump(main_time++);
-     
-}*/
-
 // 执行单条指令的函数（类似于 NEMU 的 exec_once）
 void exec_once(NpcState *s) {
   
@@ -702,7 +672,7 @@ void exec_once(NpcState *s) {
         }
     
       
-   // } while (!get_if_allow_in());
+
 
     } while (!get_instr_completed());  // 使用之前获取的指令完成状态
    
@@ -756,14 +726,12 @@ uint32_t mem_addr = get_saved_sim_lsu_addr();
 
 }
 
-// 执行多条指令的函数（类似于 NEMU 的 execute）
+
 void execute(NpcState *s, uint64_t n) {
     for (uint64_t i = 0; i < n; i++) {
         exec_once(s);
-         tfp->dump(main_time);  // 记录波形
-      main_time++;           // 更新时间
+         // 更新时间
         if (s->ebreak_encountered) {
-          
             break;
         }
     }
