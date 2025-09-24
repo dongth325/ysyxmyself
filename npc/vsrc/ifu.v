@@ -40,10 +40,10 @@ localparam FENCE_I_INST = 32'h0000100F;  // fence.i 指令编码
     // icache配置参数
 
 //原来的23100面积
-localparam CACHE_LINES = 2;                // 缓存块数量
-localparam INDEX_BITS = 1;                  // 索引位数 (2^4 = 16)
+localparam CACHE_LINES = 8;                // 缓存块数量
+localparam INDEX_BITS = 3;                  // 索引位数 (2^4 = 16)
 
-//新的23000面积
+
 //localparam CACHE_LINES = 1048576;                // 缓存块数量
 //localparam INDEX_BITS = 20;                  // 索引位数 (2^20 = 1048576)  这里是将icache扩大到可以可以容纳dummy所有指令触发缓存一致性问题
 

@@ -773,7 +773,7 @@ void execute(NpcState *s, uint64_t n) {
 int main(int argc, char **argv) {
 
     
-    // 初始化部分（与之前相同）
+
     Verilated::commandArgs(argc, argv);
 
     if (argc < 2) {
@@ -794,23 +794,23 @@ int main(int argc, char **argv) {
     load_memory(program_path, program_size);
 
         // 初始化 Verilated 模型
-   VysyxSoCFull *top = new VysyxSoCFull; 
+    VysyxSoCFull *top = new VysyxSoCFull; 
 
-   nvboard_bind_all_pins(top);
-   nvboard_init();
+    nvboard_bind_all_pins(top);
+    nvboard_init();
 
  
         // 设置 npc_state 的初始值
     npc_state.top = top;
-   npc_state.inst_count = 0;
-   npc_state.ebreak_encountered = false;
+    npc_state.inst_count = 0;
+    npc_state.ebreak_encountered = false;
     npc_state.pc = PROGRAM_START_ADDRESS;
 
     
 
     Verilated::traceEverOn(true);
     tfp = new VerilatedVcdC;
-    //tfp->set_time_escape(".", "_");  // 新增：替换特殊字符
+
     top->trace(tfp, 99);  // 99 是追踪的层级深度
     tfp->open("build/wave.vcd");  // 指定波形文件名
 
@@ -841,7 +841,7 @@ int main(int argc, char **argv) {
     top->reset = 0;
     top->eval();
     if (tfp) tfp->dump(main_time++);  // 记录波形
-    
+
     printf("Reset Finished\n");
 
 
@@ -867,14 +867,12 @@ int main(int argc, char **argv) {
         exit(1); 
     }
 
-
-
-
     while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {//等密码正确
     nvboard_update();
     }
 
     printf("Password correct. Entering interactive mode.\n");
+
     sdb_mainloop();  //dddddddddddddddddddd
     nvboard_quit();
     top->final();
