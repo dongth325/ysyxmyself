@@ -160,8 +160,8 @@ int cmd_si(char *args) {
 extern "C" {   //所有性能计数器dpi-c
     // IFU相关
     extern int get_ifu_count();
-  //  extern int get_hit_count();
-  //  extern int get_miss_count();
+   // extern int get_hit_count();
+   // extern int get_miss_count();
     // IDU相关
     extern int get_idu_count();
     extern int get_compute_inst_count();
