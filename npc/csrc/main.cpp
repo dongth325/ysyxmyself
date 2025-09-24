@@ -849,7 +849,7 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
      printf("rrrrrrrreset333 = %d \n", top->reset);
 
 
-     for (int i = 0; i < 10; i++) {
+   /*  for (int i = 0; i < 10; i++) {
         top->clock = 0;
             top->eval();
      if (tfp) tfp->dump(main_time++);  // 记录波形
@@ -861,7 +861,7 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
         printf("rrrrrrrreset555 = %d \n", top->reset);
     }
    
-     
+     */
 
 
 
