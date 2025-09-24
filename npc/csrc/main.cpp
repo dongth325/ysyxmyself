@@ -45,49 +45,11 @@ static vluint64_t main_time = 0;
 extern "C" void flash_read(int32_t addr, int32_t *data) {
     static uint32_t flash_memory[4 * 1024 * 1024];  // 16MB Flash空间
     static bool initialized = false;
-    
-    // 初始化flash内容
-   /* if (!initialized) {
-       for (uint32_t i = 0; i < sizeof(flash_memory)/sizeof(uint32_t); i++) {
-            // 实际地址 = 索引 * 4，保持在24位地址范围内
-            uint32_t base_addr = (i * 4) & 0x00FFFFFF;
-            flash_memory[i] = ((base_addr + 3) << 24) |
-                            ((base_addr + 2) << 16) |
-                            ((base_addr + 1) << 8)  |
-                            (base_addr + 0); 
-        }
-        const uint32_t char_test_program[] = {
-            0x100007b7,  // lui a5,0x10000
-            0x04100713,  // li a4,65 ('A')
-            0x00e78023,  // sb a4,0(a5)
-            0x0000006f   // j 0xc (无限循环)
-        };
-        
-        // 将char-test程序存储到flash的开始位置
-        for (uint32_t i = 0; i < sizeof(char_test_program)/sizeof(uint32_t); i++) {
-            flash_memory[i] = char_test_program[i];
-        }
-        
-   
-        
 
-
-
-
-
-
-        initialized = true;
-    }*/
 
     // 确保地址在24位范围内
     addr = addr & 0x00FFFFFF;
 
-    // 地址对齐检查
-   /* if (addr & 0x3) {
-        printf("Error: Unaligned flash access at address 0x%x\n", addr);
-        *data = 0;
-        return;
-    }*/
 
     // 计算数组索引（24位地址除以4）
     uint32_t flash_offset = addr >> 2;
@@ -109,12 +71,6 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
     
     // 将反转后的数据赋值给输出参数
     *data = swapped_data;
-   /* printf("Flash read: addr=0x%06x, offset=%d, data=0x%08x [%02x %02x %02x %02x]\n",
-           addr, flash_offset, *data,
-           (*data >> 24) & 0xFF,
-           (*data >> 16) & 0xFF,
-           (*data >> 8) & 0xFF,
-           *data & 0xFF);*/
 }
      
 
@@ -381,23 +337,12 @@ void print_performance_stats() {
                100.0 * jump_count / control_flow_insts);
     } else {
         printf("未检测到控制流指令\n");
-    }
-
-
-
-
-
- 
-                 
+    }            
 printf("\n----- ICache统计 -----\n");
 printf("缓存命中次数: %d\n", hit_count);
 printf("缓存未命中次数: %d\n", miss_count);
 printf("缓存命中率: %.2f%%\n", hit_rate);
-    
-    printf("\n====================================\n");
-
-
-
+printf("\n====================================\n");
 }
 
 
@@ -408,11 +353,7 @@ int cmd_q(char *args) {
 
 
  print_performance_stats();
-
-
   // close_pc_trace();//npc执行后关闭用于cachesim的pc序列统计
-
-
      if (tfp) {
         tfp->close();
        delete tfp;
@@ -925,47 +866,29 @@ printf("rrrrrrrreset111 = %d \n", top->reset);
 
  // init_pc_trace("pc_trace.txt");//初始化用于cachesim的pc序列统计
 
- printf("Please set switches to password (0x%04X) to continue...\n", SWITCH_PASSWORD);
+    printf("Please set switches to password (0x%04X) to continue...\n", SWITCH_PASSWORD);
     
- // 切换到正确的 DPI 作用域
- svScope gpio_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.lgpio.mgpio");
- if (gpio_scope) {
-     svSetScope(gpio_scope);
- } else {
-     fprintf(stderr, "Fatal Error: Unable to set GPIO DPI scope inside exec_once. Aborting.\n");
-     // 在这里直接退出，因为这是一个致命错误
-     exit(1); 
- }
-
- // 循环等待密码正确
- //while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {
-     while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {
-     // 在等待期间，我们需要继续驱动时钟并更新nvboard
-    
-     //printf("Current switch value: 0x%04X (expected: 0x%04X)\n", get_switch_value() & 0xFFFF, SWITCH_PASSWORD);  // 调试打印：实时输出当前开关值
-
-     nvboard_update();
- }
- printf("Password correct. Entering interactive mode.\n");
+ // 切换到正确的 DPI 作用域 用于获取gpio的值
+    svScope gpio_scope = svGetScopeFromName("TOP.ysyxSoCFull.asic.lgpio.mgpio");
+    if (gpio_scope) {
+        svSetScope(gpio_scope);
+    } else {
+        fprintf(stderr, "Fatal Error: Unable to set GPIO DPI scope inside exec_once. Aborting.\n");
+        exit(1); 
+    }
 
 
 
 
-     sdb_mainloop();  //dddddddddddddddddddd
+    while ((get_switch_value() & 0xFFFF) != SWITCH_PASSWORD) {//等密码正确
+    nvboard_update();
+    }
 
-    // 执行指令
-    /*while (!Verilated::gotFinish() && !npc_state.ebreak_encountered) {    //while循环=批处理模式 dddddddddd
-        exec_once(&npc_state);
-    }*/
-
+    printf("Password correct. Entering interactive mode.\n");
+    sdb_mainloop();  //dddddddddddddddddddd
     nvboard_quit();
-
-    // 完成仿真
     top->final();
     delete top;
     delete[] memory;
-   
-
-
     return 0;
 }
