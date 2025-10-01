@@ -77,7 +77,8 @@ module ysyx_24090012_EXU(
 );
  //import "DPI-C" function void pmem_write(input int addr, input int data, input int mask);
  //import "DPI-C" function int pmem_read(input int addr);
-
+assign out_csr_addr = 12'b0;
+assign out_csr_wen = 1'b0;
 
     // 状态定义
     localparam IDLE = 2'b00;

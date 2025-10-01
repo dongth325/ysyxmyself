@@ -2455,7 +2455,7 @@ VL_INLINE_OPT void VysyxSoCFull___024root___nba_sequent__TOP__0(VysyxSoCFull___0
         Verilated::runFlushCallbacks();
         VysyxSoCFull___024root____Vdpiimwrap_ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__ebreak_TOP(
                                                                                 (&(vlSymsp->__Vscope_ysyxSoCFull__asic__cpu__cpu)), 
-                                                                                "vsrc/NPC.v", 0x306U, 
+                                                                                "vsrc/NPC.v", 0x316U, 
                                                                                 vlSelfRef.ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__regfile__DOT__rf
                                                                                 [0xaU]);
     }

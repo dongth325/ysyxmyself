@@ -69,6 +69,21 @@ module ysyx_24090012(
 );
   import "DPI-C" context function void ebreak(input int exit_code);
 
+
+  assign io_slave_awready = 1'b0;
+  assign io_slave_wready = 1'b0;
+  assign io_slave_bvalid = 1'b0;
+  assign io_slave_bresp = 2'b00;
+  assign io_slave_bid = 4'b0;
+  assign io_slave_arready = 1'b0;
+  assign io_slave_rvalid = 1'b0;
+  assign io_slave_rresp = 2'b00;
+  assign io_slave_rdata = 32'b0;
+  assign io_slave_rlast = 1'b0;
+  assign io_slave_rid = 4'b0;
+
+
+
   wire [4:0] rs1, rs2, rd;
   wire [6:0] opcode;
   wire [2:0] func3;
@@ -205,6 +220,7 @@ wire out_csr_wen;
 
 wire [11:0] csr_addr;
 wire [31:0] csr_wdata;
+
 wire csr_wen;
 
 
