@@ -91,25 +91,11 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
     // 缓存命中判断
     wire cache_hit = cache_valid[req_index] && (cache_tags[req_index] == req_tag);
 
-    // 时序逻辑：仅更新状态和锁存数据
-always @(posedge clock) begin
-    
-
-   /* if(state == FETCH_DATA && next_state == IDLE) begin
-        ifu_count <= ifu_count + 32'h1;//ifu指令计数器++
-    end*/
-
-         // 完成一次取指
-    if ((state == CHECK_CACHE && cache_hit && next_state == IDLE) || 
-    (state == FETCH_DATA && io_master_rvalid && io_master_rready && next_state == IDLE)) begin
-    ifu_count <= ifu_count + 32'h1;
-   // $display("ifu_count: %d", ifu_count);
-end
-end
 
 
 
-    always @(posedge clock) begin
+
+    always @(posedge clock or posedge reset) begin
         if (reset) begin
             state <= IDLE;
             curr_id <= 4'h0;
@@ -130,6 +116,11 @@ end
         end
         
         else begin
+
+            if ((state == CHECK_CACHE && cache_hit && next_state == IDLE) || 
+            (state == FETCH_DATA && io_master_rvalid && io_master_rready && next_state == IDLE)) begin
+            ifu_count <= ifu_count + 32'h1;
+            end
 
 
             state <= next_state;

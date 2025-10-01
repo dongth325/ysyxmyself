@@ -67,7 +67,7 @@ export "DPI-C" function get_instr_completed;
   opcode == 7'b1101111 || opcode == 7'b1100111 || opcode == 7'b0110011 || 
    opcode == 7'b0000011);//流水线流水线流水线
   
-  always @(posedge clock) begin
+  always @(posedge clock or posedge reset) begin
     if (reset) begin
       state <= IDLE;
      

@@ -122,24 +122,26 @@ module ysyx_24090012_EXU(
 
 always @(posedge clk) begin
    // 当指令执行完成时，增加计数器
-  if (state == EXEC && next_state == IDLE) begin
-    exu_count <= exu_count + 1;
-end
+
 end
 
     // 状态转换
-    always @(posedge clk) begin
+    always @(posedge clk or posedge rst) begin
         if (rst) begin
             state <= IDLE;
             exu_count <= 0;
         end else begin
           
             state <= next_state;
+
+            if (state == EXEC && next_state == IDLE) begin
+              exu_count <= exu_count + 1;
+          end
         end
     end
     
         // 流水线寄存器更新
-    always @(posedge clk) begin
+    always @(posedge clk or posedge rst) begin
         if (rst) begin
             // 基本输入寄存器复位
             pc_r <= 32'b0;

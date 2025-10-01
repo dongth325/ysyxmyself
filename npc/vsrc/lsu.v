@@ -179,7 +179,7 @@ end
 
 
     // 时序逻辑：状态更新和数据保存
-    always @(posedge clock) begin
+    always @(posedge clock or posedge reset) begin
         if (reset) begin
             state <= IDLE;
             curr_id <= 4'h0;

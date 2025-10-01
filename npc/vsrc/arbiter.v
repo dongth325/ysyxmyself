@@ -96,7 +96,7 @@ module ysyx_24090012_arbiter(
     reg [1:0] next_state;
 
     // 状态转移逻辑
-    always @(posedge clk) begin
+    always @(posedge clk or posedge rst) begin
         if (rst) begin
             current_state <= IDLE;
         end else begin
