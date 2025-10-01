@@ -95,8 +95,7 @@ module ysyx_24090012_LSU (
     localparam WBU_WAIT    = 3'd6;
     localparam SAVE_STATE  = 3'd7; 
 
-    assign wbu_csr_ready = 1'b0;
-   
+
 assign lsu_to_wbu_inst = exu_to_lsu_inst_r;
 assign data_hazard_lsu_inst = exu_to_lsu_inst_r;
 
