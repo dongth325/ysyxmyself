@@ -491,7 +491,7 @@ exit(1);
 }
 
 
-extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
+/*extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
      if (addr ==  0xa00003f8) {
          putchar(data & 0xFF);
          // difftest_skip_ref();      eeeeeeeeeeee
@@ -516,14 +516,14 @@ extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
                 exit(1);
         }
 
-        /*std::cout << "MTRACE: Write " << (int)mask << " bytes to 0x" << std::hex << addr
-                  << ", data = 0x" << std::hex << data << " from (pmem_write)" << std::dec << std::endl;*/
+        //std::cout << "MTRACE: Write " << (int)mask << " bytes to 0x" << std::hex << addr
+                //  << ", data = 0x" << std::hex << data << " from (pmem_write)" << std::dec << std::endl;
     } else {
         std::cerr << "Error: Attempt to write to invalid memory address: 0x"
                   << std::hex << addr << " from (pmem_write)" << std::dec << std::endl;
         exit(1);
     }
-}
+}*/
 
 
 extern "C"  uint32_t pmem_read(uint32_t addr) {
