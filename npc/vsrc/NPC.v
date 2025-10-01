@@ -222,6 +222,7 @@ wire [11:0] csr_addr;
 wire [31:0] csr_wdata;
 
 wire csr_wen;
+assign csr_wen = 1'b0;
 
 
 wire is_ecall;
