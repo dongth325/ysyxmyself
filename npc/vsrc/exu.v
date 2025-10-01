@@ -51,9 +51,6 @@ module ysyx_24090012_EXU(
     input [31:0] mtvec,
     input [31:0] mepc,
 
-
-  //input [31:0] rs1_data,
- // input [31:0] rs2_data,
   input [31:0] imm,
   input [5:0] alu_op,
   
@@ -179,24 +176,6 @@ end
 
 
 
-
-   /* always @(*) begin
-      case (alu_op_r)
-        6'b001000,  // LW
-        6'b001001,  // SW
-        6'b011000,  // LBU
-        6'b011111,  // LH
-        6'b100000,  // LHU
-        6'b100011,  // SB
-        6'b100100,  // LB
-        6'b110100:  // SH
-          is_use_lsu = 1'b1;
-        default:
-          is_use_lsu = 1'b0;
-      endcase
-    end*/
-
-
    /* always @(posedge clk) begin
       if (alu_op_r == 6'b010001) begin  // 当执行SRAI操作时打印
         
@@ -304,10 +283,7 @@ end
         (alu_op_r == 6'b110000) ? rs1_data_r :          // CSRRW
         (alu_op_r == 6'b110001) ? csr_rdata_r | rs1_data_r :  // CSRRS
         32'h0;
-    
-    // 系统指令信号
-    wire is_ecall = (alu_op_r == 6'b110010);
-    wire is_mret = (alu_op_r == 6'b110011);
+
 
 
     assign out_pc = pc_r;
@@ -324,40 +300,8 @@ end
     
 always @(*) begin
 
-  //csr_wdata = 32'b0;////mmmmmm
-    // 初始化默认值，防止锁存器推断
+  
   next_state = state;//mmmmmmmmmm
-
- // idu_ready = (state == IDLE);//mmmmmmmmm
-
-
-  //out_pc = pc_r;//mmmmmmmmmmmmmmm
-
-
-       // LSU接口默认值
-       // mem_valid = 0;//mmmmmmmmmmmmmmm
-       // mem_addr = 0;//mmmmmmmmmmmm
-       // mem_wdata = 0;//mmmmmmmmmmmm
-       
-        
-      // RegFile写回接口默认值
-      
-        //rd_data = 0;//mmmmmmmmmmmmmmmm
-       
-        
-       
-      //  csr_wdata = 32'h0;//mmmmmmmmmmmmmmmm
-       
-       
-       
- 
-
-
-      // is_ecall = 1'b0;
-      // is_mret = 1'b0;
-
-   
-   // next_pc = 0;  // 默认是0//mmmmmmmmmmmmmmmmmmmmmmmmmm
 
   
   case (state)
@@ -369,119 +313,13 @@ always @(*) begin
   
  EXEC: begin
 
-    case (alu_op_r)
-    
-      
-  
- 
-
-  /* 6'b110000: begin  // CSRRW
-  
-  rd_data = csr_rdata_r;
-
-  csr_wdata = rs1_data_r;
- 
-  next_pc = pc_r + 4;
-
-  mem_valid = 1'b1;
-  if(mem_ready) begin
-    next_state = IDLE;
-  end//流水线流水线流水线
-
- 
-end
-6'b110001: begin  // CSRRS
- 
-  rd_data = csr_rdata_r;
-  csr_wdata = csr_rdata_r | rs1_data_r;
-  
- 
-  next_pc = pc_r + 4;
-  mem_valid = 1'b1;
-   if(mem_ready) begin
-     next_state = IDLE;
-   end//流水线流水线流水线
-
-end
-6'b110010: begin  // ECALL
-                           
-
-is_ecall = 1'b1;
-  next_pc = mtvec_r;
-
-  mem_valid = 1'b1;
-
-  if(mem_ready) begin
-    next_state = IDLE;
-  end//流水线流水线流水线
-
- 
-end
-6'b110011: begin  // MRET
-
-
-  is_mret = 1'b1;
-
-  next_pc = mepc_r;
-
-  mem_valid = 1'b1;
-
-  if(mem_ready) begin
-    next_state = IDLE;
-  end//流水线流水线流水线
-
-  
-end*/
-
-
-    default: begin
-        //$display("111default:didnt match any inst from (exu.v)");    //综合需要注释
-        // NOP 或未实现的操作
-        // 已经在开始时赋值了 result 和 next_pc 的默认值
-
-      end
-
-    endcase
+   
     end
-    //end
-
-
+    
     default: begin
       
       $display("1114default:didnt match any inst from (exu.v)");    //综合需要注释
     end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   endcase
 end
@@ -496,31 +334,4 @@ function int get_exu_count();
     return exu_count;
 endfunction
 
-
-
-
-
-
-       
 endmodule
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

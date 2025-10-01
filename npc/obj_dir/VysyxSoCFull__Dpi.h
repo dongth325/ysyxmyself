@@ -24,7 +24,7 @@ extern "C" {
     extern int get_csr_inst_count();
     // DPI export at vsrc/csr.v:195:14
     extern int get_csr_reg_value(int csr_reg_index);
-    // DPI export at vsrc/exu.v:495:14
+    // DPI export at vsrc/exu.v:333:14
     extern int get_exu_count();
     // DPI export at vsrc/ifu.v:349:18
     extern int get_hit_count();

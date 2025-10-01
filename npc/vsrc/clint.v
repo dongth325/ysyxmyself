@@ -37,13 +37,16 @@ module ysyx_24090012_CLINT (
     wire sel_high_word = (addr_r[3:0] == 4'hC);
     
     // 分频计数器（新增）
-    always @(posedge clk) begin
-        if (rst) div_counter <= 0;
-        else div_counter <= div_counter + 1;
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            div_counter <= 0;
+        end else begin
+            div_counter <= div_counter + 1;
+        end
     end
     
     // mtime计数器（低频更新）
-    always @(posedge clk) begin
+    always @(posedge clk or posedge rst) begin
         if (rst) begin
             mtime <= 64'h0;
             state <= IDLE;
@@ -65,7 +68,7 @@ module ysyx_24090012_CLINT (
     end
     
     // 输出逻辑保持不变
-    always @(posedge clk) begin
+    always @(posedge clk or posedge rst) begin
         if (rst) begin
             s_axi_arready <= 1'b0;
             s_axi_rvalid <= 1'b0;
