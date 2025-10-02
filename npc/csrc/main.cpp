@@ -491,7 +491,7 @@ exit(1);
 }
 
 
-/*extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
+extern "C" void pmem_write(uint32_t addr, uint32_t data, uint8_t mask) {
      if (addr ==  0xa00003f8) {
          putchar(data & 0xFF);
          // difftest_skip_ref();      eeeeeeeeeeee
@@ -523,7 +523,7 @@ exit(1);
                   << std::hex << addr << " from (pmem_write)" << std::dec << std::endl;
         exit(1);
     }
-}*/
+}
 
 
 extern "C"  uint32_t pmem_read(uint32_t addr) {
