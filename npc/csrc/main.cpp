@@ -483,6 +483,7 @@ void load_memory(const char *program_path, size_t &program_size) {
         std::cerr << "Program size (" << program_size << " bytes) exceeds memory size (" << MEM_SIZE << " bytes)." << std::endl;
 //exit(1);
     }
+    std::cerr << "Program size (" << program_size << " bytes)  Memory size (" << MEM_SIZE << " bytes)." << std::endl;
 
     infile.read(reinterpret_cast<char *>(memory), program_size);
     infile.close();
