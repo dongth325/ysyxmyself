@@ -20,12 +20,9 @@ NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/ysyxsoc-log.txt
 .PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c
 
 image: $(IMAGE).elf
-	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt  # [TAB]
-	@echo + STRIP "->" $(IMAGE).stripped.elf  # [TAB]
-	@$(OBJCOPY) --strip-all $(IMAGE).elf $(IMAGE).stripped.elf  # [TAB]
-	@echo + OBJCOPY "->" $(IMAGE_REL).bin  # [TAB]
-	@$(OBJCOPY) -O binary --only-section=.text --only-section=.data --only-section=.rodata $(IMAGE).stripped.elf $(IMAGE).bin  # [TAB]
-
+	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
+	@echo + OBJCOPY "->" $(IMAGE_REL).bin
+	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
    
     
 

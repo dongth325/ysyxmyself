@@ -98,7 +98,7 @@ SECTIONS {
     *(.sdata.rodata*)  /* 添加其他可能的只读数据段  这里原linker文件并未设置srodata，可能是新定义了两个memory和vma，lma导致原本的默认配置被打破*/
      . = ALIGN(4);
      _rodata_vma_end = ABSOLUTE(_rodata_vma_start + SIZEOF(.rodata));
-  } >sdram : data
+  } >sdram : rodata
   
   . = ALIGN(4);
 
