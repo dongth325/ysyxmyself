@@ -133,6 +133,8 @@ void uart_init() {
 
 
 
+
+
 void putch(char ch) {
     
     while ((inb(UART_BASE + UART_REG_LSR) & UART_LSR_THRE) == 0) {
@@ -290,7 +292,7 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
   }
 
 
-/*
+
 
 src = (uint32_t*)_data_extra_lma;
 dst = (uint32_t*)_data_extra_vma_start;   //在ysyxsoclinker2中data extra lma前面是一道杠，其余extra的是两道
@@ -316,7 +318,7 @@ if (src == dst) {
     putch('O'); putch('v'); putch('e'); putch('r');
   }
   putch('\n');
-}*/
+}
 
 //清灵没必要，没有写入本来就是0
 /*src = (uint32_t*)_bss_extra_lma;
