@@ -1,5 +1,3 @@
-
-
 module ysyx_24090012(
     input         clock,          // 综合需要改成clk
     input         reset,          // 改名：rst -> reset
@@ -67,7 +65,7 @@ module ysyx_24090012(
     output        io_slave_rlast,
     output [3:0]  io_slave_rid
 );
-  import "DPI-C" context function void ebreak(input int exit_code);
+
 
 
   assign io_slave_awready = 1'b0;
@@ -795,16 +793,5 @@ ysyx_24090012_IDU idu(
 
 
 
-export "DPI-C"  function get_pc_value;
-
-// 实现获取PC值的函数
-function int get_pc_value();
-  get_pc_value = pc; // 返回当前PC值
-endfunction
-
-export "DPI-C"  function get_if_allow_in;
-function int get_if_allow_in();
-  get_if_allow_in = {31'b0, if_allow_in}; // 返回if_allow_in信号
-endfunction
 
 endmodule

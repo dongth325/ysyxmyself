@@ -672,53 +672,6 @@ end
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-always @(reset) begin
-    $display("RESET CHANGED TO %d from lsu \n", reset);    //综合需要注释
-end
-
-export "DPI-C"  function get_saved_addr;
-function int get_saved_addr();
-  get_saved_addr = saved_addr; // 假设lsu是LSU模块的实例名
-endfunction
-
-
-
-
-    // 导出DPI-C函数，供C++仿真环境访问
-export "DPI-C" function get_lsu_count;
-export "DPI-C" function get_read_count;
-export "DPI-C" function get_write_count;
-
-// DPI-C函数实现
-function int get_lsu_count();
-    return lsu_count;
-endfunction
-
-function int get_read_count();
-    return read_count;
-endfunction
-
-function int get_write_count();
-    return write_count;
-endfunction
-
-
-
-
-
-
-
 endmodule
 
 
