@@ -30,7 +30,7 @@ module ysyx_24090012_LSU (
     output [31:0] lsu_to_wbu_inst,
  
     output     wbu_csr_valid,
-    output        wbu_csr_ready,
+    input        wbu_csr_ready,
 
     output     wbu_valid,   // 流水线流水线流水线
     input         wbu_ready,   // 流水线流水线流水线
