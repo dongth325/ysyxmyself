@@ -254,6 +254,11 @@ end
    assign io_master_bready = (state == WRITE_RESP);
    assign io_master_rready = (state == READ_DATA);
    assign io_master_arvalid = (state == READ_ADDR);
+
+   assign wbu_data = saved_result;//流水线流水线流水线
+   assign wbu_next_pc = saved_next_pc;
+
+   assign wbu_csr_wdata = saved_csr_wdata;
   
 
     always @(*) begin
@@ -262,48 +267,10 @@ end
 
         // 默认值
         next_state = state;
-       // io_master_awvalid = 0;
-       // io_master_wvalid  = 0;
-       // io_master_bready  = 0;
-       // io_master_arvalid = 0;
-       // io_master_rready  = 0;
-      //  mem_ready = 0;
-       
-        
-        // 固定值
-       // io_master_awid    = curr_id;        // 使用当前事务ID
-      //  io_master_awlen   = 8'd0;           // 单次传输
-       // io_master_awsize  = saved_awsize;  
-            
-       // io_master_awburst = 2'b01;          // INCR模式
-       //io_master_arid    = curr_id;        // 使用当前事务ID
-      //  io_master_arlen   = 8'd0;           // 单次传输
-       // io_master_arsize  = saved_arsize;  
-          
-      //  io_master_arburst = 2'b01;          // INCR模式
-        
-        // 地址和数据连接
-       // io_master_awaddr = saved_addr;
-       // io_master_araddr = saved_addr;
-       // io_master_wdata  = saved_wdata;    //综合需要注释 （下面的wstrb不是）
 
 
-        //io_master_wstrb  = saved_wmask;
-       // io_master_wlast  = 1'b1;            // 单次传输永远为1
 
 
-      // wbu_rd = saved_rd;//流水线流水线流水线
-      // wbu_rd_wen = saved_rd_wen;//流水线流水线流水线
-       wbu_data = saved_result;//流水线流水线流水线
-       wbu_next_pc = saved_next_pc;
-      // wbu_valid = 1'b0;
-     //  wbu_csr_valid = 1'b0;
-
-     //  wbu_csr_addr = saved_csr_addr;
-       wbu_csr_wdata = saved_csr_wdata;
-    //   wbu_csr_wen = saved_csr_wen;
-
-      
    
 
        sim_lsu_addr = saved_addr;

@@ -255,6 +255,14 @@ end
    assign io_master_rready = (state == READ_DATA);
    assign io_master_arvalid = (state == READ_ADDR);
   
+   assign  wbu_data = saved_result;//流水线流水线流水线
+   assign wbu_next_pc = saved_next_pc;
+  // wbu_valid = 1'b0;
+ //  wbu_csr_valid = 1'b0;
+
+ //  wbu_csr_addr = saved_csr_addr;
+   assign wbu_csr_wdata = saved_csr_wdata;
+//   wbu_csr_wen = saved_csr_wen;
 
     always @(*) begin
 
@@ -294,14 +302,7 @@ end
 
       // wbu_rd = saved_rd;//流水线流水线流水线
       // wbu_rd_wen = saved_rd_wen;//流水线流水线流水线
-       wbu_data = saved_result;//流水线流水线流水线
-       wbu_next_pc = saved_next_pc;
-      // wbu_valid = 1'b0;
-     //  wbu_csr_valid = 1'b0;
 
-     //  wbu_csr_addr = saved_csr_addr;
-       wbu_csr_wdata = saved_csr_wdata;
-    //   wbu_csr_wen = saved_csr_wen;
 
       
    
