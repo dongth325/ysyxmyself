@@ -133,6 +133,8 @@ void uart_init() {
 
 
 
+
+
 void putch(char ch) {
     
     while ((inb(UART_BASE + UART_REG_LSR) & UART_LSR_THRE) == 0) {
@@ -183,7 +185,7 @@ uint32_t convert_arch_id_to_seg_val(uint32_t arch_id) {
 void __attribute__((section(".bootloader"), used)) bootloader(void) {
 
 
-
+/*
 
   uart_init();
   //用多周期noicache版本debug   原来的版本在桌面上  名字是ysyx-workbench
@@ -237,7 +239,7 @@ void __attribute__((section(".bootloader"), used)) bootloader(void) {
       
   }
 
-
+*/
 // ... existing code ... (nop 填充和执行不变)
 
 // 新增：插入 fence.i 刷新 I-cache（修复不一致问题）

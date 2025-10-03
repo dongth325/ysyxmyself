@@ -2,6 +2,9 @@
 VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v vsrc/csr.v vsrc/arbiter.v vsrc/lsu.v vsrc/clint.v
 CSRC = csrc/main.cpp csrc/difftest_loader.cpp
 
+NPC_VSRCS = vsrc/NPC.v vsrc/ifu.v vsrc/idu.v vsrc/registerfile.v vsrc/exu.v vsrc/csr.v vsrc/arbiter.v vsrc/lsu.v vsrc/clint.v 
+
+
 # ==================== NVBoard Integration Start ====================
 # 1. 自动生成引脚绑定文件并将其加入C++源文件列表
 SRC_AUTO_BIND = build/auto_bind.cpp
@@ -150,6 +153,16 @@ gdb: $(EXE)
 # 清理生成的文件
 clean:
 	rm -rf obj_dir
+
+
+
+# 声明伪目标
+.PHONY: all sim run gdb clean lint  # 添加 lint 到伪目标
+
+lint:
+	verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSED \
+		--sv \
+		$(NPC_VSRCS)
 
 # 引入其他 Makefile（如有需要）
 include ../Makefile
