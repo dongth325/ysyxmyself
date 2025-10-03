@@ -303,13 +303,13 @@ end
 always @(*) begin
 
   
-  next_state = state;//mmmmmmmmmm
+  //next_state = state;//mmmmmmmmmm
 
   
   case (state)
     IDLE: begin
       if (idu_valid && idu_ready) begin   //idu_ready在idle时一直为1
-              next_state = EXEC;
+           //   next_state = EXEC;
                 end
             end
   
