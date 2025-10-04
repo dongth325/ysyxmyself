@@ -99,7 +99,7 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
         if (reset) begin
             state <= IDLE;
             curr_id <= 4'h0;
-            saved_pc <= 32'h2FFFFFFC; // 初始PC值 是30000000 - 4.为了下面默认saved pc = saved pc +4初始值
+            saved_pc <= 32'h7FFFFFFC; // 初始PC值 是30000000 - 4.为了下面默认saved pc = saved pc +4初始值
             ifu_count <= 32'h0;
             hit_count <= 32'h0;
             miss_count <= 32'h0;
@@ -212,11 +212,14 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
     assign io_master_arvalid = (state == FETCH_ADDR);
     assign io_master_rready = (state == FETCH_DATA);
 
+    assign io_master_araddr =   {saved_pc[31:4], 4'b0000};
+    
+
     // 组合逻辑：状态转换和所有输出信号生成
     always @(*) begin
         // 默认值
         next_state = state;
-        io_master_araddr =   {saved_pc[31:4], 4'b0000};
+        
       //  io_master_arvalid = 1'b0;
        // io_master_rready = 1'b0;
         idu_valid = 1'b0;
@@ -259,7 +262,7 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
 
             FETCH_ADDR: begin
               //  io_master_arvalid = 1'b1;
-                io_master_araddr =   {saved_pc[31:4], 4'b0000};
+              //  io_master_araddr =   {saved_pc[31:4], 4'b0000};
                 if (io_master_arready) begin
                     next_state = FETCH_DATA;
                 end
@@ -281,6 +284,7 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
                         idu_valid = 1'b1;
                         if (idu_ready) begin
                             next_state = IDLE;
+                            $display("ifu_inst = 0x%08x", idu_inst);
                         end else begin
                             next_state = WAIT_IDU;  // IDU未准备好，进入等待状态
                         end
@@ -303,6 +307,7 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
                 // 只有当IDU准备好时才回到IDLE
                 if (idu_ready) begin
                     next_state = IDLE;
+                  //  $display("ifu_inst = 0x%08x", idu_inst);
                 end
             end
             
@@ -320,29 +325,5 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
     assign io_master_arsize  = 3'b010;      // 4字节
     assign io_master_arburst = 2'b01;       // INCR模式
   
-
-
-
-
-    
-
-
-    export "DPI-C" function get_ifu_count;
-
-    export "DPI-C" function get_hit_count;
-    export "DPI-C" function get_miss_count;
-
-    // DPI-C函数实现
-    function int get_ifu_count();
-        return ifu_count;
-    endfunction   //综合需要注释
-
-    function int get_hit_count();
-    return hit_count;
-    endfunction
-
-    function int get_miss_count();
-    return miss_count;
-    endfunction
 
 endmodule

@@ -30,7 +30,7 @@ module ysyx_24090012_LSU (
     output [31:0] lsu_to_wbu_inst,
  
     output     wbu_csr_valid,
-    output        wbu_csr_ready,
+    input        wbu_csr_ready,
 
     output     wbu_valid,   // 流水线流水线流水线
     input         wbu_ready,   // 流水线流水线流水线
@@ -85,6 +85,39 @@ module ysyx_24090012_LSU (
     input  wire [3:0]  io_master_rid       // 读响应ID
 );
 
+reg [31:0] exu_to_lsu_inst_r;
+
+// 寄存器定义
+reg [2:0] state;
+reg [31:0] saved_addr;//读写地址
+reg [31:0] saved_wdata;
+
+ // 组合逻辑：状态转换和控制信号生成
+reg [2:0] next_state;
+reg [31:0] processed_rdata;//用于对读出数据进行寄存，最后赋值给mem rdata
+
+reg [3:0]  curr_id;    // 当前事务ID
+
+// reg [4:0]  saved_rd;//流水线流水线流水线
+// reg        saved_rd_wen;//流水线流水线流水线
+reg [31:0] saved_result;//流水线流水线流水线    
+
+reg [31:0] saved_next_pc;
+
+
+reg  [31:0] saved_pc;
+
+
+
+//reg [11:0] saved_csr_addr;
+reg [31:0] saved_csr_wdata;
+//reg saved_csr_wen;
+
+reg [31:0] lsu_count;          // LSU总操作计数器
+reg [31:0] read_count;         // 读操作计数器
+reg [31:0] write_count;        // 写操作计数器
+
+
     // 状态定义
     localparam IDLE        = 3'd0;
     localparam WRITE_ADDR  = 3'd1;
@@ -128,37 +161,7 @@ wire saved_wen = (opcode == 7'b0100011);
     3'b000;     
 
 
-    reg [31:0] exu_to_lsu_inst_r;
 
-    // 寄存器定义
-    reg [2:0] state;
-    reg [31:0] saved_addr;//读写地址
-    reg [31:0] saved_wdata;
-    
-     // 组合逻辑：状态转换和控制信号生成
-    reg [2:0] next_state;
-    reg [31:0] processed_rdata;//用于对读出数据进行寄存，最后赋值给mem rdata
-
-    reg [3:0]  curr_id;    // 当前事务ID
-  
-   // reg [4:0]  saved_rd;//流水线流水线流水线
-   // reg        saved_rd_wen;//流水线流水线流水线
-    reg [31:0] saved_result;//流水线流水线流水线    
- 
-    reg [31:0] saved_next_pc;
-   
-
-    reg  [31:0] saved_pc;
-
-  
- 
-    //reg [11:0] saved_csr_addr;
-    reg [31:0] saved_csr_wdata;
-    //reg saved_csr_wen;
-
-    reg [31:0] lsu_count;          // LSU总操作计数器
-    reg [31:0] read_count;         // 读操作计数器
-    reg [31:0] write_count;        // 写操作计数器
 
 always @(posedge clock) begin
     // 写响应检测
@@ -252,6 +255,14 @@ end
    assign io_master_rready = (state == READ_DATA);
    assign io_master_arvalid = (state == READ_ADDR);
   
+   assign  wbu_data = saved_result;//流水线流水线流水线
+   assign wbu_next_pc = saved_next_pc;
+  // wbu_valid = 1'b0;
+ //  wbu_csr_valid = 1'b0;
+
+ //  wbu_csr_addr = saved_csr_addr;
+   assign wbu_csr_wdata = saved_csr_wdata;
+//   wbu_csr_wen = saved_csr_wen;
 
     always @(*) begin
 
@@ -291,14 +302,7 @@ end
 
       // wbu_rd = saved_rd;//流水线流水线流水线
       // wbu_rd_wen = saved_rd_wen;//流水线流水线流水线
-       wbu_data = saved_result;//流水线流水线流水线
-       wbu_next_pc = saved_next_pc;
-      // wbu_valid = 1'b0;
-     //  wbu_csr_valid = 1'b0;
 
-     //  wbu_csr_addr = saved_csr_addr;
-       wbu_csr_wdata = saved_csr_wdata;
-    //   wbu_csr_wen = saved_csr_wen;
 
       
    

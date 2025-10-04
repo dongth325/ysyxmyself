@@ -28,7 +28,7 @@ module ysyx_24090012_CSR (
   output reg [31:0] mvendorid,
   output reg [31:0] marchid
 );
-export "DPI-C" function get_csr_reg_value; //综合需要注释
+
   // CSR地址定义
   localparam MSTATUS = 12'h300;
   localparam MTVEC   = 12'h305;
@@ -192,13 +192,5 @@ end
 
 
 
-function int get_csr_reg_value(input int csr_reg_index);
-  case (csr_reg_index)
-     1:   get_csr_reg_value = mcause; // 根据索引返回寄存器的值
-     2:   get_csr_reg_value = mtvec;
-     3:   get_csr_reg_value = mepc;
-     4:   get_csr_reg_value = mstatus;
-  endcase
-endfunction   //综合需要注释
 
 endmodule

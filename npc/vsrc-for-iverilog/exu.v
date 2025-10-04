@@ -303,13 +303,13 @@ end
 always @(*) begin
 
   
-  next_state = state;//mmmmmmmmmm
+  //next_state = state;//mmmmmmmmmm
 
   
   case (state)
     IDLE: begin
       if (idu_valid && idu_ready) begin   //idu_ready在idle时一直为1
-              next_state = EXEC;
+             // next_state = EXEC;
                 end
             end
   
@@ -328,12 +328,5 @@ end
 
 
 
-    // 导出DPI-C函数，供C++仿真环境访问
-export "DPI-C" function get_exu_count;
-    
-// DPI-C函数实现
-function int get_exu_count();
-    return exu_count;
-endfunction
 
 endmodule

@@ -24,10 +24,6 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
 );
  
 
-export "DPI-C" function get_instr_completed; 
-  // 导出函数供C语言访问
-  export "DPI-C" function get_reg_value;    //综合需要注释
-  //reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];  //综合需要实现16个而不是32个
   reg [DATA_WIDTH-1:0] rf [15:0];
   
   // 状态定义
@@ -73,7 +69,7 @@ export "DPI-C" function get_instr_completed;
      
       saved_wdata <= 0;
      
-      pc <= 32'h3000_0000;
+      pc <= 32'h7FFFFFFC;
       num_r <= 64'h0;
       instr_completed <= 1'b0;  
       saved_sim_lsu_addr <= 32'h0;
@@ -161,26 +157,6 @@ assign rd_ready = (state == IDLE);
   
 
 
-  // 实现 get_reg0 函数以返回寄存器0的值
-  function void get_reg0(output int reg0_value);
-    reg0_value = rf[0];  // 假设 rf 存储寄存器值的数组
-  endfunction
-
-  //综合需要注释
-  function int get_reg_value(input int reg_index);
-    get_reg_value = rf[reg_index]; // 根据索引返回寄存器的值
-  endfunction
-
-    // 新增DPI-C函数实现
-  function int get_instr_completed();
-    get_instr_completed = {31'b0, instr_completed}; // 返回指令完成状态
-  endfunction
- 
-
-  export "DPI-C"  function get_saved_sim_lsu_addr;
-  function int get_saved_sim_lsu_addr();
-    get_saved_sim_lsu_addr = saved_sim_lsu_addr; // 假设lsu是LSU模块的实例名
-  endfunction
 
 
 endmodule

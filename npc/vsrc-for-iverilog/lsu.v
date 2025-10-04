@@ -30,7 +30,7 @@ module ysyx_24090012_LSU (
     output [31:0] lsu_to_wbu_inst,
  
     output     wbu_csr_valid,
-    output        wbu_csr_ready,
+    input        wbu_csr_ready,
 
     output     wbu_valid,   // 流水线流水线流水线
     input         wbu_ready,   // 流水线流水线流水线
@@ -96,38 +96,6 @@ module ysyx_24090012_LSU (
     localparam SAVE_STATE  = 3'd7; 
 
 
-assign lsu_to_wbu_inst = exu_to_lsu_inst_r;
-assign data_hazard_lsu_inst = exu_to_lsu_inst_r;
-
-assign lsu_hazard_result = saved_result;
-
-assign lsu_reg_num = num_r;
-
-wire [6:0] opcode = exu_to_lsu_inst_r[6:0];
-wire [2:0] func3 = exu_to_lsu_inst_r[14:12];
-
-
-wire saved_mem_unsigned = 
-    (opcode == 7'b0000011 && func3 == 3'b100) || // LBU
-    (opcode == 7'b0000011 && func3 == 3'b101);   // LHU
-
-wire saved_is_use_lsu = (opcode == 7'b0000011) || (opcode == 7'b0100011);  
-wire saved_wen = (opcode == 7'b0100011);
-
-
-   wire [2:0] saved_arsize = 
-    (opcode == 7'b0000011 && (func3 == 3'b000 || func3 == 3'b100)) ? 3'b000 :  // LB/LBU
-    (opcode == 7'b0000011 && (func3 == 3'b001 || func3 == 3'b101)) ? 3'b001 :  // LH/LHU
-    (opcode == 7'b0000011 && func3 == 3'b010) ? 3'b010 :                       // LW
-    3'b000;      
-
-    wire [2:0] saved_awsize = 
-    (opcode == 7'b0100011 && func3 == 3'b000) ? 3'b000 :  // SB
-    (opcode == 7'b0100011 && func3 == 3'b001) ? 3'b001 :  // SH
-    (opcode == 7'b0100011 && func3 == 3'b010) ? 3'b010 :  // SW
-    3'b000;     
-
-
     reg [31:0] exu_to_lsu_inst_r;
 
     // 寄存器定义
@@ -160,21 +128,60 @@ wire saved_wen = (opcode == 7'b0100011);
     reg [31:0] read_count;         // 读操作计数器
     reg [31:0] write_count;        // 写操作计数器
 
+
+assign lsu_to_wbu_inst = exu_to_lsu_inst_r;
+assign data_hazard_lsu_inst = exu_to_lsu_inst_r;
+
+assign lsu_hazard_result = saved_result;
+
+assign lsu_reg_num = num_r;
+
+wire [6:0] opcode = exu_to_lsu_inst_r[6:0];
+wire [2:0] func3 = exu_to_lsu_inst_r[14:12];
+
+
+wire saved_mem_unsigned = 
+    (opcode == 7'b0000011 && func3 == 3'b100) || // LBU
+    (opcode == 7'b0000011 && func3 == 3'b101);   // LHU
+
+wire saved_is_use_lsu = (opcode == 7'b0000011) || (opcode == 7'b0100011);  
+wire saved_wen = (opcode == 7'b0100011);
+
+
+   wire [2:0] saved_arsize = 
+    (opcode == 7'b0000011 && (func3 == 3'b000 || func3 == 3'b100)) ? 3'b000 :  // LB/LBU
+    (opcode == 7'b0000011 && (func3 == 3'b001 || func3 == 3'b101)) ? 3'b001 :  // LH/LHU
+    (opcode == 7'b0000011 && func3 == 3'b010) ? 3'b010 :                       // LW
+    3'b000;      
+
+    wire [2:0] saved_awsize = 
+    (opcode == 7'b0100011 && func3 == 3'b000) ? 3'b000 :  // SB
+    (opcode == 7'b0100011 && func3 == 3'b001) ? 3'b001 :  // SH
+    (opcode == 7'b0100011 && func3 == 3'b010) ? 3'b010 :  // SW
+    3'b000;     
+
+
+
+
 always @(posedge clock) begin
     // 写响应检测
     if (io_master_bresp != 2'b00) begin
-        $display("LSU error! bid expected: %h, received: %h, bresp: %b", 
+        $display("LSU error! bid expected: %h, received: %h, bresp: %b inst = %h from lsu.v line:169 num = %h", 
                 curr_id, 
                 io_master_bid, 
-                io_master_bresp);     //综合需要注释
+                io_master_bresp,
+                exu_to_lsu_inst_r,
+                num_r);     //综合需要注释
     end
     
     // 读响应检测
     if (io_master_rresp != 2'b00) begin
-        $display("LSU read ID wrong! curr_id: %h, rid: %h, rresp: %b",
+        $display("LSU read ID wrong! curr_id: %h, rid: %h, rresp: %b inst = %h from lsu.v line:179 num = %h",
                 curr_id,
                 io_master_rid,
-                io_master_rresp);   //综合需要注释
+                io_master_rresp,
+                exu_to_lsu_inst_r,
+                num_r);   //综合需要注释
     end
 end
 
@@ -251,6 +258,11 @@ end
    assign io_master_bready = (state == WRITE_RESP);
    assign io_master_rready = (state == READ_DATA);
    assign io_master_arvalid = (state == READ_ADDR);
+
+   assign wbu_data = saved_result;//流水线流水线流水线
+   assign wbu_next_pc = saved_next_pc;
+
+   assign wbu_csr_wdata = saved_csr_wdata;
   
 
     always @(*) begin
@@ -259,48 +271,10 @@ end
 
         // 默认值
         next_state = state;
-       // io_master_awvalid = 0;
-       // io_master_wvalid  = 0;
-       // io_master_bready  = 0;
-       // io_master_arvalid = 0;
-       // io_master_rready  = 0;
-      //  mem_ready = 0;
-       
-        
-        // 固定值
-       // io_master_awid    = curr_id;        // 使用当前事务ID
-      //  io_master_awlen   = 8'd0;           // 单次传输
-       // io_master_awsize  = saved_awsize;  
-            
-       // io_master_awburst = 2'b01;          // INCR模式
-       //io_master_arid    = curr_id;        // 使用当前事务ID
-      //  io_master_arlen   = 8'd0;           // 单次传输
-       // io_master_arsize  = saved_arsize;  
-          
-      //  io_master_arburst = 2'b01;          // INCR模式
-        
-        // 地址和数据连接
-       // io_master_awaddr = saved_addr;
-       // io_master_araddr = saved_addr;
-       // io_master_wdata  = saved_wdata;    //综合需要注释 （下面的wstrb不是）
 
 
-        //io_master_wstrb  = saved_wmask;
-       // io_master_wlast  = 1'b1;            // 单次传输永远为1
 
 
-      // wbu_rd = saved_rd;//流水线流水线流水线
-      // wbu_rd_wen = saved_rd_wen;//流水线流水线流水线
-       wbu_data = saved_result;//流水线流水线流水线
-       wbu_next_pc = saved_next_pc;
-      // wbu_valid = 1'b0;
-     //  wbu_csr_valid = 1'b0;
-
-     //  wbu_csr_addr = saved_csr_addr;
-       wbu_csr_wdata = saved_csr_wdata;
-    //   wbu_csr_wen = saved_csr_wen;
-
-      
    
 
        sim_lsu_addr = saved_addr;
@@ -375,10 +349,12 @@ end
 
                    else begin
             // 写操作失败，记录错误
-            $display("LSU write error! bid expected: %h, received: %h, bresp: %b", 
+            $display("LSU write error! bid expected: %h, received: %h, bresp: %b inst = %h from lsu.v line:183 num = %h", 
                     curr_id, 
                     io_master_bid, 
-                    io_master_bresp);     //综合需要注释
+                    io_master_bresp,
+                    exu_to_lsu_inst_r,
+                    num_r);     //综合需要注释
             
             // 返回IDLE状态
                    next_state = IDLE;
@@ -410,10 +386,12 @@ end
                     end
                     else begin
                         // 写操作失败，记录错误
-                        $display("LSU write error! bid expected: %h, received: %h, bresp: %b", 
+                        $display("LSU write error! bid expected: %h, received: %h, bresp: %b inst = %h from lsu.v line:187 num = %h", 
                                 curr_id, 
                                 io_master_bid, 
-                                io_master_bresp);     //综合需要注释
+                                io_master_bresp,
+                                exu_to_lsu_inst_r,
+                                num_r);     //综合需要注释
                         
                         // 返回IDLE状态
                         next_state = IDLE;
@@ -490,7 +468,7 @@ always @(*) begin
                 2'b10: processed_rdata = {{16{io_master_rdata[31]}}, io_master_rdata[31:16]};
                 default: begin
                     processed_rdata = 32'b0;
-                    $display("error!!!!! half word read is not aligned");        //综合需要注释
+                   // $display("error!!!!! half word read is not aligned inst = %h from lsu.v line:201 num = %h", exu_to_lsu_inst_r, num_r);        //综合需要注释
                 end
             endcase
         end
@@ -501,7 +479,7 @@ always @(*) begin
                 2'b10: processed_rdata = {{16{1'b0}}, io_master_rdata[31:16]};
                 default: begin
                     processed_rdata = 32'b0;
-                    $display("error!!!!! half word read is not aligned");        //综合需要注释
+                   // $display("error!!!!! half word read is not aligned inst = %h from lsu.v line:205 num = %h", exu_to_lsu_inst_r, num_r);        //综合需要注释
                 end
             endcase
         end
@@ -520,15 +498,15 @@ always @(*) begin
                 2'b00: processed_rdata = io_master_rdata;
                 default: begin
                     processed_rdata = 32'b0;
-                    $display("error!!!!! word read is not aligned");
-                    $display("saved_addr is %h from lsu.v line:303", saved_addr);    //综合需要注释
+                   // $display("error!!!!! word read is not aligned inst = %h from lsu.v line:209 num = %h", exu_to_lsu_inst_r, num_r);
+                   // $display("saved_addr is %h  inst = %h from lsu.v line:210 num = %h", saved_addr, exu_to_lsu_inst_r, num_r);    //综合需要注释
                 end
             endcase
         end
         end
         default: begin
             processed_rdata = 32'b0;
-            $display("wrong!!!!! unknown read size");    //综合需要注释
+           // $display("wrong!!!!! unknown read size inst = %h from lsu.v line:303 num = %h", exu_to_lsu_inst_r, num_r);    //综合需要注释
         end
     endcase
 end
@@ -611,7 +589,7 @@ always @(*) begin
         end
         default: begin 
             io_master_wstrb = 4'b0000;
-            $display("error!!!!! half word access is not aligned");   //综合需要注释
+           // $display("error!!!!! half word access is not aligned inst = %h from lsu.v line:213 num = %h", exu_to_lsu_inst_r, num_r);   //综合需要注释
         end
     endcase
     end
@@ -628,7 +606,7 @@ always @(*) begin
         end
         default: begin 
             io_master_wstrb = 4'b0000;
-            $display("error!!!!! half word access is not aligned");   //综合需要注释
+          //  $display("error!!!!! half word access is not aligned inst = %h from lsu.v line:217 num = %h", exu_to_lsu_inst_r, num_r);   //综合需要注释
         end
     endcase
     end
@@ -639,8 +617,8 @@ end
             2'b00: io_master_wstrb = 4'b1111;
             default: begin
                 io_master_wstrb = 4'b0000;
-                $display("error!!!!! word access is not aligned from lsu.v line:236");
-                $display("saved_addr is %h from lsu.v line:237", saved_addr);    //综合需要注释
+              //  $display("error!!!!! word access is not aligned inst = %h from lsu.v line:236 num = %h", exu_to_lsu_inst_r, num_r);
+              //  $display("saved_addr is %h from lsu.v line:237 num = %h inst = %h", saved_addr, num_r, exu_to_lsu_inst_r);    //综合需要注释
                 // 应该触发非对齐
             end
         endcase
@@ -650,8 +628,8 @@ end
             2'b00: io_master_wstrb = 4'b1111;
             default: begin
                 io_master_wstrb = 4'b0000;
-                $display("error!!!!! word access is not aligned from lsu.v line:236");
-                $display("saved_addr is %h from lsu.v line:237", saved_addr);     //综合需要注释
+               // $display("error!!!!! word access is not aligned inst = %h from lsu.v line:236 num = %h", exu_to_lsu_inst_r, num_r);
+               // $display("saved_addr is %h from lsu.v line:237 num = %h inst = %h", saved_addr, num_r, exu_to_lsu_inst_r);     //综合需要注释
                 // 应该触发非对齐
             end
         endcase
@@ -659,59 +637,12 @@ end
     end
         default: begin
             io_master_wstrb = 4'b0000;
-           $display("wrong!!!!!!!saved awsizes is unknown number from lsu.v line:230");
-            $display("saved_awsize is %h from lsu.v line:231", saved_awsize);   //综合需要注释
+          // $display("wrong!!!!!!!saved awsizes is unknown number inst = %h from lsu.v line:230 num = %h", exu_to_lsu_inst_r, num_r);
+          //  $display("saved_awsize is %h from lsu.v line:231 num = %h inst = %h", saved_awsize, num_r, exu_to_lsu_inst_r);   //综合需要注释
         end
     endcase
 end   
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-always @(reset) begin
-    $display("RESET CHANGED TO %d from lsu \n", reset);    //综合需要注释
-end
-
-export "DPI-C"  function get_saved_addr;
-function int get_saved_addr();
-  get_saved_addr = saved_addr; // 假设lsu是LSU模块的实例名
-endfunction
-
-
-
-
-    // 导出DPI-C函数，供C++仿真环境访问
-export "DPI-C" function get_lsu_count;
-export "DPI-C" function get_read_count;
-export "DPI-C" function get_write_count;
-
-// DPI-C函数实现
-function int get_lsu_count();
-    return lsu_count;
-endfunction
-
-function int get_read_count();
-    return read_count;
-endfunction
-
-function int get_write_count();
-    return write_count;
-endfunction
 
 
 

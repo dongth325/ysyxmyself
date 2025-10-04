@@ -1,5 +1,3 @@
-
-
 module ysyx_24090012(
     input         clock,          // 综合需要改成clk
     input         reset,          // 改名：rst -> reset
@@ -67,7 +65,7 @@ module ysyx_24090012(
     output        io_slave_rlast,
     output [3:0]  io_slave_rid
 );
-  import "DPI-C" context function void ebreak(input int exit_code);
+
 
 
   assign io_slave_awready = 1'b0;
@@ -788,23 +786,13 @@ ysyx_24090012_IDU idu(
       if (inst == 32'h00100073 && ifu_to_idu_valid == 1) begin  // ebreak 指令  用于没有cache的ifu，如果不加这个判断会在bootloader取到ebreak就会停止仿真
             $display("pc = 0x%08x from NPC", pc);
             $display("inst = 0x%08x from NPC",inst);
-          ebreak(regfile.rf[10]);       // 调用 DPI-C 函数     综合需要注释
+            $display("HIT GOOD TRAP");
+         // ebreak(regfile.rf[10]);       // 调用 DPI-C 函数     综合需要注释
         end 
       end
 
 
 
 
-export "DPI-C"  function get_pc_value;
-
-// 实现获取PC值的函数
-function int get_pc_value();
-  get_pc_value = pc; // 返回当前PC值
-endfunction
-
-export "DPI-C"  function get_if_allow_in;
-function int get_if_allow_in();
-  get_if_allow_in = {31'b0, if_allow_in}; // 返回if_allow_in信号
-endfunction
 
 endmodule

@@ -143,7 +143,10 @@ module ysyx_24090012_arbiter(
         endcase
     end
 
-  
+     // 状态信号
+    wire is_lsu_read  = (current_state == LSU_READ);
+    wire is_lsu_write = (current_state == LSU_WRITE);
+    wire is_ifu_read  = (current_state == IFU_READ);
 
     // 写通道连接 - 直接连接LSU
     assign io_master_awvalid = lsu_awvalid && is_lsu_write;
@@ -167,10 +170,7 @@ module ysyx_24090012_arbiter(
 
    
 
-   // 状态信号
-    wire is_lsu_read  = (current_state == LSU_READ);
-    wire is_lsu_write = (current_state == LSU_WRITE);
-    wire is_ifu_read  = (current_state == IFU_READ);
+
 
 //wire use_lsu_addr = (current_state == IDLE && lsu_arvalid) || is_lsu_read; //流水线先注释掉，设计的有问题
 //wire use_ifu_addr = (current_state == IDLE && ifu_arvalid) || is_ifu_read;
