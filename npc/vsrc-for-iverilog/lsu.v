@@ -166,18 +166,22 @@ wire saved_wen = (opcode == 7'b0100011);
 always @(posedge clock) begin
     // 写响应检测
     if (io_master_bresp != 2'b00) begin
-        $display("LSU error! bid expected: %h, received: %h, bresp: %b", 
+        $display("LSU error! bid expected: %h, received: %h, bresp: %b inst = %h from lsu.v line:169 num = %h", 
                 curr_id, 
                 io_master_bid, 
-                io_master_bresp);     //综合需要注释
+                io_master_bresp,
+                exu_to_lsu_inst_r,
+                num_r);     //综合需要注释
     end
     
     // 读响应检测
     if (io_master_rresp != 2'b00) begin
-        $display("LSU read ID wrong! curr_id: %h, rid: %h, rresp: %b",
+        $display("LSU read ID wrong! curr_id: %h, rid: %h, rresp: %b inst = %h from lsu.v line:179 num = %h",
                 curr_id,
                 io_master_rid,
-                io_master_rresp);   //综合需要注释
+                io_master_rresp,
+                exu_to_lsu_inst_r,
+                num_r);   //综合需要注释
     end
 end
 
@@ -345,10 +349,12 @@ end
 
                    else begin
             // 写操作失败，记录错误
-            $display("LSU write error! bid expected: %h, received: %h, bresp: %b", 
+            $display("LSU write error! bid expected: %h, received: %h, bresp: %b inst = %h from lsu.v line:183 num = %h", 
                     curr_id, 
                     io_master_bid, 
-                    io_master_bresp);     //综合需要注释
+                    io_master_bresp,
+                    exu_to_lsu_inst_r,
+                    num_r);     //综合需要注释
             
             // 返回IDLE状态
                    next_state = IDLE;
@@ -380,10 +386,12 @@ end
                     end
                     else begin
                         // 写操作失败，记录错误
-                        $display("LSU write error! bid expected: %h, received: %h, bresp: %b", 
+                        $display("LSU write error! bid expected: %h, received: %h, bresp: %b inst = %h from lsu.v line:187 num = %h", 
                                 curr_id, 
                                 io_master_bid, 
-                                io_master_bresp);     //综合需要注释
+                                io_master_bresp,
+                                exu_to_lsu_inst_r,
+                                num_r);     //综合需要注释
                         
                         // 返回IDLE状态
                         next_state = IDLE;
@@ -460,7 +468,7 @@ always @(*) begin
                 2'b10: processed_rdata = {{16{io_master_rdata[31]}}, io_master_rdata[31:16]};
                 default: begin
                     processed_rdata = 32'b0;
-                    $display("error!!!!! half word read is not aligned");        //综合需要注释
+                   // $display("error!!!!! half word read is not aligned inst = %h from lsu.v line:201 num = %h", exu_to_lsu_inst_r, num_r);        //综合需要注释
                 end
             endcase
         end
@@ -471,7 +479,7 @@ always @(*) begin
                 2'b10: processed_rdata = {{16{1'b0}}, io_master_rdata[31:16]};
                 default: begin
                     processed_rdata = 32'b0;
-                    $display("error!!!!! half word read is not aligned");        //综合需要注释
+                   // $display("error!!!!! half word read is not aligned inst = %h from lsu.v line:205 num = %h", exu_to_lsu_inst_r, num_r);        //综合需要注释
                 end
             endcase
         end
@@ -490,15 +498,15 @@ always @(*) begin
                 2'b00: processed_rdata = io_master_rdata;
                 default: begin
                     processed_rdata = 32'b0;
-                    $display("error!!!!! word read is not aligned");
-                    $display("saved_addr is %h from lsu.v line:303", saved_addr);    //综合需要注释
+                   // $display("error!!!!! word read is not aligned inst = %h from lsu.v line:209 num = %h", exu_to_lsu_inst_r, num_r);
+                   // $display("saved_addr is %h  inst = %h from lsu.v line:210 num = %h", saved_addr, exu_to_lsu_inst_r, num_r);    //综合需要注释
                 end
             endcase
         end
         end
         default: begin
             processed_rdata = 32'b0;
-            $display("wrong!!!!! unknown read size");    //综合需要注释
+           // $display("wrong!!!!! unknown read size inst = %h from lsu.v line:303 num = %h", exu_to_lsu_inst_r, num_r);    //综合需要注释
         end
     endcase
 end
@@ -581,7 +589,7 @@ always @(*) begin
         end
         default: begin 
             io_master_wstrb = 4'b0000;
-            $display("error!!!!! half word access is not aligned");   //综合需要注释
+           // $display("error!!!!! half word access is not aligned inst = %h from lsu.v line:213 num = %h", exu_to_lsu_inst_r, num_r);   //综合需要注释
         end
     endcase
     end
@@ -598,7 +606,7 @@ always @(*) begin
         end
         default: begin 
             io_master_wstrb = 4'b0000;
-            $display("error!!!!! half word access is not aligned");   //综合需要注释
+          //  $display("error!!!!! half word access is not aligned inst = %h from lsu.v line:217 num = %h", exu_to_lsu_inst_r, num_r);   //综合需要注释
         end
     endcase
     end
@@ -609,8 +617,8 @@ end
             2'b00: io_master_wstrb = 4'b1111;
             default: begin
                 io_master_wstrb = 4'b0000;
-                $display("error!!!!! word access is not aligned from lsu.v line:236");
-                $display("saved_addr is %h from lsu.v line:237", saved_addr);    //综合需要注释
+              //  $display("error!!!!! word access is not aligned inst = %h from lsu.v line:236 num = %h", exu_to_lsu_inst_r, num_r);
+              //  $display("saved_addr is %h from lsu.v line:237 num = %h inst = %h", saved_addr, num_r, exu_to_lsu_inst_r);    //综合需要注释
                 // 应该触发非对齐
             end
         endcase
@@ -620,8 +628,8 @@ end
             2'b00: io_master_wstrb = 4'b1111;
             default: begin
                 io_master_wstrb = 4'b0000;
-                $display("error!!!!! word access is not aligned from lsu.v line:236");
-                $display("saved_addr is %h from lsu.v line:237", saved_addr);     //综合需要注释
+               // $display("error!!!!! word access is not aligned inst = %h from lsu.v line:236 num = %h", exu_to_lsu_inst_r, num_r);
+               // $display("saved_addr is %h from lsu.v line:237 num = %h inst = %h", saved_addr, num_r, exu_to_lsu_inst_r);     //综合需要注释
                 // 应该触发非对齐
             end
         endcase
@@ -629,8 +637,8 @@ end
     end
         default: begin
             io_master_wstrb = 4'b0000;
-           $display("wrong!!!!!!!saved awsizes is unknown number from lsu.v line:230");
-            $display("saved_awsize is %h from lsu.v line:231", saved_awsize);   //综合需要注释
+          // $display("wrong!!!!!!!saved awsizes is unknown number inst = %h from lsu.v line:230 num = %h", exu_to_lsu_inst_r, num_r);
+          //  $display("saved_awsize is %h from lsu.v line:231 num = %h inst = %h", saved_awsize, num_r, exu_to_lsu_inst_r);   //综合需要注释
         end
     endcase
 end   

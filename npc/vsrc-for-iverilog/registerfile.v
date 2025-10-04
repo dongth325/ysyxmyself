@@ -69,7 +69,7 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
      
       saved_wdata <= 0;
      
-      pc <= 32'h3000_0000;
+      pc <= 32'h7FFFFFFC;
       num_r <= 64'h0;
       instr_completed <= 1'b0;  
       saved_sim_lsu_addr <= 32'h0;

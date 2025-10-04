@@ -99,7 +99,7 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
         if (reset) begin
             state <= IDLE;
             curr_id <= 4'h0;
-            saved_pc <= 32'h2FFFFFFC; // 初始PC值 是30000000 - 4.为了下面默认saved pc = saved pc +4初始值
+            saved_pc <= 32'h7FFFFFFC; // 初始PC值 是30000000 - 4.为了下面默认saved pc = saved pc +4初始值
             ifu_count <= 32'h0;
             hit_count <= 32'h0;
             miss_count <= 32'h0;
@@ -284,6 +284,7 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
                         idu_valid = 1'b1;
                         if (idu_ready) begin
                             next_state = IDLE;
+                            $display("ifu_inst = 0x%08x", idu_inst);
                         end else begin
                             next_state = WAIT_IDU;  // IDU未准备好，进入等待状态
                         end
@@ -306,6 +307,7 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
                 // 只有当IDU准备好时才回到IDLE
                 if (idu_ready) begin
                     next_state = IDLE;
+                  //  $display("ifu_inst = 0x%08x", idu_inst);
                 end
             end
             
@@ -323,13 +325,5 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
     assign io_master_arsize  = 3'b010;      // 4字节
     assign io_master_arburst = 2'b01;       // INCR模式
   
-
-
-
-
-    
-
-
-
 
 endmodule
