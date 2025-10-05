@@ -71,7 +71,7 @@ module pmem (
         for (i = 0; i < MEM_SIZE; i = i + 1) mem[i] = 32'h0;
         
         $display("INFO: Attempting to load program.hex...");
-        $readmemh("/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/am-kernels/tests/cpu-tests/build/program.hex", mem);
+        $readmemh("/home/dongtaiheng/desktopp/ffuck/rt-thread-am/bsp/abstract-machine/build/program.hex", mem);
         $display("INFO: Program load complete.");
         $display("DEBUG: First Instruction (mem[0]) should be: %h", mem[0]); 
 
@@ -118,18 +118,22 @@ module pmem (
                     if (io_master_wvalid && io_master_wready) begin
                         if (w_addr >= MEM_BASE && w_addr < MEM_BASE + (MEM_SIZE<<2)) begin
                             w_idx = (w_addr - MEM_BASE) >> 2;
-                            // 写入时按照小端序处理 wdata
-                            if (io_master_wstrb[0]) mem[w_idx][7:0]   <= io_master_wdata[7:0];
-                            if (io_master_wstrb[1]) mem[w_idx][15:8]  <= io_master_wdata[15:8];
-                            if (io_master_wstrb[2]) mem[w_idx][23:16] <= io_master_wdata[23:16];
-                            if (io_master_wstrb[3]) mem[w_idx][31:24] <= io_master_wdata[31:24];
+                            
+                            if (io_master_wstrb[0]) mem[w_idx][7:0]   <= io_master_wdata[31:24];
+                            if (io_master_wstrb[1]) mem[w_idx][15:8]  <= io_master_wdata[23:16];
+                            if (io_master_wstrb[2]) mem[w_idx][23:16] <= io_master_wdata[15:8];
+                            if (io_master_wstrb[3]) mem[w_idx][31:24] <= io_master_wdata[7:0];
                         end
+
+                         
+                       
                         io_master_wready <= 1'b0;
                         io_master_bvalid <= 1'b1;
                         io_master_bresp  <= 2'b00;
                         io_master_bid    <= w_id;
                         w_state          <= 2;
                     end
+                   
                 end
                 2: begin
                     if (io_master_bready) begin
@@ -173,7 +177,8 @@ module pmem (
                     
                     if (io_master_arvalid && io_master_arready) begin
                         // 1. 捕获地址、ID、突发长度和类型
-                        r_base_addr        <= {io_master_araddr[31:4], 4'b0000}; // 对齐到 16 字节边界
+                        //r_base_addr        <= {io_master_araddr[31:4], 4'b0000}; // 对齐到 16 字节边界
+                        r_base_addr        <= io_master_araddr;
                         r_id               <= io_master_arid;
                         r_len              <= io_master_arlen;    // << 捕获突发长度 ARLEN
                         r_burst            <= io_master_arburst;  // << 捕获突发类型 ARBURST

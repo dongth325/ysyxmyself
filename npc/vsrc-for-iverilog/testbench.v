@@ -158,7 +158,7 @@ module testbench;
 
     initial begin
     #10 reset = 0;
-    #1000000 $finish;
+    #10000000 $finish;
     end
 
     initial begin
