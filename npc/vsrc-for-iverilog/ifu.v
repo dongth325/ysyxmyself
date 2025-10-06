@@ -252,6 +252,7 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
                     
                     if (idu_ready) begin
                         next_state = IDLE;
+                        $display("ifu_inst = 0x%08x", idu_inst);
                     end
                 end else begin
                     // 缓存未命中，发起内存访问
@@ -307,7 +308,7 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
                 // 只有当IDU准备好时才回到IDLE
                 if (idu_ready) begin
                     next_state = IDLE;
-                  //  $display("ifu_inst = 0x%08x", idu_inst);
+                    $display("ifu_inst = 0x%08x", idu_inst);
                 end
             end
             

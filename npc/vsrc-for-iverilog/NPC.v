@@ -295,7 +295,7 @@ wire [3:0]  ifu_rid;
 
 
 // CLINT地址范围定义
-localparam CLINT_BASE = 32'h0200_0000;
+localparam CLINT_BASE = 32'ha000_0000;
 localparam CLINT_SIZE = 32'h0001_0000;  // 64KB空间
 
 // 从arbiter获取的原始arvalid信号

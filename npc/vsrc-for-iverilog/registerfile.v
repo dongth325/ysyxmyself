@@ -99,7 +99,12 @@ module ysyx_24090012_RegisterFile #(parameter ADDR_WIDTH = 5, parameter DATA_WID
         // 执行写入操作
         if (saved_wen && saved_waddr[3:0] != 0) begin
           rf[saved_waddr[3:0]] <= saved_wdata;
+          if (saved_waddr[3:0] == 4'd2) begin
+           // $display(">> WBU: Writing SP (x2) <<");
+         // $display(" | PC: %h | INST: %h | WDATA: %h | NUM: %d", saved_pc, saved_lsu_to_wbu_inst, saved_wdata, num_r);
+            end
         end
+
 
         wbu_back_to_idu_num <= num_r;
 

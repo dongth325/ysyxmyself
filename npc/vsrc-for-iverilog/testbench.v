@@ -158,11 +158,11 @@ module testbench;
 
     initial begin
     #10 reset = 0;
-    #1000000 $finish;
+    #1000000000 $finish;
     end
 
     initial begin
-        $dumpfile("wave.vcd");
-        $dumpvars(0, testbench);
+        //$dumpfile("wave.vcd");
+        //$dumpvars(0, testbench);
     end
 endmodule

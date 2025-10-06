@@ -43,6 +43,7 @@ module pmem (
     // 参数与内存
     parameter MEM_BASE = 32'h80000000;
     parameter MEM_SIZE = 128 * 1024 * 1024 / 4;  // 128MB -> words
+    //parameter MEM_SIZE =  1024 / 4;  // 128MB -> words
     reg [31:0] mem [0:MEM_SIZE-1]; // 内存以小端序格式存储数据
 
     // 写通道状态
@@ -70,10 +71,10 @@ module pmem (
     initial begin
         for (i = 0; i < MEM_SIZE; i = i + 1) mem[i] = 32'h0;
         
-        $display("INFO: Attempting to load program.hex...");
-        $readmemh("/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/am-kernels/tests/cpu-tests/build/program.hex", mem);
-        $display("INFO: Program load complete.");
-        $display("DEBUG: First Instruction (mem[0]) should be: %h", mem[0]); 
+       // $display("INFO: Attempting to load program.hex...");
+        $readmemh("/home/dongtaiheng/desktopp/ffuck/rt-thread-am/bsp/abstract-machine/build/program.hex", mem);
+       // $display("INFO: Program load complete.");
+       // $display("DEBUG: First Instruction (mem[0]) should be: %h", mem[0]); 
 
         w_state = 0; w_addr = 0; w_id = 0; w_idx = 0;
         r_state = 0; r_base_addr = 0; r_id = 0; r_cnt = 0; r_idx = 0;
@@ -118,18 +119,22 @@ module pmem (
                     if (io_master_wvalid && io_master_wready) begin
                         if (w_addr >= MEM_BASE && w_addr < MEM_BASE + (MEM_SIZE<<2)) begin
                             w_idx = (w_addr - MEM_BASE) >> 2;
-                            // 写入时按照小端序处理 wdata
-                            if (io_master_wstrb[0]) mem[w_idx][7:0]   <= io_master_wdata[7:0];
-                            if (io_master_wstrb[1]) mem[w_idx][15:8]  <= io_master_wdata[15:8];
-                            if (io_master_wstrb[2]) mem[w_idx][23:16] <= io_master_wdata[23:16];
-                            if (io_master_wstrb[3]) mem[w_idx][31:24] <= io_master_wdata[31:24];
+                            
+                            if (io_master_wstrb[0]) mem[w_idx][7:0]   <= io_master_wdata[31:24];
+                            if (io_master_wstrb[1]) mem[w_idx][15:8]  <= io_master_wdata[23:16];
+                            if (io_master_wstrb[2]) mem[w_idx][23:16] <= io_master_wdata[15:8];
+                            if (io_master_wstrb[3]) mem[w_idx][31:24] <= io_master_wdata[7:0];
                         end
+
+                         
+                       
                         io_master_wready <= 1'b0;
                         io_master_bvalid <= 1'b1;
                         io_master_bresp  <= 2'b00;
                         io_master_bid    <= w_id;
                         w_state          <= 2;
                     end
+                   
                 end
                 2: begin
                     if (io_master_bready) begin
@@ -173,7 +178,8 @@ module pmem (
                     
                     if (io_master_arvalid && io_master_arready) begin
                         // 1. 捕获地址、ID、突发长度和类型
-                        r_base_addr        <= {io_master_araddr[31:4], 4'b0000}; // 对齐到 16 字节边界
+                        //r_base_addr        <= {io_master_araddr[31:4], 4'b0000}; // 对齐到 16 字节边界
+                        r_base_addr        <= io_master_araddr;
                         r_id               <= io_master_arid;
                         r_len              <= io_master_arlen;    // << 捕获突发长度 ARLEN
                         r_burst            <= io_master_arburst;  // << 捕获突发类型 ARBURST
