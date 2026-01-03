@@ -43,7 +43,7 @@ module pmem (
     // 参数与内存
     parameter MEM_BASE = 32'h80000000;
     parameter MEM_SIZE = 128 * 1024 * 1024 / 4;  // 128MB -> words
-    //parameter MEM_SIZE =  1024 / 4;  // 128MB -> words
+    
     reg [31:0] mem [0:MEM_SIZE-1]; // 内存以小端序格式存储数据
 
     // 写通道状态
@@ -72,9 +72,9 @@ module pmem (
         for (i = 0; i < MEM_SIZE; i = i + 1) mem[i] = 32'h0;
         
        // $display("INFO: Attempting to load program.hex...");
-        $readmemh("/home/dongtaiheng/desktopp/ffuck/rt-thread-am/bsp/abstract-machine/build/program.hex", mem);
-       // $display("INFO: Program load complete.");
-       // $display("DEBUG: First Instruction (mem[0]) should be: %h", mem[0]); 
+        $readmemh("/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/am-kernels/benchmarks/microbench/build/program.hex", mem);
+        $display("INFO: Program load complete.");
+        $display("DEBUG: First Instruction (mem[0]) should be: %h", mem[0]); 
 
         w_state = 0; w_addr = 0; w_id = 0; w_idx = 0;
         r_state = 0; r_base_addr = 0; r_id = 0; r_cnt = 0; r_idx = 0;

@@ -17,7 +17,7 @@ module ysyx_24090012_IFU (
 
     // AXI4 Interface for MROM
     input  wire         io_master_arready,
-    output          io_master_arvalid,
+    output  wire        io_master_arvalid,
     output wire [31:0]  io_master_araddr,
     output wire [3:0]   io_master_arid,
     output wire [7:0]   io_master_arlen,
@@ -65,16 +65,21 @@ localparam WAIT_IDU    = 3'b100;
 
     // 寄存器定义
     reg [2:0] state;
-    reg [2:0] next_state;
-    reg [31:0] saved_pc;    // 锁存的PC
-    reg [3:0]  curr_id;     // 当前事务ID
+   // reg [2:0] state = IDLE;
+    //reg [2:0] next_state;
+    reg [2:0] next_state = IDLE;
+  //  reg [31:0] saved_pc;    // 锁存的PC
+    reg [31:0] saved_pc = 32'h7FFFFFFC; // 初始PC值 是30000000 - 4.为了下面默认saved pc = saved pc +4初始值
+  //  reg [3:0]  curr_id;     // 当前事务ID
+    reg [3:0]  curr_id = 4'h0;
 
     reg [31:0] ifu_count;  // IFU取指计数器
     reg [31:0] hit_count;   // 缓存命中计数
     reg [31:0] miss_count;  // 缓存未命中计数
 
 
-    reg [1:0] burst_count;  // 突发传输计数器  突发传输icache
+   // reg [1:0] burst_count;  // 突发传输计数器  突发传输icache
+    reg [1:0] burst_count = 2'b00;  // 初始化burst计数器   突发传输icache
     reg [TAG_BITS-1:0] cache_tags [0:CACHE_LINES-1];  // 标签数组
     reg cache_valid [0:CACHE_LINES-1];                // 有效位数组
     //reg [31:0] cache_data [0:CACHE_LINES-1];          // 数据数组
@@ -92,7 +97,7 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
     wire cache_hit = cache_valid[req_index] && (cache_tags[req_index] == req_tag);
 
 
-
+   
 
 
     always @(posedge clock or posedge reset) begin
@@ -252,8 +257,10 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
                     
                     if (idu_ready) begin
                         next_state = IDLE;
-                        $display("ifu_inst = 0x%08x", idu_inst);
-                    end
+                      //  $display("ifu_inst = 0x%08x", idu_inst);
+                    end  else begin//add
+                        next_state = CHECK_CACHE; // IDU not ready, 保持在当前状态等待 add
+                    end //add
                 end else begin
                     // 缓存未命中，发起内存访问
                     next_state = FETCH_ADDR;
@@ -285,7 +292,7 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
                         idu_valid = 1'b1;
                         if (idu_ready) begin
                             next_state = IDLE;
-                            $display("ifu_inst = 0x%08x", idu_inst);
+                        //    $display("ifu_inst = 0x%08x", idu_inst);
                         end else begin
                             next_state = WAIT_IDU;  // IDU未准备好，进入等待状态
                         end
@@ -308,7 +315,7 @@ wire [1:0] word_offset = saved_pc[3:2];  // 添加: 块内字偏移，用于选�
                 // 只有当IDU准备好时才回到IDLE
                 if (idu_ready) begin
                     next_state = IDLE;
-                    $display("ifu_inst = 0x%08x", idu_inst);
+                   // $display("ifu_inst = 0x%08x", idu_inst);
                 end
             end
             

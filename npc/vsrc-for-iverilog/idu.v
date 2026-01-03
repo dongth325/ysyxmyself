@@ -68,7 +68,9 @@ module ysyx_24090012_IDU(
     localparam IDLE = 1'b0;
     localparam BUSY = 1'b1;
 
-    reg state, next_state;
+    //reg state, next_state;
+    reg state = IDLE;
+    reg next_state = IDLE;
         // IDU流水线寄存器
     reg [31:0] inst_r;        // 指令寄存器
    
@@ -162,11 +164,16 @@ wire use_rs2 = (opcode == 7'b0110011 || opcode == 7'b1100011 ||
 
    assign branch_target_pc = exu_next_pc;
 
-always @(posedge clock) begin
-   // 当指令被EXU接收执行时，根据opcode更新指令类型计数器
-   
-end
 
+   always @(posedge clock or posedge reset) begin
+    if (ifu_valid && ifu_ready) begin
+     //   inst_r <= inst;
+      //  pc_r <= ifu_to_idu_pc;
+      //  idu_count <= idu_count + 1;  // idu count计数器
+      //  num_r <= num;
+        end
+
+   end
 
 
 
@@ -179,6 +186,7 @@ end
             pc_r <= 32'b0;
             num_r <= 64'h0;
            
+           
             idu_count <= 32'h0;
             compute_inst_count <= 32'h0;
             load_inst_count <= 32'h0;
@@ -189,65 +197,19 @@ end
             other_inst_count <= 32'h0;
 
         end 
-        else begin
-            
-            if (state == BUSY && next_state == IDLE && exu_valid && exu_ready) begin
 
-                case (opcode)
-                    7'b0010011, 7'b0110111, 7'b0110011, 7'b0010111: begin
-                        // 计算类指令: I-type, LUI, R-type, AUIPC
-                        compute_inst_count <= compute_inst_count + 1;
-                    end
-                    
-                    7'b0000011: begin
-                        // 加载指令: LW, LB, LH, LBU, LHU
-                        load_inst_count <= load_inst_count + 1;
-                    end
-                    
-                    7'b0100011: begin
-                        // 存储指令: SW, SB, SH
-                        store_inst_count <= store_inst_count + 1;
-                    end
-                    
-                    7'b1100011: begin
-                        // 分支指令: BEQ, BNE, BLT, BGE, BLTU, BGEU
-                        branch_inst_count <= branch_inst_count + 1;
-                    end
-                    
-                    7'b1101111, 7'b1100111: begin
-                        // 跳转指令: JAL, JALR
-                        jump_inst_count <= jump_inst_count + 1;
-                    end
-                    
-                    7'b1110011: begin
-                        // CSR指令: CSRRW, CSRRS, ECALL, MRET
-                        csr_inst_count <= csr_inst_count + 1;
-                    end
-                    
-                    default: begin
-                        // 其他指令
-                        other_inst_count <= other_inst_count + 1;
-                    end
-                endcase
+    else begin  
+          if (ifu_valid && ifu_ready) begin
+               inst_r <= inst;
+               pc_r <= ifu_to_idu_pc;
+               idu_count <= idu_count + 1;  // idu count计数器
+               num_r <= num;
+               end
             end
-        end
-
-         if (ifu_valid && ifu_ready) begin
-          inst_r <= inst;
-          pc_r <= ifu_to_idu_pc;
-          idu_count <= idu_count + 1;  // idu count计数器
-          num_r <= num;
-          end
 
     end
 
 
-
-
-
-
-
-   // 状态转换
     always @(posedge clock or posedge reset) begin
         if (reset) begin
             state <= IDLE;
@@ -255,6 +217,14 @@ end
             state <= next_state;
         end
     end
+
+
+
+
+
+
+
+ 
 
 
     assign    rd_wen = (opcode == 7'b0010011 || opcode == 7'b0110111 || opcode == 7'b0010111 || opcode == 7'b1110011||
@@ -288,7 +258,7 @@ end
     wire [31:0] b_imm = {{19{inst_r[31]}}, inst_r[31], inst_r[7], inst_r[30:25], inst_r[11:8], 1'b0};//branch
     wire [31:0] s_imm = {{20{inst_r[31]}}, inst_r[31:25], inst_r[11:7]};//store
     wire [31:0] l_imm = {{20{inst_r[31]}}, inst_r[31:20]};//load
- 
+
     assign imm = is_i_type ? i_imm :         //imm可以在exu中计算出
     is_load ? l_imm :
     is_jalr ? jalr_imm :
@@ -299,7 +269,7 @@ end
     is_jal ? jal_imm : 32'b0;
 
 
-    // 直接根据指令类型和功能码分配ALU操作码
+
 assign alu_op = 
 // R-type指令
 (opcode == 7'b0110011 && func3 == 3'b000 && func7 == 7'b0000000) ? 6'b000101 :  // ADD
@@ -367,30 +337,18 @@ assign alu_op =
 
 assign ifu_ready = (state == IDLE);
 
+
+
     always @(*) begin
-
        next_state = state;
-      
         exu_valid = 1'b0;
-
-
-
-   
-     
      case (state)
-
-
             IDLE: begin
-              
                 if (ifu_valid) begin
                     next_state = BUSY;
                 end
             end
- 
             BUSY: begin
-             
-    
-   
 //先检测控制冒险
     if (exu_next_pc != 32'h0 && exu_next_pc != pc_r) begin
   // 有控制冒险，阻止指令继续并立即切换状态
@@ -405,12 +363,16 @@ else if (((rs1_exu_hazard && exu_is_load && exu_reg_num != wbu_reg_num) ||
     (rs2_lsu_hazard && lsu_is_load && lsu_reg_num != wbu_reg_num)) ) begin
 // 有加载指令冒险且未解决，阻止指令继续
 exu_valid = 1'b0;
+next_state = BUSY;
+
     end else begin
       // 无冒险或冒险已解决，指令可以继续
       exu_valid = 1'b1;
       if (exu_ready) begin
         next_state = IDLE;
-      end
+      end else begin
+        next_state = BUSY;  // 明确赋值
+    end
     end
     
       end
@@ -418,18 +380,8 @@ exu_valid = 1'b0;
             default: begin
                 next_state = IDLE;
             end
-
-
         endcase
-   
   end
-
-
-
-
-
-
-
 
 
 endmodule

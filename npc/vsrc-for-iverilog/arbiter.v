@@ -92,8 +92,9 @@ module ysyx_24090012_arbiter(
     localparam IFU_READ  = 2'b10;
     localparam LSU_WRITE  = 2'b11;
     
-    reg [1:0] current_state;
-    reg [1:0] next_state;
+    //reg [1:0] current_state;
+    reg [1:0] current_state = IDLE;
+    reg [1:0] next_state = IDLE;
 
     // 状态转移逻辑
     always @(posedge clk or posedge rst) begin
