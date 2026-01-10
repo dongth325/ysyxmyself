@@ -85,7 +85,9 @@ module ysyx_24090012_EXU(
     localparam EXEC = 2'b11;
 
 
-    reg [1:0] state, next_state;
+    //reg [1:0] state, next_state;
+    reg [1:0] state = IDLE;
+    reg [1:0] next_state;
        // 输入数据寄存器
     reg [31:0] pc_r;
     reg [31:0] rs1_data_r;
@@ -320,7 +322,7 @@ always @(*) begin
     
     default: begin
       
-      $display("1114default:didnt match any inst from (exu.v)");    //综合需要注释
+   //   $display("1114default:didnt match any inst from (exu.v)");    //综合需要注释
     end
 
   endcase

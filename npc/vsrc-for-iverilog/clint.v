@@ -22,7 +22,8 @@ module ysyx_24090012_CLINT (
     localparam IDLE = 1'b0;
     localparam READ = 1'b1;
     
-    reg state;
+    //reg state;
+    reg state = IDLE;
     reg [63:0] mtime;
     reg [31:0] addr_r;
     reg [DIV_COUNTER_WIDTH-1:0] div_counter;

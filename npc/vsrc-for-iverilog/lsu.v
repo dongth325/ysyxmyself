@@ -96,18 +96,23 @@ module ysyx_24090012_LSU (
     localparam SAVE_STATE  = 3'd7; 
 
 
-    reg [31:0] exu_to_lsu_inst_r;
+    //reg [31:0] exu_to_lsu_inst_r;
+    reg [31:0] exu_to_lsu_inst_r = 32'h00000000;
 
     // 寄存器定义
-    reg [2:0] state;
-    reg [31:0] saved_addr;//读写地址
-    reg [31:0] saved_wdata;
+    //reg [2:0] state;
+    reg [2:0] state = IDLE;
+   // reg [31:0] saved_addr;//读写地址
+    reg [31:0] saved_addr = 32'h00000000;
+    //reg [31:0] saved_wdata;
+    reg [31:0] saved_wdata = 32'h00000000;
     
      // 组合逻辑：状态转换和控制信号生成
     reg [2:0] next_state;
     reg [31:0] processed_rdata;//用于对读出数据进行寄存，最后赋值给mem rdata
 
-    reg [3:0]  curr_id;    // 当前事务ID
+  //  reg [3:0]  curr_id;    // 当前事务ID
+    reg [3:0]  curr_id = 4'h0;
   
    // reg [4:0]  saved_rd;//流水线流水线流水线
    // reg        saved_rd_wen;//流水线流水线流水线
@@ -116,7 +121,8 @@ module ysyx_24090012_LSU (
     reg [31:0] saved_next_pc;
    
 
-    reg  [31:0] saved_pc;
+   //reg  [31:0] saved_pc;
+    reg [31:0] saved_pc = 32'h00000000; // 初始PC值 是30000000 - 4.为了下面默认saved pc = saved pc +4初始值
 
   
  
@@ -166,22 +172,22 @@ wire saved_wen = (opcode == 7'b0100011);
 always @(posedge clock) begin
     // 写响应检测
     if (io_master_bresp != 2'b00) begin
-        $display("LSU error! bid expected: %h, received: %h, bresp: %b inst = %h from lsu.v line:169 num = %h", 
+      /*  $display("LSU error! bid expected: %h, received: %h, bresp: %b inst = %h from lsu.v line:169 num = %h", 
                 curr_id, 
                 io_master_bid, 
                 io_master_bresp,
                 exu_to_lsu_inst_r,
-                num_r);     //综合需要注释
+                num_r);  */   //综合需要注释
     end
     
     // 读响应检测
     if (io_master_rresp != 2'b00) begin
-        $display("LSU read ID wrong! curr_id: %h, rid: %h, rresp: %b inst = %h from lsu.v line:179 num = %h",
+      /*  $display("LSU read ID wrong! curr_id: %h, rid: %h, rresp: %b inst = %h from lsu.v line:179 num = %h",
                 curr_id,
                 io_master_rid,
                 io_master_rresp,
                 exu_to_lsu_inst_r,
-                num_r);   //综合需要注释
+                num_r);   *///综合需要注释
     end
 end
 
@@ -195,6 +201,7 @@ end
             lsu_count <= 32'h0;
             read_count <= 32'h0;
             write_count <= 32'h0;
+            num_r <= 64'h0;
 
         end else begin
             // 在IDLE状态且有新请求时保存数据
@@ -349,12 +356,12 @@ end
 
                    else begin
             // 写操作失败，记录错误
-            $display("LSU write error! bid expected: %h, received: %h, bresp: %b inst = %h from lsu.v line:183 num = %h", 
+         /*   $display("LSU write error! bid expected: %h, received: %h, bresp: %b inst = %h from lsu.v line:183 num = %h", 
                     curr_id, 
                     io_master_bid, 
                     io_master_bresp,
                     exu_to_lsu_inst_r,
-                    num_r);     //综合需要注释
+                    num_r); */    //综合需要注释
             
             // 返回IDLE状态
                    next_state = IDLE;
@@ -386,12 +393,12 @@ end
                     end
                     else begin
                         // 写操作失败，记录错误
-                        $display("LSU write error! bid expected: %h, received: %h, bresp: %b inst = %h from lsu.v line:187 num = %h", 
+                     /*   $display("LSU write error! bid expected: %h, received: %h, bresp: %b inst = %h from lsu.v line:187 num = %h", 
                                 curr_id, 
                                 io_master_bid, 
                                 io_master_bresp,
                                 exu_to_lsu_inst_r,
-                                num_r);     //综合需要注释
+                                num_r);    */ //综合需要注释
                         
                         // 返回IDLE状态
                         next_state = IDLE;

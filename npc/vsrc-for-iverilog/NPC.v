@@ -1,5 +1,5 @@
 module ysyx_24090012(
-    input         clock,          // 综合需要改成clk
+    input         clk,          // 综合需要改成clk
     input         reset,          // 改名：rst -> reset
     input         io_interrupt,   // 外部中断信号，永0
 
@@ -348,7 +348,7 @@ wire [3:0]  arbiter_rid = is_clint_addr ? arbiter_arid : io_master_rid;  // 对�
 //id原路返回，不确定实现流水线后是否正确
 
 ysyx_24090012_CLINT clint_inst (
-    .clk           (clock),
+    .clk           (clk),
     .rst           (reset),
     .s_axi_arvalid (clint_arvalid),
     .s_axi_arready (clint_arready),
@@ -362,7 +362,7 @@ ysyx_24090012_CLINT clint_inst (
 
 // 实例化arbiter
 ysyx_24090012_arbiter arbiter(
-    .clk(clock),
+    .clk(clk),
     .rst(reset),
 
     // LSU Master Interface
@@ -461,7 +461,7 @@ ysyx_24090012_arbiter arbiter(
 
   // 实例化各个模块
   ysyx_24090012_IFU ifu(
-    .clock(clock),
+    .clock(clk),
     .reset(reset),
     .state_out(ifu_state),
         // Control Interface
@@ -495,7 +495,7 @@ ysyx_24090012_arbiter arbiter(
 );
  // 修改IDU实例化
 ysyx_24090012_IDU idu(
-    .clock(clock),
+    .clock(clk),
     .reset(reset),
       .ifu_to_idu_pc(ifu_to_idu_pc),  // 从IFU来的PC
       .idu_to_exu_pc(idu_to_exu_pc),  // 输出到EXU的PC
@@ -554,7 +554,7 @@ ysyx_24090012_IDU idu(
 
     .lsu_to_wbu_inst(lsu_to_wbu_inst),
     .next_pc(wbu_next_pc),
-    .clock(clock),
+    .clock(clk),
     .pc(pc),
     .reset(reset),
     .raddr1(rs1),
@@ -590,7 +590,7 @@ ysyx_24090012_IDU idu(
   
   ysyx_24090012_EXU exu(
     .rst(reset),
-    .clk(clock),
+    .clk(clk),
 
   .pc(idu_to_exu_pc),
   .rs1_data(rs1_data_out),
@@ -667,7 +667,7 @@ ysyx_24090012_IDU idu(
   .wbu_csr_valid(wbu_csr_valid),
   .wbu_csr_ready(wbu_csr_ready),
   .pc(lsu_out_pc),
-  .clk(clock),
+  .clk(clk),
   .rst(reset),
   .csr_addr(csr_addr),
 
@@ -685,7 +685,7 @@ ysyx_24090012_IDU idu(
 
     // 实例化LSU
     ysyx_24090012_LSU lsu(
-    .clock(clock),
+    .clock(clk),
     .reset(reset),
      .next_pc(next_pc),
    // .mem_unsigned(mem_unsigned),  // 无符号处理flag 
@@ -782,11 +782,11 @@ ysyx_24090012_IDU idu(
     );
 
 
-    always @(posedge clock) begin// 更新 PC
+    always @(posedge clk) begin// 更新 PC
       if (inst == 32'h00100073 && ifu_to_idu_valid == 1) begin  // ebreak 指令  用于没有cache的ifu，如果不加这个判断会在bootloader取到ebreak就会停止仿真
-            $display("pc = 0x%08x from NPC", pc);
-            $display("inst = 0x%08x from NPC",inst);
-            $display("HIT GOOD TRAP");
+           // $display("pc = 0x%08x from NPC", pc);
+           // $display("inst = 0x%08x from NPC",inst);
+           // $display("HIT GOOD TRAP");
          // ebreak(regfile.rf[10]);       // 调用 DPI-C 函数     综合需要注释
         end 
       end
