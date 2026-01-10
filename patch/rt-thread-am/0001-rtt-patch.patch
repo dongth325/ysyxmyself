@@ -1,0 +1,222 @@
+From ce94250ab0ecaa4b17bdeb8c52876376d1edd5ec Mon Sep 17 00:00:00 2001
+From: 111111dth <1111111>
+Date: Sat, 10 Jan 2026 12:39:31 +0800
+Subject: [PATCH] =?UTF-8?q?=E7=94=9F=E6=88=90rtt=20patch?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ bsp/abstract-machine/extra1.ld     | 53 +++++++++++++++++
+ bsp/abstract-machine/extra2.ld     |  0
+ bsp/abstract-machine/src/context.c | 91 +++++++++++++++++++++++++++---
+ bsp/abstract-machine/src/uart.c    |  7 +++
+ 4 files changed, 144 insertions(+), 7 deletions(-)
+ create mode 100644 bsp/abstract-machine/extra1.ld
+ create mode 100644 bsp/abstract-machine/extra2.ld
+
+diff --git a/bsp/abstract-machine/extra1.ld b/bsp/abstract-machine/extra1.ld
+new file mode 100644
+index 000000000..28a607ab9
+--- /dev/null
++++ b/bsp/abstract-machine/extra1.ld
+@@ -0,0 +1,53 @@
++
++
++/*打算直接在ysyxsoclinker里将内容复制过去，所以ysyxsoc运行rtt的时候取消链接文件，也就是使用extra2,（空的，这一个方案暂时不用*/
++
++
++SECTIONS {
++  
++ .data.extra :  {  
++    /* section information for finsh shell */
++    __fsymtab_start = .;
++    KEEP(*(FSymTab))
++    __fsymtab_end = .;
++    . = ALIGN(8);
++    __vsymtab_start = .;
++    KEEP(*(VSymTab))
++    __vsymtab_end = .;
++    . = ALIGN(8);
++
++    /* section information for initial. */
++    . = ALIGN(8);
++    __rt_init_start = .;
++    KEEP(*(SORT(.rti_fn*)))
++    __rt_init_end = .;
++    . = ALIGN(8);
++
++    __rt_utest_tc_tab_start = .;
++    KEEP(*(UtestTcTab))
++    __rt_utest_tc_tab_end = .;
++
++    . = ALIGN(8);
++    __am_apps_data_start = .;
++    *(__am_apps.data*)
++    *(__am_apps.sdata*)
++    __am_apps_data_end = .;
++    . = ALIGN(8);
++  } >sdram
++
++  /* 导出 .data.extra 段的加载地址 */
++  __data_extra_lma = LOADADDR(.data.extra);
++
++
++   
++  .bss.extra (NOLOAD): {
++    . = ALIGN(8);
++    __am_apps_bss_start = .;
++    *(__am_apps.bss*)
++    *(__am_apps.sbss*)
++    *(__am_apps.scommon*)
++    __am_apps_bss_end = .;
++    . = ALIGN(8);
++  } >sdram
++}
++INSERT AFTER .bss;   
+\ No newline at end of file
+diff --git a/bsp/abstract-machine/extra2.ld b/bsp/abstract-machine/extra2.ld
+new file mode 100644
+index 000000000..e69de29bb
+diff --git a/bsp/abstract-machine/src/context.c b/bsp/abstract-machine/src/context.c
+index ee38829ae..9af384e30 100644
+--- a/bsp/abstract-machine/src/context.c
++++ b/bsp/abstract-machine/src/context.c
+@@ -1,12 +1,37 @@
+ #include <am.h>
+ #include <klib.h>
+ #include <rtthread.h>
++#define STACK_SIZE 4096  // 设置栈大小为 4KB
++
++void wrap(void *arg) {//ddddddddddddddddddddddddddddddddddd
++  // parse paramater
++  rt_ubase_t *stack_bottom = (rt_ubase_t *)arg;
++  rt_ubase_t tentry = *stack_bottom; 
++  stack_bottom--;
++  rt_ubase_t texit = *stack_bottom; 
++  stack_bottom--;
++  rt_ubase_t parameter = *stack_bottom; 
++  // function call
++  ((void(*)())tentry) (parameter);
++  ((void(*)())texit) ();
++}//ddddddddddddddddddddddddddddddddddddddddd
+ 
+ static Context* ev_handler(Event e, Context *c) {
+-  switch (e.event) {
++  switch (e.event) {//ddddddddddddddddddddddddddddddddddddddddddddddddd
++    case EVENT_YIELD:  {
++      rt_thread_t cp = rt_thread_self(); 
++      rt_ubase_t to = cp->user_data;
++      c = *(Context**)to;
++    //  c->mepc += 4;
++      break;
++    }
++    default: printf("Unhandled event ID = %d\n", e.event); assert(0);
++  }
++  return c;//dddddddddddddddddddddddddddddddddddddddddd
++  /*switch (e.event) {
+     default: printf("Unhandled event ID = %d\n", e.event); assert(0);
+   }
+-  return c;
++  return c;*/
+ }
+ 
+ void __am_cte_init() {
+@@ -14,18 +39,70 @@ void __am_cte_init() {
+ }
+ 
+ void rt_hw_context_switch_to(rt_ubase_t to) {
+-  assert(0);
++rt_thread_t pcb = rt_thread_self();//dddddddddddddddddddddddddddddddddddd
++  rt_ubase_t user_data_replicator = pcb->user_data;
++  pcb->user_data = to;
++  yield();
++  pcb->user_data = user_data_replicator;//ddddddddddddddddddddddddddddddddddd
++ // assert(0);
+ }
+ 
+ void rt_hw_context_switch(rt_ubase_t from, rt_ubase_t to) {
+-  assert(0);
++ rt_thread_t pcb = rt_thread_self();//ddddddddddddddddddddddddd
++  rt_ubase_t user_data_replicator = pcb->user_data;
++  pcb->user_data = to;
++  *(Context**)from = pcb->sp;
++  yield();
++  pcb->user_data = user_data_replicator;//dddddddddddddddddddddddddddddddd
++  //assert(0);
+ }
+ 
+ void rt_hw_context_switch_interrupt(void *context, rt_ubase_t from, rt_ubase_t to, struct rt_thread *to_thread) {
+   assert(0);
+ }
+ 
++/*rt_uint8_t *rt_hw_stack_init(void *tentry, void *parameter, rt_uint8_t *stack_addr, void *texit) {
++ stack_addr = (rt_uint8_t*)((uintptr_t)stack_addr & ~(sizeof(uintptr_t) - 1));//ddddddddddddddddddddddddddddddddddddddddddddddddddddd
++ 
++  // create context
++  Area stack;
++  stack.start = stack_addr - STACK_SIZE;
++  stack.end = stack_addr;
++  Context *cp = kcontext(stack, wrap, (void *)(stack.end - sizeof(Context) - 1));
++  // set parameter
++  rt_ubase_t *stack_bottom = (rt_ubase_t *)(stack.end - sizeof(Context) - 1);
++  *stack_bottom = (rt_ubase_t)tentry;
++  stack_bottom--;
++  *stack_bottom = (rt_ubase_t)texit;
++  stack_bottom--;
++  *stack_bottom = (rt_ubase_t)parameter;
++
++  return (rt_uint8_t *)cp;//ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
++  //assert(0);
++  //return NULL;
++}*/
+ rt_uint8_t *rt_hw_stack_init(void *tentry, void *parameter, rt_uint8_t *stack_addr, void *texit) {
+-  assert(0);
+-  return NULL;
+-}
++  // 确保栈地址对齐
++  stack_addr = (rt_uint8_t*)((uintptr_t)stack_addr & ~(sizeof(uintptr_t) - 1));
++  
++  // create context
++  Area stack;
++  stack.start = stack_addr - STACK_SIZE;
++  stack.end = stack_addr;
++  
++  // 计算对齐的参数地址 - 移除了-1，确保4字节对齐
++  void *aligned_arg = (void *)(((uintptr_t)stack.end - sizeof(Context)) & ~0x3);
++  
++  // 使用对齐后的地址创建上下文
++  Context *cp = kcontext(stack, wrap, aligned_arg);
++  
++  // 使用相同的对齐地址设置参数
++  rt_ubase_t *stack_bottom = (rt_ubase_t *)aligned_arg;
++  *stack_bottom = (rt_ubase_t)tentry;
++  stack_bottom--;
++  *stack_bottom = (rt_ubase_t)texit;
++  stack_bottom--;
++  *stack_bottom = (rt_ubase_t)parameter;
++
++  return (rt_uint8_t *)cp;
++}
+\ No newline at end of file
+diff --git a/bsp/abstract-machine/src/uart.c b/bsp/abstract-machine/src/uart.c
+index e4eb86689..86904c973 100644
+--- a/bsp/abstract-machine/src/uart.c
++++ b/bsp/abstract-machine/src/uart.c
+@@ -39,6 +39,13 @@ static int _uart_putc(struct rt_serial_device *serial, char c) {
+ static int _uart_getc(struct rt_serial_device *serial) {
+   static const char *p = "help\ndate\nversion\nfree\nps\npwd\nls\nmemtrace\nmemcheck\nutest_list\n";
+   return (*p != '\0' ? *(p ++) : -1);
++ /*if (*p != '\0') {
++  return *(p++);
++} else {
++  AM_UART_RX_T rx;
++  ioe_read(AM_UART_RX, &rx);
++  return rx.data;
++}*/
+ }
+ 
+ const struct rt_uart_ops _uart_ops = {
+-- 
+2.34.1
+
