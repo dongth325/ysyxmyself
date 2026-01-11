@@ -2,12 +2,14 @@
 #define DIFFTEST_LOADER_H
 
 #include <dlfcn.h>
-#include </home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/src/isa/riscv32/include/isa-def.h>
-#include "/home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/common.h"
-#include "VysyxSoCFull.h" 
+// 简化为标准包含方式
+#include <isa-def.h>
+#include <common.h>
+#include <isa.h>
+#include "VysyxSoCFull.h"
 
 
-#include </home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu/include/isa.h>        // 这个是定义与 ISA 相关的头文件
+
 #include <memory/paddr.h>  // 如果你有物理地址相关的头文件，包含它
 #include <cstddef>        // 包含 size_t 定义
 #include <cstdbool>       // 包含 bool 定义

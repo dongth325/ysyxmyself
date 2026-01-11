@@ -6,9 +6,11 @@
 !*.[cSh]
 !*.v
 !*.cc
+!*.nxdc
+!*.vvp
 !*.cpp
 !.gitignore
 !README.md
 !*.vcd 
 !*.d        
-build/
+

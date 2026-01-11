@@ -25,7 +25,7 @@ VSRCS += ../ysyxSoC/build/ysyxSoCFull.v
 TOP = ysyxSoCFull
 EXE = V$(TOP)
 # NEMU 根目录
-NEMU_HOME = /home/dongtaiheng/desktopp/ffuck/ysyx-workbench/nemu
+NEMU_HOME ?= $(shell echo $$NEMU_HOME)
 # 包含路径
 INCLUDE_PATHS = -I$(NEMU_HOME)/include \
                 -I$(NEMU_HOME)/src/isa/$(GUEST_ISA)/include \
