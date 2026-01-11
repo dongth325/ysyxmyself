@@ -7,8 +7,9 @@
 !*.v
 !*.cc
 !*.cpp
+!*.nxdc
 !.gitignore
 !README.md
 !*.vcd 
 !*.d        
-build/
+
