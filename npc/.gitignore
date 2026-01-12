@@ -11,6 +11,5 @@
 !*.cpp
 !.gitignore
 !README.md
-!*.vcd 
 !*.d        
 
