@@ -298,7 +298,7 @@ src = (uint32_t*)_data_extra_lma;
 dst = (uint32_t*)_data_extra_vma_start;   //在ysyxsoclinker2中data extra lma前面是一道杠，其余extra的是两道
 words = (_data_extra_vma_end - _data_extra_vma_start) / 4;
 
-
+/*
 // 检查是否需要复制
 if (src == dst) {
   // 源地址和目标地址相同，不需要复制
@@ -319,7 +319,7 @@ if (src == dst) {
   }
   putch('\n');
 }
-
+*/
 //清灵没必要，没有写入本来就是0
 /*src = (uint32_t*)_bss_extra_lma;
 dst = (uint32_t*)_bss_extra_vma_start;
