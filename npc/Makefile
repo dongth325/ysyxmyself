@@ -156,6 +156,32 @@ clean:
 
 
 
+
+# ...existing code...
+
+sim-iverilog:
+	@hexdump -v -e '1/4 "%08x" "\n"' $(IMG) > build/program.hex
+	iverilog -o build/sim_iverilog build/ysyx_24090014.v
+	vvp build/sim_iverilog
+
+
+
+verilog:
+	@mkdir -p build
+	cp vsrc-for-iverilogall.v build/ysyx_24090014.v
+
+
+
+sim-iverilog-netlist:
+	@mkdir -p build
+	@hexdump -v -e '1/4 "%08x" "\n"' $(IMG) > build/program.hex
+	iverilog -o build/sim_netlist vsrc-for-iverilogall.v $(NETLIST) $(CELLS)
+	vvp build/sim_netlist
+
+
+
+
+
 # 声明伪目标
 .PHONY: all sim run gdb clean lint  # 添加 lint 到伪目标
 
