@@ -10,10 +10,10 @@ AM_SRCS := riscv/spike/trm.c \
            platform/dummy/mpe.c \
 
 CFLAGS    += -fdata-sections -ffunction-sections
-LDFLAGS   += -T $(AM_HOME)/am/src/riscv/spike/linker.ld
+LDSCRIPTS += $(AM_HOME)/am/src/riscv/spike/linker.ld
 LDFLAGS   += --gc-sections -e _start
 
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 .PHONY: $(AM_HOME)/am/src/riscv/spike/trm.c
 
-image: $(IMAGE).elf
+image: image-dep

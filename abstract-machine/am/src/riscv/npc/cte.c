@@ -8,16 +8,13 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
-        case 17:
-      ev.event=EVENT_YIELD;  //printf("ev.event2=%d\n",ev.event); 
-      break;
       default: ev.event = EVENT_ERROR; break;
     }
 
     c = user_handler(ev, c);
     assert(c != NULL);
   }
-  
+
   return c;
 }
 
@@ -34,11 +31,7 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-   Context *cp = (Context *)(kstack.end - sizeof(Context));//ddddddddddddddddddd
-  cp->mepc = (uintptr_t)entry - 4;//-4是为了方便后面统一加4dddddddddddddddddddd
-   cp->gpr[10] = (uintptr_t)(arg);// a0传参ddddddddddddddddddddddd
-  return cp;
-  //return NULL;
+  return NULL;
 }
 
 void yield() {
